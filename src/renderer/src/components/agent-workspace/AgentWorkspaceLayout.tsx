@@ -19,9 +19,7 @@ import { AgentComposer } from './AgentComposer'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
-import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
 import { AgentTimeline } from './AgentTimeline'
-import { runWorktreeDelete } from '../sidebar/delete-worktree-flow'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
@@ -42,17 +40,12 @@ function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspacePro
 
 function getSelectedThread(
   snapshot: AgentWorkspaceSnapshot,
-  project: AgentWorkspaceProject | null,
-  selectedThreadId?: string | null
+  project: AgentWorkspaceProject | null
 ): AgentWorkspaceThread | null {
   const projectThreads = project
     ? snapshot.threads.filter((thread) => thread.worktreeId === project.id)
     : snapshot.threads
-  return (
-    (selectedThreadId ? projectThreads.find((thread) => thread.id === selectedThreadId) : null) ??
-    projectThreads[0] ??
-    null
-  )
+  return projectThreads[0] ?? null
 }
 
 function getThreadTimeline(
@@ -239,18 +232,9 @@ export function AgentWorkspaceLayout({
   snapshot: AgentWorkspaceSnapshot
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
-  const defaultProject = getSelectedProject(snapshot)
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    () => defaultProject?.id ?? null
-  )
-  const selectedProjectFromState =
-    snapshot.projects.find((project) => project.id === selectedProjectId) ?? null
-  const selectedProject = selectedProjectFromState ?? defaultProject
+  const selectedProject = getSelectedProject(snapshot)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const defaultThread = getSelectedThread(snapshot, selectedProject)
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
-    () => defaultThread?.id ?? null
-  )
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
       getRightPanelStateInput(
@@ -261,11 +245,8 @@ export function AgentWorkspaceLayout({
       )
     )
   )
-  const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
+  const selectedThread = getSelectedThread(snapshot, selectedProject)
   const openDiff = useAppStore((state) => state.openDiff)
-  const openModal = useAppStore((state) => state.openModal)
-  const setActiveWorktree = useAppStore((state) => state.setActiveWorktree)
-  const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
@@ -279,26 +260,6 @@ export function AgentWorkspaceLayout({
   )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
-
-  useEffect(() => {
-    if (previousActiveWorktreeIdRef.current !== snapshot.activeWorktreeId) {
-      previousActiveWorktreeIdRef.current = snapshot.activeWorktreeId
-      const nextProject = getSelectedProject(snapshot)
-      setSelectedProjectId(nextProject?.id ?? null)
-      setSelectedThreadId(getSelectedThread(snapshot, nextProject)?.id ?? null)
-      return
-    }
-
-    if (selectedProjectId !== (selectedProject?.id ?? null)) {
-      setSelectedProjectId(selectedProject?.id ?? null)
-    }
-  }, [selectedProject, selectedProjectId, snapshot])
-
-  useEffect(() => {
-    if (selectedThreadId !== (selectedThread?.id ?? null)) {
-      setSelectedThreadId(selectedThread?.id ?? null)
-    }
-  }, [selectedThread, selectedThreadId])
 
   useEffect(() => {
     if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
@@ -327,52 +288,8 @@ export function AgentWorkspaceLayout({
     )
   }
 
-  function handleCreateProjectWorktree(project: AgentWorkspaceProject): void {
-    if (project.canCreateWorktree !== true || !project.repoId) {
-      return
-    }
-    openModal('new-workspace-composer', {
-      initialRepoId: project.repoId,
-      telemetrySource: 'sidebar'
-    })
-  }
-
-  function handleDeleteProject(project: AgentWorkspaceProject): void {
-    if (project.canDeleteWorktree !== true) {
-      return
-    }
-    runWorktreeDelete(project.id)
-  }
-
   return (
     <AgentWorkspaceChrome
-      sidebar={
-        <AgentWorkspaceSidebar
-          projects={snapshot.projects}
-          threads={snapshot.threads}
-          selectedProjectId={selectedProject?.id ?? null}
-          selectedThreadId={selectedThread?.id ?? null}
-          activeWorktreeId={snapshot.activeWorktreeId}
-          onSelectProject={(projectId) => {
-            if (projectId !== snapshot.activeWorktreeId) {
-              setActiveWorktree(projectId)
-            }
-            setSelectedProjectId(projectId)
-            const nextProject =
-              snapshot.projects.find((project) => project.id === projectId) ?? null
-            setSelectedThreadId(getSelectedThread(snapshot, nextProject)?.id ?? null)
-          }}
-          onSelectThread={(projectId, threadId) => {
-            if (projectId !== snapshot.activeWorktreeId) {
-              setActiveWorktree(projectId)
-            }
-            setSelectedProjectId(projectId)
-            setSelectedThreadId(threadId)
-          }}
-          onCreateProjectWorktree={handleCreateProjectWorktree}
-          onDeleteProject={handleDeleteProject}
-        />
-      }
       header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
       rightPanel={
         selectedRightPanelState.collapsed ? null : (

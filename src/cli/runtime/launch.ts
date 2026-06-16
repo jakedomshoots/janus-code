@@ -40,7 +40,7 @@ export function launchOrcaApp(): void {
 
   throw new RuntimeClientError(
     'runtime_open_failed',
-    'Could not determine how to launch Orca. Start Orca manually and try again.'
+    'Could not determine how to launch Janus Code. Start Janus Code manually and try again.'
   )
 }
 
@@ -118,7 +118,9 @@ export function serveOrcaApp(
         resolve(code)
         return
       }
-      reject(new RuntimeClientError('runtime_serve_failed', `Orca serve exited via ${signal}`))
+      reject(
+        new RuntimeClientError('runtime_serve_failed', `Janus Code serve exited via ${signal}`)
+      )
     })
   })
 }
@@ -148,7 +150,7 @@ function resolveForegroundOrcaExecutable(): string {
   }
   throw new RuntimeClientError(
     'runtime_serve_failed',
-    'Could not determine how to start Orca server. Set ORCA_APP_EXECUTABLE to the Orca executable.'
+    'Could not determine how to start Janus Code server. Set ORCA_APP_EXECUTABLE to the Janus Code executable.'
   )
 }
 

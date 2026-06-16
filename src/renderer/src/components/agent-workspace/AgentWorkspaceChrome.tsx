@@ -6,7 +6,7 @@ export function AgentWorkspaceChrome({
   children,
   rightPanel
 }: {
-  sidebar: ReactNode
+  sidebar?: ReactNode
   header: ReactNode
   children: ReactNode
   rightPanel: ReactNode

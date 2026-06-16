@@ -221,56 +221,30 @@ describe('AgentWorkspaceLayout project actions', () => {
     expect(container.textContent).toContain('Second timeline event')
   })
 
-  it('activates a selected project through the Orca worktree store', () => {
+  it('leaves project switching and worktree actions to the app shell sidebar', () => {
     const container = renderLayout()
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-
-    const secondProjectButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('orca two')
-    )
-    expect(secondProjectButton).toBeDefined()
-
-    act(() => {
-      secondProjectButton?.click()
-    })
-
-    expect(storeMocks.setActiveWorktree).toHaveBeenCalledWith('worktree-2')
-    expect(container.textContent).toContain('Second timeline event')
-  })
-
-  it('opens the existing workspace composer for the selected project repo', () => {
-    const container = renderLayout()
-
-    const createButton = Array.from(container.querySelectorAll('button')).find(
-      (button) => button.getAttribute('aria-label') === 'Create worktree'
-    )
-    expect(createButton).toBeDefined()
-
-    act(() => {
-      createButton?.click()
-    })
-
-    expect(storeMocks.openModal).toHaveBeenCalledWith('new-workspace-composer', {
-      initialRepoId: 'repo-orca',
-      telemetrySource: 'sidebar'
-    })
-  })
-
-  it('routes project deletion through the existing worktree delete preflight flow', () => {
-    const container = renderLayout()
-
-    const deleteButton = Array.from(container.querySelectorAll('button')).find(
-      (button) => button.getAttribute('aria-label') === 'Delete worktree'
-    )
-    expect(deleteButton).toBeDefined()
-
-    act(() => {
-      deleteButton?.click()
-    })
-
-    expect(deleteFlowMocks.runWorktreeDelete).toHaveBeenCalledWith('worktree-1')
+    expect(container.textContent).not.toContain('orca two')
+    expect(
+      Array.from(container.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('orca two')
+      )
+    ).toBe(false)
+    expect(
+      Array.from(container.querySelectorAll('button')).some(
+        (button) => button.getAttribute('aria-label') === 'Create worktree'
+      )
+    ).toBe(false)
+    expect(
+      Array.from(container.querySelectorAll('button')).some(
+        (button) => button.getAttribute('aria-label') === 'Delete worktree'
+      )
+    ).toBe(false)
+    expect(storeMocks.setActiveWorktree).not.toHaveBeenCalled()
+    expect(storeMocks.openModal).not.toHaveBeenCalled()
+    expect(deleteFlowMocks.runWorktreeDelete).not.toHaveBeenCalled()
   })
 
   it('runs source-control actions against the selected local project host', async () => {

@@ -141,6 +141,44 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Message the selected agent')
     expect(markup).toContain('src/renderer/src/components/Terminal.tsx')
   })
+
+  it('uses the app shell sidebar instead of rendering an internal project rail', () => {
+    const markup = renderPage({
+      activeWorktreeId: 'worktree-1',
+      projects: [
+        {
+          id: 'worktree-1',
+          repoId: 'repo-1',
+          label: 'orca',
+          path: '/Users/jakedom/orca',
+          hostKind: 'local',
+          canCreateWorktree: true
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'Blend the GUI into the app shell',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/t3code-gui-workspace',
+          cwd: '/Users/jakedom/orca'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: true
+    })
+
+    expect(markup).toContain('orca')
+    expect(markup).toContain('Blend the GUI into the app shell')
+    expect(markup).not.toContain('Projects')
+    expect(markup).not.toContain('Create worktree')
+  })
 })
 
 describe('Terminal GUI agent workspace flag boundary', () => {
@@ -282,8 +320,8 @@ describe('AgentWorkspace phase labels', () => {
   })
 })
 
-describe('AgentWorkspaceLayout thread selection', () => {
-  it('lets users select another thread from the left rail', async () => {
+describe('AgentWorkspaceLayout active worktree selection', () => {
+  it('uses the active worktree thread without rendering an internal thread switcher', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -352,86 +390,84 @@ describe('AgentWorkspaceLayout thread selection', () => {
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-
-    const secondThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Second thread')
-    )
-    expect(secondThreadButton).toBeDefined()
-
-    await act(async () => {
-      secondThreadButton?.click()
-    })
-
-    expect(container.textContent).toContain('Second timeline event')
+    expect(
+      Array.from(container.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Second thread')
+      )
+    ).toBe(false)
   })
 
-  it('preserves right-panel tab state while selected thread data changes', async () => {
+  it('updates right-panel content when the app shell changes the active worktree', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     roots.push(root)
 
+    const makeSnapshot = (activeWorktreeId: string): AgentWorkspaceSnapshot => ({
+      activeWorktreeId,
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'orca one',
+          path: '/Users/jakedom/orca-one',
+          hostKind: 'local'
+        },
+        {
+          id: 'worktree-2',
+          label: 'orca two',
+          path: '/Users/jakedom/orca-two',
+          hostKind: 'local'
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'First thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/first',
+          cwd: '/Users/jakedom/orca-one'
+        },
+        {
+          id: 'thread-2',
+          worktreeId: 'worktree-2',
+          title: 'Second thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:05:00.000Z',
+          branchName: 'feature/second',
+          cwd: '/Users/jakedom/orca-two'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [
+        {
+          id: 'diff-1',
+          threadId: 'thread-1',
+          filePath: 'src/first.tsx',
+          additions: 3,
+          deletions: 1,
+          status: 'modified'
+        },
+        {
+          id: 'diff-2',
+          threadId: 'thread-2',
+          filePath: 'src/second.tsx',
+          additions: 7,
+          deletions: 2,
+          status: 'added'
+        }
+      ],
+      terminalAvailable: false
+    })
+
     await act(async () => {
-      root.render(
-        <AgentWorkspaceLayout
-          snapshot={{
-            activeWorktreeId: 'worktree-1',
-            projects: [
-              {
-                id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
-                hostKind: 'local'
-              }
-            ],
-            threads: [
-              {
-                id: 'thread-1',
-                worktreeId: 'worktree-1',
-                title: 'First thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:00:00.000Z',
-                branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
-              },
-              {
-                id: 'thread-2',
-                worktreeId: 'worktree-1',
-                title: 'Second thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:05:00.000Z',
-                branchName: 'feature/second',
-                cwd: '/Users/jakedom/orca'
-              }
-            ],
-            plans: [],
-            timeline: [],
-            approvals: [],
-            diffs: [
-              {
-                id: 'diff-1',
-                threadId: 'thread-1',
-                filePath: 'src/first.tsx',
-                additions: 3,
-                deletions: 1,
-                status: 'modified'
-              },
-              {
-                id: 'diff-2',
-                threadId: 'thread-2',
-                filePath: 'src/second.tsx',
-                additions: 7,
-                deletions: 2,
-                status: 'added'
-              }
-            ],
-            terminalAvailable: false
-          }}
-        />
-      )
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
     const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
@@ -447,79 +483,81 @@ describe('AgentWorkspaceLayout thread selection', () => {
     expect(container.textContent).toContain('src/first.tsx')
     expect(container.textContent).not.toContain('src/second.tsx')
 
-    const secondThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Second thread')
-    )
-    expect(secondThreadButton).toBeDefined()
-
     await act(async () => {
-      secondThreadButton?.click()
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
-    expect(diffTab?.getAttribute('data-state')).toBe('active')
+    const updatedDiffTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+    ).find((button) => button.textContent === 'Diff')
+    expect(updatedDiffTab?.getAttribute('data-state')).toBe('active')
     expect(container.textContent).not.toContain('src/first.tsx')
     expect(container.textContent).toContain('src/second.tsx')
   })
 
-  it('re-defaults to details when selecting a thread that needs approval', async () => {
+  it('re-defaults to details when the active worktree changes to a thread that needs approval', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     roots.push(root)
 
+    const makeSnapshot = (activeWorktreeId: string): AgentWorkspaceSnapshot => ({
+      activeWorktreeId,
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'orca one',
+          path: '/Users/jakedom/orca-one',
+          hostKind: 'local'
+        },
+        {
+          id: 'worktree-2',
+          label: 'orca two',
+          path: '/Users/jakedom/orca-two',
+          hostKind: 'local'
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'First thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/first',
+          cwd: '/Users/jakedom/orca-one'
+        },
+        {
+          id: 'thread-2',
+          worktreeId: 'worktree-2',
+          title: 'Needs approval thread',
+          agentKind: 'codex',
+          phase: 'needs-approval',
+          updatedAt: '2026-06-15T12:05:00.000Z',
+          branchName: 'feature/approval',
+          cwd: '/Users/jakedom/orca-two'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [
+        {
+          id: 'diff-1',
+          threadId: 'thread-1',
+          filePath: 'src/first.tsx',
+          additions: 3,
+          deletions: 1,
+          status: 'modified'
+        }
+      ],
+      terminalAvailable: false
+    })
+
     await act(async () => {
-      root.render(
-        <AgentWorkspaceLayout
-          snapshot={{
-            activeWorktreeId: 'worktree-1',
-            projects: [
-              {
-                id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
-                hostKind: 'local'
-              }
-            ],
-            threads: [
-              {
-                id: 'thread-1',
-                worktreeId: 'worktree-1',
-                title: 'First thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:00:00.000Z',
-                branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
-              },
-              {
-                id: 'thread-2',
-                worktreeId: 'worktree-1',
-                title: 'Needs approval thread',
-                agentKind: 'codex',
-                phase: 'needs-approval',
-                updatedAt: '2026-06-15T12:05:00.000Z',
-                branchName: 'feature/approval',
-                cwd: '/Users/jakedom/orca'
-              }
-            ],
-            plans: [],
-            timeline: [],
-            approvals: [],
-            diffs: [
-              {
-                id: 'diff-1',
-                threadId: 'thread-1',
-                filePath: 'src/first.tsx',
-                additions: 3,
-                deletions: 1,
-                status: 'modified'
-              }
-            ],
-            terminalAvailable: false
-          }}
-        />
-      )
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
     const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
@@ -527,13 +565,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
     )
     expect(diffTab?.getAttribute('data-state')).toBe('active')
 
-    const approvalThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Needs approval thread')
-    )
-    expect(approvalThreadButton).toBeDefined()
-
     await act(async () => {
-      approvalThreadButton?.click()
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
     const detailsTab = Array.from(
