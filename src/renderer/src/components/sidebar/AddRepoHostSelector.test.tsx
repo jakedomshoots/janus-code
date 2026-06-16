@@ -77,7 +77,7 @@ describe('AddRepoHostSelector', () => {
           {
             id: 'runtime:old-server',
             label: 'Old server',
-            detail: 'Orca server',
+            detail: 'Janus Code server',
             kind: 'runtime',
             health: 'blocked',
             presence: 'active',
@@ -98,8 +98,8 @@ describe('AddRepoHostSelector', () => {
     )
 
     expect(html).toContain('Update needed')
-    expect(html).toContain('The selected Orca server is too old for this client.')
-    expect(html).toContain('Update Orca on the server.')
+    expect(html).toContain('The selected Janus Code server is too old for this client.')
+    expect(html).toContain('Update Janus Code on the server.')
     expect(html).toContain('aria-disabled="true"')
   })
 })

@@ -127,7 +127,7 @@ export function BrowserUseSetup({
         toast.success(
           translate(
             'auto.components.settings.BrowserUsePane.721aee31b4',
-            'Registered the Orca CLI in PATH.'
+            'Registered the Janus CLI in PATH.'
           )
         )
       }

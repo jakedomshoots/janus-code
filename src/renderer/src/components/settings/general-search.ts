@@ -97,7 +97,7 @@ export const getGeneralNetworkSearchEntries = createLocalizedCatalog(() => [
     title: translate('auto.components.settings.general.search.c29f23ab57', 'HTTP Proxy'),
     description: translate(
       'auto.components.settings.general.search.e3b1d42f95',
-      'Proxy URL for Orca network requests and local terminal children.'
+      'Proxy URL for Janus Code network requests and local terminal children.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.general.search.20b711ac9e', 'proxy'),
@@ -152,10 +152,10 @@ export const getGeneralNavigationSearchEntries = createLocalizedCatalog(() => [
 
 export const getGeneralCliSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.general.search.327e3fa70d', 'Orca CLI'),
+    title: translate('auto.components.settings.general.search.327e3fa70d', 'Janus CLI'),
     description: translate(
       'auto.components.settings.general.search.ca529079bf',
-      'Register or remove the Orca CLI command.'
+      'Register or remove the Janus CLI command.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.general.search.924a660a78', 'cli'),
@@ -179,7 +179,7 @@ export const getGeneralCliSearchEntries = createLocalizedCatalog(() => [
     title: translate('auto.components.settings.general.search.2d9f7b42df', 'Agent skill'),
     description: translate(
       'auto.components.settings.general.search.244e3fb4c8',
-      'Install the Orca skill so agents know to use the Orca CLI.'
+      'Install the Janus CLI skill so agents know to use the Janus CLI.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.general.search.bda108e66c', 'skill'),
@@ -194,7 +194,7 @@ export const getGeneralUpdateSearchEntries = createLocalizedCatalog(() => [
     title: translate('auto.components.settings.general.search.e15af4eb64', 'Check for Updates'),
     description: translate(
       'auto.components.settings.general.search.79ff46776e',
-      'Check for app updates and install a newer Orca version.'
+      'Check for app updates and install a newer Janus Code version.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.general.search.f89a94773c', 'update'),
@@ -257,7 +257,10 @@ export const getGeneralAgentSearchEntries = createLocalizedCatalog(() => [
 
 export const getGeneralSupportSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.general.search.36a72f0d9e', 'Star Orca on GitHub'),
+    title: translate(
+      'auto.components.settings.general.search.36a72f0d9e',
+      'Star Janus Code on GitHub'
+    ),
     description: translate(
       'auto.components.settings.general.search.e0b8c8bc25',
       'Support the project with a GitHub star via the gh CLI.'

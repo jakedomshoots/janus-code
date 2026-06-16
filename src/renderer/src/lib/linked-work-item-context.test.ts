@@ -109,7 +109,7 @@ describe('buildLinearLaunchContextBlock', () => {
     expect(block).not.toContain('Fix launch context handoff')
     expect(block).not.toContain('orca linear issue')
     expectNoLinearWorkflowSideEffects(block)
-    expect(block).toContain('enable it from Orca Settings')
+    expect(block).toContain('enable it from Janus Code Settings')
   })
 
   it('keeps ticket-authored titles out of trusted launch prompts', () => {

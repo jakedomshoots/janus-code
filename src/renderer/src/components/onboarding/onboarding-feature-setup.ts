@@ -223,7 +223,7 @@ export async function runOnboardingFeatureSetup(
     if (!status.supported) {
       warnings.push({
         featureId: 'cli',
-        message: status.detail ?? 'Orca CLI registration is not available on this platform.'
+        message: status.detail ?? 'Janus CLI registration is not available on this platform.'
       })
     } else if (status.state !== 'installed' || !status.pathConfigured) {
       await deps.showCliRegistrationPrompt?.()
@@ -232,7 +232,7 @@ export async function runOnboardingFeatureSetup(
       if (next.state !== 'installed') {
         warnings.push({
           featureId: 'cli',
-          message: next.detail ?? 'Orca CLI registration needs attention.'
+          message: next.detail ?? 'Janus CLI registration needs attention.'
         })
       } else if (!next.pathConfigured && next.detail) {
         warnings.push({ featureId: 'cli', message: next.detail })

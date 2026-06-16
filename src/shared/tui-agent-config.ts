@@ -60,12 +60,12 @@ export const TUI_AGENT_CONFIG: Record<TuiAgent, TuiAgentConfig> = {
     // Why: `claude --prefill <text>` lands the TUI with `<text>` in the
     // input box, nothing submitted. Strictly better than the paste-after-
     // ready fallback because it eliminates the readiness race entirely.
-    // See PR https://github.com/stablyai/orca/pull/926 for context.
+    // See PR https://github.com/jakedomshoots/janus-code/pull/926 for context.
     draftPromptFlag: '--prefill'
   },
   'claude-agent-teams': {
     // Why: this is an Orca-provided launch mode, not a separate upstream
-    // binary. Detection follows the Orca CLI, while the wrapper validates the
+    // binary. Detection follows the Janus CLI, while the wrapper validates the
     // real Claude binary when it starts.
     detectCmd: 'orca',
     detectCmdAliases: ['orca-dev', 'orca-ide'],

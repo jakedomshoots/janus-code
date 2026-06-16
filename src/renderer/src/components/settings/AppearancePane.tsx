@@ -120,7 +120,7 @@ export function AppearancePane({
             title={translate('auto.components.settings.AppearancePane.932ff1fbff', 'Theme')}
             description={translate(
               'auto.components.settings.AppearancePane.0f28e7b30c',
-              'Choose how Orca looks in the app window.'
+              'Choose how Janus Code looks in the app window.'
             )}
             keywords={getThemeEntries()[0]?.keywords ?? ['dark', 'light', 'system']}
           >
@@ -128,7 +128,7 @@ export function AppearancePane({
               label={translate('auto.components.settings.AppearancePane.932ff1fbff', 'Theme')}
               description={translate(
                 'auto.components.settings.AppearancePane.0f28e7b30c',
-                'Choose how Orca looks in the app window.'
+                'Choose how Janus Code looks in the app window.'
               )}
               control={
                 <SettingsSegmentedControl
@@ -172,7 +172,7 @@ export function AppearancePane({
             title={translate('settings.appearance.language.title', 'Language')}
             description={translate(
               'settings.appearance.language.description',
-              'Choose the language used by the Orca interface.'
+              'Choose the language used by the Janus Code interface.'
             )}
             keywords={getLanguageEntries()[0]?.keywords ?? []}
           >
@@ -180,7 +180,7 @@ export function AppearancePane({
               label={translate('settings.appearance.language.title', 'Language')}
               description={translate(
                 'settings.appearance.language.description',
-                'Choose the language used by the Orca interface.'
+                'Choose the language used by the Janus Code interface.'
               )}
               control={
                 <Select
@@ -242,7 +242,7 @@ export function AppearancePane({
             title={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE Font')}
             description={translate(
               'auto.components.settings.AppearancePane.42554f615f',
-              'Choose the font used by the Orca interface.'
+              'Choose the font used by the Janus Code interface.'
             )}
             keywords={getTypographyEntries()[0]?.keywords ?? ['font', 'typeface', 'typography']}
           >
@@ -251,7 +251,7 @@ export function AppearancePane({
               label={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE Font')}
               description={translate(
                 'auto.components.settings.AppearancePane.42554f615f',
-                'Choose the font used by the Orca interface.'
+                'Choose the font used by the Janus Code interface.'
               )}
               control={
                 <FontAutocomplete
@@ -339,7 +339,7 @@ export function AppearancePane({
             )}
             description={translate(
               'auto.components.settings.AppearancePane.2df8f79aa5',
-              'Show Orca in the titlebar.'
+              'Show Janus Code in the titlebar.'
             )}
             keywords={getTitlebarEntries()[0]?.keywords ?? ['titlebar', 'orca', 'app', 'name']}
           >
@@ -350,7 +350,7 @@ export function AppearancePane({
               )}
               description={translate(
                 'auto.components.settings.AppearancePane.2df8f79aa5',
-                'Show Orca in the titlebar.'
+                'Show Janus Code in the titlebar.'
               )}
               checked={settings.showTitlebarAppName}
               onChange={() =>
@@ -502,22 +502,22 @@ export function AppearancePane({
           <SearchableSetting
             title={translate(
               'auto.components.settings.AppearancePane.9da1020447',
-              'Show Orca Mobile Button'
+              'Show Janus Code Mobile Button'
             )}
             description={translate(
               'auto.components.settings.AppearancePane.5db6ba961f',
-              'Show the Orca Mobile button at the top of the left sidebar.'
+              'Show the Janus Code Mobile button at the top of the left sidebar.'
             )}
             keywords={getSidebarEntries()[2]?.keywords ?? ['mobile', 'phone', 'sidebar']}
           >
             <SettingsSwitchRow
               label={translate(
                 'auto.components.settings.AppearancePane.9da1020447',
-                'Show Orca Mobile Button'
+                'Show Janus Code Mobile Button'
               )}
               description={translate(
                 'auto.components.settings.AppearancePane.61d842eca0',
-                'Show the Orca Mobile shortcut in the sidebar. It remains available from Toolbox.'
+                'Show the Janus Code Mobile shortcut in the sidebar. It remains available from Toolbox.'
               )}
               checked={settings.showMobileButton !== false}
               onChange={() =>

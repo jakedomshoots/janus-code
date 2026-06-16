@@ -48,7 +48,7 @@ function getPreflightIssues(status: {
       title: translate('auto.components.Landing.5beaef5f9e', 'GitHub CLI is not installed'),
       description: translate(
         'auto.components.Landing.73e1ad4282',
-        'Orca uses the GitHub CLI (gh) to show pull requests, issues, and checks.'
+        'Janus Code uses the GitHub CLI (gh) to show pull requests, issues, and checks.'
       ),
       fixLabel: 'Install GitHub CLI',
       fixUrl: 'https://cli.github.com'
@@ -69,7 +69,7 @@ function getPreflightIssues(status: {
   return issues
 }
 
-const ORCA_STARGAZERS_URL = 'https://github.com/stablyai/orca/stargazers'
+const ORCA_STARGAZERS_URL = 'https://github.com/jakedomshoots/janus-code/stargazers'
 
 type StarState = 'loading' | 'starred' | 'not-starred' | 'web-fallback' | 'hidden'
 
@@ -310,7 +310,7 @@ export default function Landing(): React.JSX.Element {
           >
             <img
               src={logo}
-              alt={translate('auto.components.Landing.520304a067', 'Orca logo')}
+              alt={translate('auto.components.Landing.520304a067', 'Janus Code logo')}
               className="size-12"
             />
           </div>

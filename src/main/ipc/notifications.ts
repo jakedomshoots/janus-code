@@ -505,8 +505,8 @@ export function triggerStartupNotificationRegistration(store: Store): void {
   store.updateUI({ notificationPermissionRequested: true })
 
   const notification = new Notification({
-    title: 'Orca is ready to notify you',
-    body: 'Allow notifications so Orca can alert you when agents finish or terminals need attention.'
+    title: 'Janus Code is ready to notify you',
+    body: 'Allow notifications so Janus Code can alert you when agents finish or terminals need attention.'
   })
 
   // Why: prevent GC from collecting the notification (and its click handler)

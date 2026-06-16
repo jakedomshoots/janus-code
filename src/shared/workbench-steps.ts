@@ -1,4 +1,4 @@
-// Per-step copy for the workbench tile in the Explore Orca modal. Mirrors
+// Per-step copy for the workbench tile in the Explore Janus Code modal. Mirrors
 // agents-orchestration-steps.ts so the rail / body code can render both the
 // same way.
 

@@ -3,10 +3,9 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/stablyai/orca/stargazers"><img src="https://badgen.net/github/stars/stablyai/orca?label=%E2%98%85" alt="Estrellas en GitHub" /></a>
-  <a href="https://github.com/stablyai/orca/releases"><img src="https://img.shields.io/github/downloads/stablyai/orca/total?label=downloads" alt="Descargas totales en todas las versiones" /></a>
-  <img src="https://badgen.net/github/license/stablyai/orca" alt="Licencia" />
-  <a href="https://discord.gg/fzjDKHxv8Q"><img src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white" alt="Únete al Discord de Orca" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/stargazers"><img src="https://badgen.net/github/stars/jakedomshoots/janus-code?label=%E2%98%85" alt="Estrellas en GitHub" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/releases"><img src="https://img.shields.io/github/downloads/jakedomshoots/janus-code/total?label=downloads" alt="Descargas totales en todas las versiones" /></a>
+  <img src="https://badgen.net/github/license/jakedomshoots/janus-code" alt="Licencia" />
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4493F8?style=flat-square" alt="Plataformas compatibles: macOS, Windows y Linux" />
 </p>
 
@@ -35,7 +34,7 @@
 
 Supervisa y dirige a tus agentes desde el teléfono — recibe una notificación cuando un agente termine y envía instrucciones de seguimiento desde cualquier lugar.
 
-[App Store de iOS](https://apps.apple.com/us/app/orca-ide/id6766130217) · [APK para Android](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
+[App Store de iOS](https://apps.apple.com/us/app/orca-ide/id6766130217) · [APK para Android](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
 
 </td>
 <td width="50%">
@@ -143,7 +142,7 @@ El editor de VS Code con autoguardado en todas partes — arrastra archivos o im
 <tr>
 <td width="50%" valign="middle">
 
-### Orca CLI
+### Janus CLI
 
 Los agentes también manejan Orca — automatiza cualquier flujo de trabajo con `orca worktree create`, `snapshot`, `click` y `fill`.
 
@@ -163,7 +162,7 @@ Los agentes también manejan Orca — automatiza cualquier flujo de trabajo con 
 - **[Previews ricos del repo](https://www.onorca.dev/docs/editing/markdown)** — Previsualiza Markdown, imágenes, PDFs y documentos del repo en el workspace.
 - **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — Deja que los agentes manejen apps de escritorio y UI visible cuando un flujo de trabajo necesita interacción real.
 - **[Notificaciones y estado de no leído](https://www.onorca.dev/docs/notifications)** — Entérate cuando un agente termine o necesite tu atención, y marca hilos como no leídos para retomarlos después.
-- **Y muchas, muchas más** — lanzamos a diario, así que esta lista siempre va atrasada. El [changelog](https://github.com/stablyai/orca/releases) es la verdadera lista de funciones.
+- **Y muchas, muchas más** — lanzamos a diario, así que esta lista siempre va atrasada. El [changelog](https://github.com/jakedomshoots/janus-code/releases) es la verdadera lista de funciones.
 
 ---
 
@@ -210,13 +209,13 @@ Funciona con **cualquier agente CLI** — si corre en una terminal, corre en Orc
 ### Escritorio — macOS, Windows, Linux
 
 - **[Descarga desde onOrca.dev](https://onorca.dev/download)**
-- O descarga un build directamente: [macOS Apple Silicon](https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg) · [macOS Intel](https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg) · [Windows (.exe)](https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe) · [Linux AppImage](https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage) · [Todos los builds](https://github.com/stablyai/orca/releases/latest)
+- O descarga un build directamente: [macOS Apple Silicon](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-arm64.dmg) · [macOS Intel](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-x64.dmg) · [Windows (.exe)](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-windows-setup.exe) · [Linux AppImage](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-linux.AppImage) · [Todos los builds](https://github.com/jakedomshoots/janus-code/releases/latest)
 
 _O mediante un gestor de paquetes:_
 
 ```bash
 # macOS (Homebrew)
-brew install --cask stablyai/orca/orca
+brew install --cask jakedomshoots/janus-code/orca
 
 # Arch Linux (AUR) — or stably-orca-git to build from source
 yay -S stably-orca-bin
@@ -227,17 +226,15 @@ yay -S stably-orca-bin
 Vincúlala con tu app de escritorio para supervisar y dirigir a tus agentes desde el teléfono.
 
 - **iOS:** [Descargar desde App Store](https://apps.apple.com/us/app/orca-ide/id6766130217)
-- **Android:** [Descargar el APK](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk)
+- **Android:** [Descargar el APK](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk)
 
 ---
 
 ## Comunidad y soporte
 
-- **Discord:** Únete a la comunidad en **[Discord](https://discord.gg/fzjDKHxv8Q)**.
-- **Twitter / X:** Sigue a **[@orca_build](https://x.com/orca_build)** para novedades y anuncios.
-- **Feedback e ideas:** Lanzamos rápido. ¿Te falta algo? [Pide una nueva feature](https://github.com/stablyai/orca/issues).
-- **Privacidad:** Consulta la [documentación de privacidad y telemetría](https://www.onorca.dev/docs/telemetry) para saber qué datos anónimos de uso recopila Orca y cómo desactivar su envío.
-- **Muéstranos tu apoyo:** Dale una [estrella](https://github.com/stablyai/orca) a este repo para seguir nuestros lanzamientos diarios.
+- **Feedback e ideas:** Lanzamos rápido. ¿Te falta algo? [Pide una nueva feature](https://github.com/jakedomshoots/janus-code/issues).
+- **Privacidad:** Consulta la [documentación de privacidad y telemetría](https://github.com/jakedomshoots/janus-code/tree/main/docs) para saber qué datos anónimos de uso recopila Janus Code y cómo desactivar su envío.
+- **Muéstranos tu apoyo:** Dale una [estrella](https://github.com/jakedomshoots/janus-code) a este repo para seguir nuestros lanzamientos diarios.
 
 ---
 
@@ -245,8 +242,8 @@ Vincúlala con tu app de escritorio para supervisar y dirigir a tus agentes desd
 
 ¿Quieres contribuir o ejecutar Orca localmente? Consulta nuestra guía [CONTRIBUTING.md](../../.github/CONTRIBUTING.md).
 
-<a href="https://github.com/stablyai/orca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=stablyai/orca" alt="Contribuidores de Orca" />
+<a href="https://github.com/jakedomshoots/janus-code/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Contribuidores de Orca" />
 </a>
 
 ## Licencia

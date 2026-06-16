@@ -213,7 +213,7 @@ export function WorktreeCardDetailsHover({
                       <MetadataActionIcon
                         label={translate(
                           'auto.components.sidebar.WorktreeCardMeta.2c67730e07',
-                          'Open in Orca'
+                          'Open in Janus Code'
                         )}
                         onClick={dismissAndRun(onOpenGitHubIssueInOrca)}
                       >
@@ -278,7 +278,7 @@ export function WorktreeCardDetailsHover({
                       <MetadataActionIcon
                         label={translate(
                           'auto.components.sidebar.WorktreeCardMeta.2c67730e07',
-                          'Open in Orca'
+                          'Open in Janus Code'
                         )}
                         onClick={dismissAndRun(onOpenLinearIssueInOrca)}
                       >

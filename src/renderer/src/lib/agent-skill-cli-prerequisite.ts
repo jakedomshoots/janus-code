@@ -8,11 +8,11 @@ type EnsureOrcaCliAvailableOptions = {
 }
 
 export const AGENT_SKILL_CLI_PREREQUISITE_NOTICE =
-  'Before opening setup, Orca may show a system prompt to register the Orca CLI command on PATH.'
+  'Before opening setup, Janus Code may show a system prompt to register the Janus CLI command on PATH.'
 
-export const CLI_PREREQUISITE_REGISTRATION_TOAST = 'Orca needs to register its CLI on PATH.'
+export const CLI_PREREQUISITE_REGISTRATION_TOAST = 'Janus Code needs to register its CLI on PATH.'
 export const CLI_PREREQUISITE_REGISTRATION_TOAST_DESCRIPTION =
-  'Approve the system prompt so skill setup can use the Orca CLI command.'
+  'Approve the system prompt so skill setup can use the Janus CLI command.'
 
 export function isOrcaCliAvailableOnPath(status: CliInstallStatus | null | undefined): boolean {
   return status?.state === 'installed' && status.pathConfigured
@@ -48,7 +48,7 @@ export async function ensureOrcaCliAvailableForAgentSkillTerminal({
         ? error.message
         : translate(
             'auto.lib.agent.skill.cli.prerequisite.8d6eedf97e',
-            'Failed to register the Orca CLI in PATH.'
+            'Failed to register the Janus CLI in PATH.'
           )
     )
     return null
@@ -74,14 +74,14 @@ function showCliPrerequisiteWarning(status: CliInstallStatus): void {
     toast.warning(
       translate(
         'auto.lib.agent.skill.cli.prerequisite.2db0bd7515',
-        'Orca CLI registration is unavailable'
+        'Janus CLI registration is unavailable'
       ),
       {
         description:
           status.detail ??
           translate(
             'auto.lib.agent.skill.cli.prerequisite.15cbedc3e3',
-            'Install the Orca CLI before running agent skill setup.'
+            'Install the Janus CLI before running agent skill setup.'
           )
       }
     )
@@ -92,14 +92,14 @@ function showCliPrerequisiteWarning(status: CliInstallStatus): void {
     toast.warning(
       translate(
         'auto.lib.agent.skill.cli.prerequisite.e99d7dc36f',
-        'Orca CLI registration needs attention'
+        'Janus CLI registration needs attention'
       ),
       {
         description:
           status.detail ??
           translate(
             'auto.lib.agent.skill.cli.prerequisite.15cbedc3e3',
-            'Install the Orca CLI before running agent skill setup.'
+            'Install the Janus CLI before running agent skill setup.'
           )
       }
     )
@@ -108,18 +108,18 @@ function showCliPrerequisiteWarning(status: CliInstallStatus): void {
 
   if (!status.pathConfigured) {
     // Why: the skill installer opens a real shell; agents only get the expected
-    // Orca affordances when that shell can resolve the Orca CLI command.
+    // Janus Code affordances when that shell can resolve the Janus CLI command.
     toast.warning(
       translate(
         'auto.lib.agent.skill.cli.prerequisite.79371593b0',
-        'Orca CLI is not visible on PATH yet'
+        'Janus CLI is not visible on PATH yet'
       ),
       {
         description:
           status.detail ??
           translate(
             'auto.lib.agent.skill.cli.prerequisite.0f116999f1',
-            'Restart your shell or add the Orca CLI directory to PATH before setup.'
+            'Restart your shell or add the Janus CLI directory to PATH before setup.'
           )
       }
     )

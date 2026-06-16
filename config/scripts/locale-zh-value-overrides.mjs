@@ -121,7 +121,7 @@ export const ZH_VALUE_OVERRIDES = {
     '在富文本编辑器模式下显示本地 Markdown 评审笔记控件。',
   'Orca IDE': 'Orca IDE',
   'Orca first': 'Orca 优先',
-  'Orca Mobile': 'Orca Mobile',
+  'Janus Mobile': 'Janus Mobile',
   'Orca logo': 'Orca 标志',
   'Enjoying Orca?': '喜欢 Orca 吗？',
   'Get to know Orca': '了解 Orca',
@@ -129,7 +129,7 @@ export const ZH_VALUE_OVERRIDES = {
   'Support Orca': '支持 Orca',
   'Restarting Orca…': '正在重启 Orca…',
   'Orca Attribution': 'Orca 归因',
-  'Show Orca Mobile Button': '显示 Orca Mobile 按钮',
+  'Show Janus Mobile Button': '显示 Janus Mobile 按钮',
   'Codex Accounts': 'Codex 账户',
   'Codex Account': 'Codex 账户',
   'Active Codex Account': '活跃 Codex 账户',
@@ -167,7 +167,7 @@ export const ZH_VALUE_OVERRIDES = {
   'Leave empty to use system proxy settings and inherited proxy environment variables.':
     '留空以使用系统代理设置和继承的代理环境变量。',
   'Proxy Command': '代理命令',
-  "Give agents direct access to Orca's browser so they can test pages, capture screenshots, and act on what they see.":
+  "Give agents direct access to Janus Code's browser so they can test pages, capture screenshots, and act on what they see.":
     '让代理直接访问 Orca 的浏览器，以便测试页面、捕获屏幕截图并根据所见内容执行操作。',
   'X finishes, send it the review task.”': 'X 完成后，把评审任务发给它。”',
   'Branch naming, base refs, attribution, and Git AI Author.':

@@ -100,7 +100,7 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
         toast.success(
           translate(
             'auto.components.settings.MobileEmulatorAgentControlRow.cdeaed9e37',
-            'Registered the Orca CLI in PATH.'
+            'Registered the Janus CLI in PATH.'
           )
         )
       }
@@ -124,7 +124,7 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
           <p className="text-xs text-muted-foreground">
             {translate(
               'auto.components.settings.MobileEmulatorAgentControlRow.ff4b7e65d6',
-              'Let coding agents control the active mobile emulator with Orca CLI commands.'
+              'Let coding agents control the active mobile emulator with Janus CLI commands.'
             )}
           </p>
         </div>
@@ -146,13 +146,13 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
             <p className="text-sm font-medium">
               {translate(
                 'auto.components.settings.MobileEmulatorAgentControlRow.4f2205f3b6',
-                'Enable Orca CLI'
+                'Enable Janus CLI'
               )}
             </p>
             <p className="text-xs text-muted-foreground">
               {translate(
                 'auto.components.settings.MobileEmulatorAgentControlRow.2fef055608',
-                'Registers the Orca CLI command so agents can control the active emulator from their shell.'
+                'Registers the Janus CLI command so agents can control the active emulator from their shell.'
               )}
             </p>
             {cliInstallStatus?.commandPath && cliEnabled ? (
@@ -198,15 +198,15 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
             variant="inline"
             title={translate(
               'auto.components.settings.MobileEmulatorAgentControlRow.67e19ee03c',
-              'Orca CLI skill'
+              'Janus CLI skill'
             )}
             description={translate(
               'auto.components.settings.MobileEmulatorAgentControlRow.d94ca6a623',
-              'Enables agents to use Orca CLI commands, including mobile emulator control.'
+              'Enables agents to use Janus CLI commands, including mobile emulator control.'
             )}
             command={ORCA_CLI_SKILL_INSTALL_COMMAND}
-            terminalTitle="Orca CLI skill setup"
-            terminalAriaLabel="Orca CLI skill install terminal"
+            terminalTitle="Janus CLI skill setup"
+            terminalAriaLabel="Janus CLI skill install terminal"
             terminalWorktreeId="settings-mobile-emulator-orca-cli-skill-terminal"
             installed={cliSkillInstalled}
             loading={cliSkillLoading}

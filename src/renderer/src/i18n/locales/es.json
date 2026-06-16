@@ -280,10 +280,10 @@
         "skill": {
           "cli": {
             "prerequisite": {
-              "79371593b0": "Orca CLI aún no es visible en PATH",
-              "e99d7dc36f": "El registro de Orca CLI necesita atención",
-              "2db0bd7515": "El registro de Orca CLI no está disponible",
-              "8d6eedf97e": "No se pudo registrar Orca CLI en PATH.",
+              "79371593b0": "Janus CLI aún no es visible en PATH",
+              "e99d7dc36f": "El registro de Janus CLI necesita atención",
+              "2db0bd7515": "El registro de Janus CLI no está disponible",
+              "8d6eedf97e": "No se pudo registrar Janus CLI en PATH.",
               "0f116999f1": "Reinicie su shell o agregue el directorio CLI de Orca a PATH antes de la instalación.",
               "15cbedc3e3": "Instale la CLI de Orca antes de ejecutar la configuración de habilidades del agente."
             }
@@ -3032,7 +3032,7 @@
         "share": {
           "card": {
             "utils": {
-              "19f4b4dc75": "github.com/stablyai/orca",
+              "19f4b4dc75": "github.com/jakedomshoots/janus-code",
               "d864fc5f98": "producción",
               "5d66fdd7c2": "aporte",
               "7080aeaebb": "Razonamiento",
@@ -3543,7 +3543,8 @@
           "d396773ef0": "de cheques",
           "f8a2c91d4e": "Hitos",
           "b7e4d2a19c": "Introducción",
-          "c4f8e1b72a": "X"
+          "c4f8e1b72a": "X",
+          "c781f73e3f": "Issues"
         },
         "SidebarToolbar": {
           "19e32d0e5f": "Abra el selector de carpetas para agregar un proyecto",
@@ -4297,9 +4298,9 @@
           "3057983501": "No asignado",
           "0cd9b8228f": "Elija el ícono de la aplicación que se muestra en el Dock y en el selector de ventanas.",
           "ca1590d42f": "Icono de aplicación",
-          "61d842eca0": "Muestra el acceso directo de Orca Mobile en la barra lateral. Sigue estando disponible en Toolbox.",
+          "61d842eca0": "Muestra el acceso directo de Janus Mobile en la barra lateral. Sigue estando disponible en Toolbox.",
           "9da1020447": "Mostrar botón móvil de Orca",
-          "5db6ba961f": "Muestra el botón de Orca Mobile en la parte superior de la barra lateral izquierda.",
+          "5db6ba961f": "Muestra el botón de Janus Mobile en la parte superior de la barra lateral izquierda.",
           "fa882a3e6b": "Muestra el botón Automatizaciones en la parte superior de la barra lateral izquierda.",
           "511f270ebb": "Botón Mostrar automatizaciones",
           "661942ab7f": "Muestra el botón Tareas en la parte superior de la barra lateral izquierda.",
@@ -4480,7 +4481,7 @@
           "b8a1f2d84d": "Uso del navegador del Agent",
           "96b91c6349": "Deje que los agents de codificación controlen este navegador con sus inicios de sesión.",
           "2ea4617e3a": "Se importaron {{value0}} cookies de {{value1}}{{value2}}.",
-          "721aee31b4": "Registré Orca CLI en PATH.",
+          "721aee31b4": "Registré Janus CLI en PATH.",
           "180a9abf3a": "No se pudo cargar el estado de CLI.",
           "2ccfc9cff8": "Importar",
           "0462565413": "Reimportar",
@@ -5010,14 +5011,14 @@
           "4f2205f3b6": "Habilitar CLI de Orca",
           "ff4b7e65d6": "Deje que los agents de codificación controlen el emulador móvil activo con los comandos CLI de Orca.",
           "2a674aa810": "Control del emulador móvil del Agent",
-          "cdeaed9e37": "Registré Orca CLI en PATH."
+          "cdeaed9e37": "Registré Janus CLI en PATH."
         },
         "MobileEmulatorExamples": {
           "edf13dd03b": "Copiar",
           "c12b253997": "Copiar mensaje de ejemplo",
           "d151e25078": "\"",
           "b525ff2b12": "\"",
-          "4daa95f25a": "Pegue cualquiera de estos en Claude Code, Codex u otro agente en un proyecto donde esté instalada la habilidad Orca CLI.",
+          "4daa95f25a": "Pegue cualquiera de estos en Claude Code, Codex u otro agente en un proyecto donde esté instalada la habilidad Janus CLI.",
           "0820b3f84f": "Pruébelo: indicaciones de ejemplo",
           "1f608e7d60": "No se pudo copiar el mensaje.",
           "2b077b5544": "Mensaje copiado."
@@ -5044,7 +5045,7 @@
           "668016be7a": "en su computadora y teléfono.",
           "1dc87a7fbc": "Escala de cola",
           "51d29927eb": "Instalar",
-          "9fc5d203ff": "Orca Mobile se conecta directamente a esta computadora. Para usarlo fuera de la misma red local, coloque su computadora y teléfono en la misma red superpuesta privada, luego genere el código QR con esa dirección de red seleccionada.",
+          "9fc5d203ff": "Janus Mobile se conecta directamente a esta computadora. Para usarlo fuera de la misma red local, coloque su computadora y teléfono en la misma red superpuesta privada, luego genere el código QR con esa dirección de red seleccionada.",
           "39fad211d9": "Conéctate fuera de tu Wi-Fi con una tailnet",
           "a9db5d771d": "Actualizar interfaces de red",
           "b2c384cfd6": "No se encontraron interfaces",
@@ -6349,7 +6350,7 @@
             "5bff6a2ef0": "barra lateral",
             "5e5b8878bf": "teléfono",
             "74618577c7": "móvil",
-            "682293cadf": "Muestra el botón de Orca Mobile en la parte superior de la barra lateral izquierda.",
+            "682293cadf": "Muestra el botón de Janus Mobile en la parte superior de la barra lateral izquierda.",
             "1de96ec8a6": "Mostrar botón móvil de Orca",
             "4c920ab2d1": "cronograma",
             "58f4e22fa2": "automatización",
@@ -7030,7 +7031,7 @@
               "64494f03c3": "adjuntar emulador",
               "6f728f1456": "grifo del emulador",
               "f8b871d655": "agente cli",
-              "2e0b45b2ba": "Utilice los comandos de Orca CLI para enumerar, adjuntar, tocar y escribir en un emulador móvil.",
+              "2e0b45b2ba": "Utilice los comandos de Janus CLI para enumerar, adjuntar, tocar y escribir en un emulador móvil.",
               "ea3eac39bb": "Control CLI del Agent",
               "8ef0f08d36": "tiempo de ejecución",
               "27397fe8e9": "herramientas de línea de comando xcode",
@@ -9048,7 +9049,7 @@
           "dfd2aa9d5d": "Red",
           "2f077ef4eb": "y escanea el código.",
           "3aa7bb2d8b": "Emparejar escritorio",
-          "d1495e5e64": "Abra Orca Mobile, toque",
+          "d1495e5e64": "Abra Janus Mobile, toque",
           "901c98bb93": "Empareja esto",
           "3960f5c339": "Paso 2 de 2",
           "3241f3c26a": "Instalar QR",
@@ -9056,14 +9057,14 @@
           "aa97420ba4": "Copiar enlace de instalación",
           "ac1eb64952": "Androide",
           "711e6f4b47": "iOS",
-          "e75647ace0": "Escanee el QR con su teléfono o abra el enlace de instalación para obtener Orca Mobile.",
+          "e75647ace0": "Escanee el QR con su teléfono o abra el enlace de instalación para obtener Janus Mobile.",
           "0d9b33299e": "Obtén la aplicación.",
           "92ddfdfa1f": "Paso 1 de 2",
           "ff48d9d520": "Emparejar otro dispositivo",
           "f9cbf4bb53": "Revocar dispositivo",
           "34f878d04f": "Revocar {{value0}}",
           "94829abdb1": "emparejado",
-          "266c18c105": "Abre Orca Mobile para continuar donde lo dejaste o vincular otro dispositivo.",
+          "266c18c105": "Abre Janus Mobile para continuar donde lo dejaste o vincular otro dispositivo.",
           "5410d55d79": "Orca Móvil",
           "10d27b4cba": "empezar",
           "da1d5e5ed0": "Disponible en",
@@ -9642,7 +9643,7 @@
             "code_host_tasks_caption": "Your code host's issues also work as tasks.",
             "review_step_title": "See PR status while agents work",
             "review_step_description": "Connect a review provider so Orca can show PR or MR status, checks, and reviews.",
-            "task_step_title": "Start agents on your tasks without leaving Orca"
+            "task_step_title": "Start agents on your tasks without leaving Janus Code"
           },
           "connect": {
             "integration": {
@@ -9697,7 +9698,7 @@
             "55846c7f95": "“Divide este PR en dos",
             "4795ac2d4a": "Intenta preguntar:",
             "53905bd076": "Vista previa del desarrollo: apertura del terminal de configuración de habilidades.",
-            "1da82af45b": "Orca CLI necesita atención",
+            "1da82af45b": "Janus CLI necesita atención",
             "ce13a742d0": "Orca registrada en PATH.",
             "d1a86c7eb5": "Abra Configuración para finalizar la configuración de CLI."
           },

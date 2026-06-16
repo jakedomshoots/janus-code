@@ -229,7 +229,7 @@ export class WslCliInstaller {
       return {
         status: this.unsupported(
           hostStatus.unsupportedReason ?? 'launcher_missing',
-          hostStatus.detail ?? 'The Windows Orca CLI launcher is missing.'
+          hostStatus.detail ?? 'The Windows Janus CLI launcher is missing.'
         )
       }
     }

@@ -3,10 +3,9 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/stablyai/orca/stargazers"><img src="https://badgen.net/github/stars/stablyai/orca?label=%E2%98%85" alt="GitHub 스타" /></a>
-  <a href="https://github.com/stablyai/orca/releases"><img src="https://img.shields.io/github/downloads/stablyai/orca/total?label=downloads" alt="전체 릴리스 누적 다운로드 수" /></a>
-  <img src="https://badgen.net/github/license/stablyai/orca" alt="라이선스" />
-  <a href="https://discord.gg/fzjDKHxv8Q"><img src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white" alt="Orca Discord 참여" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/stargazers"><img src="https://badgen.net/github/stars/jakedomshoots/janus-code?label=%E2%98%85" alt="GitHub 스타" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/releases"><img src="https://img.shields.io/github/downloads/jakedomshoots/janus-code/total?label=downloads" alt="전체 릴리스 누적 다운로드 수" /></a>
+  <img src="https://badgen.net/github/license/jakedomshoots/janus-code" alt="라이선스" />
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4493F8?style=flat-square" alt="지원 플랫폼: macOS, Windows, Linux" />
 </p>
 
@@ -35,7 +34,7 @@
 
 휴대폰에서 에이전트를 모니터링하고 조종하세요 — 에이전트가 완료되면 알림을 받고 어디서든 후속 지시를 보낼 수 있습니다.
 
-[iOS App Store](https://apps.apple.com/us/app/orca-ide/id6766130217) · [Android APK](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk) · [문서 →](https://www.onorca.dev/docs/mobile)
+[iOS App Store](https://apps.apple.com/us/app/orca-ide/id6766130217) · [Android APK](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk) · [문서 →](https://www.onorca.dev/docs/mobile)
 
 </td>
 <td width="50%">
@@ -143,7 +142,7 @@ diff의 어느 줄에든 코멘트를 남기고 에이전트에게 바로 보내
 <tr>
 <td width="50%" valign="middle">
 
-### Orca CLI
+### Janus CLI
 
 에이전트도 Orca를 조작할 수 있습니다 — `orca worktree create`, `snapshot`, `click`, `fill`로 모든 워크플로를 스크립팅하세요.
 
@@ -163,7 +162,7 @@ diff의 어느 줄에든 코멘트를 남기고 에이전트에게 바로 보내
 - **[풍부한 리포지토리 미리보기](https://www.onorca.dev/docs/editing/markdown)** — Markdown, 이미지, PDF, 리포지토리 문서를 워크스페이스에서 미리 볼 수 있습니다.
 - **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — 워크플로에 실제 상호작용이 필요할 때 에이전트가 데스크톱 앱과 화면에 보이는 UI를 직접 조작하게 하세요.
 - **[알림과 읽지 않음 상태](https://www.onorca.dev/docs/notifications)** — 에이전트가 완료되거나 주의가 필요할 때 알림을 받고, 스레드를 읽지 않음으로 표시해 나중에 다시 확인하세요.
-- **그리고 훨씬 더 많은 기능** — 매일 출시하기 때문에 이 목록은 항상 뒤처져 있습니다. 진짜 기능 목록은 [체인지로그](https://github.com/stablyai/orca/releases)입니다.
+- **그리고 훨씬 더 많은 기능** — 매일 출시하기 때문에 이 목록은 항상 뒤처져 있습니다. 진짜 기능 목록은 [체인지로그](https://github.com/jakedomshoots/janus-code/releases)입니다.
 
 ---
 
@@ -210,13 +209,13 @@ diff의 어느 줄에든 코멘트를 남기고 에이전트에게 바로 보내
 ### 데스크톱 — macOS, Windows, Linux
 
 - **[onOrca.dev에서 다운로드](https://onorca.dev/download)**
-- 또는 빌드를 직접 받기: [macOS Apple Silicon](https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg) · [macOS Intel](https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg) · [Windows (.exe)](https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe) · [Linux AppImage](https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage) · [전체 빌드](https://github.com/stablyai/orca/releases/latest)
+- 또는 빌드를 직접 받기: [macOS Apple Silicon](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-arm64.dmg) · [macOS Intel](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-x64.dmg) · [Windows (.exe)](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-windows-setup.exe) · [Linux AppImage](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-linux.AppImage) · [전체 빌드](https://github.com/jakedomshoots/janus-code/releases/latest)
 
 _또는 패키지 매니저로 설치:_
 
 ```bash
 # macOS (Homebrew)
-brew install --cask stablyai/orca/orca
+brew install --cask jakedomshoots/janus-code/orca
 
 # Arch Linux (AUR) — or stably-orca-git to build from source
 yay -S stably-orca-bin
@@ -227,17 +226,15 @@ yay -S stably-orca-bin
 데스크톱 앱과 페어링해 휴대폰에서 에이전트를 모니터링하고 조종하세요.
 
 - **iOS:** [App Store에서 다운로드](https://apps.apple.com/us/app/orca-ide/id6766130217)
-- **Android:** [APK 다운로드](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk)
+- **Android:** [APK 다운로드](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk)
 
 ---
 
 ## 커뮤니티와 지원
 
-- **Discord:** **[Discord](https://discord.gg/fzjDKHxv8Q)** 커뮤니티에 참여하세요.
-- **Twitter / X:** 업데이트와 공지는 **[@orca_build](https://x.com/orca_build)** 를 팔로우하세요.
-- **피드백과 아이디어:** 우리는 빠르게 출시합니다. 필요한 기능이 있나요? [새 기능을 요청](https://github.com/stablyai/orca/issues)하세요.
-- **개인정보 보호:** Orca가 수집하는 익명 사용 데이터와 수집 거부 방법은 [개인정보 및 텔레메트리 문서](https://www.onorca.dev/docs/telemetry)를 참고하세요.
-- **응원하기:** 이 리포지토리에 [Star](https://github.com/stablyai/orca)를 눌러 매일의 릴리스를 따라와 주세요.
+- **피드백과 아이디어:** 우리는 빠르게 출시합니다. 필요한 기능이 있나요? [새 기능을 요청](https://github.com/jakedomshoots/janus-code/issues)하세요.
+- **개인정보 보호:** Janus Code가 수집하는 익명 사용 데이터와 수집 거부 방법은 [개인정보 및 텔레메트리 문서](https://github.com/jakedomshoots/janus-code/tree/main/docs)를 참고하세요.
+- **응원하기:** 이 리포지토리에 [Star](https://github.com/jakedomshoots/janus-code)를 눌러 매일의 릴리스를 따라와 주세요.
 
 ---
 
@@ -245,8 +242,8 @@ yay -S stably-orca-bin
 
 기여하거나 로컬에서 실행하고 싶으신가요? [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) 가이드를 확인하세요.
 
-<a href="https://github.com/stablyai/orca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=stablyai/orca" alt="Orca 기여자" />
+<a href="https://github.com/jakedomshoots/janus-code/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Orca 기여자" />
 </a>
 
 ## 라이선스

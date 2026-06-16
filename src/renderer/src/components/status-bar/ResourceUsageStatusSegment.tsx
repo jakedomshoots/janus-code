@@ -250,11 +250,11 @@ function AppSection({
             isCollapsed
               ? translate(
                   'auto.components.status.bar.ResourceUsageStatusSegment.e419d27083',
-                  'Expand Orca'
+                  'Expand Janus Code'
                 )
               : translate(
                   'auto.components.status.bar.ResourceUsageStatusSegment.53dd5560ae',
-                  'Collapse Orca'
+                  'Collapse Janus Code'
                 )
           }
           aria-expanded={!isCollapsed}
@@ -1093,7 +1093,7 @@ export function ResourceUsageStatusSegment({
 
   const handleKillSession = useCallback(
     (session: UnifiedSessionRow): void => {
-      // Why: orphan sessions have no tab in this Orca instance, so there's
+      // Why: orphan sessions have no tab in this Janus Code instance, so there's
       // no "unsaved work in that pane" the user could lose by killing them.
       // Skip the confirm dialog for orphans and fire the kill straight away
       // (with optimistic removal) — same UX as a one-off kill from the
@@ -1428,7 +1428,7 @@ export function ResourceUsageStatusSegment({
                 <TooltipContent side="top" sideOffset={6} className="z-[70] max-w-xs">
                   {translate(
                     'auto.components.status.bar.ResourceUsageStatusSegment.9e2525c89f',
-                    "Resident memory held by Orca plus the processes under each worktree's terminals."
+                    "Resident memory held by Janus Code plus the processes under each worktree's terminals."
                   )}
                 </TooltipContent>
               </Tooltip>
@@ -1449,7 +1449,7 @@ export function ResourceUsageStatusSegment({
                 <TooltipContent side="top" sideOffset={6} className="z-[70] max-w-xs">
                   {translate(
                     'auto.components.status.bar.ResourceUsageStatusSegment.6449a95c78',
-                    "How much of this machine's physical RAM the Orca-tracked processes are sitting on."
+                    "How much of this machine's physical RAM the Janus Code-tracked processes are sitting on."
                   )}
                 </TooltipContent>
               </Tooltip>

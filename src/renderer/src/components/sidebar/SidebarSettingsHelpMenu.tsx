@@ -34,30 +34,13 @@ import { useSetupGuideProgress } from '../setup-guide/use-setup-guide-progress'
 import { SidebarFeedbackDialog } from './SidebarFeedbackDialog'
 import { translate } from '@/i18n/i18n'
 
-const DOCS_URL = 'https://www.onorca.dev/docs'
-const CHANGELOG_URL = 'https://onorca.dev/changelog'
-const GITHUB_URL = 'https://github.com/stablyai/orca'
-const DISCORD_URL = 'https://discord.gg/fzjDKHxv8Q'
-const X_URL = 'https://x.com/orca_build'
+const DOCS_URL = 'https://github.com/jakedomshoots/janus-code/tree/main/docs'
+const CHANGELOG_URL = 'https://github.com/jakedomshoots/janus-code/releases'
+const GITHUB_URL = 'https://github.com/jakedomshoots/janus-code'
+const ISSUES_URL = 'https://github.com/jakedomshoots/janus-code/issues'
 
 function openExternalUrl(url: string): void {
   void window.api.shell.openUrl(url)
-}
-
-function DiscordIcon(): React.JSX.Element {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-3.5 fill-current">
-      <path d="M20.317 4.369A19.791 19.791 0 0 0 15.885 3c-.191.328-.403.77-.553 1.116a18.27 18.27 0 0 0-5.098 0A12.64 12.64 0 0 0 9.68 3a19.736 19.736 0 0 0-4.433 1.369C2.444 8.479 1.69 12.488 2.067 16.44a19.912 19.912 0 0 0 5.427 2.744c.438-.598.828-1.23 1.164-1.89a12.95 12.95 0 0 1-1.833-.877c.154-.113.305-.231.45-.352a14.294 14.294 0 0 0 12.45 0c.146.12.296.239.45.352-.585.34-1.2.634-1.835.878.337.659.727 1.29 1.165 1.888a19.84 19.84 0 0 0 5.43-2.744c.442-4.579-.755-8.551-3.932-12.07ZM9.955 14.005c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.211 0 2.176 1.095 2.157 2.418 0 1.334-.955 2.419-2.157 2.419Zm4.09 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.211 0 2.176 1.095 2.157 2.418 0 1.334-.946 2.419-2.157 2.419Z" />
-    </svg>
-  )
-}
-
-function XIcon(): React.JSX.Element {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-3.5 fill-current">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  )
 }
 
 function ExternalMenuItem({
@@ -124,7 +107,10 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
     }
     setIsRestartingOrca(true)
     toast.info(
-      translate('auto.components.sidebar.SidebarSettingsHelpMenu.5161eef55d', 'Restarting Orca…')
+      translate(
+        'auto.components.sidebar.SidebarSettingsHelpMenu.5161eef55d',
+        'Restarting Janus Code…'
+      )
     )
     void window.api.app.restart().catch((error) => {
       if (mountedRef.current) {
@@ -132,7 +118,7 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
         toast.error(
           translate(
             'auto.components.sidebar.SidebarSettingsHelpMenu.4e8f5710d3',
-            "Couldn't restart Orca."
+            "Couldn't restart Janus Code."
           ),
           {
             description: error instanceof Error ? error.message : undefined
@@ -285,16 +271,14 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
               url={GITHUB_URL}
               icon={<Github className="size-3.5" />}
             />
-            <DropdownMenuItem onSelect={() => openExternalUrl(DISCORD_URL)}>
-              <DiscordIcon />
-              {translate('auto.components.sidebar.SidebarSettingsHelpMenu.eb9884e55b', 'Discord')}
-              <ExternalLink className="ml-auto size-3 text-muted-foreground" />
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => openExternalUrl(X_URL)}>
-              <XIcon />
-              {translate('auto.components.sidebar.SidebarSettingsHelpMenu.c4f8e1b72a', 'X')}
-              <ExternalLink className="ml-auto size-3 text-muted-foreground" />
-            </DropdownMenuItem>
+            <ExternalMenuItem
+              label={translate(
+                'auto.components.sidebar.SidebarSettingsHelpMenu.c781f73e3f',
+                'Issues'
+              )}
+              url={ISSUES_URL}
+              icon={<MessageSquareText className="size-3.5" />}
+            />
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={updateStatus.state === 'checking' || updateStatus.state === 'downloading'}
@@ -317,7 +301,7 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
                   <RotateCw className="size-3.5" />
                   {translate(
                     'auto.components.sidebar.SidebarSettingsHelpMenu.ad3d3ed7f1',
-                    'Restart Orca'
+                    'Restart Janus Code'
                   )}
                 </DropdownMenuItem>
               </>

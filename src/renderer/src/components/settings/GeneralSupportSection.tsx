@@ -9,7 +9,7 @@ import { SearchableSetting } from './SearchableSetting'
 import { SettingsSubsectionHeader } from './SettingsFormControls'
 import { translate } from '@/i18n/i18n'
 
-const ORCA_STARGAZERS_URL = 'https://github.com/stablyai/orca/stargazers'
+const ORCA_STARGAZERS_URL = 'https://github.com/jakedomshoots/janus-code/stargazers'
 
 type SupportState =
   | 'loading'
@@ -123,7 +123,7 @@ function SupportSection({
             <SettingsSubsectionHeader
               title={translate(
                 'auto.components.settings.GeneralSupportSection.55a87e5fd1',
-                'Support Orca'
+                'Support Janus Code'
               )}
             />
             {state === 'loading' ? <SupportRowSkeleton /> : null}
@@ -160,7 +160,7 @@ function SupportRow({
     <SearchableSetting
       title={translate(
         'auto.components.settings.GeneralSupportSection.6922c1fa2b',
-        'Star Orca on GitHub'
+        'Star Janus Code on GitHub'
       )}
       description={translate(
         'auto.components.settings.GeneralSupportSection.511782265b',
@@ -172,7 +172,7 @@ function SupportRow({
       <Label>
         {translate(
           'auto.components.settings.GeneralSupportSection.6922c1fa2b',
-          'Star Orca on GitHub'
+          'Star Janus Code on GitHub'
         )}
       </Label>
       {state === 'starred' ? (

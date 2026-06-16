@@ -81,7 +81,7 @@ function resolveBuildIdentity(): 'stable' | 'rc' | null {
 function resolveTokenEndpoint(): string | null {
   const buildEndpoint = resolveBuildTokenEndpoint()
   // Official builds must stay pinned to the CI-substituted endpoint; the
-  // upload confirmation says "Orca support", so env cannot redirect it.
+  // upload confirmation says "Janus Code support", so env cannot redirect it.
   if (resolveBuildIdentity()) {
     return buildEndpoint
   }
@@ -252,7 +252,7 @@ async function confirmBundleUpload(bundle: CollectedBundle): Promise<void> {
     defaultId: 1,
     cancelId: 1,
     title: 'Upload diagnostic bundle?',
-    message: 'Upload diagnostic bundle to Orca support?',
+    message: 'Upload diagnostic bundle to Janus Code support?',
     detail: `Bundle ${bundle.bundleSubmissionId}\n${bundle.spanCount} span(s), ${Math.round(
       bundle.bytes / 1024
     )} KB\n\nThe exact redacted NDJSON preview was opened before this upload confirmation.`

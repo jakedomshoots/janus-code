@@ -87,7 +87,7 @@ import {
 
 type GhExecOptions = ReturnType<typeof ghRepoExecOptions>
 
-const ORCA_REPO = 'stablyai/orca'
+const ORCA_REPO = 'jakedomshoots/janus-code'
 const PR_CHECK_LOG_TAIL_LINES = 200
 const PR_CHECK_LOG_TAIL_BYTES = 16 * 1024
 const PR_CHECK_LOG_TAIL_JOB_LIMIT = 5
@@ -1337,7 +1337,7 @@ async function countWorkItemsForQuery(
 
 function sameOwnerRepo(left: OwnerRepo | null, right: OwnerRepo | null): boolean {
   // Why: GitHub treats owner and repo names as case-insensitive, so remotes
-  // with different casing (StablyAI/Orca vs stablyai/orca) point at the same
+  // with different casing (StablyAI/Orca vs jakedomshoots/janus-code) point at the same
   // repo and should not split into two search queries.
   return (
     left?.owner.toLowerCase() === right?.owner.toLowerCase() &&

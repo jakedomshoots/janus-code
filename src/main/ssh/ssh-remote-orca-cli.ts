@@ -156,7 +156,7 @@ async function dispatchRemoteCli(
         terminal: optionalString(parsed.flags, 'terminal')
       })
     default:
-      throw new Error(`Unsupported SSH Orca CLI command: ${command}`)
+      throw new Error(`Unsupported SSH Janus CLI command: ${command}`)
   }
 }
 

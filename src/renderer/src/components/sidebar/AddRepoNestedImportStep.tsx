@@ -111,7 +111,7 @@ export function AddRepoNestedImportStep({
           <p className="text-xs text-muted-foreground">
             {translate(
               'auto.components.sidebar.AddRepoNestedImportStep.d75170194e',
-              "Import them as a group if they're a monorepo or otherwise belong together. Orca will group them and let you work from the parent folder."
+              "Import them as a group if they're a monorepo or otherwise belong together. Janus Code will group them and let you work from the parent folder."
             )}
           </p>
         </div>

@@ -34,7 +34,10 @@ const SCOPE_OPTIONS: { value: CodexUsageScope; label: string }[] = [
   {
     value: 'orca',
     get label() {
-      return translate('auto.components.stats.CodexUsagePane.201766b754', 'Orca worktrees only')
+      return translate(
+        'auto.components.stats.CodexUsagePane.201766b754',
+        'Janus Code worktrees only'
+      )
     }
   },
   {

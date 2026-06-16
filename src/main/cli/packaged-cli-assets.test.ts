@@ -47,7 +47,7 @@ describe('packaged CLI assets', () => {
   })
 
   itRunsUnixShell(
-    'keeps the Agent Hub Unix launchers executable in packaged resources',
+    'keeps the Janus Code Unix launchers executable in packaged resources',
     async () => {
       const launcherStats = await Promise.all([
         stat(macAgentHubLauncherAsset),
@@ -60,21 +60,21 @@ describe('packaged CLI assets', () => {
     }
   )
 
-  itRunsUnixShell('keeps the macOS launcher pointed at Agent Hub.app', async () => {
+  itRunsUnixShell('keeps the macOS launcher pointed at Janus Code.app', async () => {
     const launcher = await readFile(macAgentHubLauncherAsset, 'utf8')
 
-    expect(launcher).toContain('Agent Hub.app')
-    expect(launcher).toContain('MacOS/Agent Hub')
+    expect(launcher).toContain('Janus Code.app')
+    expect(launcher).toContain('MacOS/Janus Code')
     expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
   })
 
   itRunsUnixShell(
-    'keeps the legacy macOS launcher as an Agent Hub compatibility alias',
+    'keeps the legacy macOS launcher as a Janus Code compatibility alias',
     async () => {
       const launcher = await readFile(macLegacyLauncherAsset, 'utf8')
 
-      expect(launcher).toContain('Agent Hub.app')
-      expect(launcher).toContain('MacOS/Agent Hub')
+      expect(launcher).toContain('Janus Code.app')
+      expect(launcher).toContain('MacOS/Janus Code')
       expect(launcher).not.toContain('MacOS/Orca')
       expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
     }

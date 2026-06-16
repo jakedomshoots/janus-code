@@ -939,9 +939,15 @@ describe('registerPtyHandlers', () => {
       }))
 
       expect(env.ORCA_ENABLE_GIT_ATTRIBUTION).toBe('1')
-      expect(env.ORCA_GIT_COMMIT_TRAILER).toBe('Co-authored-by: Orca <help@stably.ai>')
-      expect(env.ORCA_GH_PR_FOOTER).toBe('Made with [Orca](https://github.com/stablyai/orca) 🐋')
-      expect(env.ORCA_GH_ISSUE_FOOTER).toBe('Made with [Orca](https://github.com/stablyai/orca) 🐋')
+      expect(env.ORCA_GIT_COMMIT_TRAILER).toBe(
+        'Co-authored-by: Janus Code <janus-code@users.noreply.github.com>'
+      )
+      expect(env.ORCA_GH_PR_FOOTER).toBe(
+        'Made with [Janus Code](https://github.com/jakedomshoots/janus-code)'
+      )
+      expect(env.ORCA_GH_ISSUE_FOOTER).toBe(
+        'Made with [Janus Code](https://github.com/jakedomshoots/janus-code)'
+      )
       expect(env.PATH).toContain('/tmp/orca-user-data/orca-terminal-attribution/posix')
     })
 

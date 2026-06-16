@@ -13,7 +13,7 @@ export { getMobileSettingsPaneSearchEntries }
 
 const ORCA_IOS_APP_STORE_URL = 'https://apps.apple.com/app/orca-ide/id6766130217'
 const ORCA_ANDROID_APK_URL =
-  'https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk'
+  'https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk'
 
 type MobileSettingsPaneProps = {
   settings: GlobalSettings
@@ -49,7 +49,7 @@ export function MobileSettingsPane({
               <p className="text-xs text-muted-foreground">
                 {translate(
                   'auto.components.settings.MobileSettingsPane.c8491c17ef',
-                  'Control Orca from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the'
+                  'Control Janus Code from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the'
                 )}{' '}
                 <button
                   type="button"

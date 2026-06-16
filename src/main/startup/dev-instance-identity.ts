@@ -2,8 +2,8 @@ import { createHash } from 'crypto'
 import path from 'path'
 import type { AppIdentity } from '../../shared/app-identity'
 
-const BASE_APP_NAME = 'Orca'
-const BASE_APP_USER_MODEL_ID = 'com.stablyai.orca'
+const BASE_APP_NAME = 'Janus Code'
+const BASE_APP_USER_MODEL_ID = 'com.jakedomshoots.janus-code'
 const MAX_LABEL_LENGTH = 80
 
 export type DevInstanceIdentity = AppIdentity & {

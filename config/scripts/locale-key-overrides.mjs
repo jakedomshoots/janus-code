@@ -6,7 +6,7 @@ export const LOCALE_KEY_OVERRIDES = {
   'menu.reportCrash': { ko: '크래시 신고...', zh: '报告崩溃...', ja: 'クラッシュを報告...' },
   'menu.showMobileButton': {
     ko: 'Orca 모바일 버튼 표시',
-    zh: '显示 Orca Mobile 按钮',
+    zh: '显示 Janus Mobile 按钮',
     ja: 'Orca モバイル ボタンを表示'
   },
   'menu.toggleLeftSidebar': {

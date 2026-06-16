@@ -64,7 +64,7 @@ jobs:
           tag="${GITHUB_REF#refs/tags/}"
           gh release create "$tag" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Orca Mobile $tag" \
+            --title "Janus Mobile $tag" \
             --prerelease \
             --latest=false \
             --generate-notes \

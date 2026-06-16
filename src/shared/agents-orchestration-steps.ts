@@ -1,4 +1,4 @@
-// Per-step copy for the agents-orchestration tile in the Explore Orca modal.
+// Per-step copy for the agents-orchestration tile in the Explore Janus Code modal.
 
 export type AgentsStepId = 'statuses' | 'usage' | 'orchestration'
 

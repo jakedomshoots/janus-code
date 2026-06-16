@@ -174,14 +174,15 @@ describe('SidebarSettingsHelpMenu', () => {
     expect(html).toContain('GitHub')
   })
 
-  it('renders Discord link', () => {
+  it('renders Issues link', () => {
     const html = renderToStaticMarkup(<SidebarSettingsHelpMenu />)
-    expect(html).toContain('Discord')
+    expect(html).toContain('Issues')
   })
 
-  it('renders X link', () => {
+  it('does not render stale social links', () => {
     const html = renderToStaticMarkup(<SidebarSettingsHelpMenu />)
-    expect(html).toContain('>X<')
+    expect(html).not.toContain('Discord')
+    expect(html).not.toContain('>X<')
   })
 
   it('renders Check for Updates menu item', () => {

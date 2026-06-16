@@ -69,7 +69,7 @@ export type LinearLaunchContextArgs = {
 }
 
 // Why: ticket prose is third-party text and stays out of launch prompts
-// entirely; the prompt carries only Orca-authored pointers and agents fetch
+// entirely; the prompt carries only Janus Code-authored pointers and agents fetch
 // full ticket data through the read-only `orca linear` CLI.
 export function buildLinearLaunchContextBlock(args: LinearLaunchContextArgs): string | null {
   const identifier = args.identifier?.trim()
@@ -92,7 +92,7 @@ export function buildLinearLaunchContextBlock(args: LinearLaunchContextArgs): st
     )
   } else {
     lines.push(
-      'Full ticket details (description, comments, sub-issues) are available via the Orca CLI, which is not installed on PATH here. The user can enable it from Orca Settings.'
+      'Full ticket details (description, comments, sub-issues) are available via the Janus CLI, which is not installed on PATH here. The user can enable it from Janus Code Settings.'
     )
   }
   return lines.join('\n')

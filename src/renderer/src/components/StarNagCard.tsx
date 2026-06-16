@@ -6,11 +6,11 @@ import { useAppStore } from '../store'
 import { useMountedRef } from '@/hooks/useMountedRef'
 import { translate } from '@/i18n/i18n'
 
-const ORCA_STARGAZERS_URL = 'https://github.com/stablyai/orca/stargazers'
+const ORCA_STARGAZERS_URL = 'https://github.com/jakedomshoots/janus-code/stargazers'
 type StarNagMode = 'gh' | 'web'
 
 /**
- * Persistent "star Orca on GitHub" notification card.
+ * Persistent "star Janus Code on GitHub" notification card.
  *
  * Rendered at the bottom-right of the app (alongside UpdateCard). It is
  * intentionally non-auto-dismissing: the user must either click Star or the
@@ -118,7 +118,7 @@ export function StarNagCard(): React.JSX.Element | null {
             <div className="flex items-center gap-2">
               <Star className="size-4 fill-amber-400/60 text-amber-400/80" />
               <h3 id="star-nag-heading" className="text-sm font-semibold">
-                {translate('auto.components.StarNagCard.5f6df21046', 'Enjoying Orca?')}
+                {translate('auto.components.StarNagCard.5f6df21046', 'Enjoying Janus Code?')}
               </h3>
             </div>
             <Button
@@ -135,7 +135,7 @@ export function StarNagCard(): React.JSX.Element | null {
           <p className="text-sm text-muted-foreground">
             {translate(
               'auto.components.StarNagCard.30c36231c1',
-              'If Orca has saved you time, a GitHub star goes a long way. It helps other developers discover the project and keeps the team motivated to ship improvements.'
+              'If Janus Code has saved you time, a GitHub star goes a long way. It helps other developers discover the project and keeps the team motivated to ship improvements.'
             )}
           </p>
 

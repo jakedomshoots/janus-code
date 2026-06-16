@@ -1,6 +1,6 @@
 # Notices
 
-Agent Hub is a fork of Orca, originally published by StablyAI/Lovecast Inc.
+Janus Code is a fork of Orca, originally published by StablyAI/Lovecast Inc.
 Orca is licensed under the MIT License. The original Orca license text is
 preserved in `LICENSE`.
 

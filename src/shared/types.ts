@@ -2436,7 +2436,7 @@ export type GlobalSettings = {
   /** Why: Automations can be restored from Settings or the View menu, so this
    *  only controls whether the top-level sidebar shortcut is shown. */
   showAutomationsButton?: boolean
-  /** Why: Orca Mobile remains reachable from the toolbox; this only controls
+  /** Why: Janus Mobile remains reachable from the toolbox; this only controls
    *  whether the top-level sidebar shortcut is shown. */
   showMobileButton?: boolean
   /** Controls how Ctrl+Tab chooses the next visible tab. Optional for

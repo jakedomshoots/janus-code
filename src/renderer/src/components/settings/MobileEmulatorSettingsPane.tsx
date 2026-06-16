@@ -134,7 +134,7 @@ export function MobileEmulatorSettingsPane({
 
   const defaultDeviceDescription = useMemo(() => {
     if (devices.length === 0) {
-      return 'Orca will auto-select an emulator device after devices are detected.'
+      return 'Janus Code will auto-select an emulator device after devices are detected.'
     }
     return 'Default device for new emulator tabs and agent attach commands. Auto-select prefers an already running iPhone.'
   }, [devices.length])
@@ -148,7 +148,7 @@ export function MobileEmulatorSettingsPane({
         )}
         description={translate(
           'auto.components.settings.MobileEmulatorSettingsPane.bc39d0f115',
-          'Configure mobile emulator support for Orca and coding agents.'
+          'Configure mobile emulator support for Janus Code and coding agents.'
         )}
         keywords={getMobileEmulatorSearchEntries().flatMap((entry) => entry.keywords ?? [])}
         className="divide-y divide-border/40"
@@ -248,7 +248,7 @@ export function MobileEmulatorSettingsPane({
           )}
           description={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.19d39113b6',
-            'Let coding agents control the active mobile emulator with Orca CLI commands.'
+            'Let coding agents control the active mobile emulator with Janus CLI commands.'
           )}
           keywords={getMobileEmulatorSearchEntries()[3]?.keywords}
         >

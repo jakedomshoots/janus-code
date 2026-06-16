@@ -138,7 +138,7 @@ export const CORE_COMMAND_SPECS: CommandSpec[] = [
     examples: [
       'orca worktree create --name agent-task --agent codex --prompt "hi" --json',
       'orca worktree create --repo id:<repoId> --name related-task --json',
-      'orca worktree create --project github:stablyai/orca --host runtime:gpu --name benchmark --json',
+      'orca worktree create --project github:jakedomshoots/janus-code --host runtime:gpu --name benchmark --json',
       'orca worktree create --repo id:<repoId> --name linear-task --linear-issue https://linear.app/stably/issue/STA-335/test-issue --json',
       'orca worktree create --repo id:<repoId> --name agent-task --agent codex --prompt "hi" --json',
       'orca worktree create --repo id:<repoId> --name folder-child --parent-workspace folder:<folderWorkspaceId> --json',
