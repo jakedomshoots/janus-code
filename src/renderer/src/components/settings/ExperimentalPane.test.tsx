@@ -64,6 +64,46 @@ describe('ExperimentalPane', () => {
     )
   })
 
+  it('renders GUI agent workspace as an off-by-default searchable experimental switch', () => {
+    const settings = getDefaultSettings('/tmp')
+    const markup = renderToStaticMarkup(
+      <ExperimentalPane settings={settings} updateSettings={vi.fn()} />
+    )
+    const searchEntry = getExperimentalPaneSearchEntries().find(
+      (entry) => entry.title === 'GUI agent workspace'
+    )
+
+    expect(settings.guiAgentWorkspaceEnabled).toBe(false)
+    expect(markup).toContain('GUI agent workspace')
+    expect(markup).toContain(
+      'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+    )
+    expect(markup).toContain('aria-checked="false"')
+    expect(searchEntry).toBeDefined()
+    expect(searchEntry?.keywords).toEqual(
+      expect.arrayContaining(['gui', 'workspace', 'agent', 'agents', 't3', 'codex', 'desktop'])
+    )
+  })
+
+  it('enables GUI agent workspace through the experimental switch', async () => {
+    const updateSettings = vi.fn()
+    const { root, container } = await renderExperimentalPane({ updateSettings })
+
+    const switchButton = container.querySelector<HTMLButtonElement>(
+      '#gui-agent-workspace button[role="switch"]'
+    )
+    if (!switchButton) {
+      throw new Error('GUI agent workspace switch was not rendered')
+    }
+
+    await act(async () => {
+      switchButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(updateSettings).toHaveBeenCalledWith({ guiAgentWorkspaceEnabled: true })
+    root.unmount()
+  })
+
   it('renders the agent hibernation idle duration as configurable minutes', async () => {
     const updateSettings = vi.fn()
     const settings = {

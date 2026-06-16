@@ -4641,6 +4641,12 @@
             "idleMinutesSuffix": "분",
             "title": "Agent 최대 절전",
             "toggleLabel": "Agent 최대 절전 전환"
+          },
+          "guiAgentWorkspace": {
+            "title": "GUI 에이전트 작업 공간",
+            "description": "터미널 우선 작업 공간을 GUI 우선 에이전트 작업 공간으로 바꾸고, 터미널은 디버그 패널로 계속 사용할 수 있게 유지합니다.",
+            "copy": "터미널 우선 작업 공간을 GUI 우선 에이전트 작업 공간으로 바꾸고, 터미널은 디버그 패널로 계속 사용할 수 있게 유지합니다.",
+            "toggleLabel": "GUI 에이전트 작업 공간 전환"
           }
         },
         "FloatingWorkspacePane": {
@@ -6705,6 +6711,10 @@
               "sleep": "절전",
               "terminal": "터미널",
               "title": "Agent 최대 절전"
+            },
+            "guiAgentWorkspace": {
+              "title": "GUI 에이전트 작업 공간",
+              "description": "터미널 우선 작업 공간을 GUI 우선 에이전트 작업 공간으로 바꾸고, 터미널은 디버그 패널로 계속 사용할 수 있게 유지합니다."
             }
           }
         },

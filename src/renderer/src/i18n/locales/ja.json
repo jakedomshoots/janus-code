@@ -4641,6 +4641,12 @@
             "idleMinutesSuffix": "分",
             "title": "Agent の休止",
             "toggleLabel": "Agent の休止を切り替え"
+          },
+          "guiAgentWorkspace": {
+            "title": "GUI エージェントワークスペース",
+            "description": "ターミナル中心のワークスペースを GUI 中心のエージェントワークスペースに置き換え、デバッグパネルとしてターミナルを引き続き利用できます。",
+            "copy": "ターミナル中心のワークスペースを GUI 中心のエージェントワークスペースに置き換え、デバッグパネルとしてターミナルを引き続き利用できます。",
+            "toggleLabel": "GUI エージェントワークスペースを切り替え"
           }
         },
         "FloatingWorkspacePane": {
@@ -6742,6 +6748,10 @@
               "sleep": "スリープ",
               "terminal": "ターミナル",
               "title": "Agent の休止"
+            },
+            "guiAgentWorkspace": {
+              "title": "GUI エージェントワークスペース",
+              "description": "ターミナル中心のワークスペースを GUI 中心のエージェントワークスペースに置き換え、デバッグパネルとしてターミナルを引き続き利用できます。"
             }
           }
         },

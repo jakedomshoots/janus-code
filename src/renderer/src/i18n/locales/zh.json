@@ -4641,6 +4641,12 @@
             "idleMinutesSuffix": "分钟",
             "title": "Agent 休眠",
             "toggleLabel": "切换 agent 休眠"
+          },
+          "guiAgentWorkspace": {
+            "title": "GUI Agent 工作区",
+            "description": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。",
+            "copy": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。",
+            "toggleLabel": "切换 GUI Agent 工作区"
           }
         },
         "FloatingWorkspacePane": {
@@ -6705,6 +6711,10 @@
               "sleep": "睡眠",
               "terminal": "终端",
               "title": "Agent 休眠"
+            },
+            "guiAgentWorkspace": {
+              "title": "GUI Agent 工作区",
+              "description": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。"
             }
           }
         },

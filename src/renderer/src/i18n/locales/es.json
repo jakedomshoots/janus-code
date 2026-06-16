@@ -4656,6 +4656,12 @@
             "idleMinutesSuffix": "minutos",
             "title": "Hibernación de agentes",
             "toggleLabel": "Alternar hibernación de agentes"
+          },
+          "guiAgentWorkspace": {
+            "title": "Espacio de trabajo de agentes con GUI",
+            "description": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración.",
+            "copy": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración.",
+            "toggleLabel": "Activar/desactivar espacio de trabajo de agentes con GUI"
           }
         },
         "FloatingWorkspacePane": {
@@ -6720,6 +6726,10 @@
               "sleep": "suspender",
               "terminal": "terminal",
               "title": "Hibernación de agentes"
+            },
+            "guiAgentWorkspace": {
+              "title": "Espacio de trabajo de agentes con GUI",
+              "description": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración."
             }
           }
         },

@@ -44,6 +44,9 @@ export function ExperimentalPane({
   const showAgentHibernation = matchesSettingsSearch(searchQuery, [
     getExperimentalSearchEntry().agentHibernation
   ])
+  const showGuiAgentWorkspace = matchesSettingsSearch(searchQuery, [
+    getExperimentalSearchEntry().guiAgentWorkspace
+  ])
   const agentHibernationEnabled = settings.experimentalAgentHibernation === true
   // Why: the planner owns ms-based bounds/defaults; the UI edits minutes
   // while displaying the same effective clamped value the planner will use.
@@ -261,6 +264,51 @@ export function ExperimentalPane({
               }
             />
           ) : null}
+        </SearchableSetting>
+      ) : null}
+
+      {showGuiAgentWorkspace ? (
+        <SearchableSetting
+          title={translate(
+            'auto.components.settings.ExperimentalPane.guiAgentWorkspace.title',
+            'GUI agent workspace'
+          )}
+          description={translate(
+            'auto.components.settings.ExperimentalPane.guiAgentWorkspace.description',
+            'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+          )}
+          keywords={getExperimentalSearchEntry().guiAgentWorkspace.keywords}
+          className="space-y-3 py-2"
+          id="gui-agent-workspace"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 shrink space-y-0.5">
+              <Label>
+                {translate(
+                  'auto.components.settings.ExperimentalPane.guiAgentWorkspace.title',
+                  'GUI agent workspace'
+                )}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {translate(
+                  'auto.components.settings.ExperimentalPane.guiAgentWorkspace.copy',
+                  'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+                )}
+              </p>
+            </div>
+            <SettingsSwitch
+              checked={settings.guiAgentWorkspaceEnabled}
+              ariaLabel={translate(
+                'auto.components.settings.ExperimentalPane.guiAgentWorkspace.toggleLabel',
+                'Toggle GUI agent workspace'
+              )}
+              onChange={() =>
+                updateSettings({
+                  guiAgentWorkspaceEnabled: !settings.guiAgentWorkspaceEnabled
+                })
+              }
+            />
+          </div>
         </SearchableSetting>
       ) : null}
 

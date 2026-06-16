@@ -4656,7 +4656,13 @@
           },
           "ca2219fe5e": "Shows a small animated pet pinned to the bottom-right corner. Pick a character (Claudino, OpenCode, Gremlin) or upload your own PNG, APNG, GIF, WebP, JPG, or SVG from the status-bar pet menu. Hide it any time from the same menu without disabling this setting.",
           "dd6f0a1d45": "Pet",
-          "0e89a574ae": "Floating animated pet in the bottom-right corner."
+          "0e89a574ae": "Floating animated pet in the bottom-right corner.",
+          "guiAgentWorkspace": {
+            "title": "GUI agent workspace",
+            "description": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.",
+            "copy": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.",
+            "toggleLabel": "Toggle GUI agent workspace"
+          }
         },
         "FloatingWorkspacePane": {
           "aeaf76fda9": "Status Bar",
@@ -6757,7 +6763,11 @@
             "b54cea709b": "sidekick",
             "051203d37c": "pet",
             "6b5a56ac35": "Floating animated pet in the bottom-right corner.",
-            "87d99e634b": "Pet"
+            "87d99e634b": "Pet",
+            "guiAgentWorkspace": {
+              "title": "GUI agent workspace",
+              "description": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel."
+            }
           }
         },
         "floating": {

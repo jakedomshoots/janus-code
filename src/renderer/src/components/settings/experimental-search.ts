@@ -2,6 +2,7 @@ import type { SettingsSearchEntry } from './settings-search'
 import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 import { translate } from '@/i18n/i18n'
 import { translateSearchKeyword } from './settings-search-keywords'
+import { getGuiAgentWorkspaceSearchEntry } from './gui-agent-workspace-search'
 
 export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
   (): SettingsSearchEntry[] => [
@@ -184,6 +185,7 @@ export const getExperimentalPaneSearchEntries = createLocalizedCatalog(
         )
       ]
     },
+    getGuiAgentWorkspaceSearchEntry(),
     {
       title: translate(
         'auto.components.settings.experimental.search.78c2a8dc74',
@@ -262,6 +264,7 @@ export function getExperimentalSearchEntry() {
         'Agent hibernation'
       )
     ),
+    guiAgentWorkspace: getGuiAgentWorkspaceSearchEntry(),
     symlinksOnWorktrees: findEntry(
       translate('auto.components.settings.experimental.search.78c2a8dc74', 'Symlinks on worktrees')
     )

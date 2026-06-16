@@ -138,6 +138,7 @@ function createSettings(overrides: Partial<GlobalSettings> = {}): GlobalSettings
     enableGitHubAttribution: true,
     ...overrides,
     leftSidebarAppearanceMode: overrides.leftSidebarAppearanceMode ?? 'default',
+    guiAgentWorkspaceEnabled: overrides.guiAgentWorkspaceEnabled ?? false,
     appFontFamily,
     agentStatusHooksEnabled,
     tabAutoGenerateTitle

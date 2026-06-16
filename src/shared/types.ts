@@ -2622,6 +2622,8 @@ export type GlobalSettings = {
   experimentalAgentHibernation?: boolean
   /** Milliseconds a completed agent must stay idle before hibernation can be considered. */
   agentHibernationIdleMs?: number
+  /** Experimental: GUI-first agent workspace while keeping the terminal available for debug. */
+  guiAgentWorkspaceEnabled: boolean
   /** Compact worktree cards by hiding a redundant metadata row when the title
    *  and branch already say the same thing. */
   compactWorktreeCards: boolean

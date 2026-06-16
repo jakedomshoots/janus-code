@@ -328,6 +328,7 @@ export function getDefaultSettings(homedir: string): GlobalSettings {
     experimentalTerminalAttention: false,
     experimentalAgentHibernation: false,
     agentHibernationIdleMs: 30 * 60 * 1000,
+    guiAgentWorkspaceEnabled: false,
     compactWorktreeCards: false,
     experimentalWorktreeSymlinks: false,
     // Why: local desktop remains the default server until the user explicitly
