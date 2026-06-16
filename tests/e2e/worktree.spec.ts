@@ -35,6 +35,31 @@ test.describe('Create Workspace', () => {
     await waitForActiveWorktree(orcaPage)
   })
 
+  test('opens terminal debug surface from the GUI workspace', async ({ orcaPage }) => {
+    await ensureTerminalVisible(orcaPage)
+    await orcaPage.evaluate(async () => {
+      const store = window.__store
+      if (!store) {
+        throw new Error('window.__store is not available')
+      }
+      await store.getState().updateSettings({ guiAgentWorkspaceEnabled: true })
+      store.getState().setActiveView('terminal')
+    })
+
+    const workspace = orcaPage.getByRole('region', { name: /Agent workspace/i })
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+
+    await expect(
+      workspace.getByText(/Terminal session is available as a debug panel/i)
+    ).toBeVisible()
+
+    await workspace.getByRole('button', { name: /Open drawer/i }).click()
+
+    const drawer = orcaPage.locator('[data-agent-terminal-drawer="true"][data-state="open"]')
+    await expect(drawer).toBeVisible()
+    await expect(drawer).toContainText('Terminal drawer')
+  })
+
   test('creates a worktree through the composer UI and activates it', async ({ orcaPage }) => {
     const worktreeIdBefore = await getActiveWorktreeId(orcaPage)
 
