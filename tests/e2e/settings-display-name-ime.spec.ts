@@ -77,7 +77,11 @@ async function typeHangulGanadaSlowly(
       // Why: React restores the controlled value after the input event's
       // dispatch but later than its microtasks, so poll on a macrotask.
       setTimeout(() => {
-        if ((el as HTMLInputElement).value !== seen) {
+        const current = (el as HTMLInputElement).value
+        // CDP can legitimately commit one syllable and immediately continue
+        // the next composition (for example seen "가", current "가나").
+        // A React-controlled clobber rewrites away from the IME's prefix.
+        if (current !== seen && !current.startsWith(seen)) {
           w.__imeClobbered = true
           w.__imeClobberedEver = true
         }

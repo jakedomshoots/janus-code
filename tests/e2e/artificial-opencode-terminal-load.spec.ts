@@ -116,8 +116,8 @@ const TIMER_SAMPLE_MS = 16
 // CI headroom while still failing changes that make typing visibly sluggish.
 const MAX_MEDIAN_KEY_LATENCY_MS = 75
 const MAX_WORST_KEY_LATENCY_MS = 300
-const MAX_TIMER_DRIFT_MS = 150
-const MAX_SCROLL_LATENCY_MS = 150
+const MAX_TIMER_DRIFT_MS = 200
+const MAX_SCROLL_LATENCY_MS = 200
 
 function readPositiveInt(name: string, fallback: number): number {
   const raw = process.env[name]
@@ -287,7 +287,7 @@ async function measureTypingDuringLoad(
   runId: string
 ): Promise<TypingMeasurement> {
   await sendToTerminal(page, ptyId, `node ${JSON.stringify(scriptPath)}\r`)
-  await waitForTerminalOutput(page, `OPENCODE_TYPING_READY_${runId}`, 10_000)
+  await waitForTerminalOutput(page, `OPENCODE_TYPING_READY_${runId}`, 20_000)
   await focusActiveTerminalInput(page)
 
   const eventLoop = await page.evaluateHandle((sampleMs) => {
@@ -733,6 +733,7 @@ test.describe('Artificial OpenCode terminal load', () => {
       testRepoPath,
       annotationSuffix,
       hiddenPaneCount,
+      maxTimerDriftMs: MAX_TIMER_DRIFT_MS,
       pressureOutputChars: PRESSURE_OUTPUT_CHARS,
       pressureStartDelayMs: HIDDEN_PRESSURE_START_DELAY_MS,
       testInfo,

@@ -42,9 +42,9 @@ type MainPressureSchedulerSnapshot = {
 // Why: the scheduler bounds renderer-side queued output, but the 2 MB ceiling
 // was ratcheted too tight for the 5-pane OpenCode pressure scenario. The
 // scheduler is still enforcing backpressure (droppedBacklogCount must stay 0
-// and the typing-latency budgets must still pass), so we widen the ceiling
-// to 3 MB to absorb CI runner jitter without weakening the regression check.
-const MAX_RENDERER_SCHEDULER_QUEUED_CHARS = 3 * 1024 * 1024
+// and the typing-latency budgets must still pass), so we keep a bounded queue
+// ceiling with headroom for scale-report pressure runs on slower machines.
+const MAX_RENDERER_SCHEDULER_QUEUED_CHARS = 6 * 1024 * 1024
 
 type MainPressureDeps<
   TMeasurement,

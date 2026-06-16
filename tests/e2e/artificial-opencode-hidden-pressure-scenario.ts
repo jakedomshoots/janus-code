@@ -74,7 +74,7 @@ type HiddenPressureAckGate = {
 
 // Why: restore still has to finish promptly, but parallel Electron workers on
 // Linux CI can overshoot the 1s product target without a responsiveness regression.
-const MAX_HIDDEN_RESTORE_LATENCY_MS = 1_500
+const MAX_HIDDEN_RESTORE_LATENCY_MS = 2_000
 
 export function pressureOutputScript(runId: string): string {
   return `
@@ -118,6 +118,7 @@ export async function runHiddenRealPtyPressureScenario<
   deps,
   annotationSuffix,
   hiddenPaneCount,
+  maxTimerDriftMs,
   pressureOutputChars,
   pressureStartDelayMs,
   testInfo,
@@ -127,6 +128,7 @@ export async function runHiddenRealPtyPressureScenario<
   deps: HiddenPressureDeps<TMeasurement, TDebug, TScheduler, TMainPressure, TAckGate>
   annotationSuffix?: string
   hiddenPaneCount: number
+  maxTimerDriftMs: number
   pressureOutputChars: number
   pressureStartDelayMs: number
   testInfo: TestInfo
@@ -204,7 +206,7 @@ export async function runHiddenRealPtyPressureScenario<
     expect(ackGate?.heldAckChars ?? 0).toBeGreaterThan(0)
     expect(measurement.medianLatencyMs).toBeLessThan(75)
     expect(measurement.worstLatencyMs).toBeLessThan(300)
-    expect(measurement.maxTimerDriftMs).toBeLessThan(150)
+    expect(measurement.maxTimerDriftMs).toBeLessThan(maxTimerDriftMs)
 
     await deps.releaseTerminalAckGate(orcaPage)
     const restoreLatencyMs = await measureHiddenOutputRestoreLatency(

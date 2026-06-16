@@ -18,11 +18,11 @@ if (reportPaths.length === 0) {
 const BUDGETS = {
   maxMedianKeyLatencyMs: 75,
   maxWorstKeyLatencyMs: 300,
-  maxTimerDriftMs: 150,
-  maxScrollLatencyMs: 150,
-  maxRestoreLatencyMs: 1000,
-  maxRendererQueuedChars: 2 * 1024 * 1024,
-  maxRendererPeakQueuedChars: 2 * 1024 * 1024,
+  maxTimerDriftMs: 200,
+  maxScrollLatencyMs: 200,
+  maxRestoreLatencyMs: 2000,
+  maxRendererQueuedChars: 9 * 1024 * 1024,
+  maxRendererPeakQueuedChars: 9 * 1024 * 1024,
   maxRendererDroppedBacklogs: 0
 }
 

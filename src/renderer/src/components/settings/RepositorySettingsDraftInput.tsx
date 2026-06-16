@@ -19,11 +19,24 @@ export function RepoSettingsDraftInput({
 } & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChange'>): React.JSX.Element {
   const [draft, setDraft] = useState<RepoTextDraft>({ repoId, text: storeValue })
   const pendingStoreEchoesRef = useRef<string[]>([])
+  const isEditingRef = useRef(false)
+  const lastPersistedTextRef = useRef<string | null>(null)
+
+  const updateDraftFromInput = (nextText: string): void => {
+    setDraft({ repoId, text: nextText })
+    if (lastPersistedTextRef.current === nextText) {
+      return
+    }
+    lastPersistedTextRef.current = nextText
+    pendingStoreEchoesRef.current.push(nextText)
+    onTextChange(nextText)
+  }
 
   useEffect(() => {
     setDraft((current) => {
       if (current.repoId !== repoId) {
         pendingStoreEchoesRef.current = []
+        lastPersistedTextRef.current = null
         return { repoId, text: storeValue }
       }
       if (storeValue === current.text) {
@@ -37,6 +50,12 @@ export function RepoSettingsDraftInput({
         pendingStoreEchoesRef.current.splice(0, pendingEchoIndex + 1)
         return current
       }
+      if (isEditingRef.current) {
+        // Why: even a non-pending store value rewrite can cancel an active IME
+        // composition. While the field is focused, the local draft is the
+        // source of truth; external store sync can resume after blur.
+        return current
+      }
       pendingStoreEchoesRef.current = []
       return { repoId, text: storeValue }
     })
@@ -47,11 +66,20 @@ export function RepoSettingsDraftInput({
     <Input
       {...inputProps}
       value={text}
+      onBlur={(e) => {
+        isEditingRef.current = false
+        inputProps.onBlur?.(e)
+      }}
       onChange={(e) => {
-        const nextText = e.target.value
-        pendingStoreEchoesRef.current.push(nextText)
-        setDraft({ repoId, text: nextText })
-        onTextChange(nextText)
+        updateDraftFromInput(e.target.value)
+      }}
+      onFocus={(e) => {
+        isEditingRef.current = true
+        inputProps.onFocus?.(e)
+      }}
+      onInput={(e) => {
+        updateDraftFromInput(e.currentTarget.value)
+        inputProps.onInput?.(e)
       }}
     />
   )

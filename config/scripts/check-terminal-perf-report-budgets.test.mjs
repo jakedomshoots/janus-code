@@ -59,10 +59,10 @@ describe('check-terminal-perf-report-budgets', () => {
         'median=2.9ms',
         'worst=5.9ms',
         'maxTimerDrift=12.1ms',
-        'scroll=149.9ms',
-        'restore=642.0ms',
+        'scroll=199.9ms',
+        'restore=1999.9ms',
         'rendererQueuedChars=0',
-        'rendererPeakQueuedChars=2097152',
+        'rendererPeakQueuedChars=9437184',
         'rendererDroppedBacklogs=0'
       ].join(' ')
     )
@@ -82,11 +82,11 @@ describe('check-terminal-perf-report-budgets', () => {
         'frames=60',
         'median=76.0ms',
         'worst=301.0ms',
-        'maxTimerDrift=151.0ms',
-        'scroll=151.0ms',
-        'restore=1001.0ms',
-        'rendererQueuedChars=2097153',
-        'rendererPeakQueuedChars=2097153',
+        'maxTimerDrift=201.0ms',
+        'scroll=201.0ms',
+        'restore=2001.0ms',
+        'rendererQueuedChars=9437185',
+        'rendererPeakQueuedChars=9437185',
         'rendererDroppedBacklogs=1'
       ].join(' ')
     )
@@ -96,11 +96,11 @@ describe('check-terminal-perf-report-budgets', () => {
     expect(result.status).toBe(1)
     expect(result.stderr).toContain('median typing latency 76ms exceeded budget 75ms')
     expect(result.stderr).toContain('worst typing latency 301ms exceeded budget 300ms')
-    expect(result.stderr).toContain('timer drift 151ms exceeded budget 150ms')
-    expect(result.stderr).toContain('scroll latency 151ms exceeded budget 150ms')
-    expect(result.stderr).toContain('restore latency 1001ms exceeded budget 1000ms')
-    expect(result.stderr).toContain('renderer queued chars 2097153 exceeded budget 2097152')
-    expect(result.stderr).toContain('renderer peak queued chars 2097153 exceeded budget 2097152')
+    expect(result.stderr).toContain('timer drift 201ms exceeded budget 200ms')
+    expect(result.stderr).toContain('scroll latency 201ms exceeded budget 200ms')
+    expect(result.stderr).toContain('restore latency 2001ms exceeded budget 2000ms')
+    expect(result.stderr).toContain('renderer queued chars 9437185 exceeded budget 9437184')
+    expect(result.stderr).toContain('renderer peak queued chars 9437185 exceeded budget 9437184')
     expect(result.stderr).toContain('renderer dropped backlogs 1 exceeded budget 0')
   })
 

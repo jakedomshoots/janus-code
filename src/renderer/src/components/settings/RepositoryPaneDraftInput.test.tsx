@@ -88,6 +88,20 @@ describe('RepoSettingsDraftInput', () => {
     expect(getInput().value).toBe('')
   })
 
+  it('keeps focused draft text when an external store update arrives mid-edit', () => {
+    const onTextChange = vi.fn()
+    render({ repoId: 'repo-1', storeValue: 'Repo One', onTextChange })
+
+    act(() => {
+      getInput().focus()
+    })
+    typeText('가')
+
+    render({ repoId: 'repo-1', storeValue: 'External Rename', onTextChange })
+
+    expect(getInput().value).toBe('가')
+  })
+
   it('resets the draft when the pane switches repos', () => {
     const onTextChange = vi.fn()
     render({ repoId: 'repo-1', storeValue: 'Repo One', onTextChange })

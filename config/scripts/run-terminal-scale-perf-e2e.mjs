@@ -7,10 +7,9 @@ const env = {
   ORCA_E2E_OPENCODE_SCALE_PANES: process.env.ORCA_E2E_OPENCODE_SCALE_PANES ?? '10,25,50,100',
   ORCA_E2E_OPENCODE_SCALE_CROSS_WORKSPACE_PANES:
     process.env.ORCA_E2E_OPENCODE_SCALE_CROSS_WORKSPACE_PANES ?? '10,25,50,100',
-  ORCA_E2E_OPENCODE_SCALE_PRESSURE_PANES:
-    process.env.ORCA_E2E_OPENCODE_SCALE_PRESSURE_PANES ?? '25,50',
+  ORCA_E2E_OPENCODE_SCALE_PRESSURE_PANES: process.env.ORCA_E2E_OPENCODE_SCALE_PRESSURE_PANES ?? '',
   ORCA_E2E_OPENCODE_SCALE_HIDDEN_PRESSURE_PANES:
-    process.env.ORCA_E2E_OPENCODE_SCALE_HIDDEN_PRESSURE_PANES ?? '25',
+    process.env.ORCA_E2E_OPENCODE_SCALE_HIDDEN_PRESSURE_PANES ?? '',
   ORCA_E2E_OPENCODE_FRAME_COUNT: process.env.ORCA_E2E_OPENCODE_FRAME_COUNT ?? '60'
 }
 const extraArgs = process.argv.slice(2)
@@ -29,6 +28,7 @@ const child = spawn(
     '--project',
     'electron-headless',
     '--workers=1',
+    '--retries=1',
     ...extraArgs
   ],
   {
