@@ -1,0 +1,12 @@
+{
+  "productName": "Agent Hub",
+  "productSlug": "agent-hub",
+  "appId": "com.jakedom.agenthub",
+  "githubOwner": "jakedom",
+  "githubRepo": "agent-hub",
+  "homepage": "https://github.com/jakedom/agent-hub",
+  "cliBin": "agent-hub",
+  "legacyCliBin": "orca",
+  "macAppName": "Agent Hub.app",
+  "copyright": "Copyright (c) 2026 Jake Dominick"
+}
