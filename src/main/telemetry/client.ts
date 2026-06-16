@@ -37,16 +37,17 @@ import { getCohortAtEmit } from './cohort-classifier'
 import { resolveConsent, type ConsentState } from './consent'
 import { commonPropsSchema, validate } from './validator'
 
-// Compile-time feature flag. PR 2 shipped with this `false` so the SDK was
-// wired but no event transmitted. PR 3 flips it to `true`. Independent of
-// the build-identity gate below: both must be satisfied to transmit, so
-// flipping the flag alone still leaves contributor builds silent.
+// Compile-time feature flag. Janus keeps the upstream telemetry transport
+// disabled so public fork releases do not require Orca/Stably PostHog
+// project secrets. Independent of the build-identity gate below: both must
+// be satisfied to transmit, so flipping the flag alone still leaves
+// contributor builds silent.
 //
 // NOTE: config/scripts/verify-telemetry-constants.mjs greps this declaration
 // shape (`const TELEMETRY_ENABLED = true|false`) to gate release verification.
 // If you refactor this (e.g. let, export, computed-from-env, moved into a
 // config object), update the regex in that script too.
-const TELEMETRY_ENABLED = true
+const TELEMETRY_ENABLED = false
 
 // Eligible-to-transmit only if the CI release pipeline injected BOTH the
 // build-identity constant and a write key. One without the other is treated

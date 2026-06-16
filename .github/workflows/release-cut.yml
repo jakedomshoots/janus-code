@@ -696,7 +696,7 @@ jobs:
         include:
           - os: macos-15
             platform: mac
-            release_command: node config/scripts/ensure-native-runtime.mjs --runtime=electron && ORCA_MAC_RELEASE=1 pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always
+            release_command: node config/scripts/ensure-native-runtime.mjs --runtime=electron && ORCA_MAC_RELEASE="${ORCA_MAC_RELEASE:-0}" pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always
             eb_cache_path: |
               ~/Library/Caches/electron
               ~/Library/Caches/electron-builder
@@ -785,15 +785,40 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-atspi-2.0 at-spi2-core xclip xdotool rpm
 
-      - name: Verify macOS signing environment
+      - name: Select macOS signing mode
         if: matrix.platform == 'mac'
-        run: node config/scripts/verify-macos-release-env.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=()
+          for key in APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID CSC_LINK CSC_KEY_PASSWORD; do
+            if [[ -z "${!key:-}" ]]; then
+              missing+=("$key")
+            fi
+          done
+
+          if (( ${#missing[@]} == 0 )); then
+            echo "ORCA_MAC_RELEASE=1" >>"$GITHUB_ENV"
+            echo "macOS release signing enabled."
+            exit 0
+          fi
+
+          if [[ "${RELEASE_IDENTITY}" == "rc" ]]; then
+            echo "ORCA_MAC_RELEASE=0" >>"$GITHUB_ENV"
+            echo "::warning::macOS signing secrets are missing (${missing[*]}). Building unsigned, unnotarized macOS RC artifacts for tester validation."
+            exit 0
+          fi
+
+          echo "::error::Missing required macOS release signing environment variables: ${missing[*]}"
+          echo "Stable releases require Developer ID signing and notarization credentials."
+          exit 1
         env:
           CSC_LINK: ${{ secrets.MAC_CERTS }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          RELEASE_IDENTITY: ${{ steps.tag-classify.outputs.identity }}
 
       # Why: `plutil -lint` accepts duplicate plist keys, but `codesign`
       # rejects duplicate entitlements after the expensive app build.
