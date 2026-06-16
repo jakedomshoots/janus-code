@@ -404,6 +404,51 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps structured agent failures to failed threads and error timeline entries', () => {
+    const failed = worktree('wt-failure', {
+      path: '/repo/orca/worktrees/failure',
+      branch: 'refs/heads/feature/failure'
+    })
+    const failedTab = tab('tab-agent', failed.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(failed, {
+        activeWorktreeId: failed.id,
+        tabsByWorktree: { [failed.id]: [failedTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'done',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 45),
+            failure: {
+              id: 'failure-1',
+              source: 'hook',
+              reason: 'Model is not supported.',
+              fallbackText: 'Agent failed: model is not supported',
+              providerKind: 'codex',
+              worktreeId: failed.id,
+              occurredAt: Date.UTC(2026, 5, 15, 14, 44)
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.threads[0]).toMatchObject({
+      id: paneKey,
+      phase: 'failed'
+    })
+    expect(snapshot.timeline).toEqual([
+      {
+        id: `${paneKey}:failure:failure-1`,
+        threadId: paneKey,
+        kind: 'error',
+        text: 'Agent failed: model is not supported',
+        createdAt: '2026-06-15T14:44:00.000Z',
+        status: 'failed'
+      }
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
 

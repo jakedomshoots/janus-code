@@ -43,6 +43,38 @@ function toToolTimelineEntry(
   }
 }
 
+function toFailureTimelineEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  if (!entry.failure) {
+    return null
+  }
+  return {
+    id: `${thread.id}:failure:${entry.failure.id}`,
+    threadId: thread.id,
+    kind: 'error',
+    text: entry.failure.fallbackText,
+    createdAt: getIsoTimestamp(entry.failure.occurredAt),
+    status: 'failed'
+  }
+}
+
+function appendTimelineEntries(
+  timeline: AgentWorkspaceTimelineEntry[],
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): void {
+  const toolEntry = toToolTimelineEntry(thread, entry)
+  if (toolEntry) {
+    timeline.push(toolEntry)
+  }
+  const failureEntry = toFailureTimelineEntry(thread, entry)
+  if (failureEntry) {
+    timeline.push(failureEntry)
+  }
+}
+
 export function selectAgentWorkspaceTimeline(
   state: AppState,
   threads: readonly AgentWorkspaceThread[]
@@ -55,10 +87,7 @@ export function selectAgentWorkspaceTimeline(
     if (!thread) {
       continue
     }
-    const timelineEntry = toToolTimelineEntry(thread, entry)
-    if (timelineEntry) {
-      timeline.push(timelineEntry)
-    }
+    appendTimelineEntries(timeline, thread, entry)
   }
 
   for (const [paneKey, retained] of Object.entries(state.retainedAgentsByPaneKey)) {
@@ -69,10 +98,7 @@ export function selectAgentWorkspaceTimeline(
     if (!thread) {
       continue
     }
-    const timelineEntry = toToolTimelineEntry(thread, retained.entry)
-    if (timelineEntry) {
-      timeline.push(timelineEntry)
-    }
+    appendTimelineEntries(timeline, thread, retained.entry)
   }
 
   return timeline.sort((a, b) => {

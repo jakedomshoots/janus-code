@@ -30,6 +30,7 @@ import { join } from 'path'
 import {
   parseAgentStatusPayload,
   type AgentStatusApproval,
+  type AgentStatusFailurePayload,
   type AgentStatusToolEvent,
   type AgentStatusToolEventStatus,
   type ParsedAgentStatusPayload
@@ -2222,6 +2223,75 @@ function buildToolEvent(args: {
   }
 }
 
+function readFailureIdFromPayload(hookPayload: Record<string, unknown>): string | undefined {
+  return readFirstString(hookPayload, [
+    'failure_id',
+    'failureId',
+    'error_id',
+    'errorId',
+    'request_id',
+    'requestId',
+    'id'
+  ])
+}
+
+function readFailureReasonFromPayload(hookPayload: Record<string, unknown>): string | undefined {
+  return readFirstString(hookPayload, [
+    'failure_reason',
+    'failureReason',
+    'error_details',
+    'errorDetails',
+    'error_message',
+    'errorMessage',
+    'reason',
+    'message',
+    'error'
+  ])
+}
+
+function fallbackFailureId(args: {
+  source: AgentHookSource
+  eventName: unknown
+  reason?: string
+}): string {
+  const hash = createHash('sha256')
+    .update(
+      JSON.stringify({
+        source: args.source,
+        eventName: String(args.eventName ?? ''),
+        reason: args.reason ?? ''
+      })
+    )
+    .digest('hex')
+    .slice(0, 16)
+  return `${args.source}-failure-${hash}`
+}
+
+function buildHookFailureDetail(args: {
+  source: AgentHookSource
+  eventName: unknown
+  hookPayload: Record<string, unknown>
+  isFailure: boolean
+}): AgentStatusFailurePayload | undefined {
+  if (!args.isFailure) {
+    return undefined
+  }
+
+  const reason = readFailureReasonFromPayload(args.hookPayload)
+  return {
+    id:
+      readFailureIdFromPayload(args.hookPayload) ??
+      fallbackFailureId({
+        source: args.source,
+        eventName: args.eventName,
+        reason
+      }),
+    source: 'hook',
+    ...(reason ? { reason } : {}),
+    fallbackText: reason ? `Agent failed: ${reason}` : 'Agent failed'
+  }
+}
+
 function normalizeClaudeEvent(
   state: HookListenerState,
   eventName: unknown,
@@ -2262,6 +2332,12 @@ function normalizeClaudeEvent(
     isApprovalRequest: eventName === 'PermissionRequest'
   })
   const toolEvent = buildToolEvent({ source: 'claude', eventName, hookPayload, snapshot })
+  const failure = buildHookFailureDetail({
+    source: 'claude',
+    eventName,
+    hookPayload,
+    isFailure: eventName === 'StopFailure'
+  })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2274,6 +2350,7 @@ function normalizeClaudeEvent(
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
       toolEvent,
+      failure,
       approval,
       interrupted
     })

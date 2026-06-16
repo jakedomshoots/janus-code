@@ -211,6 +211,49 @@ describe('parseAgentStatusPayload', () => {
     expect(parseAgentStatusPayload('{"state":"working","toolEvent":{}}')!.toolEvent).toBeUndefined()
   })
 
+  it('parses and normalizes a structured failure detail payload', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'done',
+        failure: {
+          id: ' failure-1 ',
+          source: 'hook',
+          reason: 'Model is not supported.\nUse a different provider.',
+          exitCode: 2,
+          recoverable: true,
+          fallbackText: 'Agent failed: model is not supported'
+        }
+      })
+    )
+
+    expect(result!.failure).toEqual({
+      id: 'failure-1',
+      source: 'hook',
+      reason: 'Model is not supported. Use a different provider.',
+      exitCode: 2,
+      recoverable: true,
+      fallbackText: 'Agent failed: model is not supported'
+    })
+  })
+
+  it('bounds failure fallback text and permits explicit failure clears', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'done',
+        failure: {
+          id: 'failure-1',
+          source: 'unknown',
+          fallbackText: 'a'.repeat(520)
+        }
+      })
+    )
+
+    expect(result!.failure?.source).toBe('hook')
+    expect(result!.failure?.fallbackText).toHaveLength(500)
+    expect(parseAgentStatusPayload('{"state":"done","failure":null}')!.failure).toBeNull()
+    expect(parseAgentStatusPayload('{"state":"done","failure":{}}')!.failure).toBeUndefined()
+  })
+
   it('treats non-string optional fields as undefined', () => {
     const result = parseAgentStatusPayload(
       '{"state":"working","toolName":42,"toolInput":null,"lastAssistantMessage":[]}'

@@ -98,6 +98,24 @@ export type AgentStatusToolEvent = {
   fallbackText: string
 }
 
+export const AGENT_STATUS_FAILURE_SOURCES = ['hook', 'terminal', 'orchestration'] as const
+export type AgentStatusFailureSource = (typeof AGENT_STATUS_FAILURE_SOURCES)[number]
+
+export type AgentStatusFailurePayload = {
+  id: string
+  source: AgentStatusFailureSource
+  reason?: string
+  exitCode?: number
+  recoverable?: boolean
+  fallbackText: string
+}
+
+export type AgentStatusFailure = AgentStatusFailurePayload & {
+  providerKind: AgentType
+  worktreeId: string | null
+  occurredAt: number
+}
+
 export const AGENT_STATUS_APPROVAL_STATUSES = [
   'requested',
   'approved',
@@ -155,6 +173,8 @@ export type AgentStatusEntry = {
   lastAssistantMessage?: string
   /** Latest provider-neutral structured tool lifecycle event for the active turn. */
   toolEvent?: AgentStatusToolEvent
+  /** Provider-neutral failure detail for a failed turn or agent session. */
+  failure?: AgentStatusFailure
   /** Latest provider-neutral structured plan for the active turn, when available. */
   plan?: AgentStatusPlan
   /** Latest provider-neutral approval request for the active turn, when available. */
@@ -200,6 +220,7 @@ export type AgentStatusPayload = {
   toolInput?: string
   lastAssistantMessage?: string
   toolEvent?: AgentStatusToolEvent | null
+  failure?: AgentStatusFailurePayload | null
   plan?: AgentStatusPlan | null
   approval?: AgentStatusApproval | null
   interrupted?: boolean
@@ -248,6 +269,12 @@ export const AGENT_STATUS_TOOL_INPUT_MAX_LENGTH = 160
 export const AGENT_STATUS_TOOL_EVENT_ID_MAX_LENGTH = 160
 /** Maximum character length for a structured tool event fallback text. */
 export const AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH = 500
+/** Maximum character length for a structured failure id. */
+export const AGENT_STATUS_FAILURE_ID_MAX_LENGTH = 160
+/** Maximum character length for a structured failure reason. */
+export const AGENT_STATUS_FAILURE_REASON_MAX_LENGTH = 500
+/** Maximum character length for structured failure fallback text. */
+export const AGENT_STATUS_FAILURE_FALLBACK_TEXT_MAX_LENGTH = 500
 /** Maximum character length for the lastAssistantMessage preview.
  *  Why: assistant messages are the user-facing "what did the agent say" body,
  *  expanded inline in the dashboard row. 8 KB comfortably fits a multi-
@@ -483,6 +510,50 @@ function normalizeStructuredToolEvent(value: unknown): AgentStatusToolEvent | nu
   }
 }
 
+function normalizeFailureSource(value: unknown): AgentStatusFailureSource {
+  return AGENT_STATUS_FAILURE_SOURCES.includes(value as AgentStatusFailureSource)
+    ? (value as AgentStatusFailureSource)
+    : 'hook'
+}
+
+function normalizeFailureExitCode(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value)) {
+    return undefined
+  }
+  return value
+}
+
+function normalizeStructuredFailure(value: unknown): AgentStatusFailurePayload | null | undefined {
+  if (value === null) {
+    return null
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const id = normalizeOptionalField(obj.id, AGENT_STATUS_FAILURE_ID_MAX_LENGTH)
+  const fallbackText = normalizeOptionalField(
+    obj.fallbackText,
+    AGENT_STATUS_FAILURE_FALLBACK_TEXT_MAX_LENGTH
+  )
+  if (!id || !fallbackText) {
+    return undefined
+  }
+
+  const reason = normalizeOptionalField(obj.reason, AGENT_STATUS_FAILURE_REASON_MAX_LENGTH)
+  const exitCode = normalizeFailureExitCode(obj.exitCode)
+
+  return {
+    id,
+    source: normalizeFailureSource(obj.source),
+    ...(reason ? { reason } : {}),
+    ...(exitCode !== undefined ? { exitCode } : {}),
+    ...(typeof obj.recoverable === 'boolean' ? { recoverable: obj.recoverable } : {}),
+    fallbackText
+  }
+}
+
 function normalizeApprovalStatus(value: unknown): AgentStatusApprovalStatus {
   return AGENT_STATUS_APPROVAL_STATUSES.includes(value as AgentStatusApprovalStatus)
     ? (value as AgentStatusApprovalStatus)
@@ -564,6 +635,7 @@ function normalizeAgentStatusObject(parsed: unknown): ParsedAgentStatusPayload |
       AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
     ),
     toolEvent: normalizeStructuredToolEvent(obj.toolEvent),
+    failure: normalizeStructuredFailure(obj.failure),
     plan: normalizeStructuredPlan(obj.plan),
     approval: normalizeStructuredApproval(obj.approval),
     // Why: only meaningful on `done`. Coerce to undefined on other states so

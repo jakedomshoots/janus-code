@@ -12,13 +12,13 @@ import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
 import type { Repo, TerminalTab, Worktree } from '../../../../shared/types'
 import type {
-  AgentWorkspacePhase,
   AgentWorkspaceProject,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
+import { getPhaseForAgentState } from './orca-agent-phase-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
 import { selectAgentWorkspaceTimeline } from './orca-agent-timeline-selectors'
 
@@ -51,24 +51,6 @@ let snapshotCache: SnapshotCache | null = null
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim()
   return trimmed ? trimmed : null
-}
-
-function getPhaseForAgentState(state: string, hasApproval: boolean): AgentWorkspacePhase {
-  if (hasApproval) {
-    return 'needs-approval'
-  }
-  switch (state) {
-    case 'working':
-      return 'running'
-    case 'waiting':
-      return 'waiting-for-user'
-    case 'blocked':
-      return 'needs-approval'
-    case 'done':
-      return 'completed'
-    default:
-      return 'disconnected'
-  }
 }
 
 function pathFallback(path: string): string {
@@ -190,7 +172,11 @@ function toAgentWorkspaceThread(
     worktreeId,
     title: getThreadTitle(entry, tab),
     agentKind: entry.agentType ?? 'unknown',
-    phase: getPhaseForAgentState(entry.state, entry.approval !== undefined),
+    phase: getPhaseForAgentState(
+      entry.state,
+      entry.approval !== undefined,
+      entry.failure !== undefined
+    ),
     updatedAt: getIsoTimestamp(entry.updatedAt),
     cwd: meta?.path ?? null,
     branchName: meta?.branchName ?? null

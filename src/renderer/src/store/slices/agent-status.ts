@@ -6,6 +6,8 @@ import {
   AGENT_STATE_HISTORY_MAX,
   type AgentStateHistoryEntry,
   type AgentStatusEntry,
+  type AgentStatusFailure,
+  type AgentStatusFailurePayload,
   type AgentStatusOrchestrationContext,
   type AgentType,
   type MigrationUnsupportedPtyEntry,
@@ -184,6 +186,23 @@ function findTabForAgentEntry(
     return undefined
   }
   return (state.tabsByWorktree[worktreeId] ?? []).find((tab) => tab.id === tabId)
+}
+
+function enrichFailureDetail(args: {
+  failure: AgentStatusFailurePayload | null | undefined
+  providerKind: AgentType
+  worktreeId: string | null
+  occurredAt: number
+}): AgentStatusFailure | undefined {
+  if (!args.failure) {
+    return undefined
+  }
+  return {
+    ...args.failure,
+    providerKind: args.providerKind,
+    worktreeId: args.worktreeId,
+    occurredAt: args.occurredAt
+  }
 }
 
 function sleepingRecordFromEntry(args: {
@@ -485,6 +504,17 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
         const providerSession =
           metadata?.providerSession ??
           (existing?.agentType === identity.agentType ? existing.providerSession : undefined)
+        const entryWorktreeId =
+          routing?.worktreeId ??
+          existing?.worktreeId ??
+          findAgentPaneWorktreeId(s, paneKey) ??
+          undefined
+        const failure = enrichFailureDetail({
+          failure: payload.failure,
+          providerKind: identity.agentType,
+          worktreeId: entryWorktreeId ?? null,
+          occurredAt: updatedAt
+        })
         const entry: AgentStatusEntry = {
           state: payload.state,
           prompt: payload.prompt,
@@ -493,11 +523,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           agentType: identity.agentType,
           paneKey,
           terminalHandle: routing?.terminalHandle ?? existing?.terminalHandle,
-          worktreeId:
-            routing?.worktreeId ??
-            existing?.worktreeId ??
-            findAgentPaneWorktreeId(s, paneKey) ??
-            undefined,
+          worktreeId: entryWorktreeId,
           tabId: routing?.tabId ?? existing?.tabId ?? getTabIdFromPaneKey(paneKey) ?? undefined,
           terminalTitle: effectiveTitle,
           stateHistory: history,
@@ -505,6 +531,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           toolInput: payload.toolInput,
           lastAssistantMessage: payload.lastAssistantMessage,
           toolEvent: payload.toolEvent ?? undefined,
+          failure,
           plan,
           approval,
           // Why: reused panes may start non-orchestrated work after runtime
@@ -557,6 +584,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.toolInput !== existing.toolInput ||
             entry.lastAssistantMessage !== existing.lastAssistantMessage ||
             entry.toolEvent !== existing.toolEvent ||
+            entry.failure !== existing.failure ||
             entry.plan !== existing.plan ||
             entry.approval !== existing.approval ||
             entry.orchestration !== existing.orchestration ||

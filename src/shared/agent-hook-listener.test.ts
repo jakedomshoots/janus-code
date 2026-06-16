@@ -349,7 +349,7 @@ describe('shared agent-hook-listener', () => {
     expect(event!.payload.prompt).toBe('hi')
   })
 
-  it('normalizes a Claude-compatible StopFailure to done without copying provider error text', () => {
+  it('normalizes a Claude-compatible StopFailure to done with structured failure details', () => {
     normalizeHookPayload(
       state,
       'claude',
@@ -378,7 +378,13 @@ describe('shared agent-hook-listener', () => {
     expect(event?.payload).toMatchObject({
       state: 'done',
       prompt: 'say hi',
-      agentType: 'claude'
+      agentType: 'claude',
+      failure: {
+        id: expect.stringMatching(/^claude-failure-/),
+        source: 'hook',
+        reason: 'model is not supported',
+        fallbackText: 'Agent failed: model is not supported'
+      }
     })
     expect(event?.payload.lastAssistantMessage).toBeUndefined()
   })

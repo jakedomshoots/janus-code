@@ -465,6 +465,67 @@ describe('agent status tool + assistant fields', () => {
     expect(store.getState().agentStatusByPaneKey['tab-1:1'].toolEvent).toBeUndefined()
   })
 
+  it('enriches structured failure details with provider, worktree, and timestamp', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    const occurredAt = Date.UTC(2026, 5, 16, 12, 5)
+
+    store.getState().setAgentStatus(
+      'tab-1:1',
+      {
+        state: 'done',
+        prompt: 'Run the failing task',
+        agentType: 'codex',
+        failure: {
+          id: 'failure-1',
+          source: 'hook',
+          reason: 'Model is not supported.',
+          exitCode: 2,
+          recoverable: true,
+          fallbackText: 'Agent failed: model is not supported'
+        }
+      },
+      undefined,
+      { updatedAt: occurredAt, stateStartedAt: occurredAt },
+      { tabId: 'tab-1', worktreeId: 'wt-1', terminalHandle: 'term-1' }
+    )
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].failure).toEqual({
+      id: 'failure-1',
+      source: 'hook',
+      reason: 'Model is not supported.',
+      exitCode: 2,
+      recoverable: true,
+      fallbackText: 'Agent failed: model is not supported',
+      providerKind: 'codex',
+      worktreeId: 'wt-1',
+      occurredAt
+    })
+  })
+
+  it('clears structured failure details when a new turn starts', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'done',
+      prompt: 'Run the failing task',
+      agentType: 'codex',
+      failure: {
+        id: 'failure-1',
+        source: 'hook',
+        fallbackText: 'Agent failed'
+      }
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Retry the task',
+      agentType: 'codex'
+    })
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].failure).toBeUndefined()
+  })
+
   it('preserves structured plan state across same-turn status pings', () => {
     vi.useFakeTimers()
     const store = createTestStore()
