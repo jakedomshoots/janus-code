@@ -5,6 +5,7 @@ import {
   AGENT_STATUS_TOOL_NAME_MAX_LENGTH,
   AGENT_STATUS_TOOL_INPUT_MAX_LENGTH,
   AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH,
+  AGENT_STATUS_PLAN_MAX_STEPS,
   AGENT_STATUS_STATES,
   AGENT_TYPE_MAX_LENGTH
 } from './agent-status-types'
@@ -233,6 +234,56 @@ describe('parseAgentStatusPayload', () => {
     )
     expect(result!.prompt).toHaveLength(AGENT_STATUS_MAX_FIELD_LENGTH)
     expect(result!.toolInput).toBe('xxxxx')
+  })
+
+  it('parses and normalizes a structured plan payload', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'working',
+        plan: {
+          title: '  Ship GUI workspace  ',
+          explanation: 'Map the runtime state.',
+          steps: [
+            { id: 'inspect', title: 'Inspect runtime signals', status: 'completed' },
+            { title: 'Wire plan panel', status: 'in_progress' },
+            { id: 'invalid', status: 'pending' }
+          ],
+          markdown: '# Ship GUI workspace\n\nUse structured plan state.',
+          updatedAt: '2026-06-16T10:00:00.000Z'
+        }
+      })
+    )
+
+    expect(result!.plan).toEqual({
+      title: 'Ship GUI workspace',
+      explanation: 'Map the runtime state.',
+      steps: [
+        { id: 'inspect', title: 'Inspect runtime signals', status: 'completed' },
+        { id: 'step-2', title: 'Wire plan panel', status: 'in-progress' }
+      ],
+      markdown: '# Ship GUI workspace\n\nUse structured plan state.',
+      updatedAt: Date.parse('2026-06-16T10:00:00.000Z')
+    })
+  })
+
+  it('bounds structured plan steps and permits explicit plan clears', () => {
+    const planResult = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'working',
+        plan: {
+          steps: Array.from({ length: AGENT_STATUS_PLAN_MAX_STEPS + 5 }, (_, index) => ({
+            id: `step-${index}`,
+            title: `Step ${index}`,
+            status: 'unknown'
+          }))
+        }
+      })
+    )
+    expect(planResult!.plan?.steps).toHaveLength(AGENT_STATUS_PLAN_MAX_STEPS)
+    expect(planResult!.plan?.steps[0]?.status).toBe('pending')
+
+    expect(parseAgentStatusPayload('{"state":"working","plan":null}')!.plan).toBeNull()
+    expect(parseAgentStatusPayload('{"state":"working","plan":[]}')!.plan).toBeUndefined()
   })
 
   it('preserves interrupted=true when state is done', () => {

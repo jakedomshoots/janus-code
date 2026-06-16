@@ -254,8 +254,22 @@ function equivalentParsedAgentStatusPayload(
     a.toolName === b.toolName &&
     a.toolInput === b.toolInput &&
     a.lastAssistantMessage === b.lastAssistantMessage &&
+    equivalentAgentStatusPlan(a.plan, b.plan) &&
     a.interrupted === b.interrupted
   )
+}
+
+function equivalentAgentStatusPlan(
+  a: ParsedAgentStatusPayload['plan'],
+  b: ParsedAgentStatusPayload['plan']
+): boolean {
+  if (a === b) {
+    return true
+  }
+  if (!a || !b) {
+    return a === b
+  }
+  return JSON.stringify(a) === JSON.stringify(b)
 }
 
 function trackEmptyPaneKeyHook(body: unknown): void {

@@ -18,6 +18,7 @@ import type {
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
+import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
 
 type WorkspaceThreadMeta = {
   path: string
@@ -282,12 +283,13 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
 
   const projects = selectAgentWorkspaceProjects(state)
   const threads = selectAgentWorkspaceThreads(state)
+  const plans = selectAgentWorkspacePlans(state, threads)
   const diffs = selectAgentWorkspaceDiffs(state, threads)
   const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
     threads,
-    plans: [],
+    plans,
     timeline: [],
     diffs,
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)

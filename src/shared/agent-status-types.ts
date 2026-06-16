@@ -68,6 +68,23 @@ export type AgentStatusOrchestrationContext = {
   orchestrationRunId?: string
 }
 
+export const AGENT_STATUS_PLAN_STEP_STATUSES = ['pending', 'in-progress', 'completed'] as const
+export type AgentStatusPlanStepStatus = (typeof AGENT_STATUS_PLAN_STEP_STATUSES)[number]
+
+export type AgentStatusPlanStep = {
+  id: string
+  title: string
+  status: AgentStatusPlanStepStatus
+}
+
+export type AgentStatusPlan = {
+  title?: string
+  explanation?: string
+  steps: AgentStatusPlanStep[]
+  markdown?: string
+  updatedAt?: number
+}
+
 export type AgentStatusEntry = {
   state: AgentStatusState
   /** The user's most recent prompt, when the hook payload carried one.
@@ -105,6 +122,8 @@ export type AgentStatusEntry = {
   toolInput?: string
   /** Most recent assistant message preview, when the hook carried one. */
   lastAssistantMessage?: string
+  /** Latest provider-neutral structured plan for the active turn, when available. */
+  plan?: AgentStatusPlan
   /** True when the current `done` state was reached via an interrupt rather
    *  than a normal turn completion. May be reported by the agent itself or
    *  inferred by Orca's guarded interrupt fallback.
@@ -145,6 +164,7 @@ export type AgentStatusPayload = {
   toolName?: string
   toolInput?: string
   lastAssistantMessage?: string
+  plan?: AgentStatusPlan | null
   interrupted?: boolean
 }
 
@@ -195,6 +215,16 @@ export const AGENT_STATUS_TOOL_INPUT_MAX_LENGTH = 160
  *  second line of defense against a buggy/malicious agent spamming huge
  *  strings into the cache (which lives per pane with bounded history). */
 export const AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH = 8000
+/** Maximum number of structured plan steps kept per status payload. */
+export const AGENT_STATUS_PLAN_MAX_STEPS = 100
+/** Maximum character length for a structured plan title. */
+export const AGENT_STATUS_PLAN_TITLE_MAX_LENGTH = 200
+/** Maximum character length for a structured plan explanation. */
+export const AGENT_STATUS_PLAN_EXPLANATION_MAX_LENGTH = 2000
+/** Maximum character length for a structured plan step id. */
+export const AGENT_STATUS_PLAN_STEP_ID_MAX_LENGTH = 120
+/** Maximum character length for a structured plan step title. */
+export const AGENT_STATUS_PLAN_STEP_TITLE_MAX_LENGTH = 300
 /**
  * Freshness threshold for explicit agent status. Retained past this point so
  * WorktreeCard's sidebar dot can decay "working" back to "active" when the
@@ -285,6 +315,84 @@ function normalizeOptionalMultilineField(value: unknown, maxLength: number): str
   return normalized.length > 0 ? normalized : undefined
 }
 
+function normalizePlanStepStatus(value: unknown): AgentStatusPlanStepStatus | undefined {
+  if (value === 'in_progress') {
+    return 'in-progress'
+  }
+  return AGENT_STATUS_PLAN_STEP_STATUSES.includes(value as AgentStatusPlanStepStatus)
+    ? (value as AgentStatusPlanStepStatus)
+    : undefined
+}
+
+function normalizePlanUpdatedAt(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return value
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Date.parse(value)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
+  return undefined
+}
+
+function normalizeStructuredPlan(value: unknown): AgentStatusPlan | null | undefined {
+  if (value === null) {
+    return null
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const title = normalizeOptionalField(obj.title, AGENT_STATUS_PLAN_TITLE_MAX_LENGTH)
+  const explanation = normalizeOptionalMultilineField(
+    obj.explanation,
+    AGENT_STATUS_PLAN_EXPLANATION_MAX_LENGTH
+  )
+  const markdown = normalizeOptionalMultilineField(
+    obj.markdown,
+    AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
+  )
+  const updatedAt = normalizePlanUpdatedAt(obj.updatedAt)
+  const steps = Array.isArray(obj.steps)
+    ? obj.steps
+        .slice(0, AGENT_STATUS_PLAN_MAX_STEPS)
+        .map((step, index): AgentStatusPlanStep | null => {
+          if (typeof step !== 'object' || step === null || Array.isArray(step)) {
+            return null
+          }
+          const stepObj = step as Record<string, unknown>
+          const stepTitle = normalizeOptionalField(
+            stepObj.title,
+            AGENT_STATUS_PLAN_STEP_TITLE_MAX_LENGTH
+          )
+          if (!stepTitle) {
+            return null
+          }
+          return {
+            id:
+              normalizeOptionalField(stepObj.id, AGENT_STATUS_PLAN_STEP_ID_MAX_LENGTH) ??
+              `step-${index + 1}`,
+            title: stepTitle,
+            status: normalizePlanStepStatus(stepObj.status) ?? 'pending'
+          }
+        })
+        .filter((step): step is AgentStatusPlanStep => step !== null)
+    : []
+
+  if (!title && !explanation && !markdown && steps.length === 0) {
+    return undefined
+  }
+
+  return {
+    ...(title ? { title } : {}),
+    ...(explanation ? { explanation } : {}),
+    steps,
+    ...(markdown ? { markdown } : {}),
+    ...(updatedAt ? { updatedAt } : {})
+  }
+}
+
 /**
  * Normalize and validate an already-parsed agent status object. Shared by the
  * JSON string entry point (`parseAgentStatusPayload`) and the object entry
@@ -322,6 +430,7 @@ function normalizeAgentStatusObject(parsed: unknown): ParsedAgentStatusPayload |
       obj.lastAssistantMessage,
       AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
     ),
+    plan: normalizeStructuredPlan(obj.plan),
     // Why: only meaningful on `done`. Coerce to undefined on other states so
     // the field doesn't leak stale truth through state transitions.
     interrupted: obj.interrupted === true && state === 'done' ? true : undefined

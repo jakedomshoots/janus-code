@@ -453,6 +453,14 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
         // carries the authoritative current snapshot — including clears on a
         // fresh turn. Writing through directly (no existing fallback) is what
         // lets a `UserPromptSubmit` reset clear stale tool lines in the UI.
+        const promptChanged =
+          existing !== undefined && payload.prompt.length > 0 && payload.prompt !== existing.prompt
+        const plan =
+          payload.plan === undefined
+            ? promptChanged
+              ? undefined
+              : existing?.plan
+            : (payload.plan ?? undefined)
         const runtimeOrchestration = s.runtimeAgentOrchestrationByPaneKey[paneKey]
         const runtimeMergedOrchestration = runtimeOrchestration
           ? mergeCurrentOrchestrationContext(existing?.orchestration, runtimeOrchestration)
@@ -489,6 +497,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           toolName: payload.toolName,
           toolInput: payload.toolInput,
           lastAssistantMessage: payload.lastAssistantMessage,
+          plan,
           // Why: reused panes may start non-orchestrated work after runtime
           // metadata expires. Only final done rows keep the previous lineage
           // fallback so completed children stay grouped.
@@ -538,6 +547,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.toolName !== existing.toolName ||
             entry.toolInput !== existing.toolInput ||
             entry.lastAssistantMessage !== existing.lastAssistantMessage ||
+            entry.plan !== existing.plan ||
             entry.orchestration !== existing.orchestration ||
             entry.providerSession !== existing.providerSession ||
             entry.interrupted !== existing.interrupted)

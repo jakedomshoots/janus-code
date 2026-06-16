@@ -271,6 +271,52 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps structured agent status plans to workspace plans', () => {
+    const running = worktree('wt-plan', {
+      path: '/repo/orca/worktrees/plan',
+      branch: 'refs/heads/feature/plan'
+    })
+    const runningTab = tab('tab-agent', running.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(running, {
+        activeWorktreeId: running.id,
+        tabsByWorktree: { [running.id]: [runningTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'working',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 30),
+            plan: {
+              title: 'Build GUI workspace',
+              explanation: 'Use the runtime plan snapshot.',
+              steps: [
+                { id: 'inspect', title: 'Inspect runtime state', status: 'completed' },
+                { id: 'wire', title: 'Wire plan panel', status: 'in-progress' }
+              ],
+              markdown: '# Build GUI workspace',
+              updatedAt: Date.UTC(2026, 5, 15, 14, 31)
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.plans).toEqual([
+      {
+        id: `${paneKey}:plan`,
+        threadId: paneKey,
+        title: 'Build GUI workspace',
+        explanation: 'Use the runtime plan snapshot.',
+        steps: [
+          { id: 'inspect', title: 'Inspect runtime state', status: 'completed' },
+          { id: 'wire', title: 'Wire plan panel', status: 'in-progress' }
+        ],
+        markdown: '# Build GUI workspace',
+        updatedAt: '2026-06-15T14:31:00.000Z'
+      }
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
 

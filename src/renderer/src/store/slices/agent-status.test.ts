@@ -434,6 +434,68 @@ describe('agent status tool + assistant fields', () => {
     expect(entry.lastAssistantMessage).toBeUndefined()
   })
 
+  it('preserves structured plan state across same-turn status pings', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Build the GUI',
+      agentType: 'codex',
+      plan: {
+        title: 'Build GUI workspace',
+        steps: [{ id: 'shell', title: 'Create shell', status: 'completed' }]
+      }
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Build the GUI',
+      agentType: 'codex',
+      toolName: 'Edit'
+    })
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].plan).toEqual({
+      title: 'Build GUI workspace',
+      steps: [{ id: 'shell', title: 'Create shell', status: 'completed' }]
+    })
+  })
+
+  it('clears structured plan state on explicit clear or a new prompt', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Build the GUI',
+      agentType: 'codex',
+      plan: {
+        title: 'Build GUI workspace',
+        steps: [{ id: 'shell', title: 'Create shell', status: 'completed' }]
+      }
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Build the GUI',
+      agentType: 'codex',
+      plan: null
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].plan).toBeUndefined()
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Build the GUI',
+      agentType: 'codex',
+      plan: {
+        title: 'Build GUI workspace',
+        steps: [{ id: 'shell', title: 'Create shell', status: 'completed' }]
+      }
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Start a different task',
+      agentType: 'codex'
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].plan).toBeUndefined()
+  })
+
   it('preserves prior agentType when payload omits it', () => {
     vi.useFakeTimers()
     const store = createTestStore()
