@@ -210,18 +210,12 @@ Works with **any CLI agent** — if it runs in a terminal, it runs in Orca.
 
 ### Desktop — macOS, Windows, Linux
 
-- **[Download from onOrca.dev](https://onorca.dev/download)**
-- Or grab a build directly: [macOS Apple Silicon](https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg) · [macOS Intel](https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg) · [Windows (.exe)](https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe) · [Linux AppImage](https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage) · [All builds](https://github.com/stablyai/orca/releases/latest)
+Download the latest Agent Hub desktop builds directly from GitHub Releases:
 
-_Or via a package manager:_
-
-```bash
-# macOS (Homebrew)
-brew install --cask stablyai/orca/orca
-
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
-```
+- [macOS Apple Silicon](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg)
+- [macOS Intel](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-x64.dmg)
+- [Windows](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-windows-setup.exe)
+- [Linux AppImage](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-linux.AppImage)
 
 ### Mobile Companion — iOS, Android
 
