@@ -2,8 +2,28 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   extractManifestAssetNames,
   getRequiredReleaseAssetNames,
+  resolveReleaseRepository,
   verifyRequiredReleaseAssets
 } from './verify-release-required-assets.mjs'
+
+const expectedRequiredAssets = [
+  'latest-linux.yml',
+  'latest-mac.yml',
+  'latest.yml',
+  'agent-hub-linux.AppImage',
+  'agent-hub_1.4.27_amd64.deb',
+  'agent-hub-1.4.27.x86_64.rpm',
+  'agent-hub-windows-setup.exe',
+  'agent-hub-windows-setup.exe.blockmap',
+  'Agent Hub-1.4.27-mac.zip',
+  'Agent Hub-1.4.27-mac.zip.blockmap',
+  'Agent Hub-1.4.27-arm64-mac.zip',
+  'Agent Hub-1.4.27-arm64-mac.zip.blockmap',
+  'agent-hub-macos-x64.dmg',
+  'agent-hub-macos-x64.dmg.blockmap',
+  'agent-hub-macos-arm64.dmg',
+  'agent-hub-macos-arm64.dmg.blockmap'
+]
 
 function jsonResponse(body) {
   return {
@@ -34,38 +54,18 @@ afterEach(() => {
 })
 
 describe('getRequiredReleaseAssetNames', () => {
-  it('includes both mac updater ZIP names for the tag version', () => {
-    expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(
-      expect.arrayContaining([
-        'Agent Hub-1.4.27-mac.zip',
-        'Agent Hub-1.4.27-mac.zip.blockmap',
-        'Agent Hub-1.4.27-arm64-mac.zip',
-        'Agent Hub-1.4.27-arm64-mac.zip.blockmap'
-      ])
-    )
+  it('returns the exact Agent Hub release asset names in upload order', () => {
+    expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(expectedRequiredAssets)
+  })
+})
+
+describe('resolveReleaseRepository', () => {
+  it('defaults to the Agent Hub fork when GITHUB_REPOSITORY is unset', () => {
+    expect(resolveReleaseRepository({})).toBe('jakedom/agent-hub')
   })
 
-  it('includes Agent Hub Linux artifact names for AppImage, deb, and RPM', () => {
-    expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(
-      expect.arrayContaining([
-        'agent-hub-linux.AppImage',
-        'agent-hub_1.4.27_amd64.deb',
-        'agent-hub-1.4.27.x86_64.rpm'
-      ])
-    )
-  })
-
-  it('includes Agent Hub Windows and macOS installer artifact names', () => {
-    expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(
-      expect.arrayContaining([
-        'agent-hub-windows-setup.exe',
-        'agent-hub-windows-setup.exe.blockmap',
-        'agent-hub-macos-x64.dmg',
-        'agent-hub-macos-x64.dmg.blockmap',
-        'agent-hub-macos-arm64.dmg',
-        'agent-hub-macos-arm64.dmg.blockmap'
-      ])
-    )
+  it('uses GITHUB_REPOSITORY when provided by the workflow environment', () => {
+    expect(resolveReleaseRepository({ GITHUB_REPOSITORY: 'owner/repo' })).toBe('owner/repo')
   })
 })
 

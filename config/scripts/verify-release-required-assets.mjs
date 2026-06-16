@@ -4,6 +4,10 @@ import { pathToFileURL } from 'node:url'
 
 const API_VERSION = '2022-11-28'
 
+export function resolveReleaseRepository(env = process.env) {
+  return env.GITHUB_REPOSITORY || 'jakedom/agent-hub'
+}
+
 export function getRequiredReleaseAssetNames(tag) {
   const version = tag.replace(/^v/i, '')
   return [
@@ -141,7 +145,7 @@ async function main() {
   if (!token) {
     throw new Error('GH_TOKEN or GITHUB_TOKEN must be set')
   }
-  const repo = process.env.GITHUB_REPOSITORY || 'jakedom/agent-hub'
+  const repo = resolveReleaseRepository()
   const result = await verifyRequiredReleaseAssets({ repo, tag, token })
   console.log(`Verified ${result.checked.length} required release assets for ${repo}@${tag}`)
 }
