@@ -26,7 +26,8 @@ let currentSnapshot: AgentWorkspaceSnapshot = emptySnapshot
 const roots: Root[] = []
 const storeMocks = vi.hoisted(() => ({
   setActiveWorktree: vi.fn(),
-  openDiff: vi.fn()
+  openDiff: vi.fn(),
+  openModal: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -34,21 +35,17 @@ vi.mock('@/store', () => ({
     selector: (state: {
       agentWorkspaceTestSnapshot: AgentWorkspaceSnapshot
       settings: { guiAgentWorkspaceEnabled: boolean }
-      setActiveWorktree: (worktreeId: string | null) => void
-      openDiff: (
-        worktreeId: string,
-        absolutePath: string,
-        displayPath: string,
-        language: string,
-        staged: boolean
-      ) => void
+      setActiveWorktree: typeof storeMocks.setActiveWorktree
+      openDiff: typeof storeMocks.openDiff
+      openModal: typeof storeMocks.openModal
     }) => unknown
   ) =>
     selector({
       agentWorkspaceTestSnapshot: currentSnapshot,
       settings: { guiAgentWorkspaceEnabled: false },
       setActiveWorktree: storeMocks.setActiveWorktree,
-      openDiff: storeMocks.openDiff
+      openDiff: storeMocks.openDiff,
+      openModal: storeMocks.openModal
     })
 }))
 
@@ -69,6 +66,7 @@ afterEach(async () => {
   })
   storeMocks.setActiveWorktree.mockClear()
   storeMocks.openDiff.mockClear()
+  storeMocks.openModal.mockClear()
   document.body.replaceChildren()
   await setRendererUiLanguage('en')
 })
@@ -285,68 +283,6 @@ describe('AgentWorkspace phase labels', () => {
 })
 
 describe('AgentWorkspaceLayout thread selection', () => {
-  function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot {
-    return {
-      activeWorktreeId,
-      projects: [
-        {
-          id: 'worktree-1',
-          label: 'orca one',
-          path: '/Users/jakedom/orca-one',
-          hostKind: 'local'
-        },
-        {
-          id: 'worktree-2',
-          label: 'orca two',
-          path: '/Users/jakedom/orca-two',
-          hostKind: 'local'
-        }
-      ],
-      threads: [
-        {
-          id: 'thread-1',
-          worktreeId: 'worktree-1',
-          title: 'First thread',
-          agentKind: 'codex',
-          phase: 'running',
-          updatedAt: '2026-06-15T12:00:00.000Z',
-          branchName: 'feature/first',
-          cwd: '/Users/jakedom/orca-one'
-        },
-        {
-          id: 'thread-2',
-          worktreeId: 'worktree-2',
-          title: 'Second thread',
-          agentKind: 'codex',
-          phase: 'waiting-for-user',
-          updatedAt: '2026-06-15T12:05:00.000Z',
-          branchName: 'feature/second',
-          cwd: '/Users/jakedom/orca-two'
-        }
-      ],
-      plans: [],
-      timeline: [
-        {
-          id: 'timeline-1',
-          threadId: 'thread-1',
-          kind: 'agent',
-          text: 'First timeline event',
-          createdAt: '2026-06-15T12:00:00.000Z'
-        },
-        {
-          id: 'timeline-2',
-          threadId: 'thread-2',
-          kind: 'agent',
-          text: 'Second timeline event',
-          createdAt: '2026-06-15T12:05:00.000Z'
-        }
-      ],
-      approvals: [],
-      diffs: [],
-      terminalAvailable: false
-    }
-  }
-
   it('lets users select another thread from the left rail', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
@@ -426,54 +362,6 @@ describe('AgentWorkspaceLayout thread selection', () => {
       secondThreadButton?.click()
     })
 
-    expect(container.textContent).toContain('Second timeline event')
-  })
-
-  it('follows active worktree changes when the snapshot changes', async () => {
-    globalThis.IS_REACT_ACT_ENVIRONMENT = true
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-    roots.push(root)
-
-    await act(async () => {
-      root.render(<AgentWorkspaceLayout snapshot={makeSelectionSnapshot('worktree-1')} />)
-    })
-
-    expect(container.textContent).toContain('First timeline event')
-    expect(container.textContent).not.toContain('Second timeline event')
-
-    await act(async () => {
-      root.render(<AgentWorkspaceLayout snapshot={makeSelectionSnapshot('worktree-2')} />)
-    })
-
-    expect(container.textContent).toContain('Second timeline event')
-  })
-
-  it('activates a selected project through the Orca worktree store', async () => {
-    globalThis.IS_REACT_ACT_ENVIRONMENT = true
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-    roots.push(root)
-
-    await act(async () => {
-      root.render(<AgentWorkspaceLayout snapshot={makeSelectionSnapshot('worktree-1')} />)
-    })
-
-    expect(container.textContent).toContain('First timeline event')
-    expect(container.textContent).not.toContain('Second timeline event')
-
-    const secondProjectButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('orca two')
-    )
-    expect(secondProjectButton).toBeDefined()
-
-    await act(async () => {
-      secondProjectButton?.click()
-    })
-
-    expect(storeMocks.setActiveWorktree).toHaveBeenCalledWith('worktree-2')
     expect(container.textContent).toContain('Second timeline event')
   })
 

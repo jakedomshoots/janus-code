@@ -13,7 +13,10 @@ const projects: readonly AgentWorkspaceProject[] = [
     label: 'orca',
     path: '/Users/jakedom/orca',
     hostKind: 'local',
-    branchName: 'project-rail-branch'
+    branchName: 'project-rail-branch',
+    repoId: 'repo-orca',
+    canCreateWorktree: true,
+    canDeleteWorktree: true
   },
   {
     id: 'worktree-2',
@@ -96,6 +99,39 @@ describe('AgentWorkspaceSidebar', () => {
     const markup = renderToStaticMarkup(renderSidebar())
 
     expect(markup).toContain('project-rail-branch')
+  })
+
+  it('calls project create and delete handlers from selected project actions', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+    const onCreateProjectWorktree = vi.fn()
+    const onDeleteProject = vi.fn()
+
+    await act(async () => {
+      root.render(renderSidebar({ onCreateProjectWorktree, onDeleteProject }))
+    })
+
+    const createButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Create worktree'
+    )
+    const deleteButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Delete worktree'
+    )
+    expect(createButton).toBeDefined()
+    expect(deleteButton).toBeDefined()
+
+    await act(async () => {
+      createButton?.click()
+    })
+    await act(async () => {
+      deleteButton?.click()
+    })
+
+    expect(onCreateProjectWorktree).toHaveBeenCalledWith(projects[0])
+    expect(onDeleteProject).toHaveBeenCalledWith(projects[0])
   })
 
   it('calls the selected thread callback with the project and thread ids', async () => {

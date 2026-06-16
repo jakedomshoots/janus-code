@@ -1,4 +1,4 @@
-import { FolderOpen, GitBranch } from 'lucide-react'
+import { FolderOpen, GitBranch, Plus, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
@@ -16,6 +16,61 @@ function getThreadsForProject(
   return threads.filter((thread) => thread.worktreeId === projectId)
 }
 
+function ProjectActions({
+  project,
+  onCreateProjectWorktree,
+  onDeleteProject
+}: {
+  project: AgentWorkspaceProject
+  onCreateProjectWorktree?: (project: AgentWorkspaceProject) => void
+  onDeleteProject?: (project: AgentWorkspaceProject) => void
+}): React.JSX.Element | null {
+  const canCreate = project.canCreateWorktree === true && onCreateProjectWorktree !== undefined
+  const canDelete = project.canDeleteWorktree === true && onDeleteProject !== undefined
+  if (!canCreate && !canDelete) {
+    return null
+  }
+
+  return (
+    <div className="mt-1 flex items-center gap-1 px-1">
+      {canCreate ? (
+        <button
+          type="button"
+          aria-label={translate(
+            'auto.components.agentWorkspace.sidebar.createWorktree',
+            'Create worktree'
+          )}
+          title={translate(
+            'auto.components.agentWorkspace.sidebar.createWorktree',
+            'Create worktree'
+          )}
+          onClick={() => onCreateProjectWorktree?.(project)}
+          className="flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-worktree-sidebar-accent hover:text-worktree-sidebar-accent-foreground focus-visible:ring-1 focus-visible:ring-worktree-sidebar-ring"
+        >
+          <Plus className="size-3.5" aria-hidden="true" />
+        </button>
+      ) : null}
+      {canDelete ? (
+        <button
+          type="button"
+          aria-label={translate(
+            'auto.components.agentWorkspace.sidebar.deleteWorktree',
+            'Delete worktree'
+          )}
+          title={translate(
+            'auto.components.agentWorkspace.sidebar.deleteWorktree',
+            'Delete worktree'
+          )}
+          onClick={() => onDeleteProject?.(project)}
+          className="flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-destructive/10 hover:text-destructive focus-visible:ring-1 focus-visible:ring-worktree-sidebar-ring"
+        >
+          <Trash2 className="size-3.5" aria-hidden="true" />
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
 export function AgentWorkspaceSidebar({
   projects,
   threads,
@@ -23,7 +78,9 @@ export function AgentWorkspaceSidebar({
   selectedThreadId,
   activeWorktreeId,
   onSelectProject,
-  onSelectThread
+  onSelectThread,
+  onCreateProjectWorktree,
+  onDeleteProject
 }: {
   projects: readonly AgentWorkspaceProject[]
   threads: readonly AgentWorkspaceThread[]
@@ -32,6 +89,8 @@ export function AgentWorkspaceSidebar({
   activeWorktreeId: string | null
   onSelectProject: (projectId: string) => void
   onSelectThread: (projectId: string, threadId: string) => void
+  onCreateProjectWorktree?: (project: AgentWorkspaceProject) => void
+  onDeleteProject?: (project: AgentWorkspaceProject) => void
 }): React.JSX.Element {
   return (
     <aside className="scrollbar-sleek-parent flex w-64 shrink-0 flex-col border-r border-worktree-sidebar-border bg-worktree-sidebar text-worktree-sidebar-foreground">
@@ -97,14 +156,21 @@ export function AgentWorkspaceSidebar({
                   ) : null}
                 </button>
                 {selected ? (
-                  <div className="mt-1 pl-2">
-                    <AgentThreadList
-                      projectId={project.id}
-                      threads={projectThreads}
-                      selectedThreadId={selectedThreadId}
-                      onSelectThread={onSelectThread}
+                  <>
+                    <ProjectActions
+                      project={project}
+                      onCreateProjectWorktree={onCreateProjectWorktree}
+                      onDeleteProject={onDeleteProject}
                     />
-                  </div>
+                    <div className="mt-1 pl-2">
+                      <AgentThreadList
+                        projectId={project.id}
+                        threads={projectThreads}
+                        selectedThreadId={selectedThreadId}
+                        onSelectThread={onSelectThread}
+                      />
+                    </div>
+                  </>
                 ) : null}
               </section>
             )

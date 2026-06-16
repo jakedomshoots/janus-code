@@ -157,7 +157,10 @@ describe('orca agent workspace selectors', () => {
         project.label,
         project.path,
         project.hostKind,
-        project.branchName
+        project.branchName,
+        project.repoId,
+        project.canCreateWorktree,
+        project.canDeleteWorktree
       ])
     ).toEqual([
       [
@@ -165,7 +168,10 @@ describe('orca agent workspace selectors', () => {
         'feature/t3code-gui-workspace',
         active.path,
         'local',
-        'feature/t3code-gui-workspace'
+        'feature/t3code-gui-workspace',
+        repo.id,
+        true,
+        true
       ]
     ])
   })

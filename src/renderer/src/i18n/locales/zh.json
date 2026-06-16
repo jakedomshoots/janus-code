@@ -11124,6 +11124,10 @@
           "deleted": "已删除",
           "renamed": "已重命名",
           "unknown": "未知"
+        },
+        "sidebar": {
+          "createWorktree": "Create worktree",
+          "deleteWorktree": "Delete worktree"
         }
       }
     },

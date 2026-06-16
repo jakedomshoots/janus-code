@@ -11124,6 +11124,10 @@
           "deleted": "삭제됨",
           "renamed": "이름 변경됨",
           "unknown": "알 수 없음"
+        },
+        "sidebar": {
+          "createWorktree": "Create worktree",
+          "deleteWorktree": "Delete worktree"
         }
       }
     },

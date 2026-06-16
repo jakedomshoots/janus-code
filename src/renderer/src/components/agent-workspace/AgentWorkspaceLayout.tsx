@@ -20,6 +20,7 @@ import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
 import { AgentTimeline } from './AgentTimeline'
+import { runWorktreeDelete } from '../sidebar/delete-worktree-flow'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
@@ -239,6 +240,7 @@ export function AgentWorkspaceLayout({
   )
   const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
   const openDiff = useAppStore((state) => state.openDiff)
+  const openModal = useAppStore((state) => state.openModal)
   const setActiveWorktree = useAppStore((state) => state.setActiveWorktree)
   const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
@@ -296,6 +298,23 @@ export function AgentWorkspaceLayout({
     )
   }
 
+  function handleCreateProjectWorktree(project: AgentWorkspaceProject): void {
+    if (project.canCreateWorktree !== true || !project.repoId) {
+      return
+    }
+    openModal('new-workspace-composer', {
+      initialRepoId: project.repoId,
+      telemetrySource: 'sidebar'
+    })
+  }
+
+  function handleDeleteProject(project: AgentWorkspaceProject): void {
+    if (project.canDeleteWorktree !== true) {
+      return
+    }
+    runWorktreeDelete(project.id)
+  }
+
   return (
     <AgentWorkspaceChrome
       sidebar={
@@ -321,6 +340,8 @@ export function AgentWorkspaceLayout({
             setSelectedProjectId(projectId)
             setSelectedThreadId(threadId)
           }}
+          onCreateProjectWorktree={handleCreateProjectWorktree}
+          onDeleteProject={handleDeleteProject}
         />
       }
       header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}

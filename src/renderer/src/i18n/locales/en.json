@@ -11124,6 +11124,10 @@
           "deleted": "deleted",
           "renamed": "renamed",
           "unknown": "unknown"
+        },
+        "sidebar": {
+          "createWorktree": "Create worktree",
+          "deleteWorktree": "Delete worktree"
         }
       }
     },
