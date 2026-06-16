@@ -40,6 +40,12 @@ function getButton(container: HTMLElement, label: string): HTMLButtonElement {
   return button
 }
 
+function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
+  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(textarea), 'value')?.set
+  valueSetter?.call(textarea, value)
+  textarea.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 describe('AgentDiffPanel', () => {
   let root: Root
   let container: HTMLDivElement
@@ -96,5 +102,73 @@ describe('AgentDiffPanel', () => {
       getButton(container, 'Open in editor').click()
     })
     expect(onOpenDiff).toHaveBeenCalledWith(renamedDiff)
+  })
+
+  it('exposes stage, unstage, and discard actions for the selected diff area', async () => {
+    const onStageDiff = vi.fn()
+    const onUnstageDiff = vi.fn()
+    const onDiscardDiff = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentDiffPanel
+          diffs={[modifiedDiff, renamedDiff]}
+          onStageDiff={onStageDiff}
+          onUnstageDiff={onUnstageDiff}
+          onDiscardDiff={onDiscardDiff}
+        />
+      )
+    })
+
+    await act(async () => {
+      getButton(container, 'Stage').click()
+    })
+    expect(onStageDiff).toHaveBeenCalledWith(modifiedDiff)
+
+    await act(async () => {
+      getButton(container, 'Discard').click()
+    })
+    expect(onDiscardDiff).toHaveBeenCalledWith(modifiedDiff)
+
+    await act(async () => {
+      getButton(container, 'src/new-name.ts').click()
+    })
+
+    await act(async () => {
+      getButton(container, 'Unstage').click()
+    })
+    expect(onUnstageDiff).toHaveBeenCalledWith(renamedDiff)
+  })
+
+  it('commits staged changes only after a commit message is entered', async () => {
+    const onCommitStaged = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentDiffPanel diffs={[modifiedDiff, renamedDiff]} onCommitStaged={onCommitStaged} />
+      )
+    })
+
+    const commitButton = getButton(container, 'Commit')
+    expect(commitButton.disabled).toBe(true)
+
+    const messageInput = container.querySelector<HTMLTextAreaElement>(
+      'textarea[aria-label="Commit message"]'
+    )
+    expect(messageInput).not.toBeNull()
+
+    await act(async () => {
+      if (messageInput) {
+        setTextareaValue(messageInput, 'feat: add gui source control actions')
+      }
+    })
+
+    expect(commitButton.disabled).toBe(false)
+
+    await act(async () => {
+      commitButton.click()
+    })
+
+    expect(onCommitStaged).toHaveBeenCalledWith('feat: add gui source control actions')
   })
 })

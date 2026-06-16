@@ -25,10 +25,16 @@ export function AgentWorkspaceRightPanel({
   approval,
   diffs,
   review,
+  sourceControlBusy,
+  sourceControlError,
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
   onOpenDiff,
+  onStageDiff,
+  onUnstageDiff,
+  onDiscardDiff,
+  onCommitStaged,
   onOpenTerminalDrawer
 }: {
   thread: AgentWorkspaceThread | null
@@ -36,10 +42,16 @@ export function AgentWorkspaceRightPanel({
   approval: AgentWorkspaceApproval | null
   diffs: readonly AgentWorkspaceDiffSummary[]
   review: AgentWorkspaceReviewSummary | null
+  sourceControlBusy?: boolean
+  sourceControlError?: string | null
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
   onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
+  onStageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
@@ -75,7 +87,16 @@ export function AgentWorkspaceRightPanel({
           <AgentPlanPanel thread={thread} plan={plan} />
         </TabsContent>
         <TabsContent value="diff" className="mt-3 min-h-0" forceMount>
-          <AgentDiffPanel diffs={diffs} onOpenDiff={onOpenDiff} />
+          <AgentDiffPanel
+            diffs={diffs}
+            sourceControlBusy={sourceControlBusy}
+            sourceControlError={sourceControlError}
+            onOpenDiff={onOpenDiff}
+            onStageDiff={onStageDiff}
+            onUnstageDiff={onUnstageDiff}
+            onDiscardDiff={onDiscardDiff}
+            onCommitStaged={onCommitStaged}
+          />
         </TabsContent>
         <TabsContent value="review" className="mt-3 min-h-0" forceMount>
           <AgentReviewPanel review={review} />

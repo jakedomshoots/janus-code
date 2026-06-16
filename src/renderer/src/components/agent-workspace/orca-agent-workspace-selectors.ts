@@ -168,6 +168,7 @@ export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWor
         repoId: worktree.repoId,
         canCreateWorktree: true,
         canDeleteWorktree: !worktree.isMainWorktree,
+        pushTarget: worktree.pushTarget,
         agentDetectionTarget: getAgentDetectionTargetFromHostId(
           getWorktreeExecutionHostId(state, worktree)
         )

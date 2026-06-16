@@ -11073,7 +11073,21 @@
           "workingDirectory": "工作目录",
           "noWorkingDirectory": "没有工作目录",
           "selectThreadDetails": "选择一个线程以查看其详情。",
-          "review": "Review"
+          "review": "Review",
+          "commit": "Commit",
+          "oneStagedChange": "1 staged change",
+          "stagedChangeCount": "{{count}} staged changes",
+          "commitMessage": "Commit message",
+          "commitMessagePlaceholder": "Describe staged changes",
+          "stageChangeBeforeCommit": "Stage at least one change before committing",
+          "commitStagedChanges": "Commit staged changes",
+          "unstage": "Unstage",
+          "stage": "Stage",
+          "discard": "Discard",
+          "stageChangeFailed": "Stage failed",
+          "unstageChangeFailed": "Unstage failed",
+          "discardChangeFailed": "Discard failed",
+          "commitFailed": "Commit failed"
         },
         "composer": {
           "enterMessageBeforeSending": "发送前请输入消息。",

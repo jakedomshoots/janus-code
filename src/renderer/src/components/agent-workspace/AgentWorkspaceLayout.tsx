@@ -30,6 +30,7 @@ import {
 } from './agent-workspace-right-panel-state'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
+import { useAgentWorkspaceSourceControlActions } from './useAgentWorkspaceSourceControlActions'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
   return (
@@ -245,6 +246,7 @@ export function AgentWorkspaceLayout({
   const selectedProjectFromState =
     snapshot.projects.find((project) => project.id === selectedProjectId) ?? null
   const selectedProject = selectedProjectFromState ?? defaultProject
+  const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const defaultThread = getSelectedThread(snapshot, selectedProject)
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     () => defaultThread?.id ?? null
@@ -380,10 +382,16 @@ export function AgentWorkspaceLayout({
             approval={selectedApproval}
             diffs={diffs}
             review={selectedReview}
+            sourceControlBusy={sourceControlActions.sourceControlBusy}
+            sourceControlError={sourceControlActions.sourceControlError}
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}
             onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
+            onStageDiff={sourceControlActions.onStageDiff}
+            onUnstageDiff={sourceControlActions.onUnstageDiff}
+            onDiscardDiff={sourceControlActions.onDiscardDiff}
+            onCommitStaged={sourceControlActions.onCommitStaged}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )

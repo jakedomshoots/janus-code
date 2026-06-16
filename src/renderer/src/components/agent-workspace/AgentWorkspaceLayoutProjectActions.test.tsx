@@ -9,10 +9,20 @@ import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
 const storeMocks = vi.hoisted(() => ({
   setActiveWorktree: vi.fn(),
   openDiff: vi.fn(),
-  openModal: vi.fn()
+  openModal: vi.fn(),
+  setGitStatus: vi.fn(),
+  updateWorktreeGitIdentity: vi.fn(),
+  setUpstreamStatus: vi.fn(),
+  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined)
 }))
 const deleteFlowMocks = vi.hoisted(() => ({
   runWorktreeDelete: vi.fn()
+}))
+const runtimeGitMocks = vi.hoisted(() => ({
+  stageRuntimeGitPath: vi.fn().mockResolvedValue(undefined),
+  discardRuntimeGitPath: vi.fn().mockResolvedValue(undefined),
+  commitRuntimeGit: vi.fn().mockResolvedValue({ success: true }),
+  getRuntimeGitStatus: vi.fn().mockResolvedValue({ entries: [], conflictOperation: 'unknown' })
 }))
 
 vi.mock('@/store', () => ({
@@ -27,18 +37,47 @@ vi.mock('@/store', () => ({
         staged: boolean
       ) => void
       openModal: (modal: string, data?: Record<string, unknown>) => void
+      settings: { activeRuntimeEnvironmentId: string | null }
+      repos: {
+        id: string
+        path: string
+        displayName: string
+        connectionId?: string | null
+        executionHostId?: string | null
+      }[]
+      setGitStatus: (worktreeId: string, status: unknown) => void
+      updateWorktreeGitIdentity: (
+        worktreeId: string,
+        identity: { head?: string; branch?: string | null }
+      ) => void
+      setUpstreamStatus: (worktreeId: string, status: unknown) => void
+      fetchUpstreamStatus: () => Promise<void>
     }) => unknown
   ) =>
     selector({
       setActiveWorktree: storeMocks.setActiveWorktree,
       openDiff: storeMocks.openDiff,
-      openModal: storeMocks.openModal
+      openModal: storeMocks.openModal,
+      settings: { activeRuntimeEnvironmentId: 'focused-runtime' },
+      repos: [
+        {
+          id: 'repo-orca',
+          path: '/Users/jakedom/orca',
+          displayName: 'Orca'
+        }
+      ],
+      setGitStatus: storeMocks.setGitStatus,
+      updateWorktreeGitIdentity: storeMocks.updateWorktreeGitIdentity,
+      setUpstreamStatus: storeMocks.setUpstreamStatus,
+      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus
     })
 }))
 
 vi.mock('../sidebar/delete-worktree-flow', () => ({
   runWorktreeDelete: deleteFlowMocks.runWorktreeDelete
 }))
+
+vi.mock('@/runtime/runtime-git-client', () => runtimeGitMocks)
 
 const roots: Root[] = []
 
@@ -49,7 +88,15 @@ afterEach(() => {
   storeMocks.setActiveWorktree.mockClear()
   storeMocks.openDiff.mockClear()
   storeMocks.openModal.mockClear()
+  storeMocks.setGitStatus.mockClear()
+  storeMocks.updateWorktreeGitIdentity.mockClear()
+  storeMocks.setUpstreamStatus.mockClear()
+  storeMocks.fetchUpstreamStatus.mockClear()
   deleteFlowMocks.runWorktreeDelete.mockClear()
+  runtimeGitMocks.stageRuntimeGitPath.mockClear()
+  runtimeGitMocks.discardRuntimeGitPath.mockClear()
+  runtimeGitMocks.commitRuntimeGit.mockClear()
+  runtimeGitMocks.getRuntimeGitStatus.mockClear()
   document.body.replaceChildren()
 })
 
@@ -133,6 +180,25 @@ function renderLayout(snapshot = makeSelectionSnapshot('worktree-1')): HTMLEleme
   return container
 }
 
+function getButton(container: HTMLElement, label: string): HTMLButtonElement {
+  const button = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+    (candidate) =>
+      candidate.getAttribute('aria-label') === label ||
+      candidate.getAttribute('title') === label ||
+      candidate.textContent?.includes(label)
+  )
+  if (!button) {
+    throw new Error(`${label} button not found`)
+  }
+  return button
+}
+
+function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
+  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(textarea), 'value')?.set
+  valueSetter?.call(textarea, value)
+  textarea.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 describe('AgentWorkspaceLayout project actions', () => {
   it('follows active worktree changes when the snapshot changes', () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -205,5 +271,91 @@ describe('AgentWorkspaceLayout project actions', () => {
     })
 
     expect(deleteFlowMocks.runWorktreeDelete).toHaveBeenCalledWith('worktree-1')
+  })
+
+  it('runs source-control actions against the selected local project host', async () => {
+    const snapshot = {
+      ...makeSelectionSnapshot('worktree-1'),
+      diffs: [
+        {
+          id: 'diff-1',
+          threadId: 'thread-1',
+          area: 'unstaged' as const,
+          filePath: 'src/app.ts',
+          additions: 4,
+          deletions: 1,
+          status: 'modified' as const
+        },
+        {
+          id: 'diff-2',
+          threadId: 'thread-1',
+          area: 'staged' as const,
+          filePath: 'src/index.ts',
+          additions: 2,
+          deletions: 0,
+          status: 'modified' as const
+        }
+      ]
+    } satisfies AgentWorkspaceSnapshot
+    const container = renderLayout(snapshot)
+
+    await act(async () => {
+      getButton(container, 'Stage').click()
+      await Promise.resolve()
+    })
+
+    expect(runtimeGitMocks.stageRuntimeGitPath).toHaveBeenCalledWith(
+      {
+        settings: { activeRuntimeEnvironmentId: null },
+        worktreeId: 'worktree-1',
+        worktreePath: '/Users/jakedom/orca-one',
+        connectionId: undefined
+      },
+      'src/app.ts'
+    )
+    expect(runtimeGitMocks.getRuntimeGitStatus).toHaveBeenCalled()
+
+    await act(async () => {
+      getButton(container, 'Discard').click()
+      await Promise.resolve()
+    })
+
+    expect(runtimeGitMocks.discardRuntimeGitPath).toHaveBeenCalledWith(
+      {
+        settings: { activeRuntimeEnvironmentId: null },
+        worktreeId: 'worktree-1',
+        worktreePath: '/Users/jakedom/orca-one',
+        connectionId: undefined
+      },
+      'src/app.ts'
+    )
+
+    await act(async () => {
+      getButton(container, 'src/index.ts').click()
+    })
+    const messageInput = container.querySelector<HTMLTextAreaElement>(
+      'textarea[aria-label="Commit message"]'
+    )
+    expect(messageInput).not.toBeNull()
+
+    await act(async () => {
+      if (messageInput) {
+        setTextareaValue(messageInput, 'feat: wire gui source control')
+      }
+    })
+    await act(async () => {
+      getButton(container, 'Commit').click()
+      await Promise.resolve()
+    })
+
+    expect(runtimeGitMocks.commitRuntimeGit).toHaveBeenCalledWith(
+      {
+        settings: { activeRuntimeEnvironmentId: null },
+        worktreeId: 'worktree-1',
+        worktreePath: '/Users/jakedom/orca-one',
+        connectionId: undefined
+      },
+      'feat: wire gui source control'
+    )
   })
 })

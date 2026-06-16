@@ -1,4 +1,14 @@
-import { Columns2, ExternalLink, FileText, Pilcrow, Rows3 } from 'lucide-react'
+import {
+  Columns2,
+  ExternalLink,
+  FileText,
+  GitCommit,
+  Minus,
+  Pilcrow,
+  Plus,
+  RotateCcw,
+  Rows3
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -41,15 +51,31 @@ function DiffLineCounts({ diff }: { diff: AgentWorkspaceDiffSummary }): React.JS
 
 export function AgentDiffPanel({
   diffs,
-  onOpenDiff
+  sourceControlBusy = false,
+  sourceControlError = null,
+  onOpenDiff,
+  onStageDiff,
+  onUnstageDiff,
+  onDiscardDiff,
+  onCommitStaged
 }: {
   diffs: readonly AgentWorkspaceDiffSummary[]
+  sourceControlBusy?: boolean
+  sourceControlError?: string | null
   onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
+  onStageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
+  onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
 }): React.JSX.Element {
   const [renderMode, setRenderMode] = useState<AgentDiffRenderMode>('stacked')
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false)
+  const [commitMessage, setCommitMessage] = useState('')
   const [selectedDiffId, setSelectedDiffId] = useState<string | null>(() => diffs[0]?.id ?? null)
   const selectedDiff = diffs.find((diff) => diff.id === selectedDiffId) ?? diffs[0] ?? null
+  const stagedCount = diffs.filter((diff) => diff.area === 'staged').length
+  const canCommit =
+    stagedCount > 0 && commitMessage.trim().length > 0 && onCommitStaged && !sourceControlBusy
 
   useEffect(() => {
     if (!selectedDiff && selectedDiffId !== null) {
@@ -60,6 +86,17 @@ export function AgentDiffPanel({
       setSelectedDiffId(selectedDiff.id)
     }
   }, [selectedDiff, selectedDiffId])
+
+  async function handleCommit(): Promise<void> {
+    const message = commitMessage.trim()
+    if (!message || !onCommitStaged || sourceControlBusy) {
+      return
+    }
+    const result = await onCommitStaged(message)
+    if (result !== false) {
+      setCommitMessage('')
+    }
+  }
 
   if (diffs.length === 0) {
     return (
@@ -86,6 +123,63 @@ export function AgentDiffPanel({
 
   return (
     <div className="space-y-3">
+      <div className="rounded-md border border-border bg-background p-3">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <GitCommit className="size-4" aria-hidden="true" />
+          {translate('auto.components.agentWorkspace.layout.commit', 'Commit')}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {stagedCount === 1
+            ? translate('auto.components.agentWorkspace.layout.oneStagedChange', '1 staged change')
+            : translate(
+                'auto.components.agentWorkspace.layout.stagedChangeCount',
+                '{{count}} staged changes',
+                { count: stagedCount }
+              )}
+        </p>
+        <textarea
+          aria-label={translate(
+            'auto.components.agentWorkspace.layout.commitMessage',
+            'Commit message'
+          )}
+          value={commitMessage}
+          rows={2}
+          className="mt-3 min-h-16 w-full resize-none rounded-md border border-input bg-background px-2.5 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          placeholder={translate(
+            'auto.components.agentWorkspace.layout.commitMessagePlaceholder',
+            'Describe staged changes'
+          )}
+          disabled={sourceControlBusy}
+          onChange={(event) => setCommitMessage(event.currentTarget.value)}
+        />
+        {sourceControlError ? (
+          <p className="mt-2 text-xs text-destructive">{sourceControlError}</p>
+        ) : null}
+        <Button
+          type="button"
+          size="sm"
+          className="mt-3 w-full"
+          disabled={!canCommit}
+          title={
+            stagedCount === 0
+              ? translate(
+                  'auto.components.agentWorkspace.layout.stageChangeBeforeCommit',
+                  'Stage at least one change before committing'
+                )
+              : translate(
+                  'auto.components.agentWorkspace.layout.commitStagedChanges',
+                  'Commit staged changes'
+                )
+          }
+          onClick={() => {
+            void handleCommit()
+          }}
+        >
+          <GitCommit className="size-3.5" aria-hidden="true" />
+          {translate('auto.components.agentWorkspace.layout.commit', 'Commit')}
+        </Button>
+      </div>
+
       <div className="flex min-w-0 items-center justify-between gap-2">
         <div className="min-w-0 text-sm font-medium">
           {translate('auto.components.agentWorkspace.layout.sourceControlChanges', 'Changes')}
@@ -216,6 +310,50 @@ export function AgentDiffPanel({
                 ? translate('auto.components.agentWorkspace.layout.whitespaceIgnored', 'ignored')
                 : translate('auto.components.agentWorkspace.layout.whitespaceShown', 'shown')}
             </span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {selectedDiff.area === 'staged' ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!onUnstageDiff || sourceControlBusy}
+                onClick={() => {
+                  void onUnstageDiff?.(selectedDiff)
+                }}
+              >
+                <Minus className="size-3.5" aria-hidden="true" />
+                {translate('auto.components.agentWorkspace.layout.unstage', 'Unstage')}
+              </Button>
+            ) : null}
+            {selectedDiff.area === 'unstaged' || selectedDiff.area === 'untracked' ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!onStageDiff || sourceControlBusy}
+                onClick={() => {
+                  void onStageDiff?.(selectedDiff)
+                }}
+              >
+                <Plus className="size-3.5" aria-hidden="true" />
+                {translate('auto.components.agentWorkspace.layout.stage', 'Stage')}
+              </Button>
+            ) : null}
+            {selectedDiff.area === 'unstaged' || selectedDiff.area === 'untracked' ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!onDiscardDiff || sourceControlBusy}
+                onClick={() => {
+                  void onDiscardDiff?.(selectedDiff)
+                }}
+              >
+                <RotateCcw className="size-3.5" aria-hidden="true" />
+                {translate('auto.components.agentWorkspace.layout.discard', 'Discard')}
+              </Button>
+            ) : null}
           </div>
         </div>
       ) : null}

@@ -1,4 +1,4 @@
-import type { GitStagingArea } from '../../../../shared/types'
+import type { GitPushTarget, GitStagingArea } from '../../../../shared/types'
 
 export type AgentWorkspacePhase =
   | 'idle'
@@ -24,6 +24,7 @@ export type AgentWorkspaceProject = {
   readonly repoId?: string | null
   readonly canCreateWorktree?: boolean
   readonly canDeleteWorktree?: boolean
+  readonly pushTarget?: GitPushTarget
   readonly agentDetectionTarget?: AgentWorkspaceAgentDetectionTarget
 }
 
