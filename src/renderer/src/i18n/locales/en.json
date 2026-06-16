@@ -11013,6 +11013,7 @@
         },
         "layout": {
           "projects": "Projects",
+          "activeWorktree": "Active worktree",
           "noThreads": "No threads",
           "noBranch": "No branch",
           "noUpdatesYet": "No updates yet",

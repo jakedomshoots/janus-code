@@ -1,19 +1,9 @@
-import {
-  Bot,
-  Clock3,
-  FileText,
-  FolderOpen,
-  GitBranch,
-  ListChecks,
-  MessageSquareText,
-  Terminal
-} from 'lucide-react'
+import { Clock3, FileText, GitBranch, ListChecks, MessageSquareText, Terminal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
-import { cn } from '@/lib/utils'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspaceProject,
@@ -21,7 +11,9 @@ import type {
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
+import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
 import {
   formatAgentWorkspaceDiffStatus,
   formatAgentWorkspacePhase,
@@ -66,163 +58,108 @@ function getThreadDiffs(
   return thread ? snapshot.diffs.filter((diff) => diff.threadId === thread.id) : []
 }
 
-function formatHostKind(hostKind: AgentWorkspaceProject['hostKind']): string {
-  return hostKind === 'ssh' ? 'SSH' : hostKind
-}
-
-function LeftRail({
-  snapshot,
-  selectedProject,
-  selectedThread,
-  onSelectProject,
-  onSelectThread
+function TerminalDrawerAffordance({
+  terminalAvailable
 }: {
-  snapshot: AgentWorkspaceSnapshot
-  selectedProject: AgentWorkspaceProject | null
-  selectedThread: AgentWorkspaceThread | null
-  onSelectProject: (projectId: string) => void
-  onSelectThread: (projectId: string, threadId: string) => void
+  terminalAvailable: boolean
 }): React.JSX.Element {
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-r border-border bg-muted/20">
-      <div className="border-b border-border px-3 py-3">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground">
-          <FolderOpen className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.projects', 'Projects')}
-        </div>
-      </div>
-      <div className="scrollbar-sleek min-h-0 flex-1 overflow-auto p-2">
-        {snapshot.projects.map((project) => {
-          const projectThreads = snapshot.threads.filter(
-            (thread) => thread.worktreeId === project.id
-          )
-          const selected = project.id === selectedProject?.id
-          return (
-            <section
-              key={project.id}
-              className={cn(
-                'mb-2 rounded-md border px-3 py-2',
-                selected ? 'border-primary/35 bg-background' : 'border-border bg-background/60'
+    <div className="border-t border-border bg-muted/20 px-3 py-1.5">
+      <div className="mx-auto flex h-8 w-full max-w-3xl items-center justify-between gap-3 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground">
+        <span className="flex min-w-0 items-center gap-2 font-medium text-foreground">
+          <Terminal className="size-3.5 shrink-0" aria-hidden="true" />
+          {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
+        </span>
+        <span className="min-w-0 truncate">
+          {terminalAvailable
+            ? translate(
+                'auto.components.agentWorkspace.layout.terminalSessionAvailable',
+                'Terminal session is available as a debug panel.'
+              )
+            : translate(
+                'auto.components.agentWorkspace.layout.noTerminalSessionAttached',
+                'No terminal session is attached to this workspace.'
               )}
-            >
-              <button
-                type="button"
-                className="flex w-full min-w-0 items-center justify-between gap-2 text-left"
-                aria-current={selected ? 'true' : undefined}
-                onClick={() => onSelectProject(project.id)}
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-foreground">
-                    {project.label}
-                  </div>
-                  <div className="truncate text-xs text-muted-foreground">{project.path}</div>
-                </div>
-                <Badge variant="outline" className="uppercase">
-                  {formatHostKind(project.hostKind)}
-                </Badge>
-              </button>
-              <div className="mt-3 space-y-1">
-                {projectThreads.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border px-2 py-2 text-xs text-muted-foreground">
-                    {translate('auto.components.agentWorkspace.layout.noThreads', 'No threads')}
-                  </div>
-                ) : (
-                  projectThreads.map((thread) => (
-                    <button
-                      key={thread.id}
-                      type="button"
-                      aria-pressed={thread.id === selectedThread?.id}
-                      onClick={() => onSelectThread(project.id, thread.id)}
-                      className={cn(
-                        'w-full rounded-md px-2 py-2 text-left text-xs',
-                        thread.id === selectedThread?.id ? 'bg-primary/10' : 'bg-muted/50'
-                      )}
-                    >
-                      <div className="truncate font-medium text-foreground">{thread.title}</div>
-                      <div className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-                        <Bot className="size-3" aria-hidden="true" />
-                        <span className="truncate">{thread.agentKind}</span>
-                        <span>{formatAgentWorkspacePhase(thread.phase)}</span>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            </section>
-          )
-        })}
+        </span>
       </div>
-    </aside>
+    </div>
   )
 }
 
 function Timeline({
   thread,
-  timeline
+  timeline,
+  terminalAvailable
 }: {
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
+  terminalAvailable: boolean
 }): React.JSX.Element {
   return (
     <main className="flex min-w-0 flex-1 flex-col bg-background">
-      <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4">
-        {thread ? (
-          <>
-            <div className="rounded-md border border-border bg-muted/20 p-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <MessageSquareText className="size-4" aria-hidden="true" />
-                {thread.title}
+      <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-4 py-3">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+          {thread ? (
+            <>
+              <div className="rounded-md border border-border bg-muted/20 p-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <MessageSquareText className="size-4" aria-hidden="true" />
+                  {thread.title}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <GitBranch className="size-3" aria-hidden="true" />
+                    {thread.branchName ??
+                      translate('auto.components.agentWorkspace.layout.noBranch', 'No branch')}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock3 className="size-3" aria-hidden="true" />
+                    {thread.updatedAt ??
+                      translate(
+                        'auto.components.agentWorkspace.layout.noUpdatesYet',
+                        'No updates yet'
+                      )}
+                  </span>
+                </div>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <GitBranch className="size-3" aria-hidden="true" />
-                  {thread.branchName ??
-                    translate('auto.components.agentWorkspace.layout.noBranch', 'No branch')}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock3 className="size-3" aria-hidden="true" />
-                  {thread.updatedAt ??
-                    translate(
-                      'auto.components.agentWorkspace.layout.noUpdatesYet',
-                      'No updates yet'
-                    )}
-                </span>
-              </div>
+              {timeline.length === 0 ? (
+                <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+                  {translate(
+                    'auto.components.agentWorkspace.layout.timelineEventsWillAppear',
+                    'Timeline events will appear here as the agent works.'
+                  )}
+                </div>
+              ) : (
+                timeline.map((entry) => (
+                  <article key={entry.id} className="rounded-md border border-border p-3">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <Badge variant="outline">
+                        {formatAgentWorkspaceTimelineKind(entry.kind)}
+                      </Badge>
+                      {entry.status ? (
+                        <span className="text-xs text-muted-foreground">
+                          {formatAgentWorkspaceTimelineStatus(entry.status)}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-sm text-foreground">{entry.text}</p>
+                  </article>
+                ))
+              )}
+            </>
+          ) : (
+            <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+              {translate(
+                'auto.components.agentWorkspace.layout.selectThreadTimeline',
+                'Select a thread to view its timeline.'
+              )}
             </div>
-            {timeline.length === 0 ? (
-              <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-                {translate(
-                  'auto.components.agentWorkspace.layout.timelineEventsWillAppear',
-                  'Timeline events will appear here as the agent works.'
-                )}
-              </div>
-            ) : (
-              timeline.map((entry) => (
-                <article key={entry.id} className="rounded-md border border-border p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <Badge variant="outline">{formatAgentWorkspaceTimelineKind(entry.kind)}</Badge>
-                    {entry.status ? (
-                      <span className="text-xs text-muted-foreground">
-                        {formatAgentWorkspaceTimelineStatus(entry.status)}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-foreground">{entry.text}</p>
-                </article>
-              ))
-            )}
-          </>
-        ) : (
-          <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-            {translate(
-              'auto.components.agentWorkspace.layout.selectThreadTimeline',
-              'Select a thread to view its timeline.'
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
+      <TerminalDrawerAffordance terminalAvailable={terminalAvailable} />
       <div className="border-t border-border p-3">
-        <div className="flex items-center gap-2 rounded-md border border-border bg-muted/20 px-3 py-2">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 rounded-md border border-border bg-muted/20 px-3 py-2">
           <input
             className="min-w-0 flex-1 bg-transparent text-sm text-muted-foreground outline-none"
             disabled
@@ -380,13 +317,14 @@ export function AgentWorkspaceLayout({
   }, [selectedThread, selectedThreadId])
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-background text-foreground">
-      <AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />
-      <div className="flex min-h-0 flex-1">
-        <LeftRail
-          snapshot={snapshot}
-          selectedProject={selectedProject}
-          selectedThread={selectedThread}
+    <AgentWorkspaceChrome
+      sidebar={
+        <AgentWorkspaceSidebar
+          projects={snapshot.projects}
+          threads={snapshot.threads}
+          selectedProjectId={selectedProject?.id ?? null}
+          selectedThreadId={selectedThread?.id ?? null}
+          activeWorktreeId={snapshot.activeWorktreeId}
           onSelectProject={(projectId) => {
             setSelectedProjectId(projectId)
             const nextProject =
@@ -398,13 +336,21 @@ export function AgentWorkspaceLayout({
             setSelectedThreadId(threadId)
           }}
         />
-        <Timeline thread={selectedThread} timeline={timeline} />
+      }
+      header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
+      rightPanel={
         <RightPanel
           thread={selectedThread}
           diffs={diffs}
           terminalAvailable={snapshot.terminalAvailable}
         />
-      </div>
-    </div>
+      }
+    >
+      <Timeline
+        thread={selectedThread}
+        timeline={timeline}
+        terminalAvailable={snapshot.terminalAvailable}
+      />
+    </AgentWorkspaceChrome>
   )
 }

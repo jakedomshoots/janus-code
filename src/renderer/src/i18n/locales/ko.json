@@ -11013,6 +11013,7 @@
         },
         "layout": {
           "projects": "프로젝트",
+          "activeWorktree": "활성 worktree",
           "noThreads": "스레드 없음",
           "noBranch": "브랜치 없음",
           "noUpdatesYet": "아직 업데이트 없음",

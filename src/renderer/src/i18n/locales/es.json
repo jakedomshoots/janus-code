@@ -11013,6 +11013,7 @@
         },
         "layout": {
           "projects": "Proyectos",
+          "activeWorktree": "Worktree activo",
           "noThreads": "No hay hilos",
           "noBranch": "Sin rama",
           "noUpdatesYet": "Aun no hay actualizaciones",
