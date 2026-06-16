@@ -124,23 +124,23 @@ write_environment_report() {
     echo "## shell"
     echo "$SHELL"
     echo
-    echo "## current Orca processes before diagnostics"
-    pgrep -fl 'Orca|orca' || true
+    echo "## current $APP_NAME processes before diagnostics"
+    pgrep -fl "$APP_EXECUTABLE|$APP_NAME" || true
   } >"$OUT_DIR/environment.txt"
 }
 
-ensure_no_existing_orca() {
+ensure_no_existing_app() {
   local existing
-  existing="$(pgrep -x Orca || true)"
+  existing="$(pgrep -x "$APP_EXECUTABLE" || true)"
   if [[ -z "$existing" ]]; then
     return 0
   fi
 
   {
-    echo "An Orca process is already running. Close Orca and run this script again."
+    echo "An $APP_NAME process is already running. Close $APP_NAME and run this script again."
     echo
     ps -p "$(printf '%s' "$existing" | paste -sd, -)" -o pid=,ppid=,command= || true
-  } | tee "$OUT_DIR/existing-orca-process.txt" >&2
+  } | tee "$OUT_DIR/existing-app-process.txt" >&2
   exit 2
 }
 
@@ -359,7 +359,7 @@ package_results() {
 }
 
 write_environment_report
-ensure_no_existing_orca
+ensure_no_existing_app
 download_and_copy_app
 write_app_report
 run_launchservices_probe "launchservices-trace"
