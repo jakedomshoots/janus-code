@@ -10,6 +10,7 @@ const electronBuilderNativeRebuild = require('./electron-builder-native-rebuild.
 const {
   createPackagedRuntimeNodeModuleResources,
   findAsarEntry,
+  isPackagedExternalSpecifier,
   prunePackagedNodePty,
   prunePackagedParcelWatcher,
   prunePackagedSherpaOnnx,
@@ -117,6 +118,10 @@ describe('electron-builder config', () => {
       '\\out\\main\\index.js'
     )
     expect(findAsarEntry(['/out/main/index.js'], 'out/main/index.js')).toBe('/out/main/index.js')
+  })
+
+  it('treats node namespace imports as packaged runtime builtins', () => {
+    expect(isPackagedExternalSpecifier('node:sqlite')).toBe(false)
   })
 
   it('prunes non-target node-pty prebuilds from packaged runtime resources', async () => {
