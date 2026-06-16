@@ -15,10 +15,10 @@ const expectedRequiredAssets = [
   'janus-code-1.4.27.x86_64.rpm',
   'janus-code-windows-setup.exe',
   'janus-code-windows-setup.exe.blockmap',
-  'Janus Code-1.4.27-mac.zip',
-  'Janus Code-1.4.27-mac.zip.blockmap',
-  'Janus Code-1.4.27-arm64-mac.zip',
-  'Janus Code-1.4.27-arm64-mac.zip.blockmap',
+  'Janus-Code-1.4.27-mac.zip',
+  'Janus.Code-1.4.27-mac.zip.blockmap',
+  'Janus-Code-1.4.27-arm64-mac.zip',
+  'Janus.Code-1.4.27-arm64-mac.zip.blockmap',
   'janus-code-macos-x64.dmg',
   'janus-code-macos-x64.dmg.blockmap',
   'janus-code-macos-arm64.dmg',
@@ -75,13 +75,13 @@ describe('extractManifestAssetNames', () => {
       extractManifestAssetNames(
         [
           'files:',
-          '  - url: Janus Code-1.4.27-arm64-mac.zip',
+          '  - url: Janus-Code-1.4.27-arm64-mac.zip',
           '  - url: https://example.com/downloads/janus-code-windows-setup.exe',
           'path: janus-code-linux.AppImage'
         ].join('\n')
       )
     ).toEqual([
-      'Janus Code-1.4.27-arm64-mac.zip',
+      'Janus-Code-1.4.27-arm64-mac.zip',
       'janus-code-windows-setup.exe',
       'janus-code-linux.AppImage'
     ])
@@ -92,7 +92,7 @@ describe('verifyRequiredReleaseAssets', () => {
   it('fails when a manifest-referenced asset has not been uploaded', async () => {
     const tag = 'v1.4.27'
     const required = getRequiredReleaseAssetNames(tag)
-    const assets = required.filter((name) => name !== 'Janus Code-1.4.27-arm64-mac.zip')
+    const assets = required.filter((name) => name !== 'Janus-Code-1.4.27-arm64-mac.zip')
     const release = releaseWithAssets(tag, assets)
     const latestMacAsset = release.assets.find((asset) => asset.name === 'latest-mac.yml')
     const fetchMock = vi
@@ -103,9 +103,9 @@ describe('verifyRequiredReleaseAssets', () => {
           [
             'version: 1.4.27',
             'files:',
-            '  - url: Janus Code-1.4.27-arm64-mac.zip',
+            '  - url: Janus-Code-1.4.27-arm64-mac.zip',
             '    sha512: test',
-            'path: Janus Code-1.4.27-arm64-mac.zip'
+            'path: Janus-Code-1.4.27-arm64-mac.zip'
           ].join('\n')
         )
       )
@@ -114,7 +114,7 @@ describe('verifyRequiredReleaseAssets', () => {
 
     await expect(
       verifyRequiredReleaseAssets({ repo: 'jakedomshoots/janus-code', tag, token: 'token' })
-    ).rejects.toThrow('Missing: Janus Code-1.4.27-arm64-mac.zip')
+    ).rejects.toThrow('Missing: Janus-Code-1.4.27-arm64-mac.zip')
     expect(latestMacAsset).toBeTruthy()
   })
 })

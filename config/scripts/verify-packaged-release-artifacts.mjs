@@ -13,8 +13,8 @@ export function requiredPackagedArtifacts({
   const mac = [
     'janus-code-macos-arm64.dmg',
     'janus-code-macos-x64.dmg',
-    `Janus Code-${version}-arm64-mac.zip`,
-    `Janus Code-${version}-mac.zip`,
+    `Janus-Code-${version}-arm64-mac.zip`,
+    `Janus-Code-${version}-mac.zip`,
     'latest-mac.yml'
   ]
   const linux = ['janus-code-linux.AppImage', 'latest-linux.yml']
