@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { copyFile, mkdir, mkdtemp, rm, stat, symlink, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -15,7 +15,11 @@ const builderConfig = require('../../../config/electron-builder.config.cjs') as 
   linux?: { extraResources?: { from?: string; to?: string }[] }
   win?: { extraResources?: { from?: string; to?: string }[] }
 }
-const linuxLauncherAsset = new URL('../../../resources/linux/bin/orca-ide', import.meta.url)
+const macAgentHubLauncherAsset = new URL('../../../resources/darwin/bin/agent-hub', import.meta.url)
+const linuxAgentHubLauncherAsset = new URL(
+  '../../../resources/linux/bin/agent-hub',
+  import.meta.url
+)
 
 describe('packaged CLI assets', () => {
   it('copies runtime dependencies used before Electron asar integration is available', () => {
@@ -41,9 +45,26 @@ describe('packaged CLI assets', () => {
     )
   })
 
-  itRunsUnixShell('keeps the Linux launcher executable in packaged resources', async () => {
-    const launcherStats = await stat(linuxLauncherAsset)
-    expect(launcherStats.mode & 0o111).not.toBe(0)
+  itRunsUnixShell(
+    'keeps the Agent Hub Unix launchers executable in packaged resources',
+    async () => {
+      const launcherStats = await Promise.all([
+        stat(macAgentHubLauncherAsset),
+        stat(linuxAgentHubLauncherAsset)
+      ])
+
+      for (const stats of launcherStats) {
+        expect(stats.mode & 0o111).not.toBe(0)
+      }
+    }
+  )
+
+  itRunsUnixShell('keeps the macOS launcher pointed at Agent Hub.app', async () => {
+    const launcher = await readFile(macAgentHubLauncherAsset, 'utf8')
+
+    expect(launcher).toContain('Agent Hub.app')
+    expect(launcher).toContain('MacOS/Agent Hub')
+    expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
   })
 
   itRunsUnixShell(
@@ -51,17 +72,17 @@ describe('packaged CLI assets', () => {
     async () => {
       const root = await mkdtemp(join(tmpdir(), 'orca-linux-cli-'))
       try {
-        const appDir = join(root, 'Orca')
+        const appDir = join(root, 'Agent Hub')
         const resourcesDir = join(appDir, 'resources')
         const launcherDir = join(resourcesDir, 'bin')
         const cliDir = join(resourcesDir, 'app.asar.unpacked', 'out', 'cli')
-        const launcherPath = join(launcherDir, 'orca-ide')
-        const electronPath = join(appDir, 'orca-ide')
+        const launcherPath = join(launcherDir, 'agent-hub')
+        const electronPath = join(appDir, 'agent-hub')
         const cliPath = join(cliDir, 'index.js')
 
         await mkdir(launcherDir, { recursive: true })
         await mkdir(cliDir, { recursive: true })
-        await copyFile(linuxLauncherAsset, launcherPath)
+        await copyFile(linuxAgentHubLauncherAsset, launcherPath)
         expect((await stat(launcherPath)).mode & 0o111).not.toBe(0)
         await writeFile(cliPath, '', 'utf8')
         await writeFile(
@@ -82,7 +103,7 @@ printf 'arg=%s\\n' "$@"
 
         const homeDir = join(root, 'home')
         const commandDir = join(homeDir, '.local', 'bin')
-        const commandPath = join(commandDir, 'orca-ide')
+        const commandPath = join(commandDir, 'agent-hub')
         await mkdir(commandDir, { recursive: true })
         await mkdir(join(homeDir, 'orca'), { recursive: true })
         await symlink(launcherPath, commandPath)
@@ -107,7 +128,7 @@ printf 'arg=%s\\n' "$@"
       const cliDir = join(appDir, 'resources', 'app.asar.unpacked', 'out', 'cli')
       const cliPath = join(cliDir, 'index.js')
       const appImagePath = join(root, "Orca's AppImage.AppImage")
-      const commandPath = join(root, 'orca-ide')
+      const commandPath = join(root, 'agent-hub')
       await mkdir(cliDir, { recursive: true })
       await writeFile(
         cliPath,

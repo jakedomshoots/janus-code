@@ -72,6 +72,7 @@ describe('electron-builder config', () => {
   })
 
   it('uses Agent Hub artifact names for public release packages', () => {
+    expect(electronBuilderConfig.win.executableName).toBe('Agent Hub')
     expect(electronBuilderConfig.nsis.artifactName).toBe('agent-hub-windows-setup.${ext}')
     expect(electronBuilderConfig.dmg.artifactName).toBe('agent-hub-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])

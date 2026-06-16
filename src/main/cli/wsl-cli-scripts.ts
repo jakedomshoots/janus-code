@@ -52,9 +52,13 @@ try {
 }
 
 export function getBridgePathFromCommandPath(commandPath: string): string {
-  // Why: both the current Linux command and the legacy pre-rename command
-  // share one WSL bridge under ~/.local/share/orca.
-  return `${commandPath.replace(/\/\.local\/bin\/(?:orca|orca-ide)$/, '/.local/share/orca')}/orca-wsl-bridge.ps1`
+  // Why: the current Agent Hub command and legacy pre-rename commands share one
+  // WSL bridge under ~/.local/share/orca.
+  const bridgeBasePath = commandPath.replace(
+    /\/\.local\/bin\/(?:agent-hub|orca|orca-ide)$/,
+    '/.local/share/orca'
+  )
+  return `${bridgeBasePath}/orca-wsl-bridge.ps1`
 }
 
 export function buildSafeReplaceGuard(path: string, managedMarker: string): string {

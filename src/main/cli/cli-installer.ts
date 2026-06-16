@@ -10,7 +10,8 @@ import type { CliInstallMethod, CliInstallStatus } from '../../shared/cli-instal
 import { buildAppImageCliWrapper } from './appimage-cli-wrapper'
 
 const execFileAsync = promisify(execFile)
-const DEFAULT_MAC_COMMAND_PATH = '/usr/local/bin/orca'
+const PUBLIC_COMMAND_NAME = 'agent-hub'
+const DEFAULT_MAC_COMMAND_PATH = `/usr/local/bin/${PUBLIC_COMMAND_NAME}`
 const DEV_COMMAND_NAME = 'orca-dev'
 const LINUX_COMMAND_NAME = 'orca-ide'
 const LEGACY_LINUX_COMMAND_NAME = 'orca'
@@ -64,8 +65,7 @@ export class CliInstaller {
       // Why: development builds must not claim the production shell command.
       return DEV_COMMAND_NAME
     }
-    // Why: packaged Linux uses `orca-ide` to avoid shadowing GNOME Orca's /usr/bin/orca.
-    return this.platform === 'linux' ? LINUX_COMMAND_NAME : 'orca'
+    return PUBLIC_COMMAND_NAME
   }
 
   constructor(options: CliInstallerOptions = {}) {
@@ -93,7 +93,7 @@ export class CliInstaller {
     const candidateMacPath = options.defaultMacCommandPath ?? DEFAULT_MAC_COMMAND_PATH
     this.macCommandPath = existsSync(dirname(candidateMacPath))
       ? candidateMacPath
-      : join(this.homePath, '.local', 'bin', 'orca')
+      : join(this.homePath, '.local', 'bin', PUBLIC_COMMAND_NAME)
     this.privilegedRunner = options.privilegedRunner ?? runMacPrivilegedCommand
     this.userPathReader = options.userPathReader ?? (() => readWindowsUserPath())
     this.userPathWriter = options.userPathWriter ?? ((value) => writeWindowsUserPath(value))
@@ -174,7 +174,7 @@ export class CliInstaller {
       await this.installAppImageWrapper(status.commandPath, status.launcherPath)
       await this.removeLegacyLinuxCommandIfManaged(status.launcherPath)
     } else if (this.isWindowsPackagedBundledCommand(status.commandPath, status.launcherPath)) {
-      // Why: packaged Windows already ships resources/bin/orca.cmd. Registration
+      // Why: packaged Windows already ships resources/bin/agent-hub.cmd. Registration
       // only owns the user PATH entry; rewriting the asset makes it recurse.
     } else {
       // Why: mkdir stays here for the Windows wrapper path — the target dir is
@@ -278,14 +278,18 @@ export class CliInstaller {
       // Why: Linux does not have a single privileged global shell-command flow
       // equivalent to macOS's /usr/local/bin integration. ~/.local/bin is the
       // least surprising user-scoped location that many distros already expose.
-      // Why `orca-ide`: GNOME Orca (the screen reader) ships /usr/bin/orca on
-      // most Linux distros. Using `orca-ide` avoids shadowing that system
-      // command, matching the executableName already used for the Electron binary.
-      return join(this.homePath, '.local', 'bin', LINUX_COMMAND_NAME)
+      return join(this.homePath, '.local', 'bin', PUBLIC_COMMAND_NAME)
     }
 
     if (this.platform === 'win32') {
-      return join(this.localAppDataPath, 'Programs', 'Orca', 'resources', 'bin', 'orca.cmd')
+      return join(
+        this.localAppDataPath,
+        'Programs',
+        'Agent Hub',
+        'resources',
+        'bin',
+        `${PUBLIC_COMMAND_NAME}.cmd`
+      )
     }
 
     return null
@@ -1033,13 +1037,30 @@ export function getBundledLauncherPath(
   resourcesPath: string
 ): string | null {
   if (platform === 'darwin') {
-    return join(resourcesPath, 'bin', 'orca')
+    return firstExistingBundledLauncher(resourcesPath, [PUBLIC_COMMAND_NAME, 'orca'])
   }
   if (platform === 'linux') {
-    return join(resourcesPath, 'bin', LINUX_COMMAND_NAME)
+    return firstExistingBundledLauncher(resourcesPath, [
+      PUBLIC_COMMAND_NAME,
+      LINUX_COMMAND_NAME,
+      LEGACY_LINUX_COMMAND_NAME
+    ])
   }
   if (platform === 'win32') {
-    return join(resourcesPath, 'bin', 'orca.cmd')
+    return firstExistingBundledLauncher(resourcesPath, [`${PUBLIC_COMMAND_NAME}.cmd`, 'orca.cmd'])
+  }
+  return null
+}
+
+function firstExistingBundledLauncher(
+  resourcesPath: string,
+  launcherNames: string[]
+): string | null {
+  for (const launcherName of launcherNames) {
+    const launcherPath = join(resourcesPath, 'bin', launcherName)
+    if (existsSync(launcherPath)) {
+      return launcherPath
+    }
   }
   return null
 }

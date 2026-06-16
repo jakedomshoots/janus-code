@@ -141,7 +141,7 @@ module.exports = {
     }
   },
   win: {
-    executableName: 'Orca',
+    executableName: 'Agent Hub',
     extraResources: [
       ...commonExtraResources,
       winSpeechNativeResource,

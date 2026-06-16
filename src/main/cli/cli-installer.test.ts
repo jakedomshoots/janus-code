@@ -27,7 +27,7 @@ vi.mock('node:child_process', () => ({
   execFile: execFileMock
 }))
 
-import { CliInstaller } from './cli-installer'
+import { CliInstaller, getBundledLauncherPath } from './cli-installer'
 import { buildAppImageCliWrapper } from './appimage-cli-wrapper'
 
 async function makeFixture(): Promise<{
@@ -44,13 +44,22 @@ async function makeFixture(): Promise<{
   return { root, userDataPath, appPath }
 }
 
-async function createPackagedMacLauncher(root: string): Promise<string> {
+async function createPackagedMacLauncher(
+  root: string,
+  launcherNames: string[] = ['agent-hub']
+): Promise<string> {
   const resourcesPath = join(root, 'resources')
   await mkdir(join(resourcesPath, 'bin'), { recursive: true })
-  await writeFile(join(resourcesPath, 'bin', 'orca'), '#!/usr/bin/env bash\necho orca\n', {
-    encoding: 'utf8',
-    mode: 0o755
-  })
+  for (const launcherName of launcherNames) {
+    await writeFile(
+      join(resourcesPath, 'bin', launcherName),
+      `#!/usr/bin/env bash\necho ${launcherName}\n`,
+      {
+        encoding: 'utf8',
+        mode: 0o755
+      }
+    )
+  }
   return resourcesPath
 }
 
@@ -82,7 +91,7 @@ describe('CliInstaller', () => {
 
       const initial = await installer.getStatus()
       expect(initial.state).toBe('not_installed')
-      expect(initial.launcherPath).toContain(join('userData', 'cli', 'bin', 'orca'))
+      expect(initial.launcherPath).toContain(join('userData', 'cli', 'bin', 'agent-hub'))
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
@@ -104,12 +113,12 @@ describe('CliInstaller', () => {
     'creates a linux symlink under the requested path and warns when PATH is missing',
     async () => {
       const fixture = await makeFixture()
-      const installPath = join(fixture.root, '.local', 'bin', 'orca-ide')
+      const installPath = join(fixture.root, '.local', 'bin', 'agent-hub')
       const installer = new CliInstaller({
         platform: 'linux',
         isPackaged: false,
         userDataPath: fixture.userDataPath,
-        execPath: '/opt/Orca/orca-ide',
+        execPath: '/opt/Agent Hub/agent-hub',
         appPath: fixture.appPath,
         commandPathOverride: installPath,
         processPathEnv: '/usr/bin'
@@ -117,7 +126,7 @@ describe('CliInstaller', () => {
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
-      expect(installed.commandName).toBe('orca-ide')
+      expect(installed.commandName).toBe('agent-hub')
       expect(installed.pathConfigured).toBe(false)
       expect(installed.detail).toContain('.local')
 
@@ -167,7 +176,7 @@ describe('CliInstaller', () => {
     async () => {
       const fixture = await makeFixture()
       const commandDir = join(fixture.root, '.local', 'bin')
-      const installPath = join(commandDir, 'orca-ide')
+      const installPath = join(commandDir, 'agent-hub')
       const appImagePath = join(fixture.root, 'Orca.AppImage')
       await writeFile(appImagePath, '#!/usr/bin/env bash\n', {
         encoding: 'utf8',
@@ -192,7 +201,7 @@ describe('CliInstaller', () => {
       const installed = await installer.install()
       expect(installed).toMatchObject({
         state: 'installed',
-        commandName: 'orca-ide',
+        commandName: 'agent-hub',
         installMethod: 'wrapper',
         launcherPath: appImagePath,
         currentTarget: appImagePath,
@@ -217,7 +226,7 @@ describe('CliInstaller', () => {
     async () => {
       const fixture = await makeFixture()
       const commandDir = join(fixture.root, '.local', 'bin')
-      const installPath = join(commandDir, 'orca-ide')
+      const installPath = join(commandDir, 'agent-hub')
       const oldAppImagePath = join(fixture.root, 'Old-Orca.AppImage')
       const newAppImagePath = join(fixture.root, 'Orca.AppImage')
       await mkdir(commandDir, { recursive: true })
@@ -254,13 +263,13 @@ describe('CliInstaller', () => {
   // Why: Linux renamed the public command to avoid shadowing GNOME Orca, so
   // upgrading must clean up only the old symlink owned by prior Orca installs.
   it.skipIf(process.platform === 'win32')(
-    'removes the old managed linux orca symlink when installing orca-ide',
+    'removes the old managed linux orca symlink when installing agent-hub',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const commandDir = join(homePath, '.local', 'bin')
       const resourcesPath = join(fixture.root, 'resources')
-      const launcherPath = join(resourcesPath, 'bin', 'orca-ide')
+      const launcherPath = join(resourcesPath, 'bin', 'agent-hub')
       const oldLauncherPath = join(resourcesPath, 'bin', 'orca')
       const legacyCommandPath = join(commandDir, 'orca')
       await mkdir(commandDir, { recursive: true })
@@ -278,7 +287,7 @@ describe('CliInstaller', () => {
       })
 
       const installed = await installer.install()
-      expect(installed.commandPath).toBe(join(commandDir, 'orca-ide'))
+      expect(installed.commandPath).toBe(join(commandDir, 'agent-hub'))
       await expect(lstat(legacyCommandPath)).rejects.toMatchObject({ code: 'ENOENT' })
     }
   )
@@ -307,7 +316,7 @@ describe('CliInstaller', () => {
       })
 
       const installed = await installer.install()
-      expect(installed.commandPath).toBe(join(commandDir, 'orca-ide'))
+      expect(installed.commandPath).toBe(join(commandDir, 'agent-hub'))
       await expect(lstat(legacyCommandPath)).rejects.toMatchObject({ code: 'ENOENT' })
     }
   )
@@ -336,7 +345,7 @@ describe('CliInstaller', () => {
 
     const wrapperContent = await readFile(installPath, 'utf8')
     expect(wrapperContent).toContain('ORCA_LAUNCHER=')
-    expect(wrapperContent).toContain('orca.cmd')
+    expect(wrapperContent).toContain('agent-hub.cmd')
     const launcherContent = await readFile(installed.launcherPath as string, 'utf8')
     expect(launcherContent).toContain(`set "ORCA_USER_DATA_PATH=${fixture.userDataPath}"`)
     expect(launcherContent).toContain('set "ORCA_APP_EXECUTABLE=%ELECTRON%"')
@@ -563,14 +572,14 @@ describe('CliInstaller', () => {
   // must fall back to ~/.local/bin (user-writable, no sudo) rather than failing
   // silently when the parent directory is absent.
   it.skipIf(process.platform === 'win32')(
-    'falls back to ~/.local/bin/orca on macOS when /usr/local/bin does not exist',
+    'falls back to ~/.local/bin/agent-hub on macOS when /usr/local/bin does not exist',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
       // Simulate arm64: point defaultMacCommandPath at a dir that does not exist
       // in the fixture so existsSync(dirname(...)) returns false.
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'orca')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -584,13 +593,13 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'orca'))
+      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
       expect(status.state).toBe('not_installed')
       expect(status.supported).toBe(true)
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
-      expect(installed.commandPath).toBe(join(homePath, '.local', 'bin', 'orca'))
+      expect(installed.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
       expect(installed.pathConfigured).toBe(true)
     }
   )
@@ -598,14 +607,14 @@ describe('CliInstaller', () => {
   // Why: on Intel Macs /usr/local/bin exists, so the installer must keep using
   // it as the canonical path and not regress to ~/.local/bin.
   it.skipIf(process.platform === 'win32')(
-    'uses /usr/local/bin/orca on macOS when /usr/local/bin exists',
+    'uses /usr/local/bin/agent-hub on macOS when /usr/local/bin exists',
     async () => {
       const fixture = await makeFixture()
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
       const usrLocalBin = join(fixture.root, 'usr', 'local', 'bin')
       await mkdir(usrLocalBin, { recursive: true })
 
-      const installPath = join(usrLocalBin, 'orca')
+      const installPath = join(usrLocalBin, 'agent-hub')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -624,15 +633,15 @@ describe('CliInstaller', () => {
     }
   )
 
-  // Why: when macCommandPath falls back to ~/.local/bin/orca on arm64, commandName
-  // must still be 'orca' (not 'orca-ide' which is Linux-only).
+  // Why: when macCommandPath falls back to ~/.local/bin/agent-hub on arm64, commandName
+  // must still be 'agent-hub' (not a legacy compatibility launcher).
   it.skipIf(process.platform === 'win32')(
-    'reports commandName as orca (not orca-ide) when falling back to ~/.local/bin on macOS',
+    'reports commandName as agent-hub when falling back to ~/.local/bin on macOS',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'orca')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -646,7 +655,7 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandName).toBe('orca')
+      expect(status.commandName).toBe('agent-hub')
     }
   )
 
@@ -702,7 +711,7 @@ describe('CliInstaller', () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'orca')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -722,16 +731,16 @@ describe('CliInstaller', () => {
 
       expect(s1.commandPath).toBe(s2.commandPath)
       expect(s2.commandPath).toBe(s3.commandPath)
-      expect(s1.commandPath).toBe(join(homePath, '.local', 'bin', 'orca'))
+      expect(s1.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
     }
   )
 
-  it('resolves packaged Windows command path to resources/bin/orca.cmd', async () => {
+  it('resolves packaged Windows command path to resources/bin/agent-hub.cmd', async () => {
     const fixture = await makeFixture()
     const localAppDataPath = fixture.root
     const resourcesPath = join(fixture.root, 'resources')
     await mkdir(join(resourcesPath, 'bin'), { recursive: true })
-    await writeFile(join(resourcesPath, 'bin', 'orca.cmd'), '@echo off\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'agent-hub.cmd'), '@echo off\n', 'utf8')
 
     const installer = new CliInstaller({
       platform: 'win32',
@@ -739,7 +748,7 @@ describe('CliInstaller', () => {
       resourcesPath,
       localAppDataPath,
       userDataPath: fixture.userDataPath,
-      execPath: join(localAppDataPath, 'Programs', 'Orca', 'Orca.exe'),
+      execPath: join(localAppDataPath, 'Programs', 'Agent Hub', 'Agent Hub.exe'),
       appPath: fixture.appPath,
       userPathReader: async () => null,
       userPathWriter: async () => {}
@@ -747,16 +756,16 @@ describe('CliInstaller', () => {
 
     const status = await installer.getStatus()
     expect(status.commandPath).toBe(
-      join(localAppDataPath, 'Programs', 'Orca', 'resources', 'bin', 'orca.cmd')
+      join(localAppDataPath, 'Programs', 'Agent Hub', 'resources', 'bin', 'agent-hub.cmd')
     )
   })
 
   it('does not overwrite the packaged Windows launcher while registering PATH', async () => {
     const fixture = await makeFixture()
     const localAppDataPath = fixture.root
-    const resourcesPath = join(localAppDataPath, 'Programs', 'Orca', 'resources')
-    const bundledLauncher = join(resourcesPath, 'bin', 'orca.cmd')
-    const bundledContent = '@echo off\r\necho bundled-orca %*\r\n'
+    const resourcesPath = join(localAppDataPath, 'Programs', 'Agent Hub', 'resources')
+    const bundledLauncher = join(resourcesPath, 'bin', 'agent-hub.cmd')
+    const bundledContent = '@echo off\r\necho bundled-agent-hub %*\r\n'
     await mkdir(dirname(bundledLauncher), { recursive: true })
     await writeFile(bundledLauncher, bundledContent, 'utf8')
 
@@ -767,7 +776,7 @@ describe('CliInstaller', () => {
       resourcesPath,
       localAppDataPath,
       userDataPath: fixture.userDataPath,
-      execPath: join(localAppDataPath, 'Programs', 'Orca', 'Orca.exe'),
+      execPath: join(localAppDataPath, 'Programs', 'Agent Hub', 'Agent Hub.exe'),
       appPath: fixture.appPath,
       userPathReader: async () => userPath,
       userPathWriter: async (value) => {
@@ -793,13 +802,13 @@ describe('CliInstaller', () => {
 
   // Why: the arm64 fallback must apply for packaged builds, not just dev launchers.
   it.skipIf(process.platform === 'win32')(
-    'resolves to ~/.local/bin/orca on arm64 even when isPackaged is true',
+    'resolves to ~/.local/bin/agent-hub on arm64 even when isPackaged is true',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'orca')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
       const resourcesPath = join(fixture.root, 'resources')
-      const bundledLauncher = join(resourcesPath, 'bin', 'orca')
+      const bundledLauncher = join(resourcesPath, 'bin', 'agent-hub')
       await mkdir(join(resourcesPath, 'bin'), { recursive: true })
       await writeFile(bundledLauncher, '#!/usr/bin/env bash\necho orca\n', {
         encoding: 'utf8',
@@ -819,8 +828,46 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'orca'))
+      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
       expect(status.supported).toBe(true)
     }
   )
+
+  it('prefers packaged agent-hub launchers before legacy bundled launchers', async () => {
+    const fixture = await makeFixture()
+    const resourcesPath = join(fixture.root, 'resources')
+    await mkdir(join(resourcesPath, 'bin'), { recursive: true })
+    await writeFile(join(resourcesPath, 'bin', 'agent-hub'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'orca'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'orca-ide'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'agent-hub.cmd'), '@echo off\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'orca.cmd'), '@echo off\n', 'utf8')
+
+    expect(getBundledLauncherPath('darwin', resourcesPath)).toBe(
+      join(resourcesPath, 'bin', 'agent-hub')
+    )
+    expect(getBundledLauncherPath('linux', resourcesPath)).toBe(
+      join(resourcesPath, 'bin', 'agent-hub')
+    )
+    expect(getBundledLauncherPath('win32', resourcesPath)).toBe(
+      join(resourcesPath, 'bin', 'agent-hub.cmd')
+    )
+  })
+
+  it('falls back to legacy bundled launchers for compatibility builds', async () => {
+    const fixture = await makeFixture()
+    const resourcesPath = join(fixture.root, 'resources')
+    await mkdir(join(resourcesPath, 'bin'), { recursive: true })
+    await writeFile(join(resourcesPath, 'bin', 'orca'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'orca-ide'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'orca.cmd'), '@echo off\n', 'utf8')
+
+    expect(getBundledLauncherPath('darwin', resourcesPath)).toBe(join(resourcesPath, 'bin', 'orca'))
+    expect(getBundledLauncherPath('linux', resourcesPath)).toBe(
+      join(resourcesPath, 'bin', 'orca-ide')
+    )
+    expect(getBundledLauncherPath('win32', resourcesPath)).toBe(
+      join(resourcesPath, 'bin', 'orca.cmd')
+    )
+  })
 })
