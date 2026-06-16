@@ -3416,7 +3416,7 @@
           "ff1e819a11": "セットアップスクリプトを追加する",
           "70715947fb": "セットアップ スクリプトを空にすることはできません",
           "888b83bf78": "セットアップ スクリプトの保存に失敗しました",
-          "a49196d538": "Orca が新規ワークツリーを作成するときに実行されます。",
+          "a49196d538": "Janus Code が新規ワークツリーを作成するときに実行されます。",
           "d9f2db2738": "プロジェクトの設定",
           "a5bb8c5135": "これに保存されました",
           "dcaa645da5": "わかりました"
@@ -3426,10 +3426,10 @@
           "3933401d28": "設定する",
           "31b8b01a45": "設定",
           "4a98f907ae": "再試行",
-          "0a98169776": "Orca が新規ワークツリーを作成するときに実行するセットアップ コマンドを追加します。",
+          "0a98169776": "Janus Code が新規ワークツリーを作成するときに実行するセットアップ コマンドを追加します。",
           "8349e3fa4c": "。新規ワークツリーに対して実行するために保存します。",
           "b56d1322f7": "セットアップコマンドが見つかりました",
-          "aef6c0a213": "Orca がワークツリーを作成するたびに実行できるように、検出されたコマンドを保存します。",
+          "aef6c0a213": "Janus Code がワークツリーを作成するたびに実行できるように、検出されたコマンドを保存します。",
           "660cdc17f8": "セットアップスクリプト。ローカル コマンドを追加するか、設定でソースを変更します。",
           "8f6be51aa1": "orca.yaml",
           "bb879db364": "この repo は共有を無視します",
@@ -11010,7 +11010,8 @@
           "noBranchSelected": "ブランチが選択されていません",
           "refresh": "更新",
           "panels": "パネル",
-          "run": "実行"
+          "run": "実行",
+          "newSession": "New session"
         },
         "layout": {
           "projects": "プロジェクト",
@@ -11088,7 +11089,9 @@
           "stageChangeFailed": "Stage failed",
           "unstageChangeFailed": "Unstage failed",
           "discardChangeFailed": "Discard failed",
-          "commitFailed": "Commit failed"
+          "commitFailed": "Commit failed",
+          "readyForJanusSession": "Ready for a Janus session",
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
         },
         "composer": {
           "enterMessageBeforeSending": "送信前にメッセージを入力してください。",
@@ -11118,7 +11121,18 @@
           "provider": "Provider",
           "agentProvider": "Agent provider",
           "detectingAgents": "Detecting agents",
-          "noAgentsDetected": "No agents detected"
+          "noAgentsDetected": "No agents detected",
+          "permissions": "Permissions",
+          "permissionMode": "Permission mode",
+          "permissionManual": "Ask first",
+          "permissionYolo": "Auto approve",
+          "permissionMixed": "Mixed defaults",
+          "thinking": "Thinking",
+          "thinkingMode": "Thinking mode",
+          "thinkingQuick": "Quick",
+          "thinkingStandard": "Standard",
+          "thinkingDeep": "Deep",
+          "openTerminalDrawer": "Open terminal drawer"
         },
         "page": {
           "agentWorkspace": "エージェントワークスペース"

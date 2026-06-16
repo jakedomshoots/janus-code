@@ -3416,7 +3416,7 @@
           "ff1e819a11": "添加设置脚本",
           "70715947fb": "安装脚本不能为空",
           "888b83bf78": "无法保存设置脚本",
-          "a49196d538": "当 Orca 创建新工作树时运行。",
+          "a49196d538": "当 Janus Code 创建新工作树时运行。",
           "d9f2db2738": "项目的设置",
           "a5bb8c5135": "保存在这个",
           "dcaa645da5": "好的"
@@ -3426,10 +3426,10 @@
           "3933401d28": "配置",
           "31b8b01a45": "设置",
           "4a98f907ae": "重试",
-          "0a98169776": "添加在 Orca 创建新工作树时运行的设置命令。",
+          "0a98169776": "添加在 Janus Code 创建新工作树时运行的设置命令。",
           "8349e3fa4c": "。保存它以运行新的工作树。",
           "b56d1322f7": "找到一个设置命令",
-          "aef6c0a213": "保存已检测的命令，以便在 Orca 创建工作树时运行它。",
+          "aef6c0a213": "保存已检测的命令，以便在 Janus Code 创建工作树时运行它。",
           "660cdc17f8": "设置脚本。添加本地命令，或在“设置”中更改源。",
           "8f6be51aa1": "Orca.yaml",
           "bb879db364": "此 repo 忽略共享",
@@ -11010,7 +11010,8 @@
           "noBranchSelected": "未选择分支",
           "refresh": "刷新",
           "panels": "面板",
-          "run": "运行"
+          "run": "运行",
+          "newSession": "New session"
         },
         "layout": {
           "projects": "项目",
@@ -11088,7 +11089,9 @@
           "stageChangeFailed": "Stage failed",
           "unstageChangeFailed": "Unstage failed",
           "discardChangeFailed": "Discard failed",
-          "commitFailed": "Commit failed"
+          "commitFailed": "Commit failed",
+          "readyForJanusSession": "Ready for a Janus session",
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
         },
         "composer": {
           "enterMessageBeforeSending": "发送前请输入消息。",
@@ -11118,7 +11121,18 @@
           "provider": "Provider",
           "agentProvider": "Agent provider",
           "detectingAgents": "Detecting agents",
-          "noAgentsDetected": "No agents detected"
+          "noAgentsDetected": "No agents detected",
+          "permissions": "Permissions",
+          "permissionMode": "Permission mode",
+          "permissionManual": "Ask first",
+          "permissionYolo": "Auto approve",
+          "permissionMixed": "Mixed defaults",
+          "thinking": "Thinking",
+          "thinkingMode": "Thinking mode",
+          "thinkingQuick": "Quick",
+          "thinkingStandard": "Standard",
+          "thinkingDeep": "Deep",
+          "openTerminalDrawer": "Open terminal drawer"
         },
         "page": {
           "agentWorkspace": "Agent 工作区"

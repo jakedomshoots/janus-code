@@ -3441,7 +3441,7 @@
           "ff1e819a11": "Add a setup script",
           "70715947fb": "Setup script cannot be empty",
           "888b83bf78": "Failed to save setup script",
-          "a49196d538": "Runs when Orca creates a new worktree.",
+          "a49196d538": "Runs when Janus Code creates a new worktree.",
           "d9f2db2738": "project's settings",
           "a5bb8c5135": "Saved in this",
           "dcaa645da5": "ok"
@@ -3451,10 +3451,10 @@
           "3933401d28": "Configure",
           "31b8b01a45": "Settings",
           "4a98f907ae": "Retry",
-          "0a98169776": "Add a setup command to run when Orca creates new worktrees.",
+          "0a98169776": "Add a setup command to run when Janus Code creates new worktrees.",
           "8349e3fa4c": ". Save it to run for new worktrees.",
           "b56d1322f7": "Found a setup command in",
-          "aef6c0a213": "Save the detected command to run it whenever Orca creates a worktree.",
+          "aef6c0a213": "Save the detected command to run it whenever Janus Code creates a worktree.",
           "660cdc17f8": "setup scripts. Add a local command, or change the source in Settings.",
           "8f6be51aa1": "orca.yaml",
           "bb879db364": "This repo ignores shared",
@@ -11010,7 +11010,8 @@
           "noBranchSelected": "No branch selected",
           "refresh": "Refresh",
           "panels": "Panels",
-          "run": "Run"
+          "run": "Run",
+          "newSession": "New session"
         },
         "layout": {
           "projects": "Projects",
@@ -11088,7 +11089,9 @@
           "stageChangeFailed": "Stage failed",
           "unstageChangeFailed": "Unstage failed",
           "discardChangeFailed": "Discard failed",
-          "commitFailed": "Commit failed"
+          "commitFailed": "Commit failed",
+          "readyForJanusSession": "Ready for a Janus session",
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
         },
         "composer": {
           "enterMessageBeforeSending": "Enter a message before sending.",
@@ -11118,7 +11121,18 @@
           "provider": "Provider",
           "agentProvider": "Agent provider",
           "detectingAgents": "Detecting agents",
-          "noAgentsDetected": "No agents detected"
+          "noAgentsDetected": "No agents detected",
+          "permissions": "Permissions",
+          "permissionMode": "Permission mode",
+          "permissionManual": "Ask first",
+          "permissionYolo": "Auto approve",
+          "permissionMixed": "Mixed defaults",
+          "thinking": "Thinking",
+          "thinkingMode": "Thinking mode",
+          "thinkingQuick": "Quick",
+          "thinkingStandard": "Standard",
+          "thinkingDeep": "Deep",
+          "openTerminalDrawer": "Open terminal drawer"
         },
         "page": {
           "agentWorkspace": "Agent workspace"

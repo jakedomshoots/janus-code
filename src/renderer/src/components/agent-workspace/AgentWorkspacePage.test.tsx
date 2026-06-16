@@ -179,6 +179,36 @@ describe('AgentWorkspacePage', () => {
     expect(markup).not.toContain('Projects')
     expect(markup).not.toContain('Create worktree')
   })
+
+  it('renders the Janus workbench without disabled scaffold controls', () => {
+    const markup = renderPage({
+      activeWorktreeId: 'worktree-1',
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'janus',
+          path: '/Users/jakedom/janus',
+          hostKind: 'local'
+        }
+      ],
+      threads: [],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: true
+    })
+
+    expect(markup).toContain('Ready for a Janus session')
+    expect(markup).toContain('Permissions')
+    expect(markup).toContain('Thinking')
+    expect(markup).toContain('Terminal')
+    expect(markup).not.toContain('Refresh')
+    expect(markup).not.toContain('Panels')
+    expect(markup).not.toContain('Run')
+    expect(markup).not.toContain('Terminal session is available as a debug panel.')
+    expect(markup).not.toContain('Select a thread to view its timeline.')
+  })
 })
 
 describe('Terminal GUI agent workspace flag boundary', () => {
@@ -700,7 +730,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     expect(container.textContent).toContain('This thread needs approval before it can continue.')
   })
 
-  it('opens the terminal drawer from failure and debug controls', async () => {
+  it('opens the terminal drawer from failure and composer controls', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const onOpenTerminalDrawer = vi.fn()
     const container = document.createElement('div')
@@ -749,16 +779,20 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     )
 
     const centerButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('main button'))
-    const openButtons = centerButtons.filter((button) =>
+    const failureButton = centerButtons.find((button) =>
       button.textContent?.includes('Open drawer')
     )
-    expect(openButtons).toHaveLength(2)
+    const composerTerminalButton = centerButtons.find(
+      (button) => button.getAttribute('aria-label') === 'Open terminal drawer'
+    )
+    expect(failureButton).not.toBeUndefined()
+    expect(composerTerminalButton).not.toBeUndefined()
 
     await act(async () => {
-      openButtons[0]?.click()
+      failureButton?.click()
     })
     await act(async () => {
-      openButtons[1]?.click()
+      composerTerminalButton?.click()
     })
 
     expect(onOpenTerminalDrawer).toHaveBeenNthCalledWith(1, 'failure')

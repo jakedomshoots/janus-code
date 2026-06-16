@@ -3416,7 +3416,7 @@
           "ff1e819a11": "설정 스크립트 추가",
           "70715947fb": "설정 스크립트는 비워둘 수 없습니다.",
           "888b83bf78": "설정 스크립트를 저장하지 못했습니다.",
-          "a49196d538": "Orca가 새 작업 트리를 생성할 때 실행됩니다.",
+          "a49196d538": "Janus Code가 새 작업 트리를 생성할 때 실행됩니다.",
           "d9f2db2738": "프로젝트 설정",
           "a5bb8c5135": "여기에 저장됨",
           "dcaa645da5": "좋아요"
@@ -3426,10 +3426,10 @@
           "3933401d28": "구성",
           "31b8b01a45": "설정",
           "4a98f907ae": "다시 시도",
-          "0a98169776": "Orca가 새 작업 트리를 생성할 때 실행할 설정 명령을 추가합니다.",
+          "0a98169776": "Janus Code가 새 작업 트리를 생성할 때 실행할 설정 명령을 추가합니다.",
           "8349e3fa4c": ". 새 작업 트리에 대해 실행되도록 저장하세요.",
           "b56d1322f7": "다음에서 설정 명령을 찾았습니다.",
-          "aef6c0a213": "Orca가 작업 트리를 생성할 때마다 실행되도록 감지된 명령을 저장합니다.",
+          "aef6c0a213": "Janus Code가 작업 트리를 생성할 때마다 실행되도록 감지된 명령을 저장합니다.",
           "660cdc17f8": "설정 스크립트. 로컬 명령을 추가하거나 설정에서 소스를 변경하세요.",
           "8f6be51aa1": "orca.yaml",
           "bb879db364": "이 repo는 공유를 무시합니다.",
@@ -11010,7 +11010,8 @@
           "noBranchSelected": "선택된 브랜치 없음",
           "refresh": "새로 고침",
           "panels": "패널",
-          "run": "실행"
+          "run": "실행",
+          "newSession": "New session"
         },
         "layout": {
           "projects": "프로젝트",
@@ -11088,7 +11089,9 @@
           "stageChangeFailed": "Stage failed",
           "unstageChangeFailed": "Unstage failed",
           "discardChangeFailed": "Discard failed",
-          "commitFailed": "Commit failed"
+          "commitFailed": "Commit failed",
+          "readyForJanusSession": "Ready for a Janus session",
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
         },
         "composer": {
           "enterMessageBeforeSending": "보내기 전에 메시지를 입력하세요.",
@@ -11118,7 +11121,18 @@
           "provider": "Provider",
           "agentProvider": "Agent provider",
           "detectingAgents": "Detecting agents",
-          "noAgentsDetected": "No agents detected"
+          "noAgentsDetected": "No agents detected",
+          "permissions": "Permissions",
+          "permissionMode": "Permission mode",
+          "permissionManual": "Ask first",
+          "permissionYolo": "Auto approve",
+          "permissionMixed": "Mixed defaults",
+          "thinking": "Thinking",
+          "thinkingMode": "Thinking mode",
+          "thinkingQuick": "Quick",
+          "thinkingStandard": "Standard",
+          "thinkingDeep": "Deep",
+          "openTerminalDrawer": "Open terminal drawer"
         },
         "page": {
           "agentWorkspace": "에이전트 작업 공간"

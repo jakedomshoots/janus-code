@@ -549,6 +549,7 @@ function App(): React.JSX.Element {
   const rightSidebarExplorerView = useAppStore((s) => s.rightSidebarExplorerView)
   const isFullScreen = useAppStore((s) => s.isFullScreen)
   const settings = useAppStore((s) => s.settings)
+  const guiAgentWorkspaceEnabled = settings?.guiAgentWorkspaceEnabled === true
   const systemPrefersDark = useSystemPrefersDark()
   const leftSidebarStyle = useMemo(
     () => resolveLeftSidebarStyleVariables(settings, systemPrefersDark),
@@ -571,6 +572,9 @@ function App(): React.JSX.Element {
   })
   const canGoBackWorktree = useAppStore(canGoBackWorktreeHistory)
   const canGoForwardWorktree = useAppStore(canGoForwardWorktreeHistory)
+  const showWorktreeHistoryControls = shouldShowWorktreeHistoryControls(activeView, {
+    guiAgentWorkspaceEnabled
+  })
   const titlebarLeftControlsRef = useRef<HTMLDivElement | null>(null)
   const [collapsedSidebarHeaderWidth, setCollapsedSidebarHeaderWidth] = useState(0)
   const [mountedLazyModalIds, setMountedLazyModalIds] = useState<Set<LazyModalId>>(() => new Set())
@@ -1412,7 +1416,7 @@ function App(): React.JSX.Element {
         // Why: Back/Forward traverse mixed worktree + page visits, so the
         // shortcut is active wherever the titlebar button cluster is (terminal
         // or stack-backed pages). Still suppressed in Settings.
-        if (creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)) {
+        if (creationLayoutActive || !showWorktreeHistoryControls) {
           return
         }
         e.preventDefault()
@@ -1571,6 +1575,7 @@ function App(): React.JSX.Element {
     floatingTerminalOpen,
     floatingVisibleTabCount,
     keybindings,
+    showWorktreeHistoryControls,
     settings?.terminalShortcutPolicy,
     setFloatingTerminalOpenWithFocus,
     workspaceChromeActive,
@@ -1697,7 +1702,7 @@ function App(): React.JSX.Element {
       {/* Why: Back/Forward traverse mixed worktree + page history, so the
           cluster is shown wherever the history shortcut is live. Hidden in
           Settings and non-stack page views. */}
-      {shouldShowWorktreeHistoryControls(activeView) && (
+      {showWorktreeHistoryControls && (
         // Why: when the workspace sidebar is collapsed, this header shrink-wraps
         // and ml-auto has no spare width; keep a fixed gutter before Back.
         <div className="ml-auto mr-3 flex items-center pl-2">

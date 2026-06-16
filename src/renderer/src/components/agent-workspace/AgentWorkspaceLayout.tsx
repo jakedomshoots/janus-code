@@ -109,48 +109,6 @@ function getRightPanelStateInputKey({
   ].join(':')
 }
 
-function TerminalDrawerAffordance({
-  terminalAvailable,
-  onOpenTerminalDrawer
-}: {
-  terminalAvailable: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-}): React.JSX.Element {
-  const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
-
-  return (
-    <div className="border-t border-border bg-muted/20 px-3 py-1.5">
-      <div className="mx-auto flex h-8 w-full max-w-3xl items-center justify-between gap-3 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground">
-        <span className="flex min-w-0 items-center gap-2 font-medium text-foreground">
-          <Terminal className="size-3.5 shrink-0" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
-        </span>
-        <span className="min-w-0 truncate">
-          {terminalAvailable
-            ? translate(
-                'auto.components.agentWorkspace.layout.terminalSessionAvailable',
-                'Terminal session is available as a debug panel.'
-              )
-            : translate(
-                'auto.components.agentWorkspace.layout.noTerminalSessionAttached',
-                'No terminal session is attached to this workspace.'
-              )}
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="xs"
-          disabled={!canOpenTerminalDrawer}
-          onClick={() => onOpenTerminalDrawer?.('debug-button')}
-        >
-          <Terminal className="size-3" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
 function AgentFailureTerminalBanner({
   thread,
   terminalAvailable,
@@ -212,14 +170,12 @@ function AgentWorkspaceCenter({
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
       <AgentTimeline thread={thread} timeline={timeline} />
-      <TerminalDrawerAffordance
-        terminalAvailable={terminalAvailable}
-        onOpenTerminalDrawer={onOpenTerminalDrawer}
-      />
       <AgentComposer
         activeWorktreeId={activeWorktreeId}
         selectedProject={project}
         selectedThread={thread}
+        terminalAvailable={terminalAvailable}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </main>
   )

@@ -3435,7 +3435,7 @@
           "ff1e819a11": "Agregar un script de configuración",
           "70715947fb": "El script de configuración no puede estar vacío",
           "888b83bf78": "No se pudo guardar el script de configuración",
-          "a49196d538": "Se ejecuta cuando Orca crea un nuevo árbol de trabajo.",
+          "a49196d538": "Se ejecuta cuando Janus Code crea un nuevo árbol de trabajo.",
           "d9f2db2738": "configuración del proyecto",
           "a5bb8c5135": "Guardado en este",
           "dcaa645da5": "OK"
@@ -3445,10 +3445,10 @@
           "3933401d28": "Configurar",
           "31b8b01a45": "Ajustes",
           "4a98f907ae": "Rever",
-          "0a98169776": "Agregue un comando de configuración para ejecutar cuando Orca cree nuevos árboles de trabajo.",
+          "0a98169776": "Agregue un comando de configuración para ejecutar cuando Janus Code cree nuevos árboles de trabajo.",
           "8349e3fa4c": ". Guárdelo para ejecutarlo en busca de nuevos árboles de trabajo.",
           "b56d1322f7": "Encontré un comando de configuración en",
-          "aef6c0a213": "Guarde el comando detectado para ejecutarlo cada vez que Orca cree un árbol de trabajo.",
+          "aef6c0a213": "Guarde el comando detectado para ejecutarlo cada vez que Janus Code cree un árbol de trabajo.",
           "660cdc17f8": "guiones de configuración. Agregue un comando local o cambie la fuente en Configuración.",
           "8f6be51aa1": "orca.yaml",
           "bb879db364": "Este repo ignora lo compartido",
@@ -11010,7 +11010,8 @@
           "noBranchSelected": "No hay rama seleccionada",
           "refresh": "Actualizar",
           "panels": "Paneles",
-          "run": "Ejecutar"
+          "run": "Ejecutar",
+          "newSession": "New session"
         },
         "layout": {
           "projects": "Proyectos",
@@ -11088,7 +11089,9 @@
           "stageChangeFailed": "Stage failed",
           "unstageChangeFailed": "Unstage failed",
           "discardChangeFailed": "Discard failed",
-          "commitFailed": "Commit failed"
+          "commitFailed": "Commit failed",
+          "readyForJanusSession": "Ready for a Janus session",
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
@@ -11118,7 +11121,18 @@
           "provider": "Provider",
           "agentProvider": "Agent provider",
           "detectingAgents": "Detecting agents",
-          "noAgentsDetected": "No agents detected"
+          "noAgentsDetected": "No agents detected",
+          "permissions": "Permissions",
+          "permissionMode": "Permission mode",
+          "permissionManual": "Ask first",
+          "permissionYolo": "Auto approve",
+          "permissionMixed": "Mixed defaults",
+          "thinking": "Thinking",
+          "thinkingMode": "Thinking mode",
+          "thinkingQuick": "Quick",
+          "thinkingStandard": "Standard",
+          "thinkingDeep": "Deep",
+          "openTerminalDrawer": "Open terminal drawer"
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"

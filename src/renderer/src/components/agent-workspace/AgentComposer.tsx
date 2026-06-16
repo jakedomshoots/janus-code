@@ -1,38 +1,58 @@
-import { Loader2, SendHorizontal } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { translate } from '@/i18n/i18n'
-import { AgentIcon, getAgentCatalog } from '@/lib/agent-catalog'
-import { formatAgentTypeLabel } from '@/lib/agent-status'
+import { getAgentCatalog } from '@/lib/agent-catalog'
 import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store'
 import { filterEnabledTuiAgents, pickTuiAgent } from '../../../../shared/tui-agent-selection'
+import {
+  applyAgentPermissionMode,
+  resolveAgentPermissionModeSummary,
+  type AgentPermissionMode
+} from '../../../../shared/tui-agent-permissions'
 import type { TuiAgent } from '../../../../shared/types'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import { AgentComposerFooter, type AgentThinkingMode } from './AgentComposerFooter'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
 
 type AgentComposerFeedback = Pick<AgentComposerSubmitResult, 'message' | 'status'> & {
   reason?: string
 }
 
+const EMPTY_DISABLED_TUI_AGENTS: readonly TuiAgent[] = []
+
 export function AgentComposer({
   activeWorktreeId,
   selectedThread,
-  selectedProject = null
+  selectedProject = null,
+  terminalAvailable = false,
+  onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
   selectedProject?: AgentWorkspaceProject | null
+  terminalAvailable?: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
-  const defaultTuiAgent = useAppStore((state) => state.settings?.defaultTuiAgent ?? null)
-  const disabledTuiAgents = useAppStore((state) => state.settings?.disabledTuiAgents ?? [])
+  const [thinkingMode, setThinkingMode] = useState<AgentThinkingMode>('standard')
+  const settings = useAppStore((state) => state.settings)
+  const updateSettings = useAppStore((state) => state.updateSettings)
+  const defaultTuiAgent = settings?.defaultTuiAgent ?? null
+  const disabledTuiAgents = settings?.disabledTuiAgents ?? EMPTY_DISABLED_TUI_AGENTS
+  const permissionMode = useMemo(
+    () =>
+      resolveAgentPermissionModeSummary({
+        agentDefaultArgs: settings?.agentDefaultArgs,
+        agentDefaultEnv: settings?.agentDefaultEnv
+      }),
+    [settings?.agentDefaultArgs, settings?.agentDefaultEnv]
+  )
   const detectionTarget =
     selectedProject?.agentDetectionTarget ??
     (activeWorktreeId ? { kind: 'local' as const } : undefined)
@@ -84,6 +104,7 @@ export function AgentComposer({
   const statusMessage = submitResult?.message ?? readinessMessage
   const statusTone = submitResult?.status ?? (readinessMessage ? 'blocked' : null)
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
+  const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
 
   useEffect(() => {
     setSelectedAgent((current) => {
@@ -144,6 +165,19 @@ export function AgentComposer({
     }
   }
 
+  function handlePermissionModeChange(mode: AgentPermissionMode): void {
+    if (mode === 'mixed') {
+      return
+    }
+    void updateSettings(
+      applyAgentPermissionMode({
+        mode,
+        agentDefaultArgs: settings?.agentDefaultArgs,
+        agentDefaultEnv: settings?.agentDefaultEnv
+      })
+    )
+  }
+
   return (
     <form className="border-t border-border p-3" onSubmit={(event) => void handleSubmit(event)}>
       <div className="mx-auto w-full max-w-3xl">
@@ -167,45 +201,24 @@ export function AgentComposer({
             }}
             onKeyDown={handleKeyDown}
           />
-          <div className="flex min-h-10 items-center justify-between gap-3 border-t border-border/65 px-2.5 py-2">
-            <p
-              id="agent-workspace-composer-status"
-              className={cn(
-                'min-w-0 flex-1 text-xs',
-                statusTone === 'error'
-                  ? 'text-destructive'
-                  : statusTone === 'blocked'
-                    ? 'text-muted-foreground'
-                    : 'text-muted-foreground'
-              )}
-              aria-live="polite"
-            >
-              {statusMessage ?? ''}
-            </p>
-            {canSendToSelectedThread ? (
-              <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground">
-                {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
-                <span className="font-medium text-foreground">
-                  {formatAgentTypeLabel(selectedThread?.agentKind)}
-                </span>
-              </div>
-            ) : (
-              <AgentProviderSelect
-                agents={availableAgents}
-                value={selectedAgent}
-                detecting={detectedAgents.isLoading}
-                onChange={setSelectedAgent}
-              />
-            )}
-            <Button type="submit" size="sm" disabled={!canSubmit}>
-              {submitting ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <SendHorizontal className="size-4" aria-hidden="true" />
-              )}
-              {translate('auto.components.agentWorkspace.layout.send', 'Send')}
-            </Button>
-          </div>
+          <AgentComposerFooter
+            statusMessage={statusMessage}
+            statusTone={statusTone}
+            permissionMode={permissionMode}
+            onPermissionModeChange={handlePermissionModeChange}
+            thinkingMode={thinkingMode}
+            onThinkingModeChange={setThinkingMode}
+            canOpenTerminalDrawer={canOpenTerminalDrawer}
+            onOpenTerminalDrawer={onOpenTerminalDrawer}
+            canSendToSelectedThread={canSendToSelectedThread}
+            selectedThread={selectedThread}
+            availableAgents={availableAgents}
+            selectedAgent={selectedAgent}
+            detectingAgents={detectedAgents.isLoading}
+            onSelectedAgentChange={setSelectedAgent}
+            submitting={submitting}
+            canSubmit={canSubmit}
+          />
         </div>
       </div>
     </form>
@@ -340,53 +353,4 @@ function launchSelectedAgent({
 
 function getAgentLabel(agent: TuiAgent): string {
   return getAgentCatalog().find((candidate) => candidate.id === agent)?.label ?? agent
-}
-
-function AgentProviderSelect({
-  agents,
-  value,
-  detecting,
-  onChange
-}: {
-  agents: readonly { id: TuiAgent; label: string }[]
-  value: TuiAgent | null
-  detecting: boolean
-  onChange: (agent: TuiAgent | null) => void
-}): React.JSX.Element {
-  const disabled = detecting || agents.length === 0
-  return (
-    <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-      <span>{translate('auto.components.agentWorkspace.composer.provider', 'Provider')}</span>
-      <select
-        aria-label={translate(
-          'auto.components.agentWorkspace.composer.agentProvider',
-          'Agent provider'
-        )}
-        value={value ?? ''}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value ? (event.target.value as TuiAgent) : null)}
-        className="h-8 max-w-44 rounded-md border border-input bg-background px-2 text-xs text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {disabled ? (
-          <option value="">
-            {detecting
-              ? translate(
-                  'auto.components.agentWorkspace.composer.detectingAgents',
-                  'Detecting agents'
-                )
-              : translate(
-                  'auto.components.agentWorkspace.composer.noAgentsDetected',
-                  'No agents detected'
-                )}
-          </option>
-        ) : null}
-        {agents.map((agent) => (
-          <option key={agent.id} value={agent.id}>
-            {agent.label}
-          </option>
-        ))}
-      </select>
-      {value ? <AgentIcon agent={value} size={14} /> : null}
-    </label>
-  )
 }

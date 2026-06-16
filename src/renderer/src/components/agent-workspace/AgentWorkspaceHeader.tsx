@@ -1,6 +1,5 @@
-import { GitBranch, PanelRight, Play, RefreshCw } from 'lucide-react'
+import { GitBranch, MessageSquareText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
@@ -15,7 +14,7 @@ export function AgentWorkspaceHeader({
   thread: AgentWorkspaceThread | null
 }): React.JSX.Element {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-4">
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           <h1 className="truncate text-sm font-semibold text-foreground">
@@ -41,19 +40,17 @@ export function AgentWorkspaceHeader({
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button type="button" variant="outline" size="sm" disabled>
-          <RefreshCw className="size-4" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.header.refresh', 'Refresh')}
-        </Button>
-        <Button type="button" variant="outline" size="sm" disabled>
-          <PanelRight className="size-4" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.header.panels', 'Panels')}
-        </Button>
-        <Button type="button" size="sm" disabled>
-          <Play className="size-4" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.header.run', 'Run')}
-        </Button>
+      <div className="hidden min-w-0 shrink-0 items-center gap-2 sm:flex">
+        {thread ? (
+          <Badge variant="dot" className="max-w-64">
+            <MessageSquareText className="size-3" aria-hidden="true" />
+            <span className="truncate">{thread.title}</span>
+          </Badge>
+        ) : (
+          <Badge variant="dot">
+            {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
+          </Badge>
+        )}
       </div>
     </header>
   )

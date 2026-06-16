@@ -271,4 +271,32 @@ describe('AgentComposer', () => {
     expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
     expect(container.textContent).toContain('Started OpenCode.')
   })
+
+  it('opens the terminal drawer from the composer toolbar', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={null}
+          terminalAvailable={true}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      )
+    })
+
+    const button = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.getAttribute('aria-label') === 'Open terminal drawer'
+    )
+
+    expect(button).not.toBeNull()
+    expect(button?.disabled).toBe(false)
+
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
+  })
 })
