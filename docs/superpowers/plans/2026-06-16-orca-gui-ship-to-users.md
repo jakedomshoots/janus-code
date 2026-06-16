@@ -1311,7 +1311,7 @@ git commit -m "build: add packaged artifact verification"
 - Modify: `config/scripts/verify-macos-release-env.mjs`
 - Modify: `docs/release/packaged-artifact-smoke.md`
 
-- [ ] **Step 1: Confirm release signing env names**
+- [x] **Step 1: Confirm release signing env names**
 
 Use the existing required env vars:
 
@@ -1323,7 +1323,7 @@ CSC_LINK
 CSC_KEY_PASSWORD
 ```
 
-- [ ] **Step 2: Add local env documentation**
+- [x] **Step 2: Add local env documentation**
 
 Append to `docs/release/packaged-artifact-smoke.md`:
 
@@ -1352,7 +1352,7 @@ Expected output when configured:
 The script prints no output and exits with code 0 when all variables are set.
 ````
 
-- [ ] **Step 3: Run signing env verifier**
+- [x] **Step 3: Run signing env verifier**
 
 ```bash
 node config/scripts/verify-macos-release-env.mjs
@@ -1383,12 +1383,20 @@ spctl --assess --type execute --verbose "dist/mac-arm64/Agent Hub.app"
 
 Expected: both commands exit 0.
 
-- [ ] **Step 6: Commit docs if changed**
+- [x] **Step 6: Commit docs if changed**
 
 ```bash
 git add docs/release/packaged-artifact-smoke.md config/scripts/verify-macos-release-env.mjs
 git commit -m "docs: document macos release signing gate"
 ```
+
+**Task 12 evidence:**
+- Confirmed `config/scripts/verify-macos-release-env.mjs` requires `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`, `CSC_LINK`, and `CSC_KEY_PASSWORD`.
+- Documented the required macOS release environment in `docs/release/packaged-artifact-smoke.md`.
+- Fixed verifier fallback copy to point local developers at `pnpm run build:mac`.
+- `node config/scripts/verify-macos-release-env.mjs` exited `1` locally and printed the exact missing variable names because signing credentials are not configured in this environment.
+- `APPLE_ID=a APPLE_APP_SPECIFIC_PASSWORD=b APPLE_TEAM_ID=c CSC_LINK=d CSC_KEY_PASSWORD=e node config/scripts/verify-macos-release-env.mjs` exited `0`.
+- `pnpm run build:mac:release`, notarization, and `spctl --assess` remain blocked until real Apple/CSC signing credentials are available.
 
 ## Task 13: Validate Updater RC Flow
 

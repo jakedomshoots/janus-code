@@ -22,7 +22,7 @@ if (missing.length > 0) {
     console.error(`- ${key}`)
   }
   console.error('')
-  console.error('Use `pnpm build:mac` for local ad-hoc builds, or provide the')
+  console.error('Use `pnpm run build:mac` for local ad-hoc builds, or provide the')
   console.error('Developer ID + notarization credentials before running the')
   console.error('production release build.')
   process.exit(1)
