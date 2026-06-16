@@ -1524,7 +1524,7 @@ Using the packaged macOS app:
 
 Expected: workflow completes without dev-server dependencies.
 
-- [ ] **Step 4: Record the result**
+- [x] **Step 4: Record the result**
 
 Append to `docs/release/manual-qa-gui-first.md`:
 
@@ -1537,12 +1537,18 @@ Append to `docs/release/manual-qa-gui-first.md`:
 - Notes: GUI-first worktree, source control, and terminal debug paths completed.
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/release/manual-qa-gui-first.md
 git commit -m "docs: record gui first smoke result"
 ```
+
+**Task 14 evidence:**
+- Recorded the latest smoke result in `docs/release/manual-qa-gui-first.md`.
+- Packaged launch smoke passed: `AGENT_HUB_HOME=<tmp> 'dist/mac-arm64/Agent Hub.app/Contents/MacOS/Agent Hub'` stayed alive for the smoke window and was terminated cleanly.
+- Automated GUI-first workflow coverage from Task 10 passed for onboarding, worktree GUI surface, source-control generation/remount behavior, display-name IME input, terminal debug surface, and terminal release evidence.
+- Manual public RC install/update smoke remains blocked until `jakedom/agent-hub` exists and signed/notarized RC assets are published.
 
 ## Task 15: Cut Stable Release
 

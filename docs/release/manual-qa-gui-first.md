@@ -49,3 +49,17 @@
 - DMG installs into `/Applications`.
 - First launch passes Gatekeeper.
 - `brew uninstall --zap` paths match public app identity.
+
+## Latest Smoke Result
+
+- Date: 2026-06-16
+- Build: local packaged macOS arm64
+- Result: PASS for local automated and packaged-launch smoke
+- Notes: GUI-first worktree, onboarding, source control generation, IME input,
+  terminal debug, and terminal release evidence paths passed automated E2E.
+  Local `build:mac` produced macOS DMG/ZIP artifacts, the arm64 app bundle
+  passed ad-hoc `codesign --verify --deep --strict`, the packaged CLI launcher
+  was present and executable, and the packaged app launched with a temporary
+  profile. Public RC install/update smoke remains blocked until the
+  `jakedom/agent-hub` release repository exists and signed/notarized RC assets
+  are published.
