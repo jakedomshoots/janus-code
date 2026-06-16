@@ -1,4 +1,4 @@
-import { FileText, Info, Terminal } from 'lucide-react'
+import { Info, Terminal } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -6,8 +6,9 @@ import type {
   AgentWorkspacePlan,
   AgentWorkspaceThread
 } from './agent-workspace-types'
+import { AgentDiffPanel } from './AgentDiffPanel'
 import { AgentPlanPanel } from './AgentPlanPanel'
-import { formatAgentWorkspaceDiffStatus, formatAgentWorkspacePhase } from './agent-workspace-labels'
+import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import {
   coerceAgentWorkspaceRightPanelTab,
   type AgentWorkspaceRightPanelTab
@@ -19,7 +20,8 @@ export function AgentWorkspaceRightPanel({
   diffs,
   terminalAvailable,
   selectedTab,
-  onSelectedTabChange
+  onSelectedTabChange,
+  onOpenDiff
 }: {
   thread: AgentWorkspaceThread | null
   plan: AgentWorkspacePlan | null
@@ -27,6 +29,7 @@ export function AgentWorkspaceRightPanel({
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
+  onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
 }): React.JSX.Element {
   return (
     <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-muted/20 p-3">
@@ -58,29 +61,7 @@ export function AgentWorkspaceRightPanel({
           <AgentPlanPanel thread={thread} plan={plan} />
         </TabsContent>
         <TabsContent value="diff" className="mt-3 min-h-0" forceMount>
-          <div className="space-y-2">
-            {diffs.length === 0 ? (
-              <div className="rounded-md border border-dashed border-border bg-background p-3 text-sm text-muted-foreground">
-                {translate(
-                  'auto.components.agentWorkspace.layout.noDiffSummaryYet',
-                  'No diff summary yet.'
-                )}
-              </div>
-            ) : (
-              diffs.map((diff) => (
-                <div key={diff.id} className="rounded-md border border-border bg-background p-3">
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <FileText className="size-4" aria-hidden="true" />
-                    <span className="min-w-0 truncate">{diff.filePath}</span>
-                  </div>
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    +{diff.additions} / -{diff.deletions} ·{' '}
-                    {formatAgentWorkspaceDiffStatus(diff.status)}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <AgentDiffPanel diffs={diffs} onOpenDiff={onOpenDiff} />
         </TabsContent>
         <TabsContent value="terminal" className="mt-3 min-h-0" forceMount>
           <div className="rounded-md border border-border bg-background p-3">

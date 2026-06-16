@@ -17,6 +17,7 @@ import type {
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread
 } from './agent-workspace-types'
+import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 
 type WorkspaceThreadMeta = {
   path: string
@@ -37,6 +38,7 @@ type SnapshotCache = {
   tabsByWorktree: AppState['tabsByWorktree']
   agentStatusByPaneKey: AppState['agentStatusByPaneKey']
   retainedAgentsByPaneKey: AppState['retainedAgentsByPaneKey']
+  gitStatusByWorktree: AppState['gitStatusByWorktree']
   activeWorktreeId: AppState['activeWorktreeId']
   snapshot: AgentWorkspaceSnapshot
 }
@@ -272,6 +274,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     snapshotCache.tabsByWorktree === state.tabsByWorktree &&
     snapshotCache.agentStatusByPaneKey === state.agentStatusByPaneKey &&
     snapshotCache.retainedAgentsByPaneKey === state.retainedAgentsByPaneKey &&
+    snapshotCache.gitStatusByWorktree === state.gitStatusByWorktree &&
     snapshotCache.activeWorktreeId === state.activeWorktreeId
   ) {
     return snapshotCache.snapshot
@@ -279,13 +282,14 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
 
   const projects = selectAgentWorkspaceProjects(state)
   const threads = selectAgentWorkspaceThreads(state)
+  const diffs = selectAgentWorkspaceDiffs(state, threads)
   const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
     threads,
     plans: [],
     timeline: [],
-    diffs: [],
+    diffs,
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
   }
   snapshotCache = {
@@ -297,6 +301,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     tabsByWorktree: state.tabsByWorktree,
     agentStatusByPaneKey: state.agentStatusByPaneKey,
     retainedAgentsByPaneKey: state.retainedAgentsByPaneKey,
+    gitStatusByWorktree: state.gitStatusByWorktree,
     activeWorktreeId: state.activeWorktreeId,
     snapshot
   }

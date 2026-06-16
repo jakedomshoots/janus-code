@@ -209,6 +209,68 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps source-control git status entries to selected agent diffs', () => {
+    const running = worktree('wt-diff', {
+      path: '/repo/orca/worktrees/diff',
+      branch: 'refs/heads/feature/diff'
+    })
+    const runningTab = tab('tab-agent', running.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(running, {
+        activeWorktreeId: running.id,
+        tabsByWorktree: { [running.id]: [runningTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'working',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 30)
+          })
+        },
+        gitStatusByWorktree: {
+          [running.id]: [
+            {
+              path: 'src/renamed.ts',
+              oldPath: 'src/old.ts',
+              status: 'renamed',
+              area: 'staged',
+              added: 2,
+              removed: 1
+            },
+            {
+              path: 'src/app.ts',
+              status: 'modified',
+              area: 'unstaged',
+              added: 7,
+              removed: 3
+            }
+          ]
+        }
+      })
+    )
+
+    expect(snapshot.diffs).toEqual([
+      {
+        id: `${paneKey}:unstaged:modified:no-old-path:src/app.ts`,
+        threadId: paneKey,
+        area: 'unstaged',
+        filePath: 'src/app.ts',
+        additions: 7,
+        deletions: 3,
+        status: 'modified'
+      },
+      {
+        id: `${paneKey}:staged:renamed:src/old.ts:src/renamed.ts`,
+        threadId: paneKey,
+        area: 'staged',
+        filePath: 'src/renamed.ts',
+        oldPath: 'src/old.ts',
+        additions: 2,
+        deletions: 1,
+        status: 'renamed'
+      }
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
 

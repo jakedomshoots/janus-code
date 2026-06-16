@@ -1,6 +1,9 @@
 import { Terminal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { translate } from '@/i18n/i18n'
+import { detectLanguage } from '@/lib/language-detect'
+import { joinPath } from '@/lib/path'
+import { useAppStore } from '@/store'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
@@ -159,6 +162,7 @@ export function AgentWorkspaceLayout({
     )
   )
   const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
+  const openDiff = useAppStore((state) => state.openDiff)
   const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
@@ -201,6 +205,19 @@ export function AgentWorkspaceLayout({
     } satisfies AgentWorkspaceRightPanelState)
   }
 
+  function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
+    if (!selectedThread?.cwd || typeof openDiff !== 'function') {
+      return
+    }
+    openDiff(
+      selectedThread.worktreeId,
+      joinPath(selectedThread.cwd, diff.filePath),
+      diff.filePath,
+      detectLanguage(diff.filePath),
+      diff.area === 'staged'
+    )
+  }
+
   return (
     <AgentWorkspaceChrome
       sidebar={
@@ -232,6 +249,7 @@ export function AgentWorkspaceLayout({
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}
+            onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
           />
         )
       }

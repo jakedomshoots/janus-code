@@ -1,3 +1,5 @@
+import type { GitStagingArea } from '../../../../shared/types'
+
 export type AgentWorkspacePhase =
   | 'idle'
   | 'starting'
@@ -56,6 +58,7 @@ export type AgentWorkspaceTimelineEntry = {
 export type AgentWorkspaceDiffSummary = {
   readonly id: string
   readonly threadId: string
+  readonly area?: GitStagingArea
   readonly filePath: string
   readonly oldPath?: string
   readonly additions: number
