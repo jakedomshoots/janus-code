@@ -92,6 +92,19 @@ export type AgentWorkspaceDiffSummary = {
   readonly status: 'added' | 'modified' | 'deleted' | 'renamed' | 'unknown'
 }
 
+export type AgentWorkspaceReviewSummary = {
+  readonly id: string
+  readonly worktreeId: string
+  readonly provider: string
+  readonly providerLabel: string
+  readonly number: number
+  readonly title: string
+  readonly state: string
+  readonly url: string
+  readonly status: string
+  readonly updatedAt: string
+}
+
 export type AgentWorkspaceSnapshot = {
   readonly activeWorktreeId: string | null
   readonly projects: readonly AgentWorkspaceProject[]
@@ -100,5 +113,6 @@ export type AgentWorkspaceSnapshot = {
   readonly timeline: readonly AgentWorkspaceTimelineEntry[]
   readonly approvals: readonly AgentWorkspaceApproval[]
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
+  readonly reviews?: readonly AgentWorkspaceReviewSummary[]
   readonly terminalAvailable: boolean
 }

@@ -10,6 +10,7 @@ import type {
   AgentWorkspacePlan,
   AgentWorkspaceProject,
   AgentWorkspaceApproval,
+  AgentWorkspaceReviewSummary,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
@@ -76,14 +77,25 @@ function getThreadApproval(
     : null
 }
 
+function getThreadReview(
+  snapshot: AgentWorkspaceSnapshot,
+  thread: AgentWorkspaceThread | null
+): AgentWorkspaceReviewSummary | null {
+  return thread
+    ? ((snapshot.reviews ?? []).find((review) => review.worktreeId === thread.worktreeId) ?? null)
+    : null
+}
+
 function getRightPanelStateInput(
   thread: AgentWorkspaceThread | null,
   diffs: readonly AgentWorkspaceDiffSummary[],
-  plan: AgentWorkspacePlan | null
+  plan: AgentWorkspacePlan | null,
+  review: AgentWorkspaceReviewSummary | null
 ): AgentWorkspaceRightPanelStateInput {
   return {
     thread,
     diffs,
+    review,
     hasStructuredPlan: plan !== null
   }
 }
@@ -91,12 +103,14 @@ function getRightPanelStateInput(
 function getRightPanelStateInputKey({
   thread,
   diffs,
+  review,
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): string {
   return [
     thread?.id ?? 'no-thread',
     thread?.phase ?? 'no-phase',
     hasStructuredPlan ? 'plan' : 'no-plan',
+    review?.id ?? 'no-review',
     diffs.map((diff) => diff.id).join(',')
   ].join(':')
 }
@@ -240,7 +254,8 @@ export function AgentWorkspaceLayout({
       getRightPanelStateInput(
         defaultThread,
         getThreadDiffs(snapshot, defaultThread),
-        selectAgentWorkspacePlanForThread(snapshot, defaultThread)
+        selectAgentWorkspacePlanForThread(snapshot, defaultThread),
+        getThreadReview(snapshot, defaultThread)
       )
     )
   )
@@ -253,7 +268,13 @@ export function AgentWorkspaceLayout({
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
   const selectedApproval = getThreadApproval(snapshot, selectedThread)
-  const rightPanelStateInput = getRightPanelStateInput(selectedThread, diffs, selectedPlan)
+  const selectedReview = getThreadReview(snapshot, selectedThread)
+  const rightPanelStateInput = getRightPanelStateInput(
+    selectedThread,
+    diffs,
+    selectedPlan,
+    selectedReview
+  )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
 
@@ -358,6 +379,7 @@ export function AgentWorkspaceLayout({
             plan={selectedPlan}
             approval={selectedApproval}
             diffs={diffs}
+            review={selectedReview}
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}

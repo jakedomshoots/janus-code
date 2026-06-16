@@ -6,10 +6,12 @@ import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
   AgentWorkspaceApproval,
+  AgentWorkspaceReviewSummary,
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import { AgentDiffPanel } from './AgentDiffPanel'
 import { AgentPlanPanel } from './AgentPlanPanel'
+import { AgentReviewPanel } from './AgentReviewPanel'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import {
   coerceAgentWorkspaceRightPanelTab,
@@ -22,6 +24,7 @@ export function AgentWorkspaceRightPanel({
   plan,
   approval,
   diffs,
+  review,
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
@@ -32,6 +35,7 @@ export function AgentWorkspaceRightPanel({
   plan: AgentWorkspacePlan | null
   approval: AgentWorkspaceApproval | null
   diffs: readonly AgentWorkspaceDiffSummary[]
+  review: AgentWorkspaceReviewSummary | null
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
@@ -50,12 +54,15 @@ export function AgentWorkspaceRightPanel({
         }}
         className="min-h-0 flex-1"
       >
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="plan">
             {translate('auto.components.agentWorkspace.layout.plan', 'Plan')}
           </TabsTrigger>
           <TabsTrigger value="diff">
             {translate('auto.components.agentWorkspace.layout.diff', 'Diff')}
+          </TabsTrigger>
+          <TabsTrigger value="review">
+            {translate('auto.components.agentWorkspace.layout.review', 'Review')}
           </TabsTrigger>
           <TabsTrigger value="terminal">
             {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
@@ -69,6 +76,9 @@ export function AgentWorkspaceRightPanel({
         </TabsContent>
         <TabsContent value="diff" className="mt-3 min-h-0" forceMount>
           <AgentDiffPanel diffs={diffs} onOpenDiff={onOpenDiff} />
+        </TabsContent>
+        <TabsContent value="review" className="mt-3 min-h-0" forceMount>
+          <AgentReviewPanel review={review} />
         </TabsContent>
         <TabsContent value="terminal" className="mt-3 min-h-0" forceMount>
           <div className="rounded-md border border-border bg-background p-3">

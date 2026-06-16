@@ -11072,7 +11072,8 @@
           "branch": "分支",
           "workingDirectory": "工作目录",
           "noWorkingDirectory": "没有工作目录",
-          "selectThreadDetails": "选择一个线程以查看其详情。"
+          "selectThreadDetails": "选择一个线程以查看其详情。",
+          "review": "Review"
         },
         "composer": {
           "enterMessageBeforeSending": "发送前请输入消息。",
@@ -11141,6 +11142,23 @@
         "sidebar": {
           "createWorktree": "Create worktree",
           "deleteWorktree": "Delete worktree"
+        },
+        "review": {
+          "githubPr": "GitHub PR #{{number}}",
+          "gitlabMr": "GitLab MR #{{number}}",
+          "hostedReviewNumber": "{{provider}} review #{{number}}",
+          "open": "open",
+          "draft": "draft",
+          "closed": "closed",
+          "merged": "merged",
+          "checksPassing": "checks passing",
+          "checksFailing": "checks failing",
+          "checksPending": "checks pending",
+          "checksNeutral": "checks neutral",
+          "review": "Review",
+          "noHostedReviewLinked": "No hosted review linked yet.",
+          "hostedReviewWillAppear": "Hosted review status will appear here after Orca detects a branch review.",
+          "openReview": "Open review"
         }
       }
     },

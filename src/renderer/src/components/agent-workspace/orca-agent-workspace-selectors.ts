@@ -21,6 +21,7 @@ import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { getPhaseForAgentState } from './orca-agent-phase-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
+import { selectAgentWorkspaceReviews } from './orca-agent-review-selectors'
 import { selectAgentWorkspaceTimeline } from './orca-agent-timeline-selectors'
 
 type WorkspaceThreadMeta = {
@@ -43,6 +44,7 @@ type SnapshotCache = {
   agentStatusByPaneKey: AppState['agentStatusByPaneKey']
   retainedAgentsByPaneKey: AppState['retainedAgentsByPaneKey']
   gitStatusByWorktree: AppState['gitStatusByWorktree']
+  hostedReviewCache: AppState['hostedReviewCache']
   activeWorktreeId: AppState['activeWorktreeId']
   snapshot: AgentWorkspaceSnapshot
 }
@@ -248,6 +250,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     snapshotCache.agentStatusByPaneKey === state.agentStatusByPaneKey &&
     snapshotCache.retainedAgentsByPaneKey === state.retainedAgentsByPaneKey &&
     snapshotCache.gitStatusByWorktree === state.gitStatusByWorktree &&
+    snapshotCache.hostedReviewCache === state.hostedReviewCache &&
     snapshotCache.activeWorktreeId === state.activeWorktreeId
   ) {
     return snapshotCache.snapshot
@@ -259,6 +262,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
   const timeline = selectAgentWorkspaceTimeline(state, threads)
   const approvals = selectAgentWorkspaceApprovals(state, threads)
   const diffs = selectAgentWorkspaceDiffs(state, threads)
+  const reviews = selectAgentWorkspaceReviews(state)
   const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
@@ -267,6 +271,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     timeline,
     approvals,
     diffs,
+    reviews,
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
   }
   snapshotCache = {
@@ -279,6 +284,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     agentStatusByPaneKey: state.agentStatusByPaneKey,
     retainedAgentsByPaneKey: state.retainedAgentsByPaneKey,
     gitStatusByWorktree: state.gitStatusByWorktree,
+    hostedReviewCache: state.hostedReviewCache,
     activeWorktreeId: state.activeWorktreeId,
     snapshot
   }

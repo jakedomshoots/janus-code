@@ -1,6 +1,10 @@
-import type { AgentWorkspaceDiffSummary, AgentWorkspaceThread } from './agent-workspace-types'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspaceReviewSummary,
+  AgentWorkspaceThread
+} from './agent-workspace-types'
 
-export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'terminal' | 'details'
+export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'review' | 'terminal' | 'details'
 
 export type AgentWorkspaceRightPanelState = {
   readonly selectedTab: AgentWorkspaceRightPanelTab
@@ -10,17 +14,20 @@ export type AgentWorkspaceRightPanelState = {
 export type AgentWorkspaceRightPanelStateInput = {
   readonly thread: AgentWorkspaceThread | null
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
+  readonly review: AgentWorkspaceReviewSummary | null
   readonly hasStructuredPlan: boolean
 }
 
 export function getDefaultAgentWorkspaceRightPanelTab({
   thread,
   diffs,
+  review,
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): AgentWorkspaceRightPanelTab {
   return getDefaultAgentWorkspaceRightPanelState({
     thread,
     diffs,
+    review,
     hasStructuredPlan
   }).selectedTab
 }
@@ -28,6 +35,7 @@ export function getDefaultAgentWorkspaceRightPanelTab({
 export function getDefaultAgentWorkspaceRightPanelState({
   thread,
   diffs,
+  review,
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): AgentWorkspaceRightPanelState {
   if (!thread) {
@@ -38,6 +46,9 @@ export function getDefaultAgentWorkspaceRightPanelState({
   }
   if (diffs.length > 0) {
     return { selectedTab: 'diff', collapsed: false }
+  }
+  if (review) {
+    return { selectedTab: 'review', collapsed: false }
   }
   if (thread.phase === 'running' && hasStructuredPlan) {
     return { selectedTab: 'plan', collapsed: false }
@@ -51,6 +62,7 @@ export function coerceAgentWorkspaceRightPanelTab(
   switch (value) {
     case 'plan':
     case 'diff':
+    case 'review':
     case 'terminal':
     case 'details':
       return value

@@ -131,6 +131,7 @@ describe('orca agent workspace selectors', () => {
       timeline: [],
       approvals: [],
       diffs: [],
+      reviews: [],
       terminalAvailable: false
     })
   })

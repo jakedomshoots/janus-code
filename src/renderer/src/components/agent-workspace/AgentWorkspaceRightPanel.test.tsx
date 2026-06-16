@@ -78,6 +78,7 @@ describe('AgentWorkspaceRightPanel', () => {
           plan={null}
           approval={null}
           diffs={[diffSummary]}
+          review={null}
           terminalAvailable
           selectedTab="diff"
           onSelectedTabChange={() => undefined}
@@ -87,6 +88,7 @@ describe('AgentWorkspaceRightPanel', () => {
 
     expect(findTab(container, 'Plan').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Diff').getAttribute('data-state')).toBe('active')
+    expect(findTab(container, 'Review').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Terminal').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Details').getAttribute('data-state')).toBe('inactive')
     expect(container.textContent).toContain(diffSummary.filePath)
@@ -102,6 +104,7 @@ describe('AgentWorkspaceRightPanel', () => {
           plan={null}
           approval={null}
           diffs={[diffSummary]}
+          review={null}
           terminalAvailable
           selectedTab="plan"
           onSelectedTabChange={onSelectedTabChange}
@@ -130,6 +133,7 @@ describe('AgentWorkspaceRightPanel', () => {
           plan={null}
           approval={approvalRequest}
           diffs={[]}
+          review={null}
           terminalAvailable={false}
           selectedTab="details"
           onSelectedTabChange={() => undefined}
@@ -153,6 +157,7 @@ describe('AgentWorkspaceRightPanel', () => {
           plan={null}
           approval={null}
           diffs={[]}
+          review={null}
           terminalAvailable
           selectedTab="terminal"
           onSelectedTabChange={() => undefined}

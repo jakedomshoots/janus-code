@@ -36,6 +36,7 @@ function makeStateInput(
   return {
     thread: runningThread,
     diffs: [],
+    review: null,
     hasStructuredPlan: false,
     ...input
   }
@@ -57,6 +58,25 @@ describe('agent workspace right panel state', () => {
 
   it('opens diff first when the selected thread has diffs', () => {
     expect(resolveDefaultTab({ diffs: [modifiedDiff], hasStructuredPlan: true })).toBe('diff')
+  })
+
+  it('opens review first when a thread has review context but no diffs', () => {
+    expect(
+      resolveDefaultTab({
+        review: {
+          id: 'review-1',
+          worktreeId: runningThread.worktreeId,
+          provider: 'gitlab',
+          providerLabel: 'GitLab',
+          number: 7,
+          title: 'Ship source control parity',
+          state: 'open',
+          url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+          status: 'success',
+          updatedAt: '2026-06-16T12:00:00.000Z'
+        }
+      })
+    ).toBe('review')
   })
 
   it('opens plan first for a running thread with structured plan state', () => {
