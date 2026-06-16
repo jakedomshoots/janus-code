@@ -449,6 +449,39 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps completed agent summaries to timeline entries', () => {
+    const completed = worktree('wt-completion', {
+      path: '/repo/orca/worktrees/completion',
+      branch: 'refs/heads/feature/completion'
+    })
+    const completedTab = tab('tab-agent', completed.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(completed, {
+        activeWorktreeId: completed.id,
+        tabsByWorktree: { [completed.id]: [completedTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'done',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 50),
+            lastAssistantMessage: 'Implemented the structured runtime checkpoint.'
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline).toEqual([
+      {
+        id: `${paneKey}:completion:1781535000000`,
+        threadId: paneKey,
+        kind: 'agent',
+        text: 'Implemented the structured runtime checkpoint.',
+        createdAt: '2026-06-15T14:50:00.000Z',
+        status: 'done'
+      }
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
 

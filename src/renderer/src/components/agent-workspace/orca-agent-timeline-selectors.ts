@@ -60,6 +60,24 @@ function toFailureTimelineEntry(
   }
 }
 
+function toCompletionTimelineEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  if (entry.state !== 'done' || entry.failure) {
+    return null
+  }
+  return {
+    id: `${thread.id}:completion:${entry.stateStartedAt}`,
+    threadId: thread.id,
+    kind: 'agent',
+    text:
+      entry.lastAssistantMessage ?? (entry.interrupted ? 'Agent interrupted' : 'Agent completed'),
+    createdAt: getIsoTimestamp(entry.updatedAt),
+    status: 'done'
+  }
+}
+
 function appendTimelineEntries(
   timeline: AgentWorkspaceTimelineEntry[],
   thread: AgentWorkspaceThread,
@@ -72,6 +90,10 @@ function appendTimelineEntries(
   const failureEntry = toFailureTimelineEntry(thread, entry)
   if (failureEntry) {
     timeline.push(failureEntry)
+  }
+  const completionEntry = toCompletionTimelineEntry(thread, entry)
+  if (completionEntry) {
+    timeline.push(completionEntry)
   }
 }
 
