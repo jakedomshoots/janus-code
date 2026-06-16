@@ -13,6 +13,7 @@ const emptySnapshot = {
   activeWorktreeId: null,
   projects: [],
   threads: [],
+  plans: [],
   timeline: [],
   diffs: [],
   terminalAvailable: false
@@ -60,6 +61,23 @@ const runningSnapshot = {
   activeWorktreeId: runningThread.worktreeId,
   projects: [runningProject],
   threads: [runningThread],
+  plans: [
+    {
+      id: 'plan-running',
+      threadId: runningThread.id,
+      title: 'Run the workspace build',
+      explanation: 'Track the GUI workspace implementation.',
+      steps: [
+        {
+          id: 'plan-running-step-1',
+          title: 'Render the shell',
+          status: 'in-progress'
+        }
+      ],
+      markdown: '# Run the workspace build',
+      updatedAt: '2026-06-15T14:32:00.000Z'
+    }
+  ],
   timeline: [runningTimelineEntry],
   diffs: [runningDiff],
   terminalAvailable: true
@@ -108,6 +126,7 @@ const completedSnapshot = {
   activeWorktreeId: completedThread.worktreeId,
   projects: [completedProject],
   threads: [completedThread],
+  plans: [],
   timeline: [completedTimelineEntry],
   diffs: [completedDiff],
   terminalAvailable: false
@@ -127,6 +146,7 @@ describe('agent workspace types', () => {
 
     expect(snapshots.map((snapshot) => snapshot.threads.length)).toEqual([0, 1, 1])
     expect(runningSnapshot.threads[0]?.phase).toBe('running')
+    expect(runningSnapshot.plans[0]?.steps[0]?.status).toBe('in-progress')
     expect(completedSnapshot.timeline[0]?.status).toBe('done')
     expect(completedSnapshot.diffs[0]?.oldPath).toBe(
       'src/renderer/src/components/agent-workspace/legacy-workspace-types.test.ts'

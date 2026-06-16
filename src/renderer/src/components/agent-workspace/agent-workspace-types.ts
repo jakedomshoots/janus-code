@@ -24,7 +24,24 @@ export type AgentWorkspaceThread = {
   readonly updatedAt: string | null
   readonly branchName: string | null
   readonly cwd: string | null
-  readonly hasStructuredPlan?: boolean
+}
+
+export type AgentWorkspacePlanStepStatus = 'pending' | 'in-progress' | 'completed'
+
+export type AgentWorkspacePlanStep = {
+  readonly id: string
+  readonly title: string
+  readonly status: AgentWorkspacePlanStepStatus
+}
+
+export type AgentWorkspacePlan = {
+  readonly id: string
+  readonly threadId: string
+  readonly title: string | null
+  readonly explanation: string | null
+  readonly steps: readonly AgentWorkspacePlanStep[]
+  readonly markdown: string | null
+  readonly updatedAt: string | null
 }
 
 export type AgentWorkspaceTimelineEntry = {
@@ -50,6 +67,7 @@ export type AgentWorkspaceSnapshot = {
   readonly activeWorktreeId: string | null
   readonly projects: readonly AgentWorkspaceProject[]
   readonly threads: readonly AgentWorkspaceThread[]
+  readonly plans: readonly AgentWorkspacePlan[]
   readonly timeline: readonly AgentWorkspaceTimelineEntry[]
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
   readonly terminalAvailable: boolean

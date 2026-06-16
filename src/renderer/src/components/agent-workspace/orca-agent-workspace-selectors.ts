@@ -283,6 +283,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
     threads,
+    plans: [],
     timeline: [],
     diffs: [],
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)

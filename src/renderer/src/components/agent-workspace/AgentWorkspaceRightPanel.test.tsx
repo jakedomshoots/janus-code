@@ -57,6 +57,7 @@ describe('AgentWorkspaceRightPanel', () => {
       root.render(
         <AgentWorkspaceRightPanel
           thread={runningThread}
+          plan={null}
           diffs={[diffSummary]}
           terminalAvailable
           selectedTab="diff"
@@ -79,6 +80,7 @@ describe('AgentWorkspaceRightPanel', () => {
       root.render(
         <AgentWorkspaceRightPanel
           thread={runningThread}
+          plan={null}
           diffs={[diffSummary]}
           terminalAvailable
           selectedTab="plan"
@@ -105,6 +107,7 @@ describe('AgentWorkspaceRightPanel', () => {
             phase: 'needs-approval',
             cwd: '/Users/jakedom/orca'
           }}
+          plan={null}
           diffs={[]}
           terminalAvailable={false}
           selectedTab="details"

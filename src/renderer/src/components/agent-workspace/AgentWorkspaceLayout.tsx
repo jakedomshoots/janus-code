@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import type {
   AgentWorkspaceDiffSummary,
+  AgentWorkspacePlan,
   AgentWorkspaceProject,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread,
@@ -20,6 +21,7 @@ import {
   type AgentWorkspaceRightPanelStateInput,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
+import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
   return (
@@ -58,18 +60,15 @@ function getThreadDiffs(
   return thread ? snapshot.diffs.filter((diff) => diff.threadId === thread.id) : []
 }
 
-function getThreadHasStructuredPlan(thread: AgentWorkspaceThread | null): boolean {
-  return thread?.hasStructuredPlan === true
-}
-
 function getRightPanelStateInput(
   thread: AgentWorkspaceThread | null,
-  diffs: readonly AgentWorkspaceDiffSummary[]
+  diffs: readonly AgentWorkspaceDiffSummary[],
+  plan: AgentWorkspacePlan | null
 ): AgentWorkspaceRightPanelStateInput {
   return {
     thread,
     diffs,
-    hasStructuredPlan: getThreadHasStructuredPlan(thread)
+    hasStructuredPlan: plan !== null
   }
 }
 
@@ -152,14 +151,19 @@ export function AgentWorkspaceLayout({
   )
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
-      getRightPanelStateInput(defaultThread, getThreadDiffs(snapshot, defaultThread))
+      getRightPanelStateInput(
+        defaultThread,
+        getThreadDiffs(snapshot, defaultThread),
+        selectAgentWorkspacePlanForThread(snapshot, defaultThread)
+      )
     )
   )
   const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
   const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
-  const rightPanelStateInput = getRightPanelStateInput(selectedThread, diffs)
+  const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
+  const rightPanelStateInput = getRightPanelStateInput(selectedThread, diffs, selectedPlan)
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
 
@@ -223,6 +227,7 @@ export function AgentWorkspaceLayout({
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel
             thread={selectedThread}
+            plan={selectedPlan}
             diffs={diffs}
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}

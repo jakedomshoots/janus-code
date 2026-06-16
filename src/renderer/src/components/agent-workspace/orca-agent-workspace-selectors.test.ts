@@ -127,6 +127,7 @@ describe('orca agent workspace selectors', () => {
       activeWorktreeId: null,
       projects: [],
       threads: [],
+      plans: [],
       timeline: [],
       diffs: [],
       terminalAvailable: false

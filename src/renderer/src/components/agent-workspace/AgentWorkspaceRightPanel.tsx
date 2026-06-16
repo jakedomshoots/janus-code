@@ -1,7 +1,12 @@
-import { FileText, Info, ListChecks, Terminal } from 'lucide-react'
+import { FileText, Info, Terminal } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
-import type { AgentWorkspaceDiffSummary, AgentWorkspaceThread } from './agent-workspace-types'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspacePlan,
+  AgentWorkspaceThread
+} from './agent-workspace-types'
+import { AgentPlanPanel } from './AgentPlanPanel'
 import { formatAgentWorkspaceDiffStatus, formatAgentWorkspacePhase } from './agent-workspace-labels'
 import {
   coerceAgentWorkspaceRightPanelTab,
@@ -10,12 +15,14 @@ import {
 
 export function AgentWorkspaceRightPanel({
   thread,
+  plan,
   diffs,
   terminalAvailable,
   selectedTab,
   onSelectedTabChange
 }: {
   thread: AgentWorkspaceThread | null
+  plan: AgentWorkspacePlan | null
   diffs: readonly AgentWorkspaceDiffSummary[]
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
@@ -48,28 +55,7 @@ export function AgentWorkspaceRightPanel({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="plan" className="mt-3 min-h-0">
-          <div className="rounded-md border border-border bg-background p-3">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <ListChecks className="size-4" aria-hidden="true" />
-              {translate('auto.components.agentWorkspace.layout.plan', 'Plan')}
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {thread
-                ? translate(
-                    'auto.components.agentWorkspace.layout.agentIsPhaseOnThread',
-                    '{{agentKind}} is {{phase}} on {{title}}.',
-                    {
-                      agentKind: thread.agentKind,
-                      phase: formatAgentWorkspacePhase(thread.phase),
-                      title: thread.title
-                    }
-                  )
-                : translate(
-                    'auto.components.agentWorkspace.layout.selectThreadPlan',
-                    'Select a thread to inspect its plan.'
-                  )}
-            </p>
-          </div>
+          <AgentPlanPanel thread={thread} plan={plan} />
         </TabsContent>
         <TabsContent value="diff" className="mt-3 min-h-0" forceMount>
           <div className="space-y-2">

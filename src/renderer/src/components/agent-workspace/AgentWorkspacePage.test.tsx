@@ -15,6 +15,7 @@ const emptySnapshot: AgentWorkspaceSnapshot = {
   activeWorktreeId: null,
   projects: [],
   threads: [],
+  plans: [],
   timeline: [],
   diffs: [],
   terminalAvailable: false
@@ -89,6 +90,7 @@ describe('AgentWorkspacePage', () => {
           cwd: '/Users/jakedom/orca'
         }
       ],
+      plans: [],
       timeline: [
         {
           id: 'timeline-1',
@@ -188,6 +190,7 @@ describe('AgentWorkspace phase labels', () => {
               cwd: '/Users/jakedom/orca'
             }
           ],
+          plans: [],
           timeline: [],
           diffs: [],
           terminalAvailable: false
@@ -226,6 +229,7 @@ describe('AgentWorkspace phase labels', () => {
               cwd: '/Users/jakedom/orca'
             }
           ],
+          plans: [],
           timeline: [
             {
               id: 'timeline-1',
@@ -298,6 +302,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
           cwd: '/Users/jakedom/orca-two'
         }
       ],
+      plans: [],
       timeline: [
         {
           id: 'timeline-1',
@@ -361,6 +366,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 cwd: '/Users/jakedom/orca'
               }
             ],
+            plans: [],
             timeline: [
               {
                 id: 'timeline-1',
@@ -462,6 +468,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 cwd: '/Users/jakedom/orca'
               }
             ],
+            plans: [],
             timeline: [],
             diffs: [
               {
@@ -556,6 +563,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 cwd: '/Users/jakedom/orca'
               }
             ],
+            plans: [],
             timeline: [],
             diffs: [
               {
@@ -623,8 +631,24 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'running',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/plan',
-                cwd: '/Users/jakedom/orca',
-                hasStructuredPlan: true
+                cwd: '/Users/jakedom/orca'
+              }
+            ],
+            plans: [
+              {
+                id: 'plan-1',
+                threadId: 'thread-1',
+                title: 'Planned thread execution',
+                explanation: 'Use the structured plan state when it is available.',
+                steps: [
+                  {
+                    id: 'step-1',
+                    title: 'Render the plan tab',
+                    status: 'in-progress'
+                  }
+                ],
+                markdown: '# Planned thread execution\n\n## Summary\n\nRender the plan tab.',
+                updatedAt: '2026-06-15T12:01:00.000Z'
               }
             ],
             timeline: [],
@@ -639,7 +663,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
       (button) => button.textContent === 'Plan'
     )
     expect(planTab?.getAttribute('data-state')).toBe('active')
-    expect(container.textContent).toContain('codex is running on Planned thread.')
+    expect(container.textContent).toContain('Planned thread execution')
+    expect(container.textContent).toContain('Render the plan tab')
   })
 
   it('chooses the details tab by default for threads that need approval', async () => {
@@ -674,6 +699,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 cwd: '/Users/jakedom/orca'
               }
             ],
+            plans: [],
             timeline: [],
             diffs: [
               {
