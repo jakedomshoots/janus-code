@@ -80,6 +80,14 @@ async function getForwardButton(page: Page) {
   return page.getByRole('button', { name: 'Go forward' })
 }
 
+function cssAttributeValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
+function worktreeOption(page: Page, worktreeId: string) {
+  return page.locator(`[role="option"][data-worktree-id="${cssAttributeValue(worktreeId)}"]`)
+}
+
 const isMac = process.platform === 'darwin'
 const mod = isMac ? 'Meta' : 'Control'
 
@@ -144,12 +152,8 @@ test.describe('Workspace Back/Forward Navigation', () => {
     // worktree is currently active". `aria-selected` is reserved for batch
     // multi-select state, so a store-only `activeWorktreeId` check would miss
     // render-layer regressions in the active row.
-    const primaryRow = orcaPage.locator(
-      `[id="worktree-list-option-${encodeURIComponent(primaryId)}"]`
-    )
-    const secondaryRow = orcaPage.locator(
-      `[id="worktree-list-option-${encodeURIComponent(secondaryId)}"]`
-    )
+    const primaryRow = worktreeOption(orcaPage, primaryId)
+    const secondaryRow = worktreeOption(orcaPage, secondaryId)
 
     await back.click()
     await expect

@@ -5,6 +5,7 @@ import { test, expect } from './helpers/orca-app'
 import { waitForActiveWorktree, waitForSessionReady } from './helpers/store'
 import {
   createBranchCommit,
+  configurePrGenerationLocalOrigin,
   createStagedCommitMessageChange,
   openSourceControl,
   seedCleanBranchEmptyState,
@@ -46,8 +47,9 @@ test.describe('Source Control AI PR generation worktree switching', () => {
   }, testInfo) => {
     await waitForSessionReady(orcaPage)
     await waitForActiveWorktree(orcaPage)
-    const { primaryWorktreeId, prWorktreeId, prWorktreePath, primaryBranch } =
+    const { primaryWorktreeId, primaryWorktreePath, prWorktreeId, prWorktreePath, primaryBranch } =
       await seedCreatePrComposer(orcaPage)
+    configurePrGenerationLocalOrigin(prWorktreePath, primaryWorktreePath)
     createBranchCommit(prWorktreePath)
 
     const screenshotDir = path.join(
@@ -145,7 +147,9 @@ test.describe('Source Control AI PR generation worktree switching', () => {
   }, testInfo) => {
     await waitForSessionReady(orcaPage)
     await waitForActiveWorktree(orcaPage)
-    const { prWorktreeId, prWorktreePath, primaryBranch } = await seedCreatePrComposer(orcaPage)
+    const { primaryWorktreePath, prWorktreeId, prWorktreePath, primaryBranch } =
+      await seedCreatePrComposer(orcaPage)
+    configurePrGenerationLocalOrigin(prWorktreePath, primaryWorktreePath)
     createBranchCommit(prWorktreePath)
 
     const screenshotDir = path.join(

@@ -2,12 +2,15 @@ import type { Page } from '@stablyai/playwright-test'
 import { test, expect } from './helpers/orca-app'
 import { waitForActiveWorktree, waitForSessionReady } from './helpers/store'
 
-const WORKTREE_OPTION_PREFIX = 'worktree-list-option-'
 const MAX_CLICK_TASK_DURATION_MS = 32
 const MAX_CLICK_BACK_TIMER_DRIFT_MS = 32
 
-function worktreeOptionId(worktreeId: string): string {
-  return `${WORKTREE_OPTION_PREFIX}${encodeURIComponent(worktreeId)}`
+function cssAttributeValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
+function worktreeOption(page: Page, worktreeId: string) {
+  return page.locator(`[role="option"][data-worktree-id="${cssAttributeValue(worktreeId)}"]`)
 }
 
 async function prepareSidebarForSwitchTest(page: Page): Promise<[string, string]> {
@@ -54,17 +57,24 @@ test.describe('Worktree switch responsiveness', () => {
     orcaPage
   }) => {
     const [firstWorktreeId, secondWorktreeId] = await prepareSidebarForSwitchTest(orcaPage)
-    const firstRow = orcaPage.locator(`[id="${worktreeOptionId(firstWorktreeId)}"]`)
-    const secondRow = orcaPage.locator(`[id="${worktreeOptionId(secondWorktreeId)}"]`)
+    const firstRow = worktreeOption(orcaPage, firstWorktreeId)
+    const secondRow = worktreeOption(orcaPage, secondWorktreeId)
 
     await expect(firstRow).toBeVisible()
     await expect(secondRow).toBeVisible()
     await expect(firstRow).toHaveAttribute('aria-current', 'page')
+    await expect(orcaPage.locator('[data-rendered-active-worktree-id]')).toHaveAttribute(
+      'data-rendered-active-worktree-id',
+      firstWorktreeId
+    )
 
     const result = await orcaPage.evaluate(
       async ({ firstId, secondId, timerDelayMs }) => {
         const option = (id: string): HTMLElement => {
-          const element = document.getElementById(`worktree-list-option-${encodeURIComponent(id)}`)
+          const element =
+            Array.from(
+              document.querySelectorAll<HTMLElement>('[role="option"][data-worktree-id]')
+            ).find((candidate) => candidate.dataset.worktreeId === id) ?? null
           if (!element) {
             throw new Error(`Missing worktree option for ${id}`)
           }

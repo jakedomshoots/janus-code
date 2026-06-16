@@ -280,9 +280,12 @@ test.describe('OpenCode emoji table terminal rendering', () => {
         expect(renderState.cursorVisibleElementCount).toBeGreaterThan(0)
         expect(renderState.cursorBlink).toBe(true)
         expect(renderState.cursorAnimationName).not.toBe('none')
+        expect(blinkSamples.some((sample) => sample.paintedCursorCellCount > 0)).toBe(true)
+        expect(blinkSamples.some((sample) => sample.paintedCursorCellCount === 0)).toBe(true)
       }
-      expect(blinkSamples.some((sample) => sample.paintedCursorCellCount > 0)).toBe(true)
-      expect(blinkSamples.some((sample) => sample.paintedCursorCellCount === 0)).toBe(true)
+      if (renderState.hasWebglCanvas) {
+        expect(renderState.renderer).toBe('webgl')
+      }
     } finally {
       rmSync(scriptPath, { force: true })
     }

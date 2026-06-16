@@ -8,6 +8,7 @@ import { test, expect } from './helpers/orca-app'
 import { waitForSessionReady } from './helpers/store'
 
 const tempRoots: string[] = []
+const IMPORT_AS_GROUP_BUTTON = /Import as group|Yes, import as monorepo/i
 
 function initializeGitRepo(repoPath: string): void {
   mkdirSync(repoPath, { recursive: true })
@@ -167,7 +168,7 @@ test('prioritizes shallow sibling repositories in a bounded nested scan', async 
     .filter({ hasText: 'z-web-client' })
     .locator('input[type="checkbox"]')
     .check()
-  await importDialog.getByRole('button', { name: /Import as group/i }).click()
+  await importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON }).click()
 
   await expect
     .poll(
@@ -247,13 +248,13 @@ test('can stop a nested repo scan and import repositories found so far', async (
     name: /Import repositories from folder/i
   })
   await expect(importDialog.getByText(/Scanning\.\.\.\s*Found 1 repository in/)).toBeVisible()
-  await expect(importDialog.getByRole('button', { name: /Import as group/i })).toBeDisabled()
+  await expect(importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON })).toBeDisabled()
   await importDialog.getByRole('button', { name: /Stop scan/i }).click()
   await expect(importDialog.getByText('Scan stopped early.')).toBeVisible()
   await expect(importDialog.getByText(/Found 1 repository in/)).toBeVisible()
-  await expect(importDialog.getByRole('button', { name: /Import as group/i })).toBeEnabled()
+  await expect(importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON })).toBeEnabled()
 
-  await importDialog.getByRole('button', { name: /Import as group/i }).click()
+  await importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON }).click()
 
   await expect
     .poll(

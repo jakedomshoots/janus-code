@@ -237,6 +237,8 @@ test.describe('Create Workspace', () => {
           }
           counters.__smartGitHubLookupCount = 0
           counters.__smartResolvePrBaseCount = 0
+          ipcMain.removeHandler('gh:repoSlug')
+          ipcMain.handle('gh:repoSlug', () => ({ owner: 'stablyai', repo: 'orca' }))
           ipcMain.removeHandler('gh:workItemByOwnerRepo')
           ipcMain.handle(
             'gh:workItemByOwnerRepo',
@@ -312,7 +314,7 @@ test.describe('Create Workspace', () => {
             }
           })
         )
-        .toEqual({ githubLookupCount: 1, resolvePrBaseCount: 0 })
+        .toEqual({ githubLookupCount: 2, resolvePrBaseCount: 0 })
     } finally {
       await orcaPage
         .evaluate(() => {
@@ -341,6 +343,8 @@ test.describe('Create Workspace', () => {
 
       await electronApp.evaluate(
         ({ ipcMain }, { title, url }) => {
+          ipcMain.removeHandler('gh:repoSlug')
+          ipcMain.handle('gh:repoSlug', () => ({ owner: 'stablyai', repo: 'orca' }))
           ipcMain.removeHandler('gh:workItemByOwnerRepo')
           ipcMain.handle(
             'gh:workItemByOwnerRepo',
@@ -358,9 +362,9 @@ test.describe('Create Workspace', () => {
             })
           )
           ipcMain.removeHandler('worktrees:resolvePrBase')
-          // Why: the fixture repo's default branch is master and has no
-          // remote; resolve the PR base to a ref that actually exists.
-          ipcMain.handle('worktrees:resolvePrBase', () => ({ baseBranch: 'master' }))
+          // Why: the fixture repo has no remote; resolve the PR base to a
+          // local ref that actually exists.
+          ipcMain.handle('worktrees:resolvePrBase', () => ({ baseBranch: 'main' }))
         },
         { title, url }
       )

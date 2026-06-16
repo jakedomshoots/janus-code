@@ -27,6 +27,7 @@ export async function openSourceControl(page: Page, worktreeId: string): Promise
 }
 export async function seedCreatePrComposer(page: Page): Promise<{
   primaryWorktreeId: string
+  primaryWorktreePath: string
   prWorktreeId: string
   prWorktreePath: string
   primaryBranch: string
@@ -100,6 +101,7 @@ export async function seedCreatePrComposer(page: Page): Promise<{
 
     return {
       primaryWorktreeId: primaryWorktree.id,
+      primaryWorktreePath: primaryWorktree.path,
       prWorktreeId: prWorktree.id,
       prWorktreePath: prWorktree.path,
       primaryBranch
@@ -258,6 +260,15 @@ export function createBranchCommit(worktreePath: string): void {
   writeFileSync(changedFile, `PR generation worktree switch validation ${Date.now()}\n`)
   execFileSync('git', ['add', 'e2e-pr-generation-change.txt'], { cwd: worktreePath })
   execFileSync('git', ['commit', '-m', 'E2E PR generation change'], { cwd: worktreePath })
+}
+
+export function configurePrGenerationLocalOrigin(worktreePath: string, remotePath: string): void {
+  try {
+    execFileSync('git', ['remote', 'remove', 'origin'], { cwd: worktreePath, stdio: 'ignore' })
+  } catch {
+    // Missing origin is fine for disposable E2E repos.
+  }
+  execFileSync('git', ['remote', 'add', 'origin', remotePath], { cwd: worktreePath })
 }
 
 export function createStagedCommitMessageChange(worktreePath: string): void {

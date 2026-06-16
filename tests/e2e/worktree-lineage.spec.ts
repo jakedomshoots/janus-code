@@ -9,7 +9,8 @@ import {
 } from './worktree-lineage-state'
 
 function worktreeOption(page: Page, worktreeId: string) {
-  return page.locator(`[id="worktree-list-option-${encodeURIComponent(worktreeId)}"]`)
+  const escapedWorktreeId = worktreeId.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  return page.locator(`[role="option"][data-worktree-id="${escapedWorktreeId}"]`)
 }
 
 test.describe('Worktree Lineage', () => {
@@ -36,10 +37,12 @@ test.describe('Worktree Lineage', () => {
 
     const positions = await orcaPage.evaluate(
       ({ parentId, childId }) => {
-        const parent = document.getElementById(
-          `worktree-list-option-${encodeURIComponent(parentId)}`
-        )
-        const child = document.getElementById(`worktree-list-option-${encodeURIComponent(childId)}`)
+        const getMountedWorktreeOption = (worktreeId: string): HTMLElement | null =>
+          Array.from(
+            document.querySelectorAll<HTMLElement>('[role="option"][data-worktree-id]')
+          ).find((element) => element.dataset.worktreeId === worktreeId) ?? null
+        const parent = getMountedWorktreeOption(parentId)
+        const child = getMountedWorktreeOption(childId)
         if (!parent || !child) {
           return null
         }
@@ -128,10 +131,12 @@ test.describe('Worktree Lineage', () => {
 
     const positions = await orcaPage.evaluate(
       ({ parentId, childId }) => {
-        const parent = document.getElementById(
-          `worktree-list-option-${encodeURIComponent(parentId)}`
-        )
-        const child = document.getElementById(`worktree-list-option-${encodeURIComponent(childId)}`)
+        const getMountedWorktreeOption = (worktreeId: string): HTMLElement | null =>
+          Array.from(
+            document.querySelectorAll<HTMLElement>('[role="option"][data-worktree-id]')
+          ).find((element) => element.dataset.worktreeId === worktreeId) ?? null
+        const parent = getMountedWorktreeOption(parentId)
+        const child = getMountedWorktreeOption(childId)
         if (!parent || !child) {
           return null
         }

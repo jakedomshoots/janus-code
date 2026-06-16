@@ -203,6 +203,14 @@ import {
 } from '@/i18n/hosted-review-localized-copy'
 import { CreateHostedReviewComposer } from './CreateHostedReviewComposer'
 import {
+  createRunningCommitMessageGenerationRecord,
+  getCommitMessageGenerationRecordKey,
+  markCommitMessageGenerationHydrated,
+  resolveCommitMessageGenerationCancel,
+  resolveCommitMessageGenerationFailure,
+  resolveCommitMessageGenerationSuccess
+} from '@/store/slices/commit-message-generation'
+import {
   createRunningPullRequestGenerationRecord,
   getPullRequestGenerationRecordKey,
   resolvePullRequestGenerationCancel,
@@ -873,8 +881,8 @@ function SourceControlInner(): React.JSX.Element {
     Record<string, boolean>
   >({})
   const [generateErrors, setGenerateErrors] = useState<Record<string, string | null>>({})
-  const isGenerating = generateInFlightByWorktree[activeWorktreeId ?? ''] ?? false
-  const generateError = generateErrors[activeWorktreeId ?? ''] ?? null
+  const localIsGenerating = generateInFlightByWorktree[activeWorktreeId ?? ''] ?? false
+  const localGenerateError = generateErrors[activeWorktreeId ?? ''] ?? null
   const [hostedReviewCreationState, setHostedReviewCreationState] =
     useState<HostedReviewCreationState | null>(null)
   const createPrInFlightRef = useRef<Record<string, boolean>>({})
@@ -884,6 +892,14 @@ function SourceControlInner(): React.JSX.Element {
   const [createPrErrors, setCreatePrErrors] = useState<Record<string, string | null>>({})
   const isCreatingPr = createPrInFlightByWorktree[activeWorktreeId ?? ''] ?? false
   const createPrError = createPrErrors[activeWorktreeId ?? ''] ?? null
+  const commitGenerationRecords = useAppStore((s) => s.commitMessageGenerationRecords)
+  const allocateCommitMessageGenerationRequestId = useAppStore(
+    (s) => s.allocateCommitMessageGenerationRequestId
+  )
+  const setCommitMessageGenerationRecord = useAppStore((s) => s.setCommitMessageGenerationRecord)
+  const updateCommitMessageGenerationRecord = useAppStore(
+    (s) => s.updateCommitMessageGenerationRecord
+  )
   const prGenerationRecords = useAppStore((s) => s.pullRequestGenerationRecords)
   const allocatePullRequestGenerationRequestId = useAppStore(
     (s) => s.allocatePullRequestGenerationRequestId
@@ -916,6 +932,16 @@ function SourceControlInner(): React.JSX.Element {
   const gitIdentityDisplay = activeWorktree ? getWorktreeGitIdentityDisplay(activeWorktree) : null
   const detachedHeadDisplay = gitIdentityDisplay?.kind === 'detached' ? gitIdentityDisplay : null
   const branchName = gitIdentityDisplay?.kind === 'branch' ? gitIdentityDisplay.branchName : ''
+  const activeCommitMessageGenerationKey = getCommitMessageGenerationRecordKey(
+    activeWorktreeId,
+    worktreePath
+  )
+  const activeCommitMessageGenerationRecord = activeCommitMessageGenerationKey
+    ? (commitGenerationRecords[activeCommitMessageGenerationKey] ?? null)
+    : null
+  const isGenerating =
+    localIsGenerating || activeCommitMessageGenerationRecord?.status === 'running'
+  const generateError = activeCommitMessageGenerationRecord?.error ?? localGenerateError
   const activePullRequestGenerationKey = getPullRequestGenerationRecordKey({
     worktreeId: activeWorktreeId,
     worktreePath,
@@ -1571,6 +1597,13 @@ function SourceControlInner(): React.JSX.Element {
       if (!activeWorktreeId || !worktreePath) {
         return
       }
+      const generationKey = getCommitMessageGenerationRecordKey(activeWorktreeId, worktreePath)
+      if (!generationKey) {
+        return
+      }
+      if (commitGenerationRecords[generationKey]?.status === 'running') {
+        return
+      }
       if (generateInFlightRef.current[activeWorktreeId]) {
         return
       }
@@ -1596,21 +1629,41 @@ function SourceControlInner(): React.JSX.Element {
 
       generateInFlightRef.current[activeWorktreeId] = true
       const connectionId = getConnectionId(activeWorktreeId) ?? undefined
+      const requestId = allocateCommitMessageGenerationRequestId()
+      const context = {
+        worktreeId: activeWorktreeId,
+        worktreePath,
+        connectionId,
+        requestId,
+        runtimeTargetSettings: activeRepoSettings
+      }
+      setCommitMessageGenerationRecord(
+        generationKey,
+        createRunningCommitMessageGenerationRecord(context)
+      )
       setGenerateInFlightByWorktree((prev) => ({ ...prev, [activeWorktreeId]: true }))
       setGenerateErrors((prev) => ({ ...prev, [activeWorktreeId]: null }))
       try {
         const result = await generateRuntimeCommitMessage(
           {
             // Why: route generation by the repo OWNER host, not the focused runtime.
-            settings: activeRepoSettings,
-            worktreeId: activeWorktreeId,
-            worktreePath,
-            connectionId
+            settings: context.runtimeTargetSettings,
+            worktreeId: context.worktreeId,
+            worktreePath: context.worktreePath,
+            connectionId: context.connectionId
           },
           overrides
         )
 
         if (!result.success) {
+          updateCommitMessageGenerationRecord(generationKey, (record) =>
+            resolveCommitMessageGenerationFailure({
+              record,
+              requestId,
+              canceled: result.canceled,
+              error: result.canceled ? null : result.error
+            })
+          )
           // Why: cancellation is a deliberate user action, not a failure to
           // surface. Clear any prior error and stay quiet.
           if (result.canceled) {
@@ -1624,6 +1677,13 @@ function SourceControlInner(): React.JSX.Element {
           return
         }
 
+        updateCommitMessageGenerationRecord(generationKey, (record) =>
+          resolveCommitMessageGenerationSuccess({
+            record,
+            requestId,
+            message: result.message
+          })
+        )
         // Why: race protection — the user may have started typing into the
         // textarea while the agent was running. In that case we silently drop
         // the generated message rather than overwrite their in-progress edits.
@@ -1637,6 +1697,13 @@ function SourceControlInner(): React.JSX.Element {
         useAppStore.getState().recordFeatureInteraction('ai-commit-generation')
         setGenerateErrors((prev) => ({ ...prev, [activeWorktreeId]: null }))
       } catch (error) {
+        updateCommitMessageGenerationRecord(generationKey, (record) =>
+          resolveCommitMessageGenerationFailure({
+            record,
+            requestId,
+            error: error instanceof Error ? error.message : 'Failed to generate commit message'
+          })
+        )
         setGenerateErrors((prev) => ({
           ...prev,
           [activeWorktreeId]:
@@ -1647,7 +1714,16 @@ function SourceControlInner(): React.JSX.Element {
         generateInFlightRef.current[activeWorktreeId] = false
       }
     },
-    [activeRepoSettings, activeWorktreeId, resolvedCommitMessageAi, worktreePath]
+    [
+      activeRepoSettings,
+      activeWorktreeId,
+      allocateCommitMessageGenerationRequestId,
+      commitGenerationRecords,
+      resolvedCommitMessageAi,
+      setCommitMessageGenerationRecord,
+      updateCommitMessageGenerationRecord,
+      worktreePath
+    ]
   )
 
   const handleGenerateCommitMessageClick = useCallback((): void => {
@@ -1665,21 +1741,37 @@ function SourceControlInner(): React.JSX.Element {
     if (!activeWorktreeId || !worktreePath) {
       return
     }
-    if (!generateInFlightRef.current[activeWorktreeId]) {
+    const generationKey = getCommitMessageGenerationRecordKey(activeWorktreeId, worktreePath)
+    const record = generationKey ? (commitGenerationRecords[generationKey] ?? null) : null
+    if (!generateInFlightRef.current[activeWorktreeId] && record?.status !== 'running') {
       return
     }
-    const connectionId = getConnectionId(activeWorktreeId) ?? undefined
+    if (generationKey && record?.status === 'running') {
+      updateCommitMessageGenerationRecord(generationKey, (current) =>
+        current?.context.requestId === record.context.requestId
+          ? resolveCommitMessageGenerationCancel(current)
+          : null
+      )
+    }
+    const connectionId =
+      record?.context.connectionId ?? getConnectionId(activeWorktreeId) ?? undefined
     // Why: fire-and-forget — the in-flight generateCommitMessage promise
     // resolves with `{canceled: true}` once the kill propagates, which is
     // where the spinner is cleared. Awaiting here would just delay UI feedback.
     void cancelRuntimeGenerateCommitMessage({
       // Why: route the cancel by the repo OWNER host, not the focused runtime.
-      settings: activeRepoSettings,
-      worktreeId: activeWorktreeId,
-      worktreePath,
+      settings: record?.context.runtimeTargetSettings ?? activeRepoSettings,
+      worktreeId: record?.context.worktreeId ?? activeWorktreeId,
+      worktreePath: record?.context.worktreePath ?? worktreePath,
       connectionId
     })
-  }, [activeRepoSettings, activeWorktreeId, worktreePath])
+  }, [
+    activeRepoSettings,
+    activeWorktreeId,
+    commitGenerationRecords,
+    updateCommitMessageGenerationRecord,
+    worktreePath
+  ])
 
   // Why: a single dispatcher for every remote-only action the split button or
   // chevron dropdown can trigger. Keeps the error-swallow pattern in one
@@ -2233,7 +2325,8 @@ function SourceControlInner(): React.JSX.Element {
       !activePullRequestGenerationRecord ||
       activePullRequestGenerationRecord.status !== 'succeeded' ||
       !activePullRequestGenerationRecord.result ||
-      activePullRequestGenerationRecord.hydrated
+      activePullRequestGenerationRecord.hydrated ||
+      hostedReviewCreation?.canCreate !== true
     ) {
       return
     }
@@ -2262,6 +2355,7 @@ function SourceControlInner(): React.JSX.Element {
     activePullRequestGenerationKey,
     activePullRequestGenerationRecord,
     applyGeneratedPullRequestFields,
+    hostedReviewCreation?.canCreate,
     updatePullRequestGenerationRecord
   ])
 
@@ -3759,6 +3853,53 @@ function SourceControlInner(): React.JSX.Element {
     }
     void handleRevertAllInArea(pending.area, pending.paths)
   }, [handleDiscard, handleRevertAllInArea, pendingDiscard])
+
+  const commitComposerVisible =
+    Boolean(activeWorktree && activeRepo && worktreePath && !isFolder) &&
+    !(
+      scope === 'all' &&
+      !hasUncommittedEntries &&
+      branchSummary?.status === 'ready' &&
+      branchEntries.length === 0
+    )
+
+  useEffect(() => {
+    if (
+      !commitComposerVisible ||
+      !activeWorktreeId ||
+      !activeCommitMessageGenerationKey ||
+      !activeCommitMessageGenerationRecord ||
+      activeCommitMessageGenerationRecord.status !== 'succeeded' ||
+      !activeCommitMessageGenerationRecord.message ||
+      activeCommitMessageGenerationRecord.hydrated
+    ) {
+      return
+    }
+
+    const message = activeCommitMessageGenerationRecord.message
+    setCommitDrafts((prev) => {
+      const current = prev[activeWorktreeId]
+      if (current && current.length > 0) {
+        return prev
+      }
+      return writeCommitDraftForWorktree(prev, activeWorktreeId, message)
+    })
+    updateCommitMessageGenerationRecord(activeCommitMessageGenerationKey, (record) => {
+      if (
+        !record ||
+        record.context.requestId !== activeCommitMessageGenerationRecord.context.requestId
+      ) {
+        return null
+      }
+      return markCommitMessageGenerationHydrated(record)
+    })
+  }, [
+    activeCommitMessageGenerationKey,
+    activeCommitMessageGenerationRecord,
+    activeWorktreeId,
+    commitComposerVisible,
+    updateCommitMessageGenerationRecord
+  ])
 
   if (!activeWorktree || !activeRepo || !worktreePath) {
     return (

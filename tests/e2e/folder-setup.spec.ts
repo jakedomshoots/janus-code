@@ -8,6 +8,7 @@ import { waitForSessionReady } from './helpers/store'
 import type { ElectronApplication } from '@stablyai/playwright-test'
 
 const tempRoots: string[] = []
+const IMPORT_AS_GROUP_BUTTON = /Import as group|Yes, import as monorepo/i
 
 function initializeGitRepo(repoPath: string): void {
   mkdirSync(repoPath, { recursive: true })
@@ -118,8 +119,8 @@ test.describe('Folder setup', () => {
     ).toBeVisible()
     await expect(importDialog.getByText('api-service', { exact: true }).first()).toBeVisible()
     await expect(importDialog.getByText('web-client', { exact: true }).first()).toBeVisible()
-    await expect(importDialog.getByRole('button', { name: /Import as group/i })).toBeEnabled()
-    await importDialog.getByRole('button', { name: /Import as group/i }).click()
+    await expect(importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON })).toBeEnabled()
+    await importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON }).click()
 
     await expect
       .poll(
@@ -206,7 +207,7 @@ test.describe('Folder setup', () => {
         .locator('input[type="checkbox"]')
         .check()
     }
-    await importDialog.getByRole('button', { name: /Import as group/i }).click()
+    await importDialog.getByRole('button', { name: IMPORT_AS_GROUP_BUTTON }).click()
 
     await expect
       .poll(

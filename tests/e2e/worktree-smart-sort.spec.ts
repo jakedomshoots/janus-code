@@ -10,11 +10,21 @@ type SmartSortScenario = {
 
 const WORKTREE_OPTION_PREFIX = 'worktree-list-option-'
 
+function cssAttributeValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
+function worktreeOption(page: Page, worktreeId: string) {
+  return page.locator(`[role="option"][data-worktree-id="${cssAttributeValue(worktreeId)}"]`)
+}
+
 async function getVisibleWorktreeIdsByTop(page: Page): Promise<string[]> {
   return page.locator(`[role="option"][id^="${WORKTREE_OPTION_PREFIX}"]`).evaluateAll((elements) =>
     elements
       .map((element) => ({
-        id: decodeURIComponent(element.id.slice('worktree-list-option-'.length)),
+        id:
+          element.dataset.worktreeId ??
+          decodeURIComponent(element.id.slice(WORKTREE_OPTION_PREFIX.length)),
         top: element.getBoundingClientRect().top
       }))
       .sort((a, b) => a.top - b.top)
@@ -180,11 +190,7 @@ test.describe('Worktree Smart Sort', () => {
       })
       .toEqual([blockedId, doneId])
 
-    await expect(
-      orcaPage.locator(`[id="${WORKTREE_OPTION_PREFIX}${encodeURIComponent(blockedId)}"]`)
-    ).toBeVisible()
-    await expect(
-      orcaPage.locator(`[id="${WORKTREE_OPTION_PREFIX}${encodeURIComponent(doneId)}"]`)
-    ).toBeVisible()
+    await expect(worktreeOption(orcaPage, blockedId)).toBeVisible()
+    await expect(worktreeOption(orcaPage, doneId)).toBeVisible()
   })
 })

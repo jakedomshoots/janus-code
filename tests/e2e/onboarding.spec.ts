@@ -411,7 +411,41 @@ test.describe('Onboarding flow', () => {
       timeout: 15_000
     })
     await orcaPage.evaluate(async () => {
-      await window.__store?.getState().updateSettings({ activeRuntimeEnvironmentId: 'env-e2e' })
+      const now = Date.now()
+      const store = window.__store?.getState()
+      store?.setRuntimeEnvironments([
+        {
+          id: 'env-e2e',
+          name: 'E2E Server',
+          createdAt: now,
+          updatedAt: now,
+          lastUsedAt: null,
+          runtimeId: 'runtime-e2e',
+          endpoints: [
+            {
+              id: 'ws-env-e2e',
+              kind: 'websocket',
+              label: 'WebSocket',
+              endpoint: 'ws://127.0.0.1:1'
+            }
+          ],
+          preferredEndpointId: 'ws-env-e2e'
+        }
+      ])
+      store?.setRuntimeEnvironmentStatus('env-e2e', {
+        status: {
+          runtimeId: 'runtime-e2e',
+          rendererGraphEpoch: 0,
+          graphStatus: 'ready',
+          authoritativeWindowId: null,
+          liveTabCount: 0,
+          liveLeafCount: 0,
+          runtimeProtocolVersion: 3,
+          minCompatibleRuntimeClientVersion: 3
+        },
+        checkedAt: now
+      })
+      await store?.updateSettings({ activeRuntimeEnvironmentId: 'env-e2e' })
     })
     await expect
       .poll(async () => (await getSettings(orcaPage)).activeRuntimeEnvironmentId, {
@@ -422,10 +456,13 @@ test.describe('Onboarding flow', () => {
     await onboardingFooterButton(orcaPage, SKIP_TO_PROJECT_SETUP_BUTTON).click()
 
     await expectAddProjectDialog(orcaPage)
-    await expect(orcaPage.getByRole('button', { name: /Browse server/i })).toBeVisible()
+    await expect(orcaPage.getByRole('combobox').filter({ hasText: /E2E Server/i })).toBeVisible()
+    await expect(orcaPage.getByRole('button', { name: /Browse folder/i })).toBeVisible()
+    await expect(
+      orcaPage.getByText(/Existing Git repository or folder on this host/i)
+    ).toBeVisible()
     await expect(orcaPage.getByRole('button', { name: /Clone from URL/i })).toBeVisible()
-    await expect(orcaPage.getByRole('button', { name: /Create on server/i })).toBeVisible()
-    await expect(orcaPage.getByText(/Or enter a server path manually/i)).toBeVisible()
+    await expect(orcaPage.getByRole('button', { name: /Create new project/i })).toBeVisible()
     await expect(onboardingFooterButton(orcaPage, SKIP_TO_PROJECT_SETUP_BUTTON)).toHaveCount(0)
     expect((await getOnboardingState(orcaPage)).closedAt).not.toBeNull()
   })

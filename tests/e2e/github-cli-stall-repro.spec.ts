@@ -109,24 +109,35 @@ test('GitHub Tasks drawer recovers when gh stalls on issue details', async ({
       author: 'octocat',
       repoId: repo.id
     }
-    store.getState().openTaskPage({ taskSource: 'github', openGitHubWorkItem: item })
+    store.getState().openTaskPage({
+      taskSource: 'github',
+      preselectedRepoId: repo.id,
+      openGitHubWorkItem: item,
+      openGitHubSourceContext: {
+        kind: 'task-source',
+        provider: 'github',
+        projectId: repo.projectId ?? repo.id,
+        hostId: repo.executionHostId ?? 'local',
+        repoId: repo.id,
+        providerIdentity: { provider: 'github', owner: 'acme', repo: 'repo' }
+      }
+    })
     return { repoId: repo.id }
   }, testRepoPath)
 
-  const drawer = orcaPage
-    .getByRole('dialog')
-    .filter({ hasText: 'Issue detail fetch that hangs in gh' })
-    .last()
-  await expect(drawer).toBeVisible()
+  const detailPage = orcaPage.locator('body')
+  await expect(
+    orcaPage.getByRole('heading', { name: /Issue detail fetch that hangs in gh/i })
+  ).toBeVisible()
 
   // Why: this is the user-visible regression signal. Before ghExecFileAsync had
-  // a default timeout, the drawer's pending details promise never settled and
-  // the conversation pane stayed stuck in its loading shell. The main GitHub
-  // details service degrades failed detail fetches to an empty shell, so the
-  // stable visible proof is that the drawer becomes usable and stops spinning.
-  await expect(drawer.getByText('No description provided.')).toBeVisible({ timeout: 5_000 })
-  await expect(drawer.getByText('No comments yet.')).toBeVisible()
-  await expect(drawer.locator('.animate-spin')).toHaveCount(0)
+  // a default timeout, the pending details promise never settled and the
+  // conversation pane stayed stuck in its loading shell. GitHub issue details
+  // now render as a full task detail page, so the stable visible proof is that
+  // the page becomes usable and stops spinning.
+  await expect(orcaPage.getByText('No description provided.')).toBeVisible({ timeout: 5_000 })
+  await expect(orcaPage.getByText('No comments yet.')).toBeVisible()
+  await expect(detailPage.locator('.animate-spin')).toHaveCount(0)
 
   expect(repoId).toBeTruthy()
 })
