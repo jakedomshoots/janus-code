@@ -253,3 +253,10 @@ Want to contribute or run locally? See our [CONTRIBUTING.md](.github/CONTRIBUTIN
 ## License
 
 Orca is free and open source under the [MIT License](LICENSE).
+
+## Attribution
+
+Agent Hub is a public fork of Orca with a GUI-first agent workspace. Orca's
+original MIT license is preserved in `LICENSE`. T3 Code was used as a UI and
+interaction reference; see `NOTICE.md` and
+`docs/reference/t3code-ui-donor-attribution.md`.

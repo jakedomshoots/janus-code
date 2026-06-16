@@ -11,7 +11,8 @@ and style tokens.
 T3 Code repository: `../t3code`
 
 License: MIT, copyright (c) 2026 T3 Tools Inc. See
-`THIRD_PARTY_NOTICES.md` for the preserved license notice.
+`NOTICE.md` and `docs/release/license-attribution-audit.md` for the recorded
+license and attribution audit.
 
 ## Reference Map
 
