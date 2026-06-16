@@ -24,17 +24,31 @@ const emptySnapshot: AgentWorkspaceSnapshot = {
 
 let currentSnapshot: AgentWorkspaceSnapshot = emptySnapshot
 const roots: Root[] = []
+const storeMocks = vi.hoisted(() => ({
+  setActiveWorktree: vi.fn(),
+  openDiff: vi.fn()
+}))
 
 vi.mock('@/store', () => ({
   useAppStore: (
     selector: (state: {
       agentWorkspaceTestSnapshot: AgentWorkspaceSnapshot
       settings: { guiAgentWorkspaceEnabled: boolean }
+      setActiveWorktree: (worktreeId: string | null) => void
+      openDiff: (
+        worktreeId: string,
+        absolutePath: string,
+        displayPath: string,
+        language: string,
+        staged: boolean
+      ) => void
     }) => unknown
   ) =>
     selector({
       agentWorkspaceTestSnapshot: currentSnapshot,
-      settings: { guiAgentWorkspaceEnabled: false }
+      settings: { guiAgentWorkspaceEnabled: false },
+      setActiveWorktree: storeMocks.setActiveWorktree,
+      openDiff: storeMocks.openDiff
     })
 }))
 
@@ -53,6 +67,8 @@ afterEach(async () => {
   roots.splice(0).forEach((root) => {
     act(() => root.unmount())
   })
+  storeMocks.setActiveWorktree.mockClear()
+  storeMocks.openDiff.mockClear()
   document.body.replaceChildren()
   await setRendererUiLanguage('en')
 })
@@ -431,6 +447,33 @@ describe('AgentWorkspaceLayout thread selection', () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSelectionSnapshot('worktree-2')} />)
     })
 
+    expect(container.textContent).toContain('Second timeline event')
+  })
+
+  it('activates a selected project through the Orca worktree store', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(<AgentWorkspaceLayout snapshot={makeSelectionSnapshot('worktree-1')} />)
+    })
+
+    expect(container.textContent).toContain('First timeline event')
+    expect(container.textContent).not.toContain('Second timeline event')
+
+    const secondProjectButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('orca two')
+    )
+    expect(secondProjectButton).toBeDefined()
+
+    await act(async () => {
+      secondProjectButton?.click()
+    })
+
+    expect(storeMocks.setActiveWorktree).toHaveBeenCalledWith('worktree-2')
     expect(container.textContent).toContain('Second timeline event')
   })
 

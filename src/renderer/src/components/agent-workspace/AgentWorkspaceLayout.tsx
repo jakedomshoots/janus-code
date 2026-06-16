@@ -239,6 +239,7 @@ export function AgentWorkspaceLayout({
   )
   const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
   const openDiff = useAppStore((state) => state.openDiff)
+  const setActiveWorktree = useAppStore((state) => state.setActiveWorktree)
   const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
@@ -305,12 +306,18 @@ export function AgentWorkspaceLayout({
           selectedThreadId={selectedThread?.id ?? null}
           activeWorktreeId={snapshot.activeWorktreeId}
           onSelectProject={(projectId) => {
+            if (projectId !== snapshot.activeWorktreeId) {
+              setActiveWorktree(projectId)
+            }
             setSelectedProjectId(projectId)
             const nextProject =
               snapshot.projects.find((project) => project.id === projectId) ?? null
             setSelectedThreadId(getSelectedThread(snapshot, nextProject)?.id ?? null)
           }}
           onSelectThread={(projectId, threadId) => {
+            if (projectId !== snapshot.activeWorktreeId) {
+              setActiveWorktree(projectId)
+            }
             setSelectedProjectId(projectId)
             setSelectedThreadId(threadId)
           }}
