@@ -30,16 +30,33 @@ vi.mock('@/hooks/useDetectedAgents', () => ({
 }))
 
 vi.mock('@/store', () => ({
-  useAppStore: (
-    selector: (state: {
-      settings: { defaultTuiAgent: 'claude'; disabledTuiAgents: [] }
-      updateSettings: typeof mocks.updateSettings
-    }) => unknown
-  ) =>
-    selector({
-      settings: { defaultTuiAgent: 'claude', disabledTuiAgents: [] },
-      updateSettings: mocks.updateSettings
-    })
+  useAppStore: Object.assign(
+    (
+      selector: (state: {
+        settings: {
+          defaultTuiAgent: 'claude'
+          disabledTuiAgents: []
+          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+        }
+        updateSettings: typeof mocks.updateSettings
+      }) => unknown
+    ) =>
+      selector({
+        settings: {
+          defaultTuiAgent: 'claude',
+          disabledTuiAgents: [],
+          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+        },
+        updateSettings: mocks.updateSettings
+      }),
+    {
+      getState: () => ({
+        settings: {
+          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+        }
+      })
+    }
+  )
 }))
 
 const runningThread: AgentWorkspaceThread = {
@@ -270,6 +287,57 @@ describe('AgentComposer', () => {
     })
     expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
     expect(container.textContent).toContain('Started OpenCode.')
+  })
+
+  it('passes the selected thinking mode into new Codex agent launches', async () => {
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['codex'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-codex',
+      startupPlan: {
+        agent: 'codex',
+        launchCommand: 'codex',
+        expectedProcess: 'codex',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const thinkingSelect = container.querySelector<HTMLSelectElement>(
+      'select[aria-label="Thinking mode"]'
+    )
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(thinkingSelect).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      thinkingSelect!.value = 'deep'
+      thinkingSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    await act(async () => {
+      setTextareaValue(textarea!, 'Use deep reasoning for this.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'codex',
+      worktreeId: 'worktree-1',
+      prompt: 'Use deep reasoning for this.',
+      agentArgs: '--dangerously-bypass-approvals-and-sandbox -c model_reasoning_effort=high',
+      launchSource: 'sidebar'
+    })
   })
 
   it('opens the terminal drawer from the composer toolbar', async () => {

@@ -4,15 +4,21 @@ import { translate } from '@/i18n/i18n'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { useAppStore } from '@/store'
+import { resolveTuiAgentLaunchArgs } from '../../../../shared/tui-agent-launch-defaults'
 import { filterEnabledTuiAgents, pickTuiAgent } from '../../../../shared/tui-agent-selection'
 import {
   applyAgentPermissionMode,
   resolveAgentPermissionModeSummary,
   type AgentPermissionMode
 } from '../../../../shared/tui-agent-permissions'
+import {
+  mergeTuiAgentLaunchArgs,
+  resolveTuiAgentThinkingArgs,
+  type TuiAgentThinkingMode
+} from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
-import { AgentComposerFooter, type AgentThinkingMode } from './AgentComposerFooter'
+import { AgentComposerFooter } from './AgentComposerFooter'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
@@ -40,7 +46,7 @@ export function AgentComposer({
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
-  const [thinkingMode, setThinkingMode] = useState<AgentThinkingMode>('standard')
+  const [thinkingMode, setThinkingMode] = useState<TuiAgentThinkingMode>('standard')
   const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
   const defaultTuiAgent = settings?.defaultTuiAgent ?? null
@@ -140,6 +146,7 @@ export function AgentComposer({
       : launchSelectedAgent({
           activeWorktreeId,
           selectedAgent,
+          thinkingMode,
           prompt: trimmedPrompt
         })
     if (
@@ -305,10 +312,12 @@ function getPlaceholder(
 function launchSelectedAgent({
   activeWorktreeId,
   selectedAgent,
+  thinkingMode,
   prompt
 }: {
   activeWorktreeId: string | null
   selectedAgent: TuiAgent | null
+  thinkingMode: TuiAgentThinkingMode
   prompt: string
 }): AgentComposerFeedback {
   if (!activeWorktreeId || !selectedAgent) {
@@ -321,10 +330,17 @@ function launchSelectedAgent({
       )
     }
   }
+  const store = useAppStore.getState()
+  const baseAgentArgs = resolveTuiAgentLaunchArgs(selectedAgent, store.settings?.agentDefaultArgs)
+  const agentArgs = mergeTuiAgentLaunchArgs(
+    baseAgentArgs,
+    resolveTuiAgentThinkingArgs(selectedAgent, thinkingMode)
+  )
   const result = launchAgentInNewTab({
     agent: selectedAgent,
     worktreeId: activeWorktreeId,
     prompt,
+    ...(agentArgs ? { agentArgs } : {}),
     launchSource: 'sidebar'
   })
   const agentLabel = getAgentLabel(selectedAgent)

@@ -6,11 +6,10 @@ import { AgentIcon } from '@/lib/agent-catalog'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { cn } from '@/lib/utils'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
+import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
-
-export type AgentThinkingMode = 'quick' | 'standard' | 'deep'
 
 export function AgentComposerFooter({
   statusMessage,
@@ -34,8 +33,8 @@ export function AgentComposerFooter({
   statusTone: string | null
   permissionMode: AgentPermissionMode
   onPermissionModeChange: (mode: AgentPermissionMode) => void
-  thinkingMode: AgentThinkingMode
-  onThinkingModeChange: (mode: AgentThinkingMode) => void
+  thinkingMode: TuiAgentThinkingMode
+  onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
   canOpenTerminalDrawer: boolean
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
   canSendToSelectedThread: boolean
@@ -147,8 +146,8 @@ function ThinkingModeSelect({
   value,
   onChange
 }: {
-  value: AgentThinkingMode
-  onChange: (mode: AgentThinkingMode) => void
+  value: TuiAgentThinkingMode
+  onChange: (mode: TuiAgentThinkingMode) => void
 }): React.JSX.Element {
   return (
     <ComposerToolbarSelect
@@ -156,7 +155,7 @@ function ThinkingModeSelect({
       ariaLabel={translate('auto.components.agentWorkspace.composer.thinkingMode', 'Thinking mode')}
       icon={<Brain className="size-3.5" aria-hidden="true" />}
       value={value}
-      onChange={(nextValue) => onChange(nextValue as AgentThinkingMode)}
+      onChange={(nextValue) => onChange(nextValue as TuiAgentThinkingMode)}
       options={[
         {
           value: 'quick',
