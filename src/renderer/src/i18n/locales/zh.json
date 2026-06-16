@@ -4643,10 +4643,10 @@
             "toggleLabel": "切换 agent 休眠"
           },
           "guiAgentWorkspace": {
-            "title": "GUI Agent 工作区",
-            "description": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。",
-            "copy": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。",
-            "toggleLabel": "切换 GUI Agent 工作区"
+            "title": "经典终端工作区",
+            "description": "将经典的终端优先工作区用作主要工作区。GUI Agent 工作区仍是默认设置。",
+            "copy": "将经典的终端优先工作区用作主要工作区。GUI Agent 工作区仍是默认设置。",
+            "toggleLabel": "切换经典终端工作区"
           }
         },
         "FloatingWorkspacePane": {
@@ -6713,8 +6713,8 @@
               "title": "Agent 休眠"
             },
             "guiAgentWorkspace": {
-              "title": "GUI Agent 工作区",
-              "description": "将以终端为主的工作区替换为以 GUI 为主的 Agent 工作区，同时保留终端作为调试面板。"
+              "title": "经典终端工作区",
+              "description": "将经典的终端优先工作区用作主要工作区。GUI Agent 工作区仍是默认设置。"
             }
           }
         },

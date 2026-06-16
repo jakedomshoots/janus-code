@@ -64,28 +64,28 @@ describe('ExperimentalPane', () => {
     )
   })
 
-  it('renders GUI agent workspace as an on-by-default searchable experimental switch', () => {
+  it('renders classic terminal workspace as an off-by-default fallback switch', () => {
     const settings = getDefaultSettings('/tmp')
     const markup = renderToStaticMarkup(
       <ExperimentalPane settings={settings} updateSettings={vi.fn()} />
     )
     const searchEntry = getExperimentalPaneSearchEntries().find(
-      (entry) => entry.title === 'GUI agent workspace'
+      (entry) => entry.title === 'Classic terminal workspace'
     )
 
     expect(settings.guiAgentWorkspaceEnabled).toBe(true)
-    expect(markup).toContain('GUI agent workspace')
+    expect(markup).toContain('Classic terminal workspace')
     expect(markup).toContain(
-      'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+      'Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.'
     )
-    expect(markup).toContain('aria-checked="true"')
+    expect(markup).toContain('aria-checked="false"')
     expect(searchEntry).toBeDefined()
     expect(searchEntry?.keywords).toEqual(
-      expect.arrayContaining(['gui', 'workspace', 'agent', 'agents', 't3', 'codex', 'desktop'])
+      expect.arrayContaining(['classic', 'terminal', 'workspace', 'fallback', 'gui', 'agent'])
     )
   })
 
-  it('can disable GUI agent workspace through the experimental switch', async () => {
+  it('can enable classic terminal workspace through the fallback switch', async () => {
     const updateSettings = vi.fn()
     const { root, container } = await renderExperimentalPane({ updateSettings })
 
@@ -93,7 +93,7 @@ describe('ExperimentalPane', () => {
       '#gui-agent-workspace button[role="switch"]'
     )
     if (!switchButton) {
-      throw new Error('GUI agent workspace switch was not rendered')
+      throw new Error('Classic terminal workspace switch was not rendered')
     }
 
     await act(async () => {

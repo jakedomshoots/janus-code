@@ -4658,10 +4658,10 @@
             "toggleLabel": "Alternar hibernación de agentes"
           },
           "guiAgentWorkspace": {
-            "title": "Espacio de trabajo de agentes con GUI",
-            "description": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración.",
-            "copy": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración.",
-            "toggleLabel": "Activar/desactivar espacio de trabajo de agentes con GUI"
+            "title": "Espacio de trabajo de terminal clásico",
+            "description": "Usa el espacio de trabajo clásico centrado en el terminal como espacio principal. El espacio de trabajo de agentes con GUI sigue siendo el predeterminado.",
+            "copy": "Usa el espacio de trabajo clásico centrado en el terminal como espacio principal. El espacio de trabajo de agentes con GUI sigue siendo el predeterminado.",
+            "toggleLabel": "Activar/desactivar espacio de trabajo de terminal clásico"
           }
         },
         "FloatingWorkspacePane": {
@@ -6728,8 +6728,8 @@
               "title": "Hibernación de agentes"
             },
             "guiAgentWorkspace": {
-              "title": "Espacio de trabajo de agentes con GUI",
-              "description": "Reemplaza el espacio de trabajo centrado en el terminal por un espacio de trabajo de agentes centrado en la GUI, manteniendo el terminal disponible como panel de depuración."
+              "title": "Espacio de trabajo de terminal clásico",
+              "description": "Usa el espacio de trabajo clásico centrado en el terminal como espacio principal. El espacio de trabajo de agentes con GUI sigue siendo el predeterminado."
             }
           }
         },

@@ -4658,10 +4658,10 @@
           "dd6f0a1d45": "Pet",
           "0e89a574ae": "Floating animated pet in the bottom-right corner.",
           "guiAgentWorkspace": {
-            "title": "GUI agent workspace",
-            "description": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.",
-            "copy": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.",
-            "toggleLabel": "Toggle GUI agent workspace"
+            "title": "Classic terminal workspace",
+            "description": "Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.",
+            "copy": "Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.",
+            "toggleLabel": "Toggle classic terminal workspace"
           }
         },
         "FloatingWorkspacePane": {
@@ -6765,8 +6765,8 @@
             "6b5a56ac35": "Floating animated pet in the bottom-right corner.",
             "87d99e634b": "Pet",
             "guiAgentWorkspace": {
-              "title": "GUI agent workspace",
-              "description": "Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel."
+              "title": "Classic terminal workspace",
+              "description": "Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default."
             }
           }
         },

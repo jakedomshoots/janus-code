@@ -271,11 +271,11 @@ export function ExperimentalPane({
         <SearchableSetting
           title={translate(
             'auto.components.settings.ExperimentalPane.guiAgentWorkspace.title',
-            'GUI agent workspace'
+            'Classic terminal workspace'
           )}
           description={translate(
             'auto.components.settings.ExperimentalPane.guiAgentWorkspace.description',
-            'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+            'Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.'
           )}
           keywords={getExperimentalSearchEntry().guiAgentWorkspace.keywords}
           className="space-y-3 py-2"
@@ -286,21 +286,21 @@ export function ExperimentalPane({
               <Label>
                 {translate(
                   'auto.components.settings.ExperimentalPane.guiAgentWorkspace.title',
-                  'GUI agent workspace'
+                  'Classic terminal workspace'
                 )}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {translate(
                   'auto.components.settings.ExperimentalPane.guiAgentWorkspace.copy',
-                  'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+                  'Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.'
                 )}
               </p>
             </div>
             <SettingsSwitch
-              checked={settings.guiAgentWorkspaceEnabled}
+              checked={!settings.guiAgentWorkspaceEnabled}
               ariaLabel={translate(
                 'auto.components.settings.ExperimentalPane.guiAgentWorkspace.toggleLabel',
-                'Toggle GUI agent workspace'
+                'Toggle classic terminal workspace'
               )}
               onChange={() =>
                 updateSettings({

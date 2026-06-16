@@ -7,11 +7,11 @@ export const getGuiAgentWorkspaceSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.experimental.search.guiAgentWorkspace.title',
-      'GUI agent workspace'
+      'Classic terminal workspace'
     ),
     description: translate(
       'auto.components.settings.experimental.search.guiAgentWorkspace.description',
-      'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
+      'Use the classic terminal-first workspace as the primary workspace. The GUI agent workspace remains the default.'
     ),
     keywords: [
       ...translateSearchKeyword(
@@ -21,6 +21,14 @@ export const getGuiAgentWorkspaceSearchEntry = createLocalizedCatalog(
       ...translateSearchKeyword(
         'auto.components.settings.experimental.search.guiAgentWorkspace.gui',
         'gui'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.experimental.search.guiAgentWorkspace.classic',
+        'classic'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.experimental.search.guiAgentWorkspace.terminal',
+        'terminal'
       ),
       ...translateSearchKeyword(
         'auto.components.settings.experimental.search.guiAgentWorkspace.workspace',
@@ -45,6 +53,10 @@ export const getGuiAgentWorkspaceSearchEntry = createLocalizedCatalog(
       ...translateSearchKeyword(
         'auto.components.settings.experimental.search.guiAgentWorkspace.desktop',
         'desktop'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.experimental.search.guiAgentWorkspace.fallback',
+        'fallback'
       )
     ]
   })
