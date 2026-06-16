@@ -160,7 +160,8 @@ describe('orca agent workspace selectors', () => {
         project.branchName,
         project.repoId,
         project.canCreateWorktree,
-        project.canDeleteWorktree
+        project.canDeleteWorktree,
+        project.agentDetectionTarget
       ])
     ).toEqual([
       [
@@ -171,7 +172,8 @@ describe('orca agent workspace selectors', () => {
         'feature/t3code-gui-workspace',
         repo.id,
         true,
-        true
+        true,
+        { kind: 'local' }
       ]
     ])
   })
@@ -631,10 +633,10 @@ describe('orca agent workspace selectors', () => {
             [runtimeRepo.id]: [runtimeWorktree]
           }
         })
-      ).projects.map((project) => [project.id, project.hostKind])
+      ).projects.map((project) => [project.id, project.hostKind, project.agentDetectionTarget])
     ).toEqual([
-      [sshWorktree.id, 'ssh'],
-      [runtimeWorktree.id, 'runtime']
+      [sshWorktree.id, 'ssh', { kind: 'ssh', connectionId: 'ssh-target-1' }],
+      [runtimeWorktree.id, 'runtime', { kind: 'runtime', environmentId: 'runtime-env-1' }]
     ])
   })
 
@@ -650,8 +652,10 @@ describe('orca agent workspace selectors', () => {
         stateWithWorktree(runtimeOwnedWorktree, {
           settings: { activeRuntimeEnvironmentId: null } as never
         })
-      ).projects.map((project) => [project.id, project.hostKind])
-    ).toEqual([[runtimeOwnedWorktree.id, 'runtime']])
+      ).projects.map((project) => [project.id, project.hostKind, project.agentDetectionTarget])
+    ).toEqual([
+      [runtimeOwnedWorktree.id, 'runtime', { kind: 'runtime', environmentId: 'owned-runtime' }]
+    ])
   })
 
   it('marks folder workspace host kind as ssh from folder or project group connection', () => {
@@ -675,10 +679,28 @@ describe('orca agent workspace selectors', () => {
           projectGroups: [localGroup, sshGroup],
           folderWorkspaces: [folderConnected, groupConnected]
         })
-      ).projects.map((project) => [project.id, project.label, project.path, project.hostKind])
+      ).projects.map((project) => [
+        project.id,
+        project.label,
+        project.path,
+        project.hostKind,
+        project.agentDetectionTarget
+      ])
     ).toEqual([
-      ['folder:folder-connected', 'service-a', folderConnected.folderPath, 'ssh'],
-      ['folder:folder-group-connected', 'service-b', groupConnected.folderPath, 'ssh']
+      [
+        'folder:folder-connected',
+        'service-a',
+        folderConnected.folderPath,
+        'ssh',
+        { kind: 'ssh', connectionId: 'folder-connection' }
+      ],
+      [
+        'folder:folder-group-connected',
+        'service-b',
+        groupConnected.folderPath,
+        'ssh',
+        { kind: 'ssh', connectionId: 'group-connection' }
+      ]
     ])
   })
 

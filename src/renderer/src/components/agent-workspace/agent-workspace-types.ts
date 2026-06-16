@@ -10,6 +10,11 @@ export type AgentWorkspacePhase =
   | 'failed'
   | 'disconnected'
 
+export type AgentWorkspaceAgentDetectionTarget =
+  | { readonly kind: 'local' }
+  | { readonly kind: 'ssh'; readonly connectionId: string }
+  | { readonly kind: 'runtime'; readonly environmentId: string }
+
 export type AgentWorkspaceProject = {
   readonly id: string
   readonly label: string
@@ -19,6 +24,7 @@ export type AgentWorkspaceProject = {
   readonly repoId?: string | null
   readonly canCreateWorktree?: boolean
   readonly canDeleteWorktree?: boolean
+  readonly agentDetectionTarget?: AgentWorkspaceAgentDetectionTarget
 }
 
 export type AgentWorkspaceThread = {

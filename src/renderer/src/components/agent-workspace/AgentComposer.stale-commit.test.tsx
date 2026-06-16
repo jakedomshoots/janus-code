@@ -17,11 +17,35 @@ vi.mock('react', async (importOriginal) => {
 })
 
 const mocks = vi.hoisted(() => ({
-  sendNotesToActiveAgentSession: vi.fn()
+  sendNotesToActiveAgentSession: vi.fn(),
+  launchAgentInNewTab: vi.fn(),
+  useDetectedAgents: vi.fn(),
+  updateSettings: vi.fn()
 }))
 
 vi.mock('@/lib/active-agent-note-send', () => ({
   sendNotesToActiveAgentSession: mocks.sendNotesToActiveAgentSession
+}))
+
+vi.mock('@/lib/launch-agent-in-new-tab', () => ({
+  launchAgentInNewTab: mocks.launchAgentInNewTab
+}))
+
+vi.mock('@/hooks/useDetectedAgents', () => ({
+  useDetectedAgents: mocks.useDetectedAgents
+}))
+
+vi.mock('@/store', () => ({
+  useAppStore: (
+    selector: (state: {
+      settings: { defaultTuiAgent: 'claude'; disabledTuiAgents: [] }
+      updateSettings: typeof mocks.updateSettings
+    }) => unknown
+  ) =>
+    selector({
+      settings: { defaultTuiAgent: 'claude', disabledTuiAgents: [] },
+      updateSettings: mocks.updateSettings
+    })
 }))
 
 const runningThread: AgentWorkspaceThread = {
@@ -66,6 +90,15 @@ describe('AgentComposer stale submit commit guard', () => {
     document.body.appendChild(container)
     root = createRoot(container)
     mocks.sendNotesToActiveAgentSession.mockReset()
+    mocks.launchAgentInNewTab.mockReset()
+    mocks.useDetectedAgents.mockReset()
+    mocks.updateSettings.mockReset()
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['claude', 'codex'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
   })
 
   afterEach(() => {

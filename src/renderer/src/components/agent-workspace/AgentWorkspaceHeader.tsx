@@ -2,6 +2,8 @@ import { GitBranch, PanelRight, Play, RefreshCw } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
+import { AgentIcon } from '@/lib/agent-catalog'
+import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 
@@ -20,6 +22,12 @@ export function AgentWorkspaceHeader({
             {project?.label ??
               translate('auto.components.agentWorkspace.header.agentWorkspace', 'Agent workspace')}
           </h1>
+          {thread ? (
+            <Badge variant="outline">
+              <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={12} />
+              {formatAgentTypeLabel(thread.agentKind)}
+            </Badge>
+          ) : null}
           <Badge variant="outline">{formatAgentWorkspacePhase(thread?.phase ?? null)}</Badge>
         </div>
         <div className="mt-1 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">

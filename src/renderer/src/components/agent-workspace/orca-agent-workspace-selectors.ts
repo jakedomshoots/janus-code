@@ -1,21 +1,22 @@
 import type { AppState } from '@/store'
 import { branchName } from '@/lib/git-utils'
-import {
-  getRepoExecutionHostId,
-  getSettingsFocusedExecutionHostId,
-  parseExecutionHostId
-} from '../../../../shared/execution-host'
-import type { ExecutionHostKind } from '../../../../shared/execution-host'
 import { getRuntimePathBasename } from '../../../../shared/cross-platform-path'
 import { parsePaneKey } from '../../../../shared/stable-pane-id'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
-import type { Repo, TerminalTab, Worktree } from '../../../../shared/types'
+import type { TerminalTab, Worktree } from '../../../../shared/types'
 import type {
   AgentWorkspaceProject,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread
 } from './agent-workspace-types'
+import {
+  getAgentDetectionTargetFromHostId,
+  getFolderExecutionHostId,
+  getFolderHostKind,
+  getWorktreeExecutionHostId,
+  getWorktreeHostKind
+} from './orca-agent-workspace-host-selectors'
 import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { getPhaseForAgentState } from './orca-agent-phase-selectors'
@@ -55,40 +56,6 @@ function nonEmpty(value: string | null | undefined): string | null {
 
 function pathFallback(path: string): string {
   return getRuntimePathBasename(path) || path
-}
-
-function hostKindFromHostId(hostId: string | null | undefined): ExecutionHostKind {
-  return parseExecutionHostId(hostId)?.kind ?? 'local'
-}
-
-function getRepoForWorktree(state: AppState, worktree: Worktree): Repo | undefined {
-  return state.repos.find((repo) => repo.id === worktree.repoId)
-}
-
-function getWorktreeHostKind(state: AppState, worktree: Worktree): ExecutionHostKind {
-  const worktreeHostKind = parseExecutionHostId(worktree.hostId)?.kind
-  if (worktreeHostKind) {
-    return worktreeHostKind
-  }
-  const repo = getRepoForWorktree(state, worktree)
-  const hostId =
-    repo?.connectionId || repo?.executionHostId
-      ? getRepoExecutionHostId(repo)
-      : getSettingsFocusedExecutionHostId(state.settings)
-  return hostKindFromHostId(hostId)
-}
-
-function getFolderHostKind(
-  state: AppState,
-  folderWorkspace: AppState['folderWorkspaces'][number]
-): ExecutionHostKind {
-  const projectGroup = state.projectGroups.find(
-    (group) => group.id === folderWorkspace.projectGroupId
-  )
-  if (folderWorkspace.connectionId || projectGroup?.connectionId) {
-    return 'ssh'
-  }
-  return hostKindFromHostId(getSettingsFocusedExecutionHostId(state.settings))
 }
 
 function getWorktreeLabel(worktree: Worktree): string {
@@ -198,7 +165,10 @@ export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWor
         branchName: branchName(worktree.branch),
         repoId: worktree.repoId,
         canCreateWorktree: true,
-        canDeleteWorktree: !worktree.isMainWorktree
+        canDeleteWorktree: !worktree.isMainWorktree,
+        agentDetectionTarget: getAgentDetectionTargetFromHostId(
+          getWorktreeExecutionHostId(state, worktree)
+        )
       })
     }
   }
@@ -214,7 +184,10 @@ export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWor
       branchName: null,
       repoId: null,
       canCreateWorktree: false,
-      canDeleteWorktree: false
+      canDeleteWorktree: false,
+      agentDetectionTarget: getAgentDetectionTargetFromHostId(
+        getFolderExecutionHostId(state, folderWorkspace)
+      )
     })
   }
   return projects

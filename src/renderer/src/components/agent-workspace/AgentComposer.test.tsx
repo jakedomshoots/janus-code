@@ -10,12 +10,36 @@ import type { AgentWorkspaceThread } from './agent-workspace-types'
 import { AgentComposer } from './AgentComposer'
 
 const mocks = vi.hoisted(() => ({
-  sendNotesToActiveAgentSession: vi.fn()
+  sendNotesToActiveAgentSession: vi.fn(),
+  launchAgentInNewTab: vi.fn(),
+  useDetectedAgents: vi.fn(),
+  updateSettings: vi.fn()
 }))
 
 vi.mock('@/lib/active-agent-note-send', () => ({
   sendNotesToActiveAgentSession: mocks.sendNotesToActiveAgentSession,
   activeAgentNotesSendFailureMessage: (status: string) => `Legacy send failure: ${status}`
+}))
+
+vi.mock('@/lib/launch-agent-in-new-tab', () => ({
+  launchAgentInNewTab: mocks.launchAgentInNewTab
+}))
+
+vi.mock('@/hooks/useDetectedAgents', () => ({
+  useDetectedAgents: mocks.useDetectedAgents
+}))
+
+vi.mock('@/store', () => ({
+  useAppStore: (
+    selector: (state: {
+      settings: { defaultTuiAgent: 'claude'; disabledTuiAgents: [] }
+      updateSettings: typeof mocks.updateSettings
+    }) => unknown
+  ) =>
+    selector({
+      settings: { defaultTuiAgent: 'claude', disabledTuiAgents: [] },
+      updateSettings: mocks.updateSettings
+    })
 }))
 
 const runningThread: AgentWorkspaceThread = {
@@ -60,6 +84,25 @@ describe('AgentComposer', () => {
     document.body.appendChild(container)
     root = createRoot(container)
     mocks.sendNotesToActiveAgentSession.mockReset()
+    mocks.launchAgentInNewTab.mockReset()
+    mocks.useDetectedAgents.mockReset()
+    mocks.updateSettings.mockReset()
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['claude', 'opencode'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-opencode',
+      startupPlan: {
+        agent: 'opencode',
+        launchCommand: 'opencode',
+        expectedProcess: 'opencode',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
   })
 
   afterEach(async () => {
@@ -189,5 +232,43 @@ describe('AgentComposer', () => {
     const nextTextarea = container.querySelector<HTMLTextAreaElement>('textarea')
     expect(container.textContent).not.toContain('Sent to codex.')
     expect(nextTextarea?.value).toBe('Keep this draft.')
+  })
+
+  it('launches the selected detected provider when no running thread is selected', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const providerSelect = container.querySelector<HTMLSelectElement>(
+      'select[aria-label="Agent provider"]'
+    )
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(providerSelect).not.toBeNull()
+    expect(button).not.toBeNull()
+    expect(providerSelect?.textContent).toContain('Claude')
+    expect(providerSelect?.textContent).toContain('OpenCode')
+    expect(providerSelect?.textContent).not.toContain('Codex')
+
+    await act(async () => {
+      providerSelect!.value = 'opencode'
+      providerSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    await act(async () => {
+      setTextareaValue(textarea!, 'Use OpenCode for this workspace.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'opencode',
+      worktreeId: 'worktree-1',
+      prompt: 'Use OpenCode for this workspace.',
+      launchSource: 'sidebar'
+    })
+    expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
+    expect(container.textContent).toContain('Started OpenCode.')
   })
 })

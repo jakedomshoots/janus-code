@@ -11089,7 +11089,20 @@
           "selectThreadPlaceholder": "実行中のスレッドを選択",
           "threadNotReadyPlaceholder": "スレッドは{{phase}}",
           "switchWorktreePlaceholder": "このワークツリーへ切り替え",
-          "messageSelectedAgent": "選択したエージェントにメッセージ..."
+          "messageSelectedAgent": "選択したエージェントにメッセージ...",
+          "sendingTo": "Sending to",
+          "selectWorkspaceBeforeLaunching": "Select a workspace before starting an agent.",
+          "detectingProviders": "Detecting available agents for this workspace...",
+          "noDetectedProviders": "No detected agents are available for this workspace.",
+          "startNewAgentPlaceholder": "Start a new agent session",
+          "startAfterThreadPlaceholder": "Start a new agent; selected thread is {{phase}}",
+          "selectProviderBeforeLaunching": "Select an available agent before sending.",
+          "launchFailed": "Could not start {{agent}}.",
+          "agentStarted": "Started {{agent}}.",
+          "provider": "Provider",
+          "agentProvider": "Agent provider",
+          "detectingAgents": "Detecting agents",
+          "noAgentsDetected": "No agents detected"
         },
         "page": {
           "agentWorkspace": "エージェントワークスペース"

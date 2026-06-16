@@ -183,12 +183,14 @@ function AgentFailureTerminalBanner({
 
 function AgentWorkspaceCenter({
   activeWorktreeId,
+  project,
   thread,
   timeline,
   terminalAvailable,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
+  project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
@@ -206,7 +208,11 @@ function AgentWorkspaceCenter({
         terminalAvailable={terminalAvailable}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
-      <AgentComposer activeWorktreeId={activeWorktreeId} selectedThread={thread} />
+      <AgentComposer
+        activeWorktreeId={activeWorktreeId}
+        selectedProject={project}
+        selectedThread={thread}
+      />
     </main>
   )
 }
@@ -363,6 +369,7 @@ export function AgentWorkspaceLayout({
     >
       <AgentWorkspaceCenter
         activeWorktreeId={snapshot.activeWorktreeId}
+        project={selectedProject}
         thread={selectedThread}
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}

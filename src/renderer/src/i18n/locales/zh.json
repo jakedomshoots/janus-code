@@ -11089,7 +11089,20 @@
           "selectThreadPlaceholder": "选择正在运行的线程",
           "threadNotReadyPlaceholder": "线程为{{phase}}",
           "switchWorktreePlaceholder": "切换到此工作树",
-          "messageSelectedAgent": "给所选代理发消息..."
+          "messageSelectedAgent": "给所选代理发消息...",
+          "sendingTo": "Sending to",
+          "selectWorkspaceBeforeLaunching": "Select a workspace before starting an agent.",
+          "detectingProviders": "Detecting available agents for this workspace...",
+          "noDetectedProviders": "No detected agents are available for this workspace.",
+          "startNewAgentPlaceholder": "Start a new agent session",
+          "startAfterThreadPlaceholder": "Start a new agent; selected thread is {{phase}}",
+          "selectProviderBeforeLaunching": "Select an available agent before sending.",
+          "launchFailed": "Could not start {{agent}}.",
+          "agentStarted": "Started {{agent}}.",
+          "provider": "Provider",
+          "agentProvider": "Agent provider",
+          "detectingAgents": "Detecting agents",
+          "noAgentsDetected": "No agents detected"
         },
         "page": {
           "agentWorkspace": "Agent 工作区"
