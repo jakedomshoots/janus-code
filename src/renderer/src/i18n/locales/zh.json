@@ -10996,6 +10996,73 @@
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",
         "someSourceHostsUnavailable": "Some {{value0}} source hosts unavailable: {{value1}}",
         "reconnectOrUpdateTitle": "Reconnect or update {{value0}} to load this source."
+      },
+      "agentWorkspace": {
+        "empty": {
+          "noAgentWorkspacesYet": "还没有 Agent 工作区",
+          "addProjectOrOpenWorktree": "添加项目或打开 worktree 后，即可在这里跟踪 Agent 线程。",
+          "projects": "项目",
+          "worktrees": "Worktree"
+        },
+        "header": {
+          "agentWorkspace": "Agent 工作区",
+          "noBranchSelected": "未选择分支",
+          "refresh": "刷新",
+          "panels": "面板",
+          "run": "运行"
+        },
+        "layout": {
+          "projects": "项目",
+          "noThreads": "没有线程",
+          "noBranch": "没有分支",
+          "noUpdatesYet": "还没有更新",
+          "timelineEventsWillAppear": "Agent 工作时，时间线事件会显示在这里。",
+          "selectThreadTimeline": "选择一个线程以查看其时间线。",
+          "composerComingNext": "Composer 即将推出",
+          "send": "发送",
+          "plan": "计划",
+          "diff": "差异",
+          "terminal": "Terminal",
+          "agentIsPhaseOnThread": "{{agentKind}} 正在 {{title}} 上{{phase}}。",
+          "selectThreadPlan": "选择一个线程以查看其计划。",
+          "noDiffSummaryYet": "还没有 diff 摘要。",
+          "terminalSessionAvailable": "终端会话可作为调试面板使用。",
+          "noTerminalSessionAttached": "此工作区没有关联的终端会话。"
+        },
+        "page": {
+          "agentWorkspace": "Agent 工作区"
+        },
+        "phase": {
+          "idle": "空闲",
+          "starting": "正在启动",
+          "running": "运行中",
+          "waitingForUser": "等待用户",
+          "needsApproval": "需要批准",
+          "completed": "已完成",
+          "failed": "失败",
+          "disconnected": "已断开"
+        },
+        "timelineKind": {
+          "user": "用户",
+          "agent": "Agent",
+          "system": "系统",
+          "tool": "工具",
+          "approval": "批准",
+          "error": "错误"
+        },
+        "timelineStatus": {
+          "pending": "待处理",
+          "running": "运行中",
+          "done": "已完成",
+          "failed": "失败"
+        },
+        "diffStatus": {
+          "added": "已添加",
+          "modified": "已修改",
+          "deleted": "已删除",
+          "renamed": "已重命名",
+          "unknown": "未知"
+        }
       }
     },
     "i18n": {

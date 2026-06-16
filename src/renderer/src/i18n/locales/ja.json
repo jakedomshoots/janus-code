@@ -10996,6 +10996,73 @@
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",
         "someSourceHostsUnavailable": "Some {{value0}} source hosts unavailable: {{value1}}",
         "reconnectOrUpdateTitle": "Reconnect or update {{value0}} to load this source."
+      },
+      "agentWorkspace": {
+        "empty": {
+          "noAgentWorkspacesYet": "エージェントワークスペースはまだありません",
+          "addProjectOrOpenWorktree": "プロジェクトを追加するか worktree を開くと、ここでエージェントスレッドを追跡できます。",
+          "projects": "プロジェクト",
+          "worktrees": "Worktree"
+        },
+        "header": {
+          "agentWorkspace": "エージェントワークスペース",
+          "noBranchSelected": "ブランチが選択されていません",
+          "refresh": "更新",
+          "panels": "パネル",
+          "run": "実行"
+        },
+        "layout": {
+          "projects": "プロジェクト",
+          "noThreads": "スレッドはありません",
+          "noBranch": "ブランチなし",
+          "noUpdatesYet": "まだ更新はありません",
+          "timelineEventsWillAppear": "エージェントの作業にあわせて、タイムラインイベントがここに表示されます。",
+          "selectThreadTimeline": "タイムラインを表示するスレッドを選択してください。",
+          "composerComingNext": "コンポーザーは今後追加予定です",
+          "send": "送信",
+          "plan": "計画",
+          "diff": "差分",
+          "terminal": "Terminal",
+          "agentIsPhaseOnThread": "{{agentKind}} は {{title}} で {{phase}} 中です。",
+          "selectThreadPlan": "計画を確認するスレッドを選択してください。",
+          "noDiffSummaryYet": "差分サマリーはまだありません。",
+          "terminalSessionAvailable": "ターミナルセッションはデバッグパネルとして利用できます。",
+          "noTerminalSessionAttached": "このワークスペースに関連付けられたターミナルセッションはありません。"
+        },
+        "page": {
+          "agentWorkspace": "エージェントワークスペース"
+        },
+        "phase": {
+          "idle": "アイドル",
+          "starting": "開始中",
+          "running": "実行中",
+          "waitingForUser": "ユーザー待ち",
+          "needsApproval": "承認待ち",
+          "completed": "完了",
+          "failed": "失敗",
+          "disconnected": "未接続"
+        },
+        "timelineKind": {
+          "user": "ユーザー",
+          "agent": "エージェント",
+          "system": "システム",
+          "tool": "ツール",
+          "approval": "承認",
+          "error": "エラー"
+        },
+        "timelineStatus": {
+          "pending": "保留中",
+          "running": "実行中",
+          "done": "完了",
+          "failed": "失敗"
+        },
+        "diffStatus": {
+          "added": "追加",
+          "modified": "変更",
+          "deleted": "削除",
+          "renamed": "名前変更",
+          "unknown": "不明"
+        }
       }
     },
     "i18n": {

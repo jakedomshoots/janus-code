@@ -10996,6 +10996,73 @@
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",
         "someSourceHostsUnavailable": "Some {{value0}} source hosts unavailable: {{value1}}",
         "reconnectOrUpdateTitle": "Reconnect or update {{value0}} to load this source."
+      },
+      "agentWorkspace": {
+        "empty": {
+          "noAgentWorkspacesYet": "No agent workspaces yet",
+          "addProjectOrOpenWorktree": "Add a project or open a worktree to start tracking agent threads here.",
+          "projects": "Projects",
+          "worktrees": "Worktrees"
+        },
+        "header": {
+          "agentWorkspace": "Agent workspace",
+          "noBranchSelected": "No branch selected",
+          "refresh": "Refresh",
+          "panels": "Panels",
+          "run": "Run"
+        },
+        "layout": {
+          "projects": "Projects",
+          "noThreads": "No threads",
+          "noBranch": "No branch",
+          "noUpdatesYet": "No updates yet",
+          "timelineEventsWillAppear": "Timeline events will appear here as the agent works.",
+          "selectThreadTimeline": "Select a thread to view its timeline.",
+          "composerComingNext": "Composer coming next",
+          "send": "Send",
+          "plan": "Plan",
+          "diff": "Diff",
+          "terminal": "Terminal",
+          "agentIsPhaseOnThread": "{{agentKind}} is {{phase}} on {{title}}.",
+          "selectThreadPlan": "Select a thread to inspect its plan.",
+          "noDiffSummaryYet": "No diff summary yet.",
+          "terminalSessionAvailable": "Terminal session is available as a debug panel.",
+          "noTerminalSessionAttached": "No terminal session is attached to this workspace."
+        },
+        "page": {
+          "agentWorkspace": "Agent workspace"
+        },
+        "phase": {
+          "idle": "idle",
+          "starting": "starting",
+          "running": "running",
+          "waitingForUser": "waiting for user",
+          "needsApproval": "needs approval",
+          "completed": "completed",
+          "failed": "failed",
+          "disconnected": "disconnected"
+        },
+        "timelineKind": {
+          "user": "user",
+          "agent": "agent",
+          "system": "system",
+          "tool": "tool",
+          "approval": "approval",
+          "error": "error"
+        },
+        "timelineStatus": {
+          "pending": "pending",
+          "running": "running",
+          "done": "done",
+          "failed": "failed"
+        },
+        "diffStatus": {
+          "added": "added",
+          "modified": "modified",
+          "deleted": "deleted",
+          "renamed": "renamed",
+          "unknown": "unknown"
+        }
       }
     },
     "i18n": {

@@ -103,6 +103,8 @@ import { closeTerminalTab } from './terminal/terminal-tab-actions'
 import { translate } from '@/i18n/i18n'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { browserWorkspaceHasRemoteOwner } from '@/runtime/remote-browser-tab-ownership'
+import { AgentWorkspacePage } from './agent-workspace/AgentWorkspacePage'
+import { TerminalViewSwitch } from './terminal/terminal-view-switch'
 
 const EditorPanel = lazy(() => import('./editor/EditorPanel'))
 
@@ -195,7 +197,7 @@ function getKeybindingContext(target: EventTarget | null): KeybindingContext {
     : 'app'
 }
 
-function Terminal(): React.JSX.Element | null {
+function TerminalWorkspace(): React.JSX.Element | null {
   const mountedWorktreeIdsRef = useRef(new Set<string>())
   const measurableBackgroundWorktreeIdsRef = useRef(new Set<string>())
   const allWorktrees = useAllWorktrees()
@@ -2037,6 +2039,20 @@ function Terminal(): React.JSX.Element | null {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function Terminal(): React.JSX.Element | null {
+  const guiAgentWorkspaceEnabled = useAppStore(
+    (state) => state.settings?.guiAgentWorkspaceEnabled === true
+  )
+
+  return (
+    <TerminalViewSwitch
+      guiAgentWorkspaceEnabled={guiAgentWorkspaceEnabled}
+      agentWorkspace={<AgentWorkspacePage />}
+      terminalWorkspace={<TerminalWorkspace />}
+    />
   )
 }
 

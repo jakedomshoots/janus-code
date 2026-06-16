@@ -28,6 +28,21 @@ type TabMatch = {
   tab: TerminalTab
 }
 
+type SnapshotCache = {
+  worktreesByRepo: AppState['worktreesByRepo']
+  folderWorkspaces: AppState['folderWorkspaces']
+  projectGroups: AppState['projectGroups']
+  repos: AppState['repos']
+  settings: AppState['settings']
+  tabsByWorktree: AppState['tabsByWorktree']
+  agentStatusByPaneKey: AppState['agentStatusByPaneKey']
+  retainedAgentsByPaneKey: AppState['retainedAgentsByPaneKey']
+  activeWorktreeId: AppState['activeWorktreeId']
+  snapshot: AgentWorkspaceSnapshot
+}
+
+let snapshotCache: SnapshotCache | null = null
+
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim()
   return trimmed ? trimmed : null
@@ -248,9 +263,23 @@ export function selectAgentWorkspaceTerminalAvailable(state: AppState): boolean 
 }
 
 export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSnapshot {
+  if (
+    snapshotCache?.worktreesByRepo === state.worktreesByRepo &&
+    snapshotCache.folderWorkspaces === state.folderWorkspaces &&
+    snapshotCache.projectGroups === state.projectGroups &&
+    snapshotCache.repos === state.repos &&
+    snapshotCache.settings === state.settings &&
+    snapshotCache.tabsByWorktree === state.tabsByWorktree &&
+    snapshotCache.agentStatusByPaneKey === state.agentStatusByPaneKey &&
+    snapshotCache.retainedAgentsByPaneKey === state.retainedAgentsByPaneKey &&
+    snapshotCache.activeWorktreeId === state.activeWorktreeId
+  ) {
+    return snapshotCache.snapshot
+  }
+
   const projects = selectAgentWorkspaceProjects(state)
   const threads = selectAgentWorkspaceThreads(state)
-  return {
+  const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
     threads,
@@ -258,4 +287,17 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     diffs: [],
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
   }
+  snapshotCache = {
+    worktreesByRepo: state.worktreesByRepo,
+    folderWorkspaces: state.folderWorkspaces,
+    projectGroups: state.projectGroups,
+    repos: state.repos,
+    settings: state.settings,
+    tabsByWorktree: state.tabsByWorktree,
+    agentStatusByPaneKey: state.agentStatusByPaneKey,
+    retainedAgentsByPaneKey: state.retainedAgentsByPaneKey,
+    activeWorktreeId: state.activeWorktreeId,
+    snapshot
+  }
+  return snapshot
 }

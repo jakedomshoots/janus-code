@@ -159,6 +159,16 @@ describe('orca agent workspace selectors', () => {
     ).toEqual([[active.id, 'feature/t3code-gui-workspace', active.path, 'local']])
   })
 
+  it('returns a stable snapshot reference when the backing state slices have not changed', () => {
+    const active = worktree('wt-stable', {
+      path: '/repo/orca/worktrees/stable',
+      branch: 'refs/heads/feature/stable'
+    })
+    const state = stateWithWorktree(active, { activeWorktreeId: active.id })
+
+    expect(selectAgentWorkspaceSnapshot(state)).toBe(selectAgentWorkspaceSnapshot(state))
+  })
+
   it('maps a running agent tab to a running thread', () => {
     const running = worktree('wt-running', {
       path: '/repo/orca/worktrees/running',

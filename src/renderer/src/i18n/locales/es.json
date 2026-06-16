@@ -10996,6 +10996,73 @@
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",
         "someSourceHostsUnavailable": "Some {{value0}} source hosts unavailable: {{value1}}",
         "reconnectOrUpdateTitle": "Reconnect or update {{value0}} to load this source."
+      },
+      "agentWorkspace": {
+        "empty": {
+          "noAgentWorkspacesYet": "Aun no hay espacios de trabajo de agentes",
+          "addProjectOrOpenWorktree": "Agrega un proyecto o abre un worktree para empezar a seguir aqui los hilos de agentes.",
+          "projects": "Proyectos",
+          "worktrees": "Worktrees"
+        },
+        "header": {
+          "agentWorkspace": "Espacio de trabajo de agentes",
+          "noBranchSelected": "No hay rama seleccionada",
+          "refresh": "Actualizar",
+          "panels": "Paneles",
+          "run": "Ejecutar"
+        },
+        "layout": {
+          "projects": "Proyectos",
+          "noThreads": "No hay hilos",
+          "noBranch": "Sin rama",
+          "noUpdatesYet": "Aun no hay actualizaciones",
+          "timelineEventsWillAppear": "Los eventos de la linea de tiempo apareceran aqui mientras el agente trabaja.",
+          "selectThreadTimeline": "Selecciona un hilo para ver su linea de tiempo.",
+          "composerComingNext": "El compositor llegara pronto",
+          "send": "Enviar",
+          "plan": "Plan",
+          "diff": "Diff",
+          "terminal": "Terminal",
+          "agentIsPhaseOnThread": "{{agentKind}} esta en fase {{phase}} en {{title}}.",
+          "selectThreadPlan": "Selecciona un hilo para inspeccionar su plan.",
+          "noDiffSummaryYet": "Aun no hay resumen de diff.",
+          "terminalSessionAvailable": "La sesion de terminal esta disponible como panel de depuracion.",
+          "noTerminalSessionAttached": "No hay ninguna sesion de terminal asociada a este espacio de trabajo."
+        },
+        "page": {
+          "agentWorkspace": "Espacio de trabajo de agentes"
+        },
+        "phase": {
+          "idle": "inactivo",
+          "starting": "iniciando",
+          "running": "en ejecucion",
+          "waitingForUser": "esperando al usuario",
+          "needsApproval": "necesita aprobacion",
+          "completed": "completado",
+          "failed": "fallido",
+          "disconnected": "desconectado"
+        },
+        "timelineKind": {
+          "user": "usuario",
+          "agent": "agente",
+          "system": "sistema",
+          "tool": "herramienta",
+          "approval": "aprobacion",
+          "error": "error"
+        },
+        "timelineStatus": {
+          "pending": "pendiente",
+          "running": "en ejecucion",
+          "done": "completado",
+          "failed": "fallido"
+        },
+        "diffStatus": {
+          "added": "agregado",
+          "modified": "modificado",
+          "deleted": "eliminado",
+          "renamed": "renombrado",
+          "unknown": "desconocido"
+        }
       }
     },
     "i18n": {
