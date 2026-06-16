@@ -12,28 +12,45 @@ export function verifyPackageCliBin({
 } = {}) {
   const packageJsonPath = path.join(projectDir, 'package.json')
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
-  const binTarget = packageJson.bin?.orca
+  const primaryName = 'agent-hub'
+  const aliases = ['orca']
+  const binTarget = packageJson.bin?.[primaryName]
   if (typeof binTarget !== 'string' || binTarget.length === 0) {
-    throw new Error('package.json must declare bin.orca')
+    throw new Error('package.json must declare bin.agent-hub')
+  }
+  const orcaAliasTarget = packageJson.bin?.orca
+  if (typeof orcaAliasTarget !== 'string' || orcaAliasTarget.length === 0) {
+    throw new Error('package.json must declare bin.orca compatibility alias')
+  }
+  if (orcaAliasTarget !== binTarget) {
+    throw new Error('bin.orca compatibility alias must point to the same target as bin.agent-hub')
   }
 
   const binPath = path.resolve(projectDir, binTarget)
-  const stats = statSync(binPath)
+  let stats
+  try {
+    stats = statSync(binPath)
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      throw new Error(`bin.agent-hub target is not a file: ${binTarget}`)
+    }
+    throw error
+  }
   if (!stats.isFile()) {
-    throw new Error(`bin.orca target is not a file: ${binTarget}`)
+    throw new Error(`bin.agent-hub target is not a file: ${binTarget}`)
   }
   if (stats.size === 0) {
-    throw new Error(`bin.orca target is empty: ${binTarget}`)
+    throw new Error(`bin.agent-hub target is empty: ${binTarget}`)
   }
 
   const content = readFileSync(binPath, 'utf8')
   if (!content.startsWith('#!/usr/bin/env node\n')) {
-    throw new Error(`bin.orca target must start with a Node shebang: ${binTarget}`)
+    throw new Error(`bin.agent-hub target must start with a Node shebang: ${binTarget}`)
   }
 
   if (process.platform !== 'win32' && (stats.mode & 0o111) === 0) {
     if (!fixExecutable) {
-      throw new Error(`bin.orca target is not executable: ${binTarget}`)
+      throw new Error(`bin.agent-hub target is not executable: ${binTarget}`)
     }
     chmodSync(binPath, stats.mode | 0o755)
   }
@@ -45,7 +62,7 @@ export function verifyPackageCliBin({
     })
   }
 
-  return { binPath, size: statSync(binPath).size }
+  return { binPath, primaryName, aliases, size: statSync(binPath).size }
 }
 
 function main() {
@@ -55,7 +72,7 @@ function main() {
     runHelp: args.has('--run-help')
   })
   console.log(
-    `[cli-bin] verified ${path.relative(process.cwd(), result.binPath)} (${result.size} bytes)`
+    `[cli-bin] verified ${result.primaryName} at ${path.relative(process.cwd(), result.binPath)} (${result.size} bytes); aliases: ${result.aliases.join(', ')}`
   )
 }
 

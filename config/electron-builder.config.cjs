@@ -146,6 +146,10 @@ module.exports = {
       ...commonExtraResources,
       winSpeechNativeResource,
       {
+        from: 'resources/win32/bin/agent-hub.cmd',
+        to: 'bin/agent-hub.cmd'
+      },
+      {
         from: 'resources/win32/bin/orca.cmd',
         to: 'bin/orca.cmd'
       },
@@ -201,6 +205,10 @@ module.exports = {
       ...commonExtraResources,
       macSpeechNativeResource,
       {
+        from: 'resources/darwin/bin/agent-hub',
+        to: 'bin/agent-hub'
+      },
+      {
         from: 'resources/darwin/bin/orca',
         to: 'bin/orca'
       },
@@ -255,6 +263,10 @@ module.exports = {
       ...commonExtraResources,
       linuxSpeechNativeResource,
       {
+        from: 'resources/linux/bin/agent-hub',
+        to: 'bin/agent-hub'
+      },
+      {
         from: 'resources/linux/bin/orca-ide',
         to: 'bin/orca-ide'
       },
@@ -305,7 +317,7 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of ['orca', 'orca-ide']) {
+  for (const launcherName of ['agent-hub', 'orca', 'orca-ide']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue
