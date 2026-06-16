@@ -10,6 +10,9 @@ vi.mock('electron', () => ({
 
 import { fetchNudge, versionMatchesRange, shouldApplyNudge } from './updater-nudge'
 
+const NUDGE_JSON_URL =
+  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/nudge.json'
+
 describe('updater-nudge', () => {
   beforeEach(() => {
     netFetchMock.mockReset()
@@ -24,6 +27,7 @@ describe('updater-nudge', () => {
 
       const result = await fetchNudge()
       expect(result).toEqual({ id: 'campaign-1', minVersion: '1.1.0', maxVersion: '1.1.19' })
+      expect(netFetchMock).toHaveBeenCalledWith(NUDGE_JSON_URL, expect.any(Object))
     })
 
     it('returns a valid config with only maxVersion', async () => {

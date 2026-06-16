@@ -71,13 +71,15 @@ describe('electron-builder config', () => {
     expect(electronBuilderConfig.linux.desktop.entry.StartupWMClass).toBe('orca')
   })
 
-  it('builds RPMs without changing existing Linux artifact names', () => {
+  it('uses Agent Hub artifact names for public release packages', () => {
+    expect(electronBuilderConfig.nsis.artifactName).toBe('agent-hub-windows-setup.${ext}')
+    expect(electronBuilderConfig.dmg.artifactName).toBe('agent-hub-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
-    expect(electronBuilderConfig.appImage.artifactName).toBe('orca-linux.${ext}')
-    expect(electronBuilderConfig.deb.artifactName).toBe('orca-ide_${version}_${arch}.${ext}')
+    expect(electronBuilderConfig.appImage.artifactName).toBe('agent-hub-linux.${ext}')
+    expect(electronBuilderConfig.deb.artifactName).toBe('agent-hub_${version}_${arch}.${ext}')
     expect(electronBuilderConfig.rpm).toMatchObject({
-      packageName: 'orca-ide',
-      artifactName: 'orca-ide-${version}.${arch}.${ext}'
+      packageName: 'agent-hub',
+      artifactName: 'agent-hub-${version}.${arch}.${ext}'
     })
   })
 

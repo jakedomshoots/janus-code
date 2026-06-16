@@ -8,6 +8,10 @@ vi.mock('electron', () => ({
 
 import { fetchChangelog } from './updater-changelog'
 
+const CHANGELOG_JSON_URL =
+  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/changelog.json'
+const CHANGELOG_URL = 'https://github.com/jakedom/agent-hub/releases'
+
 function jsonResponse(body: unknown): Response {
   return { ok: true, json: () => Promise.resolve(body) } as unknown as Response
 }
@@ -26,7 +30,7 @@ function makeEntries(
     title: item.title ?? `Release ${item.version}`,
     description: item.description ?? '',
     mediaUrl: item.mediaUrl,
-    releaseNotesUrl: item.releaseNotesUrl ?? `https://onorca.dev/changelog/${item.version}`
+    releaseNotesUrl: item.releaseNotesUrl ?? `${CHANGELOG_URL}/tag/${item.version}`
   }))
 }
 
@@ -51,8 +55,9 @@ describe('fetchChangelog', () => {
 
     expect(result).not.toBeNull()
     expect(result!.release.title).toBe('Release 1.1.21')
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog/1.1.21')
+    expect(result!.release.releaseNotesUrl).toBe(`${CHANGELOG_URL}/tag/1.1.21`)
     expect(result!.releasesBehind).toBe(2)
+    expect(fetchMock).toHaveBeenCalledWith(CHANGELOG_JSON_URL, expect.any(Object))
   })
 
   it('falls back to the most recent rich entry when incoming version is not in JSON', async () => {
@@ -63,7 +68,7 @@ describe('fetchChangelog', () => {
         version: '1.1.17',
         description: 'Cool feature',
         mediaUrl: 'https://onorca.dev/media/1.1.17.gif',
-        releaseNotesUrl: 'https://onorca.dev/changelog/1.1.17'
+        releaseNotesUrl: `${CHANGELOG_URL}/tag/1.1.17`
       },
       { version: '1.1.16' },
       { version: '1.1.15' }
@@ -76,7 +81,7 @@ describe('fetchChangelog', () => {
     expect(result!.release.title).toBe('Release 1.1.17')
     expect(result!.release.description).toBe('Cool feature')
     // Why: fallback entries link to the generic changelog, not a version-specific page.
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog')
+    expect(result!.release.releaseNotesUrl).toBe(CHANGELOG_URL)
     expect(result!.releasesBehind).toBe(2)
   })
 
@@ -98,7 +103,7 @@ describe('fetchChangelog', () => {
 
     expect(result).not.toBeNull()
     expect(result!.release.title).toBe('Release 1.1.17')
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog')
+    expect(result!.release.releaseNotesUrl).toBe(CHANGELOG_URL)
     // releasesBehind is from local (index 2) to incoming (index 0) = 2
     expect(result!.releasesBehind).toBe(2)
   })
@@ -168,7 +173,7 @@ describe('fetchChangelog', () => {
 
     expect(result).not.toBeNull()
     expect(result!.release.title).toBe('Release 1.1.18')
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog')
+    expect(result!.release.releaseNotesUrl).toBe(CHANGELOG_URL)
   })
 
   it('shows rich entry when local version is not in JSON (very old user)', async () => {
@@ -186,7 +191,7 @@ describe('fetchChangelog', () => {
 
     expect(result).not.toBeNull()
     expect(result!.release.title).toBe('Release 1.1.17')
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog')
+    expect(result!.release.releaseNotesUrl).toBe(CHANGELOG_URL)
     // releasesBehind is null because the local version isn't in the JSON.
     expect(result!.releasesBehind).toBeNull()
   })
@@ -246,7 +251,7 @@ describe('fetchChangelog', () => {
 
     expect(result!.release.title).toBe('Release 1.1.21')
     // Exact match keeps its own releaseNotesUrl.
-    expect(result!.release.releaseNotesUrl).toBe('https://onorca.dev/changelog/1.1.21')
+    expect(result!.release.releaseNotesUrl).toBe(`${CHANGELOG_URL}/tag/1.1.21`)
   })
 
   it('strips version from the returned release object', async () => {

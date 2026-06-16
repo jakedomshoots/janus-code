@@ -1,9 +1,9 @@
 {
-  "name": "orca",
+  "name": "agent-hub",
   "version": "1.4.72-rc.0",
-  "description": "Next-gen IDE for parallel agentic development",
-  "homepage": "https://github.com/stablyai/orca",
-  "author": "stablyai",
+  "description": "GUI-first desktop workspace for CLI coding agents",
+  "homepage": "https://github.com/jakedom/agent-hub",
+  "author": "Jake Dominick",
   "bin": {
     "orca": "./out/cli/index.js",
     "orca-dev": "./config/scripts/orca-dev.mjs"

@@ -45,12 +45,25 @@ describe('getRequiredReleaseAssetNames', () => {
     )
   })
 
-  it('includes the Linux RPM alongside the existing AppImage and deb names', () => {
+  it('includes Agent Hub Linux artifact names for AppImage, deb, and RPM', () => {
     expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(
       expect.arrayContaining([
-        'orca-linux.AppImage',
-        'orca-ide_1.4.27_amd64.deb',
-        'orca-ide-1.4.27.x86_64.rpm'
+        'agent-hub-linux.AppImage',
+        'agent-hub_1.4.27_amd64.deb',
+        'agent-hub-1.4.27.x86_64.rpm'
+      ])
+    )
+  })
+
+  it('includes Agent Hub Windows and macOS installer artifact names', () => {
+    expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(
+      expect.arrayContaining([
+        'agent-hub-windows-setup.exe',
+        'agent-hub-windows-setup.exe.blockmap',
+        'agent-hub-macos-x64.dmg',
+        'agent-hub-macos-x64.dmg.blockmap',
+        'agent-hub-macos-arm64.dmg',
+        'agent-hub-macos-arm64.dmg.blockmap'
       ])
     )
   })
@@ -63,11 +76,15 @@ describe('extractManifestAssetNames', () => {
         [
           'files:',
           '  - url: Orca-1.4.27-arm64-mac.zip',
-          '  - url: https://example.com/downloads/orca-windows-setup.exe',
-          'path: orca-linux.AppImage'
+          '  - url: https://example.com/downloads/agent-hub-windows-setup.exe',
+          'path: agent-hub-linux.AppImage'
         ].join('\n')
       )
-    ).toEqual(['Orca-1.4.27-arm64-mac.zip', 'orca-windows-setup.exe', 'orca-linux.AppImage'])
+    ).toEqual([
+      'Orca-1.4.27-arm64-mac.zip',
+      'agent-hub-windows-setup.exe',
+      'agent-hub-linux.AppImage'
+    ])
   })
 })
 
@@ -96,7 +113,7 @@ describe('verifyRequiredReleaseAssets', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
-      verifyRequiredReleaseAssets({ repo: 'stablyai/orca', tag, token: 'token' })
+      verifyRequiredReleaseAssets({ repo: 'jakedom/agent-hub', tag, token: 'token' })
     ).rejects.toThrow('Missing: Orca-1.4.27-arm64-mac.zip')
     expect(latestMacAsset).toBeTruthy()
   })

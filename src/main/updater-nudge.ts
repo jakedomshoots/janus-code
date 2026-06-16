@@ -1,6 +1,9 @@
 import { net } from 'electron'
 import { compareVersions, isValidVersion } from './updater-fallback'
 
+const NUDGE_JSON_URL =
+  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/nudge.json'
+
 export type NudgeConfig = {
   id: string
   minVersion?: string
@@ -12,7 +15,7 @@ export async function fetchNudge(): Promise<NudgeConfig | null> {
   const timeout = setTimeout(() => controller.abort(), 5000)
 
   try {
-    const res = await net.fetch('https://onorca.dev/whats-new/nudge.json', {
+    const res = await net.fetch(NUDGE_JSON_URL, {
       signal: controller.signal
     })
     if (!res.ok) {

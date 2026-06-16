@@ -10,7 +10,9 @@ type ChangelogEntry = {
   releaseNotesUrl: string
 }
 
-const CHANGELOG_URL = 'https://onorca.dev/changelog'
+const CHANGELOG_URL = 'https://github.com/jakedom/agent-hub/releases'
+const CHANGELOG_JSON_URL =
+  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/changelog.json'
 
 function isValidEntry(entry: ChangelogEntry): boolean {
   return (
@@ -46,7 +48,7 @@ export async function fetchChangelog(
   const timeout = setTimeout(() => controller.abort(), 5000)
 
   try {
-    const res = await net.fetch('https://onorca.dev/whats-new/changelog.json', {
+    const res = await net.fetch(CHANGELOG_JSON_URL, {
       signal: controller.signal
     })
     if (!res.ok) {
