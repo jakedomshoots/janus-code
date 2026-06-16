@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Capture one-shot macOS launch diagnostics for a published Orca release.
+# Capture one-shot macOS launch diagnostics for a published Agent Hub release.
 #
 # Usage:
 #   ORCA_DIAGNOSTIC_TAG=v1.4.42-rc.1 bash config/scripts/macos-launch-diagnostics.sh
@@ -7,6 +7,9 @@
 set -euo pipefail
 
 REPO="${ORCA_DIAGNOSTIC_REPO:-jakedom/agent-hub}"
+APP_NAME="${ORCA_DIAGNOSTIC_APP_NAME:-Agent Hub}"
+BUNDLE_ID="${ORCA_DIAGNOSTIC_BUNDLE_ID:-com.jakedom.agenthub}"
+APP_EXECUTABLE="${ORCA_DIAGNOSTIC_APP_EXECUTABLE:-Agent Hub}"
 TAG="${ORCA_DIAGNOSTIC_TAG:-}"
 KEEP=0
 
@@ -26,7 +29,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -h|--help)
       cat <<'EOF'
-Capture one-shot macOS launch diagnostics for a published Orca release.
+Capture one-shot macOS launch diagnostics for a published Agent Hub release.
 
 Usage:
   ORCA_DIAGNOSTIC_TAG=v1.4.42-rc.1 bash config/scripts/macos-launch-diagnostics.sh
@@ -66,7 +69,7 @@ TIMESTAMP="$(date -u '+%Y%m%dT%H%M%SZ')"
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/orca-launch-diagnostics.XXXXXXXX")"
 OUT_DIR="$WORK_DIR/output"
 MOUNT_DIR="$WORK_DIR/mount"
-APP_DIR="$WORK_DIR/Orca.app"
+APP_DIR="$WORK_DIR/$APP_NAME.app"
 DMG_PATH="$WORK_DIR/$ASSET"
 mkdir -p "$OUT_DIR" "$MOUNT_DIR"
 
@@ -187,7 +190,7 @@ write_app_report() {
 
 start_log_stream() {
   local file="$1"
-  local predicate='process == "Orca" OR eventMessage CONTAINS[c] "Orca" OR eventMessage CONTAINS[c] "com.stablyai.orca"'
+  local predicate="process == \"$APP_EXECUTABLE\" OR eventMessage CONTAINS[c] \"$APP_NAME\" OR eventMessage CONTAINS[c] \"$BUNDLE_ID\""
   if command -v log >/dev/null 2>&1; then
     command log stream --style compact --predicate "$predicate" >"$file" 2>&1 &
     echo "$!"
@@ -204,8 +207,8 @@ stop_log_stream() {
   fi
 }
 
-latest_orca_pid_for_app() {
-  pgrep -nf "$APP_DIR/Contents/MacOS/Orca" || true
+latest_app_pid_for_app() {
+  pgrep -nf "$APP_DIR/Contents/MacOS/$APP_EXECUTABLE" || true
 }
 
 sample_process_once() {
@@ -218,7 +221,7 @@ sample_process_once() {
 
 terminate_app_processes() {
   local pid
-  pid="$(latest_orca_pid_for_app)"
+  pid="$(latest_app_pid_for_app)"
   if [[ -n "$pid" ]]; then
     kill "$pid" >/dev/null 2>&1 || true
     sleep 1
@@ -325,7 +328,7 @@ run_direct_exec_probe() {
     ORCA_STARTUP_DIAGNOSTICS=trace \
     ORCA_STARTUP_DIAGNOSTICS_TRACE_LIMIT=30000 \
     ORCA_STARTUP_DIAGNOSTICS_FILE="$bootstrap_file" \
-    "$APP_DIR/Contents/MacOS/Orca" >"$stdout_file" 2>"$stderr_file" &
+    "$APP_DIR/Contents/MacOS/$APP_EXECUTABLE" >"$stdout_file" 2>"$stderr_file" &
   local runner_pid="$!"
   wait_for_probe "$runner_pid" "$label"
   echo "ended_utc=$(date -u '+%Y-%m-%dT%H:%M:%SZ')" >>"$OUT_DIR/$label.meta"
@@ -333,7 +336,7 @@ run_direct_exec_probe() {
 }
 
 write_system_log_snapshot() {
-  local predicate='process == "Orca" OR eventMessage CONTAINS[c] "Orca" OR eventMessage CONTAINS[c] "com.stablyai.orca"'
+  local predicate="process == \"$APP_EXECUTABLE\" OR eventMessage CONTAINS[c] \"$APP_NAME\" OR eventMessage CONTAINS[c] \"$BUNDLE_ID\""
   if command -v log >/dev/null 2>&1; then
     diag_log "capturing recent unified log snapshot"
     command log show --style syslog --last 10m --predicate "$predicate" >"$OUT_DIR/system-log-last-10m.log" 2>&1 || true
