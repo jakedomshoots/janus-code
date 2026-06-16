@@ -134,8 +134,8 @@ describe('Electron runtime package contract', () => {
       (step) => step.name === 'Copy cask into tap and open PR'
     )
 
-    expect(resolveCaskStep.run).toContain('token="orca@rc"')
-    expect(resolveCaskStep.run).toContain('token="orca"')
+    expect(resolveCaskStep.run).toContain('token="agent-hub@rc"')
+    expect(resolveCaskStep.run).toContain('token="agent-hub"')
     expect(renderStep.env.CASK_PATH).toBe('${{ steps.cask.outputs.path }}')
     expect(copyStep.run).toContain('cp "$CASK_PATH" "tap/$CASK_PATH"')
     expect(copyStep.run).toContain('git add "$CASK_PATH"')
