@@ -504,6 +504,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           toolName: payload.toolName,
           toolInput: payload.toolInput,
           lastAssistantMessage: payload.lastAssistantMessage,
+          toolEvent: payload.toolEvent ?? undefined,
           plan,
           approval,
           // Why: reused panes may start non-orchestrated work after runtime
@@ -555,6 +556,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.toolName !== existing.toolName ||
             entry.toolInput !== existing.toolInput ||
             entry.lastAssistantMessage !== existing.lastAssistantMessage ||
+            entry.toolEvent !== existing.toolEvent ||
             entry.plan !== existing.plan ||
             entry.approval !== existing.approval ||
             entry.orchestration !== existing.orchestration ||

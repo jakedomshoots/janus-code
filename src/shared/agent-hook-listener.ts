@@ -30,6 +30,8 @@ import { join } from 'path'
 import {
   parseAgentStatusPayload,
   type AgentStatusApproval,
+  type AgentStatusToolEvent,
+  type AgentStatusToolEventStatus,
   type ParsedAgentStatusPayload
 } from './agent-status-types'
 import { ORCA_HOOK_PROTOCOL_VERSION } from './agent-hook-types'
@@ -1094,10 +1096,20 @@ function extractCodexToolFields(
       deriveToolInputPreview(toolName, hookPayload.tool_input) ??
       deriveToolInputPreview(toolName, hookPayload.input) ??
       deriveToolInputPreview(toolName, hookPayload.arguments)
-    return toolUpdate(
+    const update = toolUpdate(
       { toolName, toolInput },
       { hasToolInputField: hasAnyOwnField(hookPayload, ['tool_input', 'input', 'arguments']) }
     )
+    if (eventName === 'PostToolUse') {
+      const responseText =
+        extractToolResponseText(hookPayload.tool_response) ??
+        extractToolResponseText(hookPayload.output) ??
+        extractToolResponseText(hookPayload.result)
+      if (responseText) {
+        update.lastAssistantMessage = responseText
+      }
+    }
+    return update
   }
   if (eventName === 'Stop') {
     const message = readString(hookPayload, 'last_assistant_message')
@@ -2038,6 +2050,178 @@ function buildApprovalRequest(args: {
   }
 }
 
+function readToolEventIdFromPayload(hookPayload: Record<string, unknown>): string | undefined {
+  const direct = readFirstString(hookPayload, [
+    'tool_call_id',
+    'toolCallId',
+    'tool_use_id',
+    'toolUseId',
+    'call_id',
+    'callId',
+    'request_id',
+    'requestId',
+    'id'
+  ])
+  if (direct) {
+    return direct
+  }
+
+  for (const nestedField of ['tool_input', 'input', 'arguments']) {
+    const nested = readObjectField(hookPayload, nestedField)
+    const nestedId = readFirstString(nested, [
+      'tool_call_id',
+      'toolCallId',
+      'tool_use_id',
+      'toolUseId',
+      'call_id',
+      'callId',
+      'request_id',
+      'requestId',
+      'id'
+    ])
+    if (nestedId) {
+      return nestedId
+    }
+  }
+  return undefined
+}
+
+function fallbackToolEventId(args: {
+  source: AgentHookSource
+  eventName: unknown
+  toolName: string
+  toolInput?: string
+}): string {
+  const hash = createHash('sha256')
+    .update(
+      JSON.stringify({
+        source: args.source,
+        eventName: String(args.eventName ?? ''),
+        toolName: args.toolName,
+        toolInput: args.toolInput ?? ''
+      })
+    )
+    .digest('hex')
+    .slice(0, 16)
+  return `${args.source}-tool-${hash}`
+}
+
+function getToolEventStatus(
+  source: AgentHookSource,
+  eventName: unknown,
+  hookPayload: Record<string, unknown>
+): AgentStatusToolEventStatus | undefined {
+  switch (source) {
+    case 'claude':
+      return eventName === 'PreToolUse'
+        ? 'running'
+        : eventName === 'PostToolUse'
+          ? 'completed'
+          : eventName === 'PostToolUseFailure'
+            ? 'failed'
+            : undefined
+    case 'codex':
+    case 'antigravity':
+    case 'command-code':
+      return eventName === 'PreToolUse'
+        ? 'running'
+        : eventName === 'PostToolUse'
+          ? 'completed'
+          : undefined
+    case 'gemini':
+      return eventName === 'BeforeTool' || eventName === 'PreToolUse'
+        ? 'running'
+        : eventName === 'AfterTool' || eventName === 'PostToolUse'
+          ? 'completed'
+          : undefined
+    case 'amp':
+      return eventName === 'tool.call'
+        ? 'running'
+        : eventName === 'tool.result'
+          ? readFirstString(hookPayload, ['error']) || hookPayload.error
+            ? 'failed'
+            : 'completed'
+          : undefined
+    case 'cursor':
+      return eventName === 'preToolUse' ||
+        eventName === 'beforeShellExecution' ||
+        eventName === 'beforeMCPExecution'
+        ? 'running'
+        : eventName === 'postToolUse'
+          ? 'completed'
+          : eventName === 'postToolUseFailure'
+            ? 'failed'
+            : undefined
+    case 'copilot':
+      return eventName === 'PreToolUse'
+        ? 'running'
+        : eventName === 'PostToolUse'
+          ? 'completed'
+          : eventName === 'PostToolUseFailure'
+            ? 'failed'
+            : undefined
+    case 'droid':
+      return eventName === 'PreToolUse'
+        ? 'running'
+        : eventName === 'PostToolUse'
+          ? 'completed'
+          : undefined
+    case 'opencode':
+    case 'pi':
+    case 'omp':
+    case 'grok':
+    case 'hermes':
+      return undefined
+  }
+}
+
+function getToolEventVerb(status: AgentStatusToolEventStatus): string {
+  switch (status) {
+    case 'running':
+      return 'Started'
+    case 'completed':
+      return 'Completed'
+    case 'failed':
+      return 'Failed'
+  }
+}
+
+function buildToolEvent(args: {
+  source: AgentHookSource
+  eventName: unknown
+  hookPayload: Record<string, unknown>
+  snapshot: ToolSnapshot
+}): AgentStatusToolEvent | undefined {
+  const status = getToolEventStatus(args.source, args.eventName, args.hookPayload)
+  if (!status) {
+    return undefined
+  }
+  const name =
+    args.snapshot.toolName ??
+    readFirstString(args.hookPayload, ['tool_name', 'toolName', 'name', 'tool']) ??
+    'Tool'
+  const input = args.snapshot.toolInput
+  const verb = getToolEventVerb(status)
+  const fallbackText = input ? `${verb} ${name}: ${input}` : `${verb} ${name}`
+  const output = status === 'running' ? undefined : args.snapshot.lastAssistantMessage
+
+  return {
+    id:
+      readToolEventIdFromPayload(args.hookPayload) ??
+      fallbackToolEventId({
+        source: args.source,
+        eventName: args.eventName,
+        toolName: name,
+        toolInput: input
+      }),
+    status,
+    name,
+    ...(input ? { input } : {}),
+    ...(output ? { output } : {}),
+    fallbackText
+  }
+}
+
 function normalizeClaudeEvent(
   state: HookListenerState,
   eventName: unknown,
@@ -2077,6 +2261,7 @@ function normalizeClaudeEvent(
     snapshot,
     isApprovalRequest: eventName === 'PermissionRequest'
   })
+  const toolEvent = buildToolEvent({ source: 'claude', eventName, hookPayload, snapshot })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2088,6 +2273,7 @@ function normalizeClaudeEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       approval,
       interrupted
     })
@@ -2124,6 +2310,7 @@ function normalizeGeminiEvent(
     extractToolFields('gemini', eventName, hookPayload),
     { resetOnNewTurn: isNewTurnEvent('gemini', eventName) }
   )
+  const toolEvent = buildToolEvent({ source: 'gemini', eventName, hookPayload, snapshot })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2134,7 +2321,8 @@ function normalizeGeminiEvent(
       agentType: 'gemini',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent
     })
   )
 }
@@ -2199,6 +2387,7 @@ function normalizeAntigravityEvent(
     extractToolFields('antigravity', eventName, hookPayload),
     { resetOnNewTurn: resetsTurn }
   )
+  const toolEvent = buildToolEvent({ source: 'antigravity', eventName, hookPayload, snapshot })
 
   const payload = parseAgentStatusPayload(
     JSON.stringify({
@@ -2209,7 +2398,8 @@ function normalizeAntigravityEvent(
       agentType: 'antigravity',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent
     })
   )
   // Why: Antigravity can emit Stop with fullyIdle=false between tool steps.
@@ -2267,6 +2457,7 @@ function normalizeAmpEvent(
 
   const interrupted =
     eventName === 'agent.end' && hookPayload.status === 'cancelled' ? true : undefined
+  const toolEvent = buildToolEvent({ source: 'amp', eventName, hookPayload, snapshot })
   const explicitPrompt = readFirstString(hookPayload, [
     'prompt',
     'user_prompt',
@@ -2292,6 +2483,7 @@ function normalizeAmpEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       interrupted
     })
   )
@@ -2425,6 +2617,7 @@ function normalizeCodexEvent(
     snapshot,
     isApprovalRequest: eventName === 'PermissionRequest'
   })
+  const toolEvent = buildToolEvent({ source: 'codex', eventName, hookPayload, snapshot })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2436,6 +2629,7 @@ function normalizeCodexEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       approval
     })
   )
@@ -2537,6 +2731,7 @@ function normalizeCursorEvent(
     hookPayload.status !== 'completed'
       ? true
       : undefined
+  const toolEvent = buildToolEvent({ source: 'cursor', eventName, hookPayload, snapshot })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2548,6 +2743,7 @@ function normalizeCursorEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       interrupted
     })
   )
@@ -2606,6 +2802,15 @@ function normalizeCopilotEvent(
     snapshot,
     isApprovalRequest: isBlockingNotification || isAskUserPrompt
   })
+  const toolEvent =
+    isBlockingNotification || isAskUserPrompt
+      ? undefined
+      : buildToolEvent({
+          source: 'copilot',
+          eventName: normalizedEventName,
+          hookPayload,
+          snapshot
+        })
 
   const effectivePrompt = normalizedEventName === 'Notification' ? '' : promptText
 
@@ -2619,6 +2824,7 @@ function normalizeCopilotEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       approval
     })
   )
@@ -2730,6 +2936,12 @@ function normalizeDroidEvent(
       (eventName === 'PreToolUse' &&
         (isDroidAskUserTool(droidToolName) || isDroidHighRiskToolUse(hookPayload)))
   })
+  const isDroidApprovalPrompt =
+    eventName === 'PreToolUse' &&
+    (isDroidAskUserTool(droidToolName) || isDroidHighRiskToolUse(hookPayload))
+  const toolEvent = isDroidApprovalPrompt
+    ? undefined
+    : buildToolEvent({ source: 'droid', eventName, hookPayload, snapshot })
 
   // Why: Droid's Notification.message contains status text (e.g. "Droid is
   // waiting for your input"), not the user's prompt. Pass '' so resolvePrompt
@@ -2746,6 +2958,7 @@ function normalizeDroidEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent,
       approval
     })
   )
@@ -2774,6 +2987,7 @@ function normalizeCommandCodeEvent(
     extractToolFields('command-code', eventName, hookPayload),
     { resetOnNewTurn: isNewTurnEvent('command-code', eventName) }
   )
+  const toolEvent = buildToolEvent({ source: 'command-code', eventName, hookPayload, snapshot })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2784,7 +2998,8 @@ function normalizeCommandCodeEvent(
       agentType: 'command-code',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      toolEvent
     })
   )
 }

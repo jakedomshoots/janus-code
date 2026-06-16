@@ -1230,6 +1230,56 @@ describe('shared agent-hook-listener', () => {
     })
   })
 
+  it('adds structured tool lifecycle events for Codex tool hooks', () => {
+    const started = normalizeHookPayload(
+      state,
+      'codex',
+      {
+        paneKey: PANE_KEY,
+        payload: {
+          hook_event_name: 'PreToolUse',
+          tool_call_id: 'tool-1',
+          tool_name: 'Bash',
+          tool_input: { command: 'pnpm test' }
+        }
+      },
+      'production'
+    )
+
+    expect(started?.payload.toolEvent).toEqual({
+      id: 'tool-1',
+      status: 'running',
+      name: 'Bash',
+      input: 'pnpm test',
+      fallbackText: 'Started Bash: pnpm test'
+    })
+
+    const completed = normalizeHookPayload(
+      state,
+      'codex',
+      {
+        paneKey: PANE_KEY,
+        payload: {
+          hook_event_name: 'PostToolUse',
+          tool_call_id: 'tool-1',
+          tool_name: 'Bash',
+          tool_input: { command: 'pnpm test' },
+          tool_response: '154 tests passed'
+        }
+      },
+      'production'
+    )
+
+    expect(completed?.payload.toolEvent).toEqual({
+      id: 'tool-1',
+      status: 'completed',
+      name: 'Bash',
+      input: 'pnpm test',
+      output: '154 tests passed',
+      fallbackText: 'Completed Bash: pnpm test'
+    })
+  })
+
   it('clears stale Droid tool input when a same-tool update has explicit unpreviewable input', () => {
     normalizeHookPayload(
       state,

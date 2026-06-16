@@ -254,6 +254,7 @@ function equivalentParsedAgentStatusPayload(
     a.toolName === b.toolName &&
     a.toolInput === b.toolInput &&
     a.lastAssistantMessage === b.lastAssistantMessage &&
+    equivalentStructuredField(a.toolEvent, b.toolEvent) &&
     equivalentAgentStatusPlan(a.plan, b.plan) &&
     equivalentStructuredField(a.approval, b.approval) &&
     a.interrupted === b.interrupted

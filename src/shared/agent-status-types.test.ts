@@ -4,6 +4,7 @@ import {
   AGENT_STATUS_MAX_FIELD_LENGTH,
   AGENT_STATUS_TOOL_NAME_MAX_LENGTH,
   AGENT_STATUS_TOOL_INPUT_MAX_LENGTH,
+  AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH,
   AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH,
   AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH,
   AGENT_STATUS_PLAN_MAX_STEPS,
@@ -162,6 +163,52 @@ describe('parseAgentStatusPayload', () => {
     expect(result!.toolName).toBeUndefined()
     expect(result!.toolInput).toBeUndefined()
     expect(result!.lastAssistantMessage).toBeUndefined()
+  })
+
+  it('parses and normalizes a structured tool lifecycle event payload', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'working',
+        toolEvent: {
+          id: ' tool-1 ',
+          status: 'completed',
+          name: ' Bash ',
+          input: 'pnpm test\npnpm lint',
+          output: 'Tests passed.\n\nLint passed.',
+          fallbackText: 'Completed Bash: pnpm test'
+        }
+      })
+    )
+
+    expect(result!.toolEvent).toEqual({
+      id: 'tool-1',
+      status: 'completed',
+      name: 'Bash',
+      input: 'pnpm test pnpm lint',
+      output: 'Tests passed.\n\nLint passed.',
+      fallbackText: 'Completed Bash: pnpm test'
+    })
+  })
+
+  it('bounds tool event fallback text and permits explicit tool event clears', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'working',
+        toolEvent: {
+          id: 'tool-1',
+          status: 'unknown',
+          name: 'Bash',
+          fallbackText: 'a'.repeat(AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH + 20)
+        }
+      })
+    )
+
+    expect(result!.toolEvent?.status).toBe('running')
+    expect(result!.toolEvent?.fallbackText).toHaveLength(
+      AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH
+    )
+    expect(parseAgentStatusPayload('{"state":"working","toolEvent":null}')!.toolEvent).toBeNull()
+    expect(parseAgentStatusPayload('{"state":"working","toolEvent":{}}')!.toolEvent).toBeUndefined()
   })
 
   it('treats non-string optional fields as undefined', () => {

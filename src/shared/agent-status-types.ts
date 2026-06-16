@@ -86,6 +86,18 @@ export type AgentStatusPlan = {
   updatedAt?: number
 }
 
+export const AGENT_STATUS_TOOL_EVENT_STATUSES = ['running', 'completed', 'failed'] as const
+export type AgentStatusToolEventStatus = (typeof AGENT_STATUS_TOOL_EVENT_STATUSES)[number]
+
+export type AgentStatusToolEvent = {
+  id: string
+  status: AgentStatusToolEventStatus
+  name: string
+  input?: string
+  output?: string
+  fallbackText: string
+}
+
 export const AGENT_STATUS_APPROVAL_STATUSES = [
   'requested',
   'approved',
@@ -141,6 +153,8 @@ export type AgentStatusEntry = {
   toolInput?: string
   /** Most recent assistant message preview, when the hook carried one. */
   lastAssistantMessage?: string
+  /** Latest provider-neutral structured tool lifecycle event for the active turn. */
+  toolEvent?: AgentStatusToolEvent
   /** Latest provider-neutral structured plan for the active turn, when available. */
   plan?: AgentStatusPlan
   /** Latest provider-neutral approval request for the active turn, when available. */
@@ -185,6 +199,7 @@ export type AgentStatusPayload = {
   toolName?: string
   toolInput?: string
   lastAssistantMessage?: string
+  toolEvent?: AgentStatusToolEvent | null
   plan?: AgentStatusPlan | null
   approval?: AgentStatusApproval | null
   interrupted?: boolean
@@ -229,6 +244,10 @@ export const AGENT_STATUS_MAX_FIELD_LENGTH = 200
 export const AGENT_STATUS_TOOL_NAME_MAX_LENGTH = 60
 /** Maximum character length for the toolInput preview. */
 export const AGENT_STATUS_TOOL_INPUT_MAX_LENGTH = 160
+/** Maximum character length for a structured tool event id. */
+export const AGENT_STATUS_TOOL_EVENT_ID_MAX_LENGTH = 160
+/** Maximum character length for a structured tool event fallback text. */
+export const AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH = 500
 /** Maximum character length for the lastAssistantMessage preview.
  *  Why: assistant messages are the user-facing "what did the agent say" body,
  *  expanded inline in the dashboard row. 8 KB comfortably fits a multi-
@@ -423,6 +442,47 @@ function normalizeStructuredPlan(value: unknown): AgentStatusPlan | null | undef
   }
 }
 
+function normalizeToolEventStatus(value: unknown): AgentStatusToolEventStatus {
+  return AGENT_STATUS_TOOL_EVENT_STATUSES.includes(value as AgentStatusToolEventStatus)
+    ? (value as AgentStatusToolEventStatus)
+    : 'running'
+}
+
+function normalizeStructuredToolEvent(value: unknown): AgentStatusToolEvent | null | undefined {
+  if (value === null) {
+    return null
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const id = normalizeOptionalField(obj.id, AGENT_STATUS_TOOL_EVENT_ID_MAX_LENGTH)
+  const name = normalizeOptionalField(obj.name, AGENT_STATUS_TOOL_NAME_MAX_LENGTH)
+  const fallbackText = normalizeOptionalField(
+    obj.fallbackText,
+    AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH
+  )
+  if (!id || !name || !fallbackText) {
+    return undefined
+  }
+
+  const input = normalizeOptionalField(obj.input, AGENT_STATUS_TOOL_INPUT_MAX_LENGTH)
+  const output = normalizeOptionalMultilineField(
+    obj.output,
+    AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
+  )
+
+  return {
+    id,
+    status: normalizeToolEventStatus(obj.status),
+    name,
+    ...(input ? { input } : {}),
+    ...(output ? { output } : {}),
+    fallbackText
+  }
+}
+
 function normalizeApprovalStatus(value: unknown): AgentStatusApprovalStatus {
   return AGENT_STATUS_APPROVAL_STATUSES.includes(value as AgentStatusApprovalStatus)
     ? (value as AgentStatusApprovalStatus)
@@ -503,6 +563,7 @@ function normalizeAgentStatusObject(parsed: unknown): ParsedAgentStatusPayload |
       obj.lastAssistantMessage,
       AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
     ),
+    toolEvent: normalizeStructuredToolEvent(obj.toolEvent),
     plan: normalizeStructuredPlan(obj.plan),
     approval: normalizeStructuredApproval(obj.approval),
     // Why: only meaningful on `done`. Coerce to undefined on other states so

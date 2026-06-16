@@ -364,6 +364,46 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps structured tool lifecycle events to timeline entries', () => {
+    const running = worktree('wt-tool-event', {
+      path: '/repo/orca/worktrees/tool-event',
+      branch: 'refs/heads/feature/tool-event'
+    })
+    const runningTab = tab('tab-agent', running.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(running, {
+        activeWorktreeId: running.id,
+        tabsByWorktree: { [running.id]: [runningTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'working',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 40),
+            toolEvent: {
+              id: 'tool-1',
+              status: 'completed',
+              name: 'Bash',
+              input: 'pnpm test',
+              output: '154 tests passed',
+              fallbackText: 'Completed Bash: pnpm test'
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline).toEqual([
+      {
+        id: `${paneKey}:tool:tool-1`,
+        threadId: paneKey,
+        kind: 'tool',
+        text: 'Completed Bash: pnpm test',
+        createdAt: '2026-06-15T14:40:00.000Z',
+        status: 'done'
+      }
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
 

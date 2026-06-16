@@ -20,6 +20,7 @@ import type {
 import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
+import { selectAgentWorkspaceTimeline } from './orca-agent-timeline-selectors'
 
 type WorkspaceThreadMeta = {
   path: string
@@ -288,6 +289,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
   const projects = selectAgentWorkspaceProjects(state)
   const threads = selectAgentWorkspaceThreads(state)
   const plans = selectAgentWorkspacePlans(state, threads)
+  const timeline = selectAgentWorkspaceTimeline(state, threads)
   const approvals = selectAgentWorkspaceApprovals(state, threads)
   const diffs = selectAgentWorkspaceDiffs(state, threads)
   const snapshot = {
@@ -295,7 +297,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     projects,
     threads,
     plans,
-    timeline: [],
+    timeline,
     approvals,
     diffs,
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)

@@ -434,6 +434,37 @@ describe('agent status tool + assistant fields', () => {
     expect(entry.lastAssistantMessage).toBeUndefined()
   })
 
+  it('writes structured tool lifecycle events and clears them when omitted', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      toolEvent: {
+        id: 'tool-1',
+        status: 'running',
+        name: 'Bash',
+        input: 'pnpm test',
+        fallbackText: 'Started Bash: pnpm test'
+      }
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].toolEvent).toEqual({
+      id: 'tool-1',
+      status: 'running',
+      name: 'Bash',
+      input: 'pnpm test',
+      fallbackText: 'Started Bash: pnpm test'
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex'
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].toolEvent).toBeUndefined()
+  })
+
   it('preserves structured plan state across same-turn status pings', () => {
     vi.useFakeTimers()
     const store = createTestStore()
