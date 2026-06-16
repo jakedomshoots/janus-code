@@ -14,6 +14,11 @@ const SEEN_FIRST_RUN_FEATURE_INTERACTION_TIMESTAMP = Date.parse('2026-01-01T00:0
 export function getE2ECompletedOnboardingProfile() {
   return {
     settings: {
+      // Why: most existing E2E specs assert the classic terminal/editor
+      // workspace. Fresh profiles still inherit the GUI-first default; this
+      // completed-onboarding fixture models existing users who use the
+      // transition fallback while those legacy surfaces remain covered.
+      guiAgentWorkspaceEnabled: false,
       telemetry: {
         optedIn: true,
         installId: '00000000-0000-4000-8000-000000000000',

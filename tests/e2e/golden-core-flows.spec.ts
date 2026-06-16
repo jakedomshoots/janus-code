@@ -291,6 +291,19 @@ async function waitForTerminalPaneManager(page: Page): Promise<void> {
   await waitForActiveTerminalManager(page, 30_000)
 }
 
+async function expectGuiWorkspaceSurface(page: Page): Promise<void> {
+  await expect
+    .poll(() => page.evaluate(() => window.__store?.getState().settings.guiAgentWorkspaceEnabled))
+    .toBe(true)
+  const workspace = page.getByRole('region', { name: /Agent workspace/i })
+  await expect(workspace).toBeVisible({ timeout: 30_000 })
+  await expect(workspace.getByText(/Terminal session is available as a debug panel/i)).toBeVisible()
+  await expect(workspace.getByRole('textbox', { name: /Message agent/i })).toHaveAttribute(
+    'placeholder',
+    /Start a new agent session/i
+  )
+}
+
 async function createTerminalTabThroughMenu(page: Page): Promise<void> {
   const tabIdsBefore = await renderedTabIds(page)
   await page.getByRole('button', { name: 'New tab' }).click({ force: true })
@@ -314,21 +327,21 @@ async function splitTerminalPaneAndAssertIdentity(page: Page): Promise<void> {
   expect(snapshot.panes).toHaveLength(paneCountBefore + 1)
 }
 
-async function requestAgentSessionsTour(page: Page): Promise<void> {
+async function openWorkspaceCreationComposerFromCreateControl(page: Page): Promise<void> {
   await expect
     .poll(
       () =>
         page.evaluate(() => {
           const state = window.__store?.getState()
-          const splitTarget = document.querySelector(
-            '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]'
+          const createTarget = document.querySelector(
+            '[data-contextual-tour-target="workspace-create-control"]'
           )
-          const rect = splitTarget?.getBoundingClientRect()
+          const rect = createTarget?.getBoundingClientRect()
           return {
             ready: state?.persistedUIReady === true,
             onboardingHidden: state?.contextualToursOnboardingVisible === false,
             noModal: state?.activeModal === 'none',
-            splitTargetMeasurable: Boolean(rect && rect.width > 0 && rect.height > 0)
+            createTargetMeasurable: Boolean(rect && rect.width > 0 && rect.height > 0)
           }
         }),
       { timeout: 30_000 }
@@ -337,17 +350,41 @@ async function requestAgentSessionsTour(page: Page): Promise<void> {
       ready: true,
       onboardingHidden: true,
       noModal: true,
-      splitTargetMeasurable: true
+      createTargetMeasurable: true
     })
+
+  const createControl = page
+    .locator('[data-contextual-tour-target="workspace-create-control"]')
+    .first()
+  await expect(createControl).toBeVisible()
+  await expect(createControl).toHaveAttribute('aria-label', 'New workspace')
+  const createControlBox = await createControl.boundingBox()
+  expect(createControlBox?.width ?? 0).toBeGreaterThan(0)
+  expect(createControlBox?.height ?? 0).toBeGreaterThan(0)
+  await createControl.click()
+
+  const composer = page.getByRole('dialog', { name: /Create (Workspace|Worktree)/i })
+  await expect(composer).toBeVisible()
+}
+
+async function requestWorkspaceCreationTour(page: Page): Promise<void> {
+  const projectStep = page.getByRole('dialog', { name: /Pick a project/i })
+  const alreadyVisible = await projectStep
+    .waitFor({ state: 'visible', timeout: 1_000 })
+    .then(() => true)
+    .catch(() => false)
+  if (alreadyVisible) {
+    return
+  }
 
   await page.evaluate(() => {
     window.__store
       ?.getState()
-      .requestContextualTour('workspace-agent-sessions', 'setup_guide_parallel_work', false, {
+      .requestContextualTour('workspace-creation', 'setup_guide_parallel_work', false, {
         force: true
       })
   })
-  await expect(page.getByRole('dialog', { name: /Split a terminal pane/i })).toBeVisible()
+  await expect(projectStep).toBeVisible()
 }
 
 async function completeWorkspaceCreationTour(page: Page, workspaceName: string): Promise<void> {
@@ -403,7 +440,7 @@ test.describe('Existing-user golden core flow', () => {
 test.describe('New-user golden core flow', () => {
   test.use({ dismissOnboarding: false, seedTestRepo: false })
 
-  test('completes onboarding, adds a project, and follows the workspace tour handoff', async ({
+  test('completes onboarding, adds a project, and follows the GUI workspace creation tour', async ({
     electronApp,
     orcaPage
   }) => {
@@ -433,28 +470,9 @@ test.describe('New-user golden core flow', () => {
     await waitForRepoLoaded(orcaPage, repoPath)
     await expectProjectVisible(orcaPage, repoPath)
     await waitForActiveWorktree(orcaPage)
-    await ensureTerminalVisible(orcaPage)
-    await expectTerminalSurface(orcaPage)
-    await waitForTerminalPaneManager(orcaPage)
-
-    await requestAgentSessionsTour(orcaPage)
-    const paneCountBeforeTourSplit = await countVisibleTerminalPanes(orcaPage)
-    await orcaPage.getByRole('button', { name: /^Split terminal$/ }).click()
-    await waitForPaneCount(orcaPage, paneCountBeforeTourSplit + 1)
-    await waitForPaneIdentitySnapshot(orcaPage, paneCountBeforeTourSplit + 1)
-
-    await expect(
-      orcaPage.getByRole('dialog', { name: /Start another task in parallel/i })
-    ).toBeVisible()
-    const createControl = orcaPage
-      .locator('[data-contextual-tour-target="workspace-create-control"]')
-      .first()
-    await expect(createControl).toBeVisible()
-    await expect(createControl).toHaveAttribute('aria-label', 'New workspace')
-    const createControlBox = await createControl.boundingBox()
-    expect(createControlBox?.width ?? 0).toBeGreaterThan(0)
-    expect(createControlBox?.height ?? 0).toBeGreaterThan(0)
-    await createControl.click()
+    await expectGuiWorkspaceSurface(orcaPage)
+    await openWorkspaceCreationComposerFromCreateControl(orcaPage)
+    await requestWorkspaceCreationTour(orcaPage)
 
     const workspaceName = `golden-new-${Date.now()}`
     await completeWorkspaceCreationTour(orcaPage, workspaceName)
