@@ -1,0 +1,261 @@
+import type { AppState } from '@/store'
+import { branchName } from '@/lib/git-utils'
+import {
+  getRepoExecutionHostId,
+  getSettingsFocusedExecutionHostId,
+  parseExecutionHostId
+} from '../../../../shared/execution-host'
+import type { ExecutionHostKind } from '../../../../shared/execution-host'
+import { getRuntimePathBasename } from '../../../../shared/cross-platform-path'
+import { parsePaneKey } from '../../../../shared/stable-pane-id'
+import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
+import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
+import type { Repo, TerminalTab, Worktree } from '../../../../shared/types'
+import type {
+  AgentWorkspacePhase,
+  AgentWorkspaceProject,
+  AgentWorkspaceSnapshot,
+  AgentWorkspaceThread
+} from './agent-workspace-types'
+
+type WorkspaceThreadMeta = {
+  path: string
+  branchName: string | null
+}
+
+type TabMatch = {
+  worktreeId: string
+  tab: TerminalTab
+}
+
+function nonEmpty(value: string | null | undefined): string | null {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : null
+}
+
+function getPhaseForAgentState(state: string): AgentWorkspacePhase {
+  switch (state) {
+    case 'working':
+      return 'running'
+    case 'waiting':
+      return 'waiting-for-user'
+    case 'blocked':
+      return 'needs-approval'
+    case 'done':
+      return 'completed'
+    default:
+      return 'disconnected'
+  }
+}
+
+function pathFallback(path: string): string {
+  return getRuntimePathBasename(path) || path
+}
+
+function hostKindFromHostId(hostId: string | null | undefined): ExecutionHostKind {
+  return parseExecutionHostId(hostId)?.kind ?? 'local'
+}
+
+function getRepoForWorktree(state: AppState, worktree: Worktree): Repo | undefined {
+  return state.repos.find((repo) => repo.id === worktree.repoId)
+}
+
+function getWorktreeHostKind(state: AppState, worktree: Worktree): ExecutionHostKind {
+  const worktreeHostKind = parseExecutionHostId(worktree.hostId)?.kind
+  if (worktreeHostKind) {
+    return worktreeHostKind
+  }
+  const repo = getRepoForWorktree(state, worktree)
+  const hostId =
+    repo?.connectionId || repo?.executionHostId
+      ? getRepoExecutionHostId(repo)
+      : getSettingsFocusedExecutionHostId(state.settings)
+  return hostKindFromHostId(hostId)
+}
+
+function getFolderHostKind(
+  state: AppState,
+  folderWorkspace: AppState['folderWorkspaces'][number]
+): ExecutionHostKind {
+  const projectGroup = state.projectGroups.find(
+    (group) => group.id === folderWorkspace.projectGroupId
+  )
+  if (folderWorkspace.connectionId || projectGroup?.connectionId) {
+    return 'ssh'
+  }
+  return hostKindFromHostId(getSettingsFocusedExecutionHostId(state.settings))
+}
+
+function getWorktreeLabel(worktree: Worktree): string {
+  return (
+    nonEmpty(worktree.displayName) ??
+    nonEmpty(branchName(worktree.branch)) ??
+    pathFallback(worktree.path)
+  )
+}
+
+function getWorkspaceThreadMeta(state: AppState): Map<string, WorkspaceThreadMeta> {
+  const meta = new Map<string, WorkspaceThreadMeta>()
+  for (const worktrees of Object.values(state.worktreesByRepo)) {
+    for (const worktree of worktrees) {
+      if (!worktree.isArchived) {
+        meta.set(worktree.id, {
+          path: worktree.path,
+          branchName: branchName(worktree.branch)
+        })
+      }
+    }
+  }
+  for (const folderWorkspace of state.folderWorkspaces) {
+    if (!folderWorkspace.isArchived) {
+      meta.set(folderWorkspaceKey(folderWorkspace.id), {
+        path: folderWorkspace.folderPath,
+        branchName: null
+      })
+    }
+  }
+  return meta
+}
+
+function getTabMatchesById(tabsByWorktree: AppState['tabsByWorktree']): Map<string, TabMatch> {
+  const matches = new Map<string, TabMatch>()
+  for (const [worktreeId, tabs] of Object.entries(tabsByWorktree)) {
+    for (const tab of tabs) {
+      matches.set(tab.id, { worktreeId, tab })
+    }
+  }
+  return matches
+}
+
+function getThreadTitle(entry: AgentStatusEntry, tab: TerminalTab | undefined): string {
+  return (
+    nonEmpty(entry.terminalTitle) ??
+    nonEmpty(tab?.customTitle) ??
+    nonEmpty(tab?.generatedTitle) ??
+    nonEmpty(tab?.title) ??
+    nonEmpty(entry.prompt) ??
+    entry.agentType ??
+    'unknown'
+  )
+}
+
+function getIsoTimestamp(value: number): string | null {
+  return Number.isFinite(value) ? new Date(value).toISOString() : null
+}
+
+function getSortTimestamp(value: string | null): number {
+  return value ? Date.parse(value) : Number.NEGATIVE_INFINITY
+}
+
+function hasTerminalTabsForProjects(
+  state: AppState,
+  projects: readonly AgentWorkspaceProject[]
+): boolean {
+  return projects.some((project) => (state.tabsByWorktree[project.id] ?? []).length > 0)
+}
+
+function toAgentWorkspaceThread(
+  paneKey: string,
+  entry: AgentStatusEntry,
+  worktreeId: string,
+  tab: TerminalTab | undefined,
+  workspaceMeta: Map<string, WorkspaceThreadMeta>
+): AgentWorkspaceThread {
+  const meta = workspaceMeta.get(worktreeId)
+  return {
+    id: paneKey,
+    worktreeId,
+    title: getThreadTitle(entry, tab),
+    agentKind: entry.agentType ?? 'unknown',
+    phase: getPhaseForAgentState(entry.state),
+    updatedAt: getIsoTimestamp(entry.updatedAt),
+    cwd: meta?.path ?? null,
+    branchName: meta?.branchName ?? null
+  }
+}
+
+export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWorkspaceProject[] {
+  const projects: AgentWorkspaceProject[] = []
+  for (const worktrees of Object.values(state.worktreesByRepo)) {
+    for (const worktree of worktrees) {
+      if (worktree.isArchived) {
+        continue
+      }
+      projects.push({
+        id: worktree.id,
+        label: getWorktreeLabel(worktree),
+        path: worktree.path,
+        hostKind: getWorktreeHostKind(state, worktree)
+      })
+    }
+  }
+  for (const folderWorkspace of state.folderWorkspaces) {
+    if (folderWorkspace.isArchived) {
+      continue
+    }
+    projects.push({
+      id: folderWorkspaceKey(folderWorkspace.id),
+      label: nonEmpty(folderWorkspace.name) ?? pathFallback(folderWorkspace.folderPath),
+      path: folderWorkspace.folderPath,
+      hostKind: getFolderHostKind(state, folderWorkspace)
+    })
+  }
+  return projects
+}
+
+export function selectAgentWorkspaceThreads(state: AppState): readonly AgentWorkspaceThread[] {
+  const tabMatchesById = getTabMatchesById(state.tabsByWorktree)
+  const workspaceMeta = getWorkspaceThreadMeta(state)
+  const threads: AgentWorkspaceThread[] = []
+
+  for (const [paneKey, entry] of Object.entries(state.agentStatusByPaneKey)) {
+    const parsed = parsePaneKey(paneKey)
+    const tabMatch = parsed ? tabMatchesById.get(parsed.tabId) : undefined
+    const worktreeId = tabMatch?.worktreeId ?? entry.worktreeId
+    if (!worktreeId) {
+      continue
+    }
+    threads.push(toAgentWorkspaceThread(paneKey, entry, worktreeId, tabMatch?.tab, workspaceMeta))
+  }
+
+  for (const [paneKey, retained] of Object.entries(state.retainedAgentsByPaneKey)) {
+    if (paneKey in state.agentStatusByPaneKey) {
+      continue
+    }
+    threads.push(
+      toAgentWorkspaceThread(
+        paneKey,
+        retained.entry,
+        retained.worktreeId,
+        retained.tab,
+        workspaceMeta
+      )
+    )
+  }
+
+  return threads.sort((a, b) => {
+    const updatedDiff = getSortTimestamp(b.updatedAt) - getSortTimestamp(a.updatedAt)
+    return updatedDiff === 0 ? a.id.localeCompare(b.id) : updatedDiff
+  })
+}
+
+export function selectAgentWorkspaceTerminalAvailable(state: AppState): boolean {
+  const projects = selectAgentWorkspaceProjects(state)
+  if (hasTerminalTabsForProjects(state, projects)) {
+    return true
+  }
+  return selectAgentWorkspaceThreads(state).length > 0
+}
+
+export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSnapshot {
+  const projects = selectAgentWorkspaceProjects(state)
+  const threads = selectAgentWorkspaceThreads(state)
+  return {
+    activeWorktreeId: state.activeWorktreeId ?? null,
+    projects,
+    threads,
+    timeline: [],
+    diffs: [],
+    terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
+  }
+}
