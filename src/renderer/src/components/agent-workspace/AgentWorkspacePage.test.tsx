@@ -419,4 +419,98 @@ describe('AgentWorkspaceLayout thread selection', () => {
 
     expect(container.textContent).toContain('Second timeline event')
   })
+
+  it('preserves right-panel tab state while selected thread data changes', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'First thread',
+                agentKind: 'codex',
+                phase: 'running',
+                updatedAt: '2026-06-15T12:00:00.000Z',
+                branchName: 'feature/first',
+                cwd: '/Users/jakedom/orca'
+              },
+              {
+                id: 'thread-2',
+                worktreeId: 'worktree-1',
+                title: 'Second thread',
+                agentKind: 'codex',
+                phase: 'running',
+                updatedAt: '2026-06-15T12:05:00.000Z',
+                branchName: 'feature/second',
+                cwd: '/Users/jakedom/orca'
+              }
+            ],
+            timeline: [],
+            diffs: [
+              {
+                id: 'diff-1',
+                threadId: 'thread-1',
+                filePath: 'src/first.tsx',
+                additions: 3,
+                deletions: 1,
+                status: 'modified'
+              },
+              {
+                id: 'diff-2',
+                threadId: 'thread-2',
+                filePath: 'src/second.tsx',
+                additions: 7,
+                deletions: 2,
+                status: 'added'
+              }
+            ],
+            terminalAvailable: false
+          }}
+        />
+      )
+    })
+
+    const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
+      (button) => button.textContent === 'Diff'
+    )
+    expect(diffTab).toBeDefined()
+
+    await act(async () => {
+      diffTab?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }))
+    })
+
+    expect(diffTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('src/first.tsx')
+    expect(container.textContent).not.toContain('src/second.tsx')
+
+    const secondThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Second thread')
+    )
+    expect(secondThreadButton).toBeDefined()
+
+    await act(async () => {
+      secondThreadButton?.click()
+    })
+
+    expect(diffTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).not.toContain('src/first.tsx')
+    expect(container.textContent).toContain('src/second.tsx')
+  })
 })
