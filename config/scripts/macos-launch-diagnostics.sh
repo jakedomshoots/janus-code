@@ -240,7 +240,7 @@ wait_for_probe() {
 
   for i in $(seq 1 200); do
     local app_pid
-    app_pid="$(latest_orca_pid_for_app)"
+    app_pid="$(latest_app_pid_for_app)"
     if [[ "$sampled" -eq 0 && -n "$app_pid" ]]; then
       sampled=1
       echo "sampled_pid=$app_pid" >>"$OUT_DIR/$label.meta"
