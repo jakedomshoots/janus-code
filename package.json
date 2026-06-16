@@ -1,6 +1,6 @@
 {
   "name": "janus-code",
-  "version": "1.4.72-rc.0",
+  "version": "0.0.1-rc.0",
   "description": "Janus Code is a GUI-first desktop workspace for CLI coding agents",
   "homepage": "https://github.com/jakedomshoots/janus-code",
   "author": "Jake Dominick",
