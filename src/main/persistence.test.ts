@@ -1564,7 +1564,7 @@ describe('Store', () => {
     expect(store.getSettings().experimentalActivity).toBe(false)
     expect(store.getSettings().experimentalActivityDefaultedOffForAllUsers).toBe(true)
     expect(store.getSettings().experimentalTerminalAttention).toBe(false)
-    expect(store.getSettings().guiAgentWorkspaceEnabled).toBe(false)
+    expect(store.getSettings().guiAgentWorkspaceEnabled).toBe(true)
     expect(store.getSettings().notifications.customSoundPath).toBeNull()
     // repos should be loaded
     expect(store.getRepos()).toHaveLength(1)

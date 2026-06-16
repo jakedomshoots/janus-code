@@ -57,8 +57,8 @@ describe('getDefaultSettings', () => {
     expect(getDefaultSettings('/tmp').compactWorktreeCards).toBe(false)
   })
 
-  it('keeps the GUI agent workspace disabled by default', () => {
-    expect(getDefaultSettings('/tmp').guiAgentWorkspaceEnabled).toBe(false)
+  it('uses the GUI agent workspace by default', () => {
+    expect(getDefaultSettings('/tmp').guiAgentWorkspaceEnabled).toBe(true)
   })
 
   it('defaults agent launch args to yolo mode where the CLI supports it', () => {

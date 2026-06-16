@@ -64,7 +64,7 @@ describe('ExperimentalPane', () => {
     )
   })
 
-  it('renders GUI agent workspace as an off-by-default searchable experimental switch', () => {
+  it('renders GUI agent workspace as an on-by-default searchable experimental switch', () => {
     const settings = getDefaultSettings('/tmp')
     const markup = renderToStaticMarkup(
       <ExperimentalPane settings={settings} updateSettings={vi.fn()} />
@@ -73,19 +73,19 @@ describe('ExperimentalPane', () => {
       (entry) => entry.title === 'GUI agent workspace'
     )
 
-    expect(settings.guiAgentWorkspaceEnabled).toBe(false)
+    expect(settings.guiAgentWorkspaceEnabled).toBe(true)
     expect(markup).toContain('GUI agent workspace')
     expect(markup).toContain(
       'Replaces the terminal-first workspace with a GUI-first agent workspace while keeping the terminal available as a debug panel.'
     )
-    expect(markup).toContain('aria-checked="false"')
+    expect(markup).toContain('aria-checked="true"')
     expect(searchEntry).toBeDefined()
     expect(searchEntry?.keywords).toEqual(
       expect.arrayContaining(['gui', 'workspace', 'agent', 'agents', 't3', 'codex', 'desktop'])
     )
   })
 
-  it('enables GUI agent workspace through the experimental switch', async () => {
+  it('can disable GUI agent workspace through the experimental switch', async () => {
     const updateSettings = vi.fn()
     const { root, container } = await renderExperimentalPane({ updateSettings })
 
@@ -100,7 +100,7 @@ describe('ExperimentalPane', () => {
       switchButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
-    expect(updateSettings).toHaveBeenCalledWith({ guiAgentWorkspaceEnabled: true })
+    expect(updateSettings).toHaveBeenCalledWith({ guiAgentWorkspaceEnabled: false })
     root.unmount()
   })
 
