@@ -3,6 +3,7 @@
 import { pathToFileURL } from 'node:url'
 
 const API_VERSION = '2022-11-28'
+export const DEFAULT_RELEASE_REPO = 'jakedom/agent-hub'
 const MAX_RELEASE_BODY_LENGTH = 120_000
 const TRUNCATION_NOTICE =
   '\n\n---\nRelease notes were truncated because GitHub release bodies are limited to 125,000 characters.'
@@ -103,7 +104,7 @@ export async function createDraftRelease({
 async function main() {
   const tag = process.argv[2]
   const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN
-  const repo = process.env.GITHUB_REPOSITORY || 'stablyai/orca'
+  const repo = process.env.GITHUB_REPOSITORY || DEFAULT_RELEASE_REPO
   await createDraftRelease({ repo, tag, token })
 }
 

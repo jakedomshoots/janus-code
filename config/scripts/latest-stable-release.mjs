@@ -3,6 +3,7 @@
 import { pathToFileURL } from 'node:url'
 
 const API_VERSION = '2022-11-28'
+export const DEFAULT_RELEASE_REPO = 'jakedom/agent-hub'
 const DESKTOP_STABLE_TAG_PATTERN = /^v([0-9]+)\.([0-9]+)\.([0-9]+)$/
 
 export function parseDesktopStableTag(tag) {
@@ -74,7 +75,7 @@ export async function fetchReleases(repo, token, fetchImpl = fetch) {
 
 async function main() {
   const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN
-  const repo = process.env.GITHUB_REPOSITORY || 'stablyai/orca'
+  const repo = process.env.GITHUB_REPOSITORY || DEFAULT_RELEASE_REPO
   const releases = await fetchReleases(repo, token)
   process.stdout.write(latestStableDesktopReleaseTag(releases))
 }

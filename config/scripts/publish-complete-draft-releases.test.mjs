@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import {
+  DEFAULT_RELEASE_REPO,
   isTagBuiltFromCurrentRef,
   isReleaseCutDraft,
   publishCompleteDraftReleases,
@@ -113,6 +114,10 @@ describe('isTagBuiltFromCurrentRef', () => {
 })
 
 describe('publishCompleteDraftReleases', () => {
+  it('defaults to the public Agent Hub release repo', () => {
+    expect(DEFAULT_RELEASE_REPO).toBe('jakedom/agent-hub')
+  })
+
   it('publishes complete release-cut drafts and skips incomplete ones', async () => {
     const fetchImpl = vi
       .fn()
@@ -143,7 +148,7 @@ describe('publishCompleteDraftReleases', () => {
     const log = vi.fn()
 
     const result = await publishCompleteDraftReleases({
-      repo: 'stablyai/orca',
+      repo: 'jakedom/agent-hub',
       token: 'token',
       fetchImpl,
       verifyReleaseAssets,
@@ -161,7 +166,7 @@ describe('publishCompleteDraftReleases', () => {
       ]
     })
     expect(fetchImpl).toHaveBeenLastCalledWith(
-      'https://api.github.com/repos/stablyai/orca/releases/7',
+      'https://api.github.com/repos/jakedom/agent-hub/releases/7',
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ draft: false, prerelease: true })
@@ -185,7 +190,7 @@ describe('publishCompleteDraftReleases', () => {
     const log = vi.fn()
 
     const result = await publishCompleteDraftReleases({
-      repo: 'stablyai/orca',
+      repo: 'jakedom/agent-hub',
       token: 'token',
       fetchImpl,
       verifyReleaseAssets,

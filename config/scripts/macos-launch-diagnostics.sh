@@ -6,7 +6,7 @@
 #   bash config/scripts/macos-launch-diagnostics.sh --tag v1.4.42-rc.1
 set -euo pipefail
 
-REPO="${ORCA_DIAGNOSTIC_REPO:-stablyai/orca}"
+REPO="${ORCA_DIAGNOSTIC_REPO:-jakedom/agent-hub}"
 TAG="${ORCA_DIAGNOSTIC_TAG:-}"
 KEEP=0
 
@@ -54,8 +54,8 @@ fi
 
 ARCH="$(uname -m)"
 case "$ARCH" in
-  arm64) ASSET="orca-macos-arm64.dmg" ;;
-  x86_64) ASSET="orca-macos-x64.dmg" ;;
+  arm64) ASSET="agent-hub-macos-arm64.dmg" ;;
+  x86_64) ASSET="agent-hub-macos-x64.dmg" ;;
   *)
     echo "Unsupported macOS architecture: $ARCH" >&2
     exit 2

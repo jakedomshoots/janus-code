@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createDraftRelease, truncateReleaseBody } from './create-draft-release.mjs'
+import {
+  DEFAULT_RELEASE_REPO,
+  createDraftRelease,
+  truncateReleaseBody
+} from './create-draft-release.mjs'
 
 function jsonResponse(body, init = {}) {
   return {
@@ -25,6 +29,10 @@ describe('truncateReleaseBody', () => {
 })
 
 describe('createDraftRelease', () => {
+  it('defaults to the public Agent Hub release repo', () => {
+    expect(DEFAULT_RELEASE_REPO).toBe('jakedom/agent-hub')
+  })
+
   it('creates a draft release with bounded generated notes', async () => {
     const fetchImpl = vi
       .fn()
@@ -32,7 +40,7 @@ describe('createDraftRelease', () => {
       .mockResolvedValueOnce(jsonResponse({ tag_name: 'v1.4.36', draft: true }))
 
     await createDraftRelease({
-      repo: 'stablyai/orca',
+      repo: 'jakedom/agent-hub',
       tag: 'v1.4.36',
       token: 'token',
       fetchImpl,
@@ -41,7 +49,7 @@ describe('createDraftRelease', () => {
 
     expect(fetchImpl).toHaveBeenNthCalledWith(
       1,
-      'https://api.github.com/repos/stablyai/orca/releases/generate-notes',
+      'https://api.github.com/repos/jakedom/agent-hub/releases/generate-notes',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
@@ -52,7 +60,7 @@ describe('createDraftRelease', () => {
     )
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
-      'https://api.github.com/repos/stablyai/orca/releases',
+      'https://api.github.com/repos/jakedom/agent-hub/releases',
       expect.objectContaining({
         method: 'POST',
         body: expect.any(String)
@@ -77,7 +85,7 @@ describe('createDraftRelease', () => {
       .mockResolvedValueOnce(jsonResponse({ tag_name: 'v1.4.36-rc.1', draft: true }))
 
     await createDraftRelease({
-      repo: 'stablyai/orca',
+      repo: 'jakedom/agent-hub',
       tag: 'v1.4.36-rc.1',
       token: 'token',
       fetchImpl,

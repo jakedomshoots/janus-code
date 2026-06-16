@@ -75,6 +75,7 @@ describe('electron-builder config', () => {
     expect(electronBuilderConfig.nsis.artifactName).toBe('agent-hub-windows-setup.${ext}')
     expect(electronBuilderConfig.dmg.artifactName).toBe('agent-hub-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
+    expect(electronBuilderConfig.linux.maintainer).toBe('Jake Dominick')
     expect(electronBuilderConfig.appImage.artifactName).toBe('agent-hub-linux.${ext}')
     expect(electronBuilderConfig.deb.artifactName).toBe('agent-hub_${version}_${arch}.${ext}')
     expect(electronBuilderConfig.rpm).toMatchObject({

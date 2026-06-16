@@ -269,7 +269,7 @@ module.exports = {
       featureWallResources
     ],
     target: ['AppImage', 'deb', 'rpm'],
-    maintainer: 'stablyai',
+    maintainer: 'Jake Dominick',
     category: 'Utility'
   },
   appImage: {
