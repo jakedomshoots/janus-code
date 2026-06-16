@@ -8,9 +8,13 @@ const projectDir = path.resolve(import.meta.dirname, '../..')
 const packageJson = JSON.parse(readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
 const wrapperPath = path.join(projectDir, 'config', 'scripts', 'orca-dev.mjs')
 
-describe('orca-dev package bin', () => {
-  it('uses a Node entrypoint for cross-platform package installs', () => {
-    expect(packageJson.bin['orca-dev']).toBe('./config/scripts/orca-dev.mjs')
+describe('agent-hub-dev package bin', () => {
+  it('exposes only the requested public and dev package bins', () => {
+    expect(packageJson.bin).toEqual({
+      'agent-hub': './out/cli/index.js',
+      orca: './out/cli/index.js',
+      'agent-hub-dev': './config/scripts/orca-dev.mjs'
+    })
     expect(readFileSync(wrapperPath, 'utf8').startsWith('#!/usr/bin/env node\n')).toBe(true)
   })
 

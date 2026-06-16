@@ -3,20 +3,19 @@ setlocal
 set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..") do set "RESOURCES_DIR=%%~fI"
 REM Why: once %%~fI canonicalizes RESOURCES_DIR it no longer ends with a slash,
-REM so Windows batch needs an explicit "\.." segment here. Without it the CLI
-REM launcher resolves APP_DIR back to resources/ and `orca open` cannot find
-REM Orca.exe on packaged Windows installs.
+REM so Windows batch needs an explicit "\.." segment here. Without it this
+REM compatibility launcher resolves APP_DIR back to resources/ and cannot find
+REM Agent Hub.exe on packaged Windows installs.
 for %%I in ("%RESOURCES_DIR%\..") do set "APP_DIR=%%~fI"
-set "ELECTRON=%APP_DIR%\Orca.exe"
+set "ELECTRON=%APP_DIR%\Agent Hub.exe"
 
 if not exist "%ELECTRON%" (
-  echo Unable to locate Orca.exe next to "%RESOURCES_DIR%" 1>&2
+  echo Unable to locate Agent Hub.exe next to "%RESOURCES_DIR%" 1>&2
   exit /b 1
 )
 
-REM Why: Orca packages the CLI entrypoint outside app.asar so the public shell
-REM command can execute it directly with ELECTRON_RUN_AS_NODE instead of
-REM depending on a separately installed Node CLI.
+REM Why: this legacy orca.cmd launcher remains as a compatibility alias for
+REM Agent Hub installs, so it targets the current packaged executable name.
 set "CLI=%RESOURCES_DIR%\app.asar.unpacked\out\cli\index.js"
 
 set "ORCA_NODE_OPTIONS=%NODE_OPTIONS%"

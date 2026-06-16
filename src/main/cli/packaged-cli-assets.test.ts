@@ -16,6 +16,7 @@ const builderConfig = require('../../../config/electron-builder.config.cjs') as 
   win?: { extraResources?: { from?: string; to?: string }[] }
 }
 const macAgentHubLauncherAsset = new URL('../../../resources/darwin/bin/agent-hub', import.meta.url)
+const macLegacyLauncherAsset = new URL('../../../resources/darwin/bin/orca', import.meta.url)
 const linuxAgentHubLauncherAsset = new URL(
   '../../../resources/linux/bin/agent-hub',
   import.meta.url
@@ -66,6 +67,18 @@ describe('packaged CLI assets', () => {
     expect(launcher).toContain('MacOS/Agent Hub')
     expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
   })
+
+  itRunsUnixShell(
+    'keeps the legacy macOS launcher as an Agent Hub compatibility alias',
+    async () => {
+      const launcher = await readFile(macLegacyLauncherAsset, 'utf8')
+
+      expect(launcher).toContain('Agent Hub.app')
+      expect(launcher).toContain('MacOS/Agent Hub')
+      expect(launcher).not.toContain('MacOS/Orca')
+      expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
+    }
+  )
 
   itRunsUnixShell(
     'runs the Linux launcher from its packaged path and installed symlink',

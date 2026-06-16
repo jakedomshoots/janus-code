@@ -2,8 +2,30 @@
 
 import { execFileSync } from 'node:child_process'
 import { chmodSync, readFileSync, statSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+
+const REQUIRED_PACKAGED_LAUNCHERS = [
+  {
+    platform: 'mac',
+    from: 'resources/darwin/bin/agent-hub',
+    to: 'bin/agent-hub',
+    executable: true
+  },
+  {
+    platform: 'linux',
+    from: 'resources/linux/bin/agent-hub',
+    to: 'bin/agent-hub',
+    executable: true
+  },
+  {
+    platform: 'win',
+    from: 'resources/win32/bin/agent-hub.cmd',
+    to: 'bin/agent-hub.cmd',
+    executable: false
+  }
+]
 
 export function verifyPackageCliBin({
   projectDir = path.resolve(import.meta.dirname, '..', '..'),
@@ -14,16 +36,18 @@ export function verifyPackageCliBin({
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
   const primaryName = 'agent-hub'
   const aliases = ['orca']
+  const warnings = []
   const binTarget = packageJson.bin?.[primaryName]
   if (typeof binTarget !== 'string' || binTarget.length === 0) {
     throw new Error('package.json must declare bin.agent-hub')
   }
   const orcaAliasTarget = packageJson.bin?.orca
   if (typeof orcaAliasTarget !== 'string' || orcaAliasTarget.length === 0) {
-    throw new Error('package.json must declare bin.orca compatibility alias')
-  }
-  if (orcaAliasTarget !== binTarget) {
-    throw new Error('bin.orca compatibility alias must point to the same target as bin.agent-hub')
+    warnings.push('package.json does not declare optional bin.orca compatibility alias')
+  } else if (orcaAliasTarget !== binTarget) {
+    warnings.push(
+      `bin.orca compatibility alias points to ${orcaAliasTarget} instead of ${binTarget}`
+    )
   }
 
   const binPath = path.resolve(projectDir, binTarget)
@@ -62,7 +86,49 @@ export function verifyPackageCliBin({
     })
   }
 
-  return { binPath, primaryName, aliases, size: statSync(binPath).size }
+  verifyPackagedLauncherResources(projectDir)
+
+  return { binPath, primaryName, aliases, warnings, size: statSync(binPath).size }
+}
+
+function verifyPackagedLauncherResources(projectDir) {
+  for (const launcher of REQUIRED_PACKAGED_LAUNCHERS) {
+    const launcherPath = path.join(projectDir, launcher.from)
+    let stats
+    try {
+      stats = statSync(launcherPath)
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        throw new Error(`Missing packaged agent-hub launcher resource: ${launcher.from}`)
+      }
+      throw error
+    }
+    if (!stats.isFile()) {
+      throw new Error(`Packaged agent-hub launcher resource is not a file: ${launcher.from}`)
+    }
+    if (stats.size === 0) {
+      throw new Error(`Packaged agent-hub launcher resource is empty: ${launcher.from}`)
+    }
+    if (launcher.executable && process.platform !== 'win32' && (stats.mode & 0o111) === 0) {
+      throw new Error(`Packaged agent-hub launcher resource is not executable: ${launcher.from}`)
+    }
+  }
+
+  const builderConfigPath = path.join(projectDir, 'config', 'electron-builder.config.cjs')
+  const requireFromProject = createRequire(pathToFileURL(path.join(projectDir, 'package.json')))
+  const builderConfig = requireFromProject(builderConfigPath)
+  for (const launcher of REQUIRED_PACKAGED_LAUNCHERS) {
+    const resources = builderConfig[launcher.platform]?.extraResources ?? []
+    const hasMapping = resources.some(
+      (resource) => resource?.from === launcher.from && resource?.to === launcher.to
+    )
+    if (!hasMapping) {
+      throw new Error(
+        `electron-builder ${launcher.platform}.extraResources must map ` +
+          `${launcher.from} to ${launcher.to}`
+      )
+    }
+  }
 }
 
 function main() {
@@ -71,9 +137,14 @@ function main() {
     fixExecutable: args.has('--fix-executable'),
     runHelp: args.has('--run-help')
   })
+  const relativeBinPath = path.relative(process.cwd(), result.binPath)
   console.log(
-    `[cli-bin] verified ${result.primaryName} at ${path.relative(process.cwd(), result.binPath)} (${result.size} bytes); aliases: ${result.aliases.join(', ')}`
+    `[cli-bin] verified ${result.primaryName} at ${relativeBinPath} ` +
+      `(${result.size} bytes); aliases: ${result.aliases.join(', ')}`
   )
+  for (const warning of result.warnings) {
+    console.warn(`[cli-bin] warning: ${warning}`)
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

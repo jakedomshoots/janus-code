@@ -4,7 +4,57 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { verifyPackageCliBin } from './verify-cli-bin.mjs'
 
-function makeProjectWithCli(content, mode = 0o755, packageJson = null) {
+const requiredPackagedResources = [
+  ['mac', 'resources/darwin/bin/agent-hub', 'bin/agent-hub'],
+  ['linux', 'resources/linux/bin/agent-hub', 'bin/agent-hub'],
+  ['win', 'resources/win32/bin/agent-hub.cmd', 'bin/agent-hub.cmd']
+]
+
+function writePackagedCliResources(
+  projectDir,
+  { missingResource = null, missingMapping = null } = {}
+) {
+  for (const [, from] of requiredPackagedResources) {
+    if (from === missingResource) {
+      continue
+    }
+    const resourcePath = path.join(projectDir, from)
+    mkdirSync(path.dirname(resourcePath), { recursive: true })
+    writeFileSync(
+      resourcePath,
+      from.endsWith('.cmd') ? '@echo off\n' : '#!/usr/bin/env bash\n',
+      'utf8'
+    )
+    if (process.platform !== 'win32' && !from.endsWith('.cmd')) {
+      chmodSync(resourcePath, 0o755)
+    }
+  }
+
+  const resourceConfig = Object.fromEntries(
+    requiredPackagedResources.map(([platform, from, to]) => [
+      platform,
+      {
+        extraResources:
+          platform === missingMapping
+            ? []
+            : [
+                {
+                  from,
+                  to
+                }
+              ]
+      }
+    ])
+  )
+  mkdirSync(path.join(projectDir, 'config'), { recursive: true })
+  writeFileSync(
+    path.join(projectDir, 'config', 'electron-builder.config.cjs'),
+    `module.exports = ${JSON.stringify(resourceConfig, null, 2)}\n`,
+    'utf8'
+  )
+}
+
+function makeProjectWithCli(content, mode = 0o755, packageJson = null, resourceOptions = {}) {
   const projectDir = mkdtempSync(path.join(tmpdir(), 'orca-cli-bin-'))
   const cliPath = path.join(projectDir, 'out', 'cli', 'index.js')
   mkdirSync(path.dirname(cliPath), { recursive: true })
@@ -24,6 +74,7 @@ function makeProjectWithCli(content, mode = 0o755, packageJson = null) {
   if (process.platform !== 'win32') {
     chmodSync(cliPath, mode)
   }
+  writePackagedCliResources(projectDir, resourceOptions)
   return { projectDir, cliPath }
 }
 
@@ -36,7 +87,8 @@ describe('verifyPackageCliBin', () => {
     expect(verifyPackageCliBin({ projectDir, runHelp: true })).toMatchObject({
       binPath: cliPath,
       primaryName: 'agent-hub',
-      aliases: ['orca']
+      aliases: ['orca'],
+      warnings: []
     })
   })
 
@@ -48,15 +100,17 @@ describe('verifyPackageCliBin', () => {
     expect(() => verifyPackageCliBin({ projectDir })).toThrow('bin.agent-hub')
   })
 
-  it('rejects a missing orca compatibility alias', () => {
+  it('warns when the orca compatibility alias is absent', () => {
     const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
       bin: { 'agent-hub': './out/cli/index.js' }
     })
 
-    expect(() => verifyPackageCliBin({ projectDir })).toThrow('bin.orca compatibility alias')
+    expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
+      'package.json does not declare optional bin.orca compatibility alias'
+    )
   })
 
-  it('rejects an orca compatibility alias that points somewhere else', () => {
+  it('warns when the orca compatibility alias points somewhere else', () => {
     const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
       bin: {
         'agent-hub': './out/cli/index.js',
@@ -64,7 +118,9 @@ describe('verifyPackageCliBin', () => {
       }
     })
 
-    expect(() => verifyPackageCliBin({ projectDir })).toThrow('bin.orca compatibility alias')
+    expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
+      'bin.orca compatibility alias points to ./out/cli/legacy.js instead of ./out/cli/index.js'
+    )
   })
 
   it('rejects an empty package bin target', () => {
@@ -77,6 +133,27 @@ describe('verifyPackageCliBin', () => {
     const { projectDir } = makeProjectWithCli('console.log("orca")\n')
 
     expect(() => verifyPackageCliBin({ projectDir })).toThrow('Node shebang')
+  })
+
+  it('rejects missing packaged agent-hub launcher resources', () => {
+    const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, null, {
+      missingResource: 'resources/linux/bin/agent-hub'
+    })
+
+    expect(() => verifyPackageCliBin({ projectDir })).toThrow(
+      'Missing packaged agent-hub launcher resource: resources/linux/bin/agent-hub'
+    )
+  })
+
+  it('rejects missing electron-builder agent-hub launcher resource mappings', () => {
+    const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, null, {
+      missingMapping: 'win'
+    })
+
+    expect(() => verifyPackageCliBin({ projectDir })).toThrow(
+      'electron-builder win.extraResources must map ' +
+        'resources/win32/bin/agent-hub.cmd to bin/agent-hub.cmd'
+    )
   })
 
   it.skipIf(process.platform === 'win32')('can repair the POSIX executable bit', () => {
