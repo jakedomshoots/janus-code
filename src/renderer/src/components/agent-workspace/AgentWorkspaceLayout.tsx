@@ -1,7 +1,5 @@
-import { Clock3, FileText, GitBranch, ListChecks, MessageSquareText, Terminal } from 'lucide-react'
+import { FileText, ListChecks, Terminal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -11,15 +9,12 @@ import type {
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import { AgentComposer } from './AgentComposer'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
-import {
-  formatAgentWorkspaceDiffStatus,
-  formatAgentWorkspacePhase,
-  formatAgentWorkspaceTimelineKind,
-  formatAgentWorkspaceTimelineStatus
-} from './agent-workspace-labels'
+import { AgentTimeline } from './AgentTimeline'
+import { formatAgentWorkspaceDiffStatus, formatAgentWorkspacePhase } from './agent-workspace-labels'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
   return (
@@ -86,95 +81,22 @@ function TerminalDrawerAffordance({
   )
 }
 
-function Timeline({
+function AgentWorkspaceCenter({
+  activeWorktreeId,
   thread,
   timeline,
   terminalAvailable
 }: {
+  activeWorktreeId: string | null
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
 }): React.JSX.Element {
   return (
     <main className="flex min-w-0 flex-1 flex-col bg-background">
-      <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-4 py-3">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
-          {thread ? (
-            <>
-              <div className="rounded-md border border-border bg-muted/20 p-3">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <MessageSquareText className="size-4" aria-hidden="true" />
-                  {thread.title}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <GitBranch className="size-3" aria-hidden="true" />
-                    {thread.branchName ??
-                      translate('auto.components.agentWorkspace.layout.noBranch', 'No branch')}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock3 className="size-3" aria-hidden="true" />
-                    {thread.updatedAt ??
-                      translate(
-                        'auto.components.agentWorkspace.layout.noUpdatesYet',
-                        'No updates yet'
-                      )}
-                  </span>
-                </div>
-              </div>
-              {timeline.length === 0 ? (
-                <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-                  {translate(
-                    'auto.components.agentWorkspace.layout.timelineEventsWillAppear',
-                    'Timeline events will appear here as the agent works.'
-                  )}
-                </div>
-              ) : (
-                timeline.map((entry) => (
-                  <article key={entry.id} className="rounded-md border border-border p-3">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <Badge variant="outline">
-                        {formatAgentWorkspaceTimelineKind(entry.kind)}
-                      </Badge>
-                      {entry.status ? (
-                        <span className="text-xs text-muted-foreground">
-                          {formatAgentWorkspaceTimelineStatus(entry.status)}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="text-sm text-foreground">{entry.text}</p>
-                  </article>
-                ))
-              )}
-            </>
-          ) : (
-            <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-              {translate(
-                'auto.components.agentWorkspace.layout.selectThreadTimeline',
-                'Select a thread to view its timeline.'
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <AgentTimeline thread={thread} timeline={timeline} />
       <TerminalDrawerAffordance terminalAvailable={terminalAvailable} />
-      <div className="border-t border-border p-3">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 rounded-md border border-border bg-muted/20 px-3 py-2">
-          <input
-            className="min-w-0 flex-1 bg-transparent text-sm text-muted-foreground outline-none"
-            disabled
-            value=""
-            placeholder={translate(
-              'auto.components.agentWorkspace.layout.composerComingNext',
-              'Composer coming next'
-            )}
-            readOnly
-          />
-          <Button type="button" size="sm" disabled>
-            {translate('auto.components.agentWorkspace.layout.send', 'Send')}
-          </Button>
-        </div>
-      </div>
+      <AgentComposer activeWorktreeId={activeWorktreeId} selectedThread={thread} />
     </main>
   )
 }
@@ -346,7 +268,8 @@ export function AgentWorkspaceLayout({
         />
       }
     >
-      <Timeline
+      <AgentWorkspaceCenter
+        activeWorktreeId={snapshot.activeWorktreeId}
         thread={selectedThread}
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}

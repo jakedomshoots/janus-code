@@ -11030,6 +11030,23 @@
           "terminalSessionAvailable": "终端会话可作为调试面板使用。",
           "noTerminalSessionAttached": "此工作区没有关联的终端会话。"
         },
+        "composer": {
+          "enterMessageBeforeSending": "发送前请输入消息。",
+          "selectRunningThread": "发送消息前请选择正在运行的线程。",
+          "threadNotRunning": "此线程为{{phase}}，暂时无法接收消息。",
+          "threadNotActiveWorktree": "发送消息前请切换到此工作树。",
+          "openAgentTerminalInWorktree": "请在此工作树中打开代理终端，然后重新发送消息。",
+          "activeTerminalNotAgent": "当前活动终端不是可识别的代理会话。",
+          "agentNotReady": "代理尚未准备好接收输入。",
+          "terminalDidNotAcceptMessage": "活动终端未接受此消息。",
+          "sendException": "无法将消息发送给代理。",
+          "sentToAgent": "已发送给{{agent}}。",
+          "messageAgent": "给代理发消息",
+          "selectThreadPlaceholder": "选择正在运行的线程",
+          "threadNotReadyPlaceholder": "线程为{{phase}}",
+          "switchWorktreePlaceholder": "切换到此工作树",
+          "messageSelectedAgent": "给所选代理发消息..."
+        },
         "page": {
           "agentWorkspace": "Agent 工作区"
         },

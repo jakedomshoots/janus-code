@@ -120,7 +120,7 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Plan')
     expect(markup).toContain('Diff')
     expect(markup).toContain('Terminal')
-    expect(markup).toContain('Composer coming next')
+    expect(markup).toContain('Message the selected agent')
     expect(markup).toContain('src/renderer/src/components/Terminal.tsx')
   })
 })

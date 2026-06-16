@@ -11030,6 +11030,23 @@
           "terminalSessionAvailable": "ターミナルセッションはデバッグパネルとして利用できます。",
           "noTerminalSessionAttached": "このワークスペースに関連付けられたターミナルセッションはありません。"
         },
+        "composer": {
+          "enterMessageBeforeSending": "送信前にメッセージを入力してください。",
+          "selectRunningThread": "メッセージを送信する前に実行中のスレッドを選択してください。",
+          "threadNotRunning": "このスレッドは{{phase}}のため、まだメッセージを受け取れません。",
+          "threadNotActiveWorktree": "メッセージを送信する前にこのワークツリーへ切り替えてください。",
+          "openAgentTerminalInWorktree": "このワークツリーでエージェントのターミナルを開いてから、もう一度メッセージを送信してください。",
+          "activeTerminalNotAgent": "アクティブなターミナルは認識済みのエージェントセッションではありません。",
+          "agentNotReady": "エージェントはまだ入力を受け取れる状態ではありません。",
+          "terminalDidNotAcceptMessage": "アクティブなターミナルがメッセージを受け付けませんでした。",
+          "sendException": "エージェントにメッセージを送信できませんでした。",
+          "sentToAgent": "{{agent}}に送信しました。",
+          "messageAgent": "エージェントにメッセージ",
+          "selectThreadPlaceholder": "実行中のスレッドを選択",
+          "threadNotReadyPlaceholder": "スレッドは{{phase}}",
+          "switchWorktreePlaceholder": "このワークツリーへ切り替え",
+          "messageSelectedAgent": "選択したエージェントにメッセージ..."
+        },
         "page": {
           "agentWorkspace": "エージェントワークスペース"
         },

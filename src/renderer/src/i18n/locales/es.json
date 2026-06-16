@@ -11030,6 +11030,23 @@
           "terminalSessionAvailable": "La sesion de terminal esta disponible como panel de depuracion.",
           "noTerminalSessionAttached": "No hay ninguna sesion de terminal asociada a este espacio de trabajo."
         },
+        "composer": {
+          "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
+          "selectRunningThread": "Selecciona un hilo en ejecucion antes de enviar un mensaje.",
+          "threadNotRunning": "Este hilo esta {{phase}} y aun no puede recibir mensajes.",
+          "threadNotActiveWorktree": "Cambia a este worktree antes de enviar un mensaje.",
+          "openAgentTerminalInWorktree": "Abre la terminal del agente en este worktree y vuelve a enviar el mensaje.",
+          "activeTerminalNotAgent": "La terminal activa no es una sesion de agente reconocida.",
+          "agentNotReady": "El agente aun no esta listo para recibir input.",
+          "terminalDidNotAcceptMessage": "La terminal activa no acepto el mensaje.",
+          "sendException": "No se pudo enviar el mensaje al agente.",
+          "sentToAgent": "Enviado a {{agent}}.",
+          "messageAgent": "Mensaje para el agente",
+          "selectThreadPlaceholder": "Selecciona un hilo en ejecucion",
+          "threadNotReadyPlaceholder": "El hilo esta {{phase}}",
+          "switchWorktreePlaceholder": "Cambia a este worktree",
+          "messageSelectedAgent": "Mensaje para el agente seleccionado..."
+        },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"
         },

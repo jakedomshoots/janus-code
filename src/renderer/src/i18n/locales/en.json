@@ -11030,6 +11030,23 @@
           "terminalSessionAvailable": "Terminal session is available as a debug panel.",
           "noTerminalSessionAttached": "No terminal session is attached to this workspace."
         },
+        "composer": {
+          "enterMessageBeforeSending": "Enter a message before sending.",
+          "selectRunningThread": "Select a running thread before sending a message.",
+          "threadNotRunning": "This thread is {{phase}} and cannot receive messages yet.",
+          "threadNotActiveWorktree": "Switch to this worktree before sending a message.",
+          "openAgentTerminalInWorktree": "Open the agent terminal in this worktree, then send the message again.",
+          "activeTerminalNotAgent": "The active terminal is not a recognized agent session.",
+          "agentNotReady": "The agent is not ready for input yet.",
+          "terminalDidNotAcceptMessage": "The active terminal did not accept the message.",
+          "sendException": "Could not send the message to the agent.",
+          "sentToAgent": "Sent to {{agent}}.",
+          "messageAgent": "Message agent",
+          "selectThreadPlaceholder": "Select a running thread",
+          "threadNotReadyPlaceholder": "Thread is {{phase}}",
+          "switchWorktreePlaceholder": "Switch to this worktree",
+          "messageSelectedAgent": "Message the selected agent..."
+        },
         "page": {
           "agentWorkspace": "Agent workspace"
         },
