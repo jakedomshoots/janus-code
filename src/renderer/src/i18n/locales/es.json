@@ -11024,11 +11024,19 @@
           "plan": "Plan",
           "diff": "Diff",
           "terminal": "Terminal",
+          "details": "Detalles",
           "agentIsPhaseOnThread": "{{agentKind}} esta en fase {{phase}} en {{title}}.",
           "selectThreadPlan": "Selecciona un hilo para inspeccionar su plan.",
           "noDiffSummaryYet": "Aun no hay resumen de diff.",
           "terminalSessionAvailable": "La sesion de terminal esta disponible como panel de depuracion.",
-          "noTerminalSessionAttached": "No hay ninguna sesion de terminal asociada a este espacio de trabajo."
+          "noTerminalSessionAttached": "No hay ninguna sesion de terminal asociada a este espacio de trabajo.",
+          "threadNeedsApproval": "Este hilo necesita aprobacion antes de poder continuar.",
+          "agent": "Agente",
+          "phase": "Fase",
+          "branch": "Rama",
+          "workingDirectory": "Directorio de trabajo",
+          "noWorkingDirectory": "Sin directorio de trabajo",
+          "selectThreadDetails": "Selecciona un hilo para inspeccionar sus detalles."
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",

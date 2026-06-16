@@ -68,6 +68,7 @@ describe('AgentWorkspaceRightPanel', () => {
     expect(findTab(container, 'Plan').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Diff').getAttribute('data-state')).toBe('active')
     expect(findTab(container, 'Terminal').getAttribute('data-state')).toBe('inactive')
+    expect(findTab(container, 'Details').getAttribute('data-state')).toBe('inactive')
     expect(container.textContent).toContain(diffSummary.filePath)
   })
 
@@ -93,5 +94,27 @@ describe('AgentWorkspaceRightPanel', () => {
     })
 
     expect(onSelectedTabChange).toHaveBeenCalledWith('terminal')
+  })
+
+  it('renders thread details in the details tab', async () => {
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          thread={{
+            ...runningThread,
+            phase: 'needs-approval',
+            cwd: '/Users/jakedom/orca'
+          }}
+          diffs={[]}
+          terminalAvailable={false}
+          selectedTab="details"
+          onSelectedTabChange={() => undefined}
+        />
+      )
+    })
+
+    expect(findTab(container, 'Details').getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('This thread needs approval before it can continue.')
+    expect(container.textContent).toContain('/Users/jakedom/orca')
   })
 })

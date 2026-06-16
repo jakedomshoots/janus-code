@@ -11024,11 +11024,19 @@
           "plan": "Plan",
           "diff": "Diff",
           "terminal": "Terminal",
+          "details": "Details",
           "agentIsPhaseOnThread": "{{agentKind}} is {{phase}} on {{title}}.",
           "selectThreadPlan": "Select a thread to inspect its plan.",
           "noDiffSummaryYet": "No diff summary yet.",
           "terminalSessionAvailable": "Terminal session is available as a debug panel.",
-          "noTerminalSessionAttached": "No terminal session is attached to this workspace."
+          "noTerminalSessionAttached": "No terminal session is attached to this workspace.",
+          "threadNeedsApproval": "This thread needs approval before it can continue.",
+          "agent": "Agent",
+          "phase": "Phase",
+          "branch": "Branch",
+          "workingDirectory": "Working directory",
+          "noWorkingDirectory": "No working directory",
+          "selectThreadDetails": "Select a thread to inspect its details."
         },
         "composer": {
           "enterMessageBeforeSending": "Enter a message before sending.",

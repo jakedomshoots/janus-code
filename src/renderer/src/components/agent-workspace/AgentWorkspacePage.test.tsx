@@ -513,4 +513,188 @@ describe('AgentWorkspaceLayout thread selection', () => {
     expect(container.textContent).not.toContain('src/first.tsx')
     expect(container.textContent).toContain('src/second.tsx')
   })
+
+  it('re-defaults to details when selecting a thread that needs approval', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'First thread',
+                agentKind: 'codex',
+                phase: 'running',
+                updatedAt: '2026-06-15T12:00:00.000Z',
+                branchName: 'feature/first',
+                cwd: '/Users/jakedom/orca'
+              },
+              {
+                id: 'thread-2',
+                worktreeId: 'worktree-1',
+                title: 'Needs approval thread',
+                agentKind: 'codex',
+                phase: 'needs-approval',
+                updatedAt: '2026-06-15T12:05:00.000Z',
+                branchName: 'feature/approval',
+                cwd: '/Users/jakedom/orca'
+              }
+            ],
+            timeline: [],
+            diffs: [
+              {
+                id: 'diff-1',
+                threadId: 'thread-1',
+                filePath: 'src/first.tsx',
+                additions: 3,
+                deletions: 1,
+                status: 'modified'
+              }
+            ],
+            terminalAvailable: false
+          }}
+        />
+      )
+    })
+
+    const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
+      (button) => button.textContent === 'Diff'
+    )
+    expect(diffTab?.getAttribute('data-state')).toBe('active')
+
+    const approvalThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Needs approval thread')
+    )
+    expect(approvalThreadButton).toBeDefined()
+
+    await act(async () => {
+      approvalThreadButton?.click()
+    })
+
+    const detailsTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+    ).find((button) => button.textContent === 'Details')
+    expect(detailsTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('This thread needs approval before it can continue.')
+  })
+
+  it('chooses the plan tab by default for running threads with structured plan state', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'Planned thread',
+                agentKind: 'codex',
+                phase: 'running',
+                updatedAt: '2026-06-15T12:00:00.000Z',
+                branchName: 'feature/plan',
+                cwd: '/Users/jakedom/orca',
+                hasStructuredPlan: true
+              }
+            ],
+            timeline: [],
+            diffs: [],
+            terminalAvailable: false
+          }}
+        />
+      )
+    })
+
+    const planTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
+      (button) => button.textContent === 'Plan'
+    )
+    expect(planTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('codex is running on Planned thread.')
+  })
+
+  it('chooses the details tab by default for threads that need approval', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'Approve command',
+                agentKind: 'codex',
+                phase: 'needs-approval',
+                updatedAt: '2026-06-15T12:00:00.000Z',
+                branchName: 'feature/approval',
+                cwd: '/Users/jakedom/orca'
+              }
+            ],
+            timeline: [],
+            diffs: [
+              {
+                id: 'diff-1',
+                threadId: 'thread-1',
+                filePath: 'src/approval.tsx',
+                additions: 3,
+                deletions: 1,
+                status: 'modified'
+              }
+            ],
+            terminalAvailable: false
+          }}
+        />
+      )
+    })
+
+    const detailsTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+    ).find((button) => button.textContent === 'Details')
+    expect(detailsTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('This thread needs approval before it can continue.')
+  })
 })

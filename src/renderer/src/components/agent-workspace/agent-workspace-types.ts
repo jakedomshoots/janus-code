@@ -24,6 +24,7 @@ export type AgentWorkspaceThread = {
   readonly updatedAt: string | null
   readonly branchName: string | null
   readonly cwd: string | null
+  readonly hasStructuredPlan?: boolean
 }
 
 export type AgentWorkspaceTimelineEntry = {

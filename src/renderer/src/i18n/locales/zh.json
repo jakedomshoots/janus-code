@@ -11024,11 +11024,19 @@
           "plan": "计划",
           "diff": "差异",
           "terminal": "Terminal",
+          "details": "详情",
           "agentIsPhaseOnThread": "{{agentKind}} 正在 {{title}} 上{{phase}}。",
           "selectThreadPlan": "选择一个线程以查看其计划。",
           "noDiffSummaryYet": "还没有 diff 摘要。",
           "terminalSessionAvailable": "终端会话可作为调试面板使用。",
-          "noTerminalSessionAttached": "此工作区没有关联的终端会话。"
+          "noTerminalSessionAttached": "此工作区没有关联的终端会话。",
+          "threadNeedsApproval": "此线程需要批准后才能继续。",
+          "agent": "代理",
+          "phase": "阶段",
+          "branch": "分支",
+          "workingDirectory": "工作目录",
+          "noWorkingDirectory": "没有工作目录",
+          "selectThreadDetails": "选择一个线程以查看其详情。"
         },
         "composer": {
           "enterMessageBeforeSending": "发送前请输入消息。",

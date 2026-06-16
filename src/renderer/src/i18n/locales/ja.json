@@ -11024,11 +11024,19 @@
           "plan": "計画",
           "diff": "差分",
           "terminal": "Terminal",
+          "details": "詳細",
           "agentIsPhaseOnThread": "{{agentKind}} は {{title}} で {{phase}} 中です。",
           "selectThreadPlan": "計画を確認するスレッドを選択してください。",
           "noDiffSummaryYet": "差分サマリーはまだありません。",
           "terminalSessionAvailable": "ターミナルセッションはデバッグパネルとして利用できます。",
-          "noTerminalSessionAttached": "このワークスペースに関連付けられたターミナルセッションはありません。"
+          "noTerminalSessionAttached": "このワークスペースに関連付けられたターミナルセッションはありません。",
+          "threadNeedsApproval": "このスレッドは続行する前に承認が必要です。",
+          "agent": "エージェント",
+          "phase": "フェーズ",
+          "branch": "ブランチ",
+          "workingDirectory": "作業ディレクトリ",
+          "noWorkingDirectory": "作業ディレクトリなし",
+          "selectThreadDetails": "詳細を確認するスレッドを選択してください。"
         },
         "composer": {
           "enterMessageBeforeSending": "送信前にメッセージを入力してください。",

@@ -11,12 +11,15 @@ import type {
 import { AgentComposer } from './AgentComposer'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
-import {
-  AgentWorkspaceRightPanel,
-  type AgentWorkspaceRightPanelTab
-} from './AgentWorkspaceRightPanel'
+import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
 import { AgentTimeline } from './AgentTimeline'
+import {
+  getDefaultAgentWorkspaceRightPanelState,
+  type AgentWorkspaceRightPanelState,
+  type AgentWorkspaceRightPanelStateInput,
+  type AgentWorkspaceRightPanelTab
+} from './agent-workspace-right-panel-state'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
   return (
@@ -53,6 +56,34 @@ function getThreadDiffs(
   thread: AgentWorkspaceThread | null
 ): readonly AgentWorkspaceDiffSummary[] {
   return thread ? snapshot.diffs.filter((diff) => diff.threadId === thread.id) : []
+}
+
+function getThreadHasStructuredPlan(thread: AgentWorkspaceThread | null): boolean {
+  return thread?.hasStructuredPlan === true
+}
+
+function getRightPanelStateInput(
+  thread: AgentWorkspaceThread | null,
+  diffs: readonly AgentWorkspaceDiffSummary[]
+): AgentWorkspaceRightPanelStateInput {
+  return {
+    thread,
+    diffs,
+    hasStructuredPlan: getThreadHasStructuredPlan(thread)
+  }
+}
+
+function getRightPanelStateInputKey({
+  thread,
+  diffs,
+  hasStructuredPlan
+}: AgentWorkspaceRightPanelStateInput): string {
+  return [
+    thread?.id ?? 'no-thread',
+    thread?.phase ?? 'no-phase',
+    hasStructuredPlan ? 'plan' : 'no-plan',
+    diffs.map((diff) => diff.id).join(',')
+  ].join(':')
 }
 
 function TerminalDrawerAffordance({
@@ -119,12 +150,18 @@ export function AgentWorkspaceLayout({
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     () => defaultThread?.id ?? null
   )
-  const [selectedRightPanelTab, setSelectedRightPanelTab] =
-    useState<AgentWorkspaceRightPanelTab>('plan')
+  const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
+    getDefaultAgentWorkspaceRightPanelState(
+      getRightPanelStateInput(defaultThread, getThreadDiffs(snapshot, defaultThread))
+    )
+  )
   const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
   const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
+  const rightPanelStateInput = getRightPanelStateInput(selectedThread, diffs)
+  const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
+  const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
 
   useEffect(() => {
     if (previousActiveWorktreeIdRef.current !== snapshot.activeWorktreeId) {
@@ -145,6 +182,20 @@ export function AgentWorkspaceLayout({
       setSelectedThreadId(selectedThread?.id ?? null)
     }
   }, [selectedThread, selectedThreadId])
+
+  useEffect(() => {
+    if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
+      previousRightPanelStateInputKeyRef.current = rightPanelStateInputKey
+      setSelectedRightPanelState(getDefaultAgentWorkspaceRightPanelState(rightPanelStateInput))
+    }
+  }, [rightPanelStateInput, rightPanelStateInputKey])
+
+  function handleRightPanelTabChange(tab: AgentWorkspaceRightPanelTab): void {
+    setSelectedRightPanelState({
+      selectedTab: tab,
+      collapsed: false
+    } satisfies AgentWorkspaceRightPanelState)
+  }
 
   return (
     <AgentWorkspaceChrome
@@ -169,13 +220,15 @@ export function AgentWorkspaceLayout({
       }
       header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
       rightPanel={
-        <AgentWorkspaceRightPanel
-          thread={selectedThread}
-          diffs={diffs}
-          terminalAvailable={snapshot.terminalAvailable}
-          selectedTab={selectedRightPanelTab}
-          onSelectedTabChange={setSelectedRightPanelTab}
-        />
+        selectedRightPanelState.collapsed ? null : (
+          <AgentWorkspaceRightPanel
+            thread={selectedThread}
+            diffs={diffs}
+            terminalAvailable={snapshot.terminalAvailable}
+            selectedTab={selectedRightPanelState.selectedTab}
+            onSelectedTabChange={handleRightPanelTabChange}
+          />
+        )
       }
     >
       <AgentWorkspaceCenter
