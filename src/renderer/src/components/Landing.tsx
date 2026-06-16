@@ -6,7 +6,7 @@ import { isGitRepoKind } from '../../../shared/repo-kind'
 import { ShortcutKeyCombo } from './ShortcutKeyCombo'
 import { useShortcutKeys } from '@/hooks/useShortcutLabel'
 import { useMountedRef } from '@/hooks/useMountedRef'
-import logo from '../../../../resources/logo.svg'
+import logo from '../../../../resources/janus-logo.png'
 import { translate } from '@/i18n/i18n'
 
 type ShortcutItem = {
@@ -315,7 +315,7 @@ export default function Landing(): React.JSX.Element {
             />
           </div>
           <h1 className="text-4xl font-bold text-foreground tracking-tight">
-            {translate('auto.components.Landing.6ca6ff404e', 'ORCA')}
+            {translate('auto.components.Landing.6ca6ff404e', 'Janus Code')}
           </h1>
 
           {preflightIssues.length > 0 && <PreflightBanner issues={preflightIssues} />}
