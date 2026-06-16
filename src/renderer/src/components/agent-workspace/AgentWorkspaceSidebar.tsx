@@ -1,4 +1,4 @@
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, GitBranch } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
@@ -78,6 +78,12 @@ export function AgentWorkspaceSidebar({
                   <div className="truncate font-mono text-[11px] text-muted-foreground">
                     {project.path}
                   </div>
+                  {project.branchName ? (
+                    <div className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground">
+                      <GitBranch className="size-3 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{project.branchName}</span>
+                    </div>
+                  ) : null}
                   {active ? (
                     <Badge
                       variant="outline"

@@ -12,7 +12,8 @@ const projects: readonly AgentWorkspaceProject[] = [
     id: 'worktree-1',
     label: 'orca',
     path: '/Users/jakedom/orca',
-    hostKind: 'local'
+    hostKind: 'local',
+    branchName: 'project-rail-branch'
   },
   {
     id: 'worktree-2',
@@ -89,6 +90,12 @@ describe('AgentWorkspaceSidebar', () => {
 
     expect(markup).toContain('orca')
     expect(markup).toContain('Active worktree')
+  })
+
+  it('renders project branch status when Orca has branch metadata', () => {
+    const markup = renderToStaticMarkup(renderSidebar())
+
+    expect(markup).toContain('project-rail-branch')
   })
 
   it('calls the selected thread callback with the project and thread ids', async () => {

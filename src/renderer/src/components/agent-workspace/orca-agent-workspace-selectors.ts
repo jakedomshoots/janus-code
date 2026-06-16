@@ -194,7 +194,8 @@ export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWor
         id: worktree.id,
         label: getWorktreeLabel(worktree),
         path: worktree.path,
-        hostKind: getWorktreeHostKind(state, worktree)
+        hostKind: getWorktreeHostKind(state, worktree),
+        branchName: branchName(worktree.branch)
       })
     }
   }
@@ -206,7 +207,8 @@ export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWor
       id: folderWorkspaceKey(folderWorkspace.id),
       label: nonEmpty(folderWorkspace.name) ?? pathFallback(folderWorkspace.folderPath),
       path: folderWorkspace.folderPath,
-      hostKind: getFolderHostKind(state, folderWorkspace)
+      hostKind: getFolderHostKind(state, folderWorkspace),
+      branchName: null
     })
   }
   return projects

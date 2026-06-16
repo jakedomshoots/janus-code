@@ -15,6 +15,7 @@ export type AgentWorkspaceProject = {
   readonly label: string
   readonly path: string
   readonly hostKind: 'local' | 'ssh' | 'runtime'
+  readonly branchName?: string | null
 }
 
 export type AgentWorkspaceThread = {

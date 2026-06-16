@@ -156,9 +156,18 @@ describe('orca agent workspace selectors', () => {
         project.id,
         project.label,
         project.path,
-        project.hostKind
+        project.hostKind,
+        project.branchName
       ])
-    ).toEqual([[active.id, 'feature/t3code-gui-workspace', active.path, 'local']])
+    ).toEqual([
+      [
+        active.id,
+        'feature/t3code-gui-workspace',
+        active.path,
+        'local',
+        'feature/t3code-gui-workspace'
+      ]
+    ])
   })
 
   it('returns a stable snapshot reference when the backing state slices have not changed', () => {
