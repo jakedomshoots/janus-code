@@ -803,7 +803,7 @@ jobs:
             exit 0
           fi
 
-          if [[ "${RELEASE_IDENTITY}" == "rc" ]]; then
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
             echo "ORCA_MAC_RELEASE=0" >>"$GITHUB_ENV"
             echo "::warning::macOS signing secrets are missing (${missing[*]}). Building unsigned, unnotarized macOS RC artifacts for tester validation."
             exit 0
@@ -818,7 +818,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          RELEASE_IDENTITY: ${{ steps.tag-classify.outputs.identity }}
+          TAG: ${{ needs.cut.outputs.tag }}
 
       # Why: `plutil -lint` accepts duplicate plist keys, but `codesign`
       # rejects duplicate entitlements after the expensive app build.
