@@ -1149,7 +1149,7 @@ git commit -m "fix: pass full release quality gate"
 - Create: `config/scripts/verify-packaged-release-artifacts.test.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Add packaged artifact smoke doc**
+- [x] **Step 1: Add packaged artifact smoke doc**
 
 Create `docs/release/packaged-artifact-smoke.md`:
 
@@ -1187,7 +1187,7 @@ Check:
 - DMG opens and installs into `/Applications`.
 ````
 
-- [ ] **Step 2: Add artifact verifier script**
+- [x] **Step 2: Add artifact verifier script**
 
 Create `config/scripts/verify-packaged-release-artifacts.mjs`:
 
@@ -1225,7 +1225,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 }
 ```
 
-- [ ] **Step 3: Add verifier tests**
+- [x] **Step 3: Add verifier tests**
 
 Create `config/scripts/verify-packaged-release-artifacts.test.mjs`:
 
@@ -1271,7 +1271,7 @@ describe('verifyPackagedArtifacts', () => {
 })
 ```
 
-- [ ] **Step 4: Add package script**
+- [x] **Step 4: Add package script**
 
 Add to `package.json`:
 
@@ -1279,7 +1279,7 @@ Add to `package.json`:
 "verify:packaged-release-artifacts": "node config/scripts/verify-packaged-release-artifacts.mjs"
 ```
 
-- [ ] **Step 5: Run local packaging checks**
+- [x] **Step 5: Run local packaging checks**
 
 ```bash
 pnpm run test -- config/scripts/verify-packaged-release-artifacts.test.mjs
@@ -1288,12 +1288,22 @@ pnpm run build:mac
 
 Expected: tests pass and macOS ad-hoc artifacts are produced.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add docs/release/packaged-artifact-smoke.md config/scripts/verify-packaged-release-artifacts.mjs config/scripts/verify-packaged-release-artifacts.test.mjs package.json
 git commit -m "build: add packaged artifact verification"
 ```
+
+**Task 11 evidence:**
+- Added `docs/release/packaged-artifact-smoke.md` with ad-hoc and signed macOS release smoke checks.
+- Added `config/scripts/verify-packaged-release-artifacts.mjs` with strict full-release artifact verification plus `--platform=mac` for local macOS packaging checks.
+- Added `config/scripts/verify-packaged-release-artifacts.test.mjs`; `pnpm exec vitest run --config config/vitest.config.ts config/scripts/verify-packaged-release-artifacts.test.mjs` passed `1 passed`, `3 passed`.
+- Added `verify:packaged-release-artifacts` and `verify:packaged-release-artifacts:mac`.
+- `pnpm run build:mac` completed and produced `dist/agent-hub-macos-arm64.dmg`, `dist/agent-hub-macos-x64.dmg`, `dist/Agent Hub-1.4.72-rc.0-arm64-mac.zip`, `dist/Agent Hub-1.4.72-rc.0-mac.zip`, and `dist/latest-mac.yml`.
+- `pnpm run verify:packaged-release-artifacts:mac` passed.
+- `test -d 'dist/mac-arm64/Agent Hub.app' && test -x 'dist/mac-arm64/Agent Hub.app/Contents/Resources/bin/agent-hub'` passed.
+- `codesign --verify --deep --strict 'dist/mac-arm64/Agent Hub.app'` passed for the local ad-hoc build.
 
 ## Task 12: Configure Signing And Notarization
 

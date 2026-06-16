@@ -22,6 +22,8 @@
     "check:feature-wall-assets": "node config/scripts/check-feature-wall-assets.mjs",
     "verify:macos-entitlements": "node config/scripts/verify-macos-entitlements.mjs",
     "verify:public-release-identity": "node config/scripts/verify-public-release-identity.mjs",
+    "verify:packaged-release-artifacts": "node config/scripts/verify-packaged-release-artifacts.mjs",
+    "verify:packaged-release-artifacts:mac": "node config/scripts/verify-packaged-release-artifacts.mjs --platform=mac",
     "vendor:feature-wall-assets": "node config/scripts/vendor-feature-wall-assets.mjs",
     "tc:node": "pnpm run typecheck:node",
     "tc:cli": "pnpm run typecheck:cli",
