@@ -120,4 +120,33 @@ describe('AgentWorkspaceRightPanel', () => {
     expect(container.textContent).toContain('This thread needs approval before it can continue.')
     expect(container.textContent).toContain('/Users/jakedom/orca')
   })
+
+  it('opens the terminal drawer from the terminal tab', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          thread={runningThread}
+          plan={null}
+          diffs={[]}
+          terminalAvailable
+          selectedTab="terminal"
+          onSelectedTabChange={() => undefined}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      )
+    })
+
+    const openButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Open drawer')
+    )
+    expect(openButton).toBeDefined()
+
+    await act(async () => {
+      openButton?.click()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('right-panel')
+  })
 })

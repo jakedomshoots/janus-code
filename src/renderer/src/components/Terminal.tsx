@@ -104,6 +104,12 @@ import { translate } from '@/i18n/i18n'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { browserWorkspaceHasRemoteOwner } from '@/runtime/remote-browser-tab-ownership'
 import { AgentWorkspacePage } from './agent-workspace/AgentWorkspacePage'
+import { AgentTerminalDrawer } from './agent-workspace/AgentTerminalDrawer'
+import {
+  getAgentTerminalVisibilityState,
+  type AgentTerminalRevealReason
+} from './agent-workspace/agent-terminal-visibility'
+import { selectAgentWorkspaceSnapshot } from './agent-workspace/orca-agent-workspace-selectors'
 import { TerminalViewSwitch } from './terminal/terminal-view-switch'
 
 const EditorPanel = lazy(() => import('./editor/EditorPanel'))
@@ -2046,12 +2052,85 @@ function Terminal(): React.JSX.Element | null {
   const guiAgentWorkspaceEnabled = useAppStore(
     (state) => state.settings?.guiAgentWorkspaceEnabled === true
   )
+  const keybindings = useAppStore((state) => state.keybindings)
+  const terminalShortcutPolicy = useAppStore(
+    (state) => state.settings?.terminalShortcutPolicy ?? 'orca-first'
+  )
+  const terminalAvailable = useAppStore(
+    (state) => selectAgentWorkspaceSnapshot(state).terminalAvailable
+  )
+  const [terminalDrawerReason, setTerminalDrawerReason] =
+    useState<AgentTerminalRevealReason | null>(null)
+  const terminalVisibility = getAgentTerminalVisibilityState({
+    guiAgentWorkspaceEnabled,
+    openReason: terminalDrawerReason,
+    terminalAvailable
+  })
+
+  useEffect(() => {
+    if (!guiAgentWorkspaceEnabled && terminalDrawerReason !== null) {
+      setTerminalDrawerReason(null)
+    }
+  }, [guiAgentWorkspaceEnabled, terminalDrawerReason])
+
+  useEffect(() => {
+    if (!guiAgentWorkspaceEnabled) {
+      return
+    }
+
+    const isMac = navigator.userAgent.includes('Mac')
+    const shortcutPlatform: NodeJS.Platform = isMac
+      ? 'darwin'
+      : navigator.userAgent.includes('Windows')
+        ? 'win32'
+        : 'linux'
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.repeat) {
+        return
+      }
+      const matchesDrawerShortcut = keybindingMatchesAction(
+        'agentWorkspace.toggleTerminalDrawer',
+        event,
+        shortcutPlatform,
+        keybindings,
+        {
+          context: getKeybindingContext(event.target),
+          terminalShortcutPolicy
+        }
+      )
+      if (!matchesDrawerShortcut) {
+        return
+      }
+      event.preventDefault()
+      setTerminalDrawerReason((currentReason) =>
+        currentReason === null ? 'keyboard-shortcut' : null
+      )
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [guiAgentWorkspaceEnabled, keybindings, terminalShortcutPolicy])
 
   return (
     <TerminalViewSwitch
       guiAgentWorkspaceEnabled={guiAgentWorkspaceEnabled}
-      agentWorkspace={<AgentWorkspacePage />}
-      terminalWorkspace={<TerminalWorkspace />}
+      agentWorkspace={<AgentWorkspacePage onOpenTerminalDrawer={setTerminalDrawerReason} />}
+      terminalWorkspace={
+        guiAgentWorkspaceEnabled ? (
+          <AgentTerminalDrawer
+            open={terminalVisibility.drawerOpen}
+            reason={terminalVisibility.openReason}
+            terminalAvailable={terminalVisibility.terminalAvailable}
+            onClose={() => setTerminalDrawerReason(null)}
+          >
+            <TerminalWorkspace />
+          </AgentTerminalDrawer>
+        ) : (
+          <TerminalWorkspace />
+        )
+      }
     />
   )
 }

@@ -49,6 +49,7 @@ export type KeybindingActionId =
   | 'sidebar.ports.toggle'
   | 'sidebar.focusWorktreeList'
   | 'floatingTerminal.toggle'
+  | 'agentWorkspace.toggleTerminalDrawer'
   | 'zoom.in'
   | 'zoom.out'
   | 'zoom.reset'
@@ -371,6 +372,15 @@ export const KEYBINDING_DEFINITIONS: readonly KeybindingDefinition[] = [
     scope: 'global',
     searchKeywords: ['shortcut', 'floating terminal', 'terminal'],
     defaultBindings: platformBindings(['Mod+Alt+A']),
+    allowInTerminal: true
+  },
+  {
+    id: 'agentWorkspace.toggleTerminalDrawer',
+    title: 'Toggle Agent Workspace Terminal Drawer',
+    group: 'Agent Workspace',
+    scope: 'global',
+    searchKeywords: ['shortcut', 'agent workspace', 'terminal', 'drawer', 'debug'],
+    defaultBindings: platformBindings(['Mod+Alt+Backquote']),
     allowInTerminal: true
   },
   {

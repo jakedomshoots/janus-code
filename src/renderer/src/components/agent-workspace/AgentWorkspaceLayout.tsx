@@ -1,5 +1,6 @@
-import { Terminal } from 'lucide-react'
+import { AlertTriangle, Terminal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { detectLanguage } from '@/lib/language-detect'
 import { joinPath } from '@/lib/path'
@@ -24,6 +25,7 @@ import {
   type AgentWorkspaceRightPanelStateInput,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
@@ -89,10 +91,14 @@ function getRightPanelStateInputKey({
 }
 
 function TerminalDrawerAffordance({
-  terminalAvailable
+  terminalAvailable,
+  onOpenTerminalDrawer
 }: {
   terminalAvailable: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
+  const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
+
   return (
     <div className="border-t border-border bg-muted/20 px-3 py-1.5">
       <div className="mx-auto flex h-8 w-full max-w-3xl items-center justify-between gap-3 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground">
@@ -111,7 +117,55 @@ function TerminalDrawerAffordance({
                 'No terminal session is attached to this workspace.'
               )}
         </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="xs"
+          disabled={!canOpenTerminalDrawer}
+          onClick={() => onOpenTerminalDrawer?.('debug-button')}
+        >
+          <Terminal className="size-3" aria-hidden="true" />
+          {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
+        </Button>
       </div>
+    </div>
+  )
+}
+
+function AgentFailureTerminalBanner({
+  thread,
+  terminalAvailable,
+  onOpenTerminalDrawer
+}: {
+  thread: AgentWorkspaceThread | null
+  terminalAvailable: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+}): React.JSX.Element | null {
+  if (thread?.phase !== 'failed') {
+    return null
+  }
+
+  return (
+    <div className="flex min-h-10 items-center justify-between gap-3 border-b border-destructive/25 bg-destructive/10 px-4 py-2 text-sm">
+      <div className="flex min-w-0 items-center gap-2 text-destructive">
+        <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
+        <span className="min-w-0 truncate">
+          {translate(
+            'auto.components.agentWorkspace.layout.threadFailedOpenTerminal',
+            'Thread failed. Open the terminal drawer to inspect raw output.'
+          )}
+        </span>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="xs"
+        disabled={!terminalAvailable || typeof onOpenTerminalDrawer !== 'function'}
+        onClick={() => onOpenTerminalDrawer?.('failure')}
+      >
+        <Terminal className="size-3" aria-hidden="true" />
+        {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
+      </Button>
     </div>
   )
 }
@@ -120,26 +174,38 @@ function AgentWorkspaceCenter({
   activeWorktreeId,
   thread,
   timeline,
-  terminalAvailable
+  terminalAvailable,
+  onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
     <main className="flex min-w-0 flex-1 flex-col bg-background">
+      <AgentFailureTerminalBanner
+        thread={thread}
+        terminalAvailable={terminalAvailable}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
+      />
       <AgentTimeline thread={thread} timeline={timeline} />
-      <TerminalDrawerAffordance terminalAvailable={terminalAvailable} />
+      <TerminalDrawerAffordance
+        terminalAvailable={terminalAvailable}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
+      />
       <AgentComposer activeWorktreeId={activeWorktreeId} selectedThread={thread} />
     </main>
   )
 }
 
 export function AgentWorkspaceLayout({
-  snapshot
+  snapshot,
+  onOpenTerminalDrawer
 }: {
   snapshot: AgentWorkspaceSnapshot
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const defaultProject = getSelectedProject(snapshot)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
@@ -250,6 +316,7 @@ export function AgentWorkspaceLayout({
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}
             onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
+            onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )
       }
@@ -259,6 +326,7 @@ export function AgentWorkspaceLayout({
         thread={selectedThread}
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </AgentWorkspaceChrome>
   )

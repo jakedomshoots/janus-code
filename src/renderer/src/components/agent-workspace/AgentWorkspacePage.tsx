@@ -2,9 +2,14 @@ import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
 import { AgentWorkspaceEmptyState } from './AgentWorkspaceEmptyState'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspaceSnapshot } from './orca-agent-workspace-selectors'
 
-export function AgentWorkspacePage(): React.JSX.Element {
+export function AgentWorkspacePage({
+  onOpenTerminalDrawer
+}: {
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+} = {}): React.JSX.Element {
   const snapshot = useAppStore(selectAgentWorkspaceSnapshot)
 
   return (
@@ -25,7 +30,7 @@ export function AgentWorkspacePage(): React.JSX.Element {
           <AgentWorkspaceEmptyState />
         </>
       ) : (
-        <AgentWorkspaceLayout snapshot={snapshot} />
+        <AgentWorkspaceLayout snapshot={snapshot} onOpenTerminalDrawer={onOpenTerminalDrawer} />
       )}
     </section>
   )

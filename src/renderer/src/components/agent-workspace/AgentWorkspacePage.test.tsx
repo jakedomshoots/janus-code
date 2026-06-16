@@ -141,7 +141,7 @@ describe('Terminal GUI agent workspace flag boundary', () => {
     expect(markup).not.toContain('GUI agent workspace')
   })
 
-  it('renders the GUI branch when the GUI agent workspace flag is on', () => {
+  it('renders the GUI branch while preserving the terminal workspace when the GUI flag is on', () => {
     const markup = renderToStaticMarkup(
       <TerminalViewSwitch
         guiAgentWorkspaceEnabled
@@ -151,7 +151,9 @@ describe('Terminal GUI agent workspace flag boundary', () => {
     )
 
     expect(markup).toContain('GUI agent workspace')
-    expect(markup).not.toContain('Terminal workspace')
+    expect(markup).toContain('Terminal workspace')
+    expect(markup).toContain('data-terminal-view="gui-agent-workspace"')
+    expect(markup).toContain('data-terminal-view="preserved-terminal-workspace"')
   })
 })
 
@@ -722,5 +724,69 @@ describe('AgentWorkspaceLayout thread selection', () => {
     ).find((button) => button.textContent === 'Details')
     expect(detailsTab?.getAttribute('data-state')).toBe('active')
     expect(container.textContent).toContain('This thread needs approval before it can continue.')
+  })
+
+  it('opens the terminal drawer from failure and debug controls', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const onOpenTerminalDrawer = vi.fn()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'Failed thread',
+                agentKind: 'codex',
+                phase: 'failed',
+                updatedAt: '2026-06-15T12:00:00.000Z',
+                branchName: 'feature/failure',
+                cwd: '/Users/jakedom/orca'
+              }
+            ],
+            plans: [],
+            timeline: [],
+            diffs: [],
+            terminalAvailable: true
+          }}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain(
+      'Thread failed. Open the terminal drawer to inspect raw output.'
+    )
+
+    const centerButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('main button'))
+    const openButtons = centerButtons.filter((button) =>
+      button.textContent?.includes('Open drawer')
+    )
+    expect(openButtons).toHaveLength(2)
+
+    await act(async () => {
+      openButtons[0]?.click()
+    })
+    await act(async () => {
+      openButtons[1]?.click()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenNthCalledWith(1, 'failure')
+    expect(onOpenTerminalDrawer).toHaveBeenNthCalledWith(2, 'debug-button')
   })
 })

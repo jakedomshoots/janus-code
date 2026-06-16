@@ -276,6 +276,19 @@ describe('keybindings', () => {
     ).toBe(true)
   })
 
+  it('defines a default shortcut for the agent workspace terminal drawer', () => {
+    expect(
+      getEffectiveKeybindingsForAction('agentWorkspace.toggleTerminalDrawer', 'darwin')
+    ).toEqual(['Mod+Alt+Backquote'])
+    expect(
+      keybindingMatchesAction(
+        'agentWorkspace.toggleTerminalDrawer',
+        { key: '`', code: 'Backquote', meta: true, control: false, alt: true, shift: false },
+        'darwin'
+      )
+    ).toBe(true)
+  })
+
   it('defines a macOS-only default for the new agent tab shortcut', () => {
     expect(getEffectiveKeybindingsForAction('tab.newAgent', 'darwin')).toEqual(['Mod+Alt+T'])
     expect(getEffectiveKeybindingsForAction('tab.newAgent', 'linux')).toEqual([])

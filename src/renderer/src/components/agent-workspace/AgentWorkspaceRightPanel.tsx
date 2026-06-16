@@ -1,4 +1,5 @@
 import { Info, Terminal } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -13,6 +14,7 @@ import {
   coerceAgentWorkspaceRightPanelTab,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 
 export function AgentWorkspaceRightPanel({
   thread,
@@ -21,7 +23,8 @@ export function AgentWorkspaceRightPanel({
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
-  onOpenDiff
+  onOpenDiff,
+  onOpenTerminalDrawer
 }: {
   thread: AgentWorkspaceThread | null
   plan: AgentWorkspacePlan | null
@@ -30,6 +33,7 @@ export function AgentWorkspaceRightPanel({
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
   onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
     <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-muted/20 p-3">
@@ -80,6 +84,17 @@ export function AgentWorkspaceRightPanel({
                     'No terminal session is attached to this workspace.'
                   )}
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3 w-full"
+              disabled={!terminalAvailable || typeof onOpenTerminalDrawer !== 'function'}
+              onClick={() => onOpenTerminalDrawer?.('right-panel')}
+            >
+              <Terminal className="size-3.5" aria-hidden="true" />
+              {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
+            </Button>
           </div>
         </TabsContent>
         <TabsContent value="details" className="mt-3 min-h-0" forceMount>
