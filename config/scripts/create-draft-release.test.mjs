@@ -29,8 +29,8 @@ describe('truncateReleaseBody', () => {
 })
 
 describe('createDraftRelease', () => {
-  it('defaults to the public Agent Hub release repo', () => {
-    expect(DEFAULT_RELEASE_REPO).toBe('jakedomshoots/agent-hub')
+  it('defaults to the public Janus Code release repo', () => {
+    expect(DEFAULT_RELEASE_REPO).toBe('jakedomshoots/janus-code')
   })
 
   it('creates a draft release with bounded generated notes', async () => {
@@ -40,7 +40,7 @@ describe('createDraftRelease', () => {
       .mockResolvedValueOnce(jsonResponse({ tag_name: 'v1.4.36', draft: true }))
 
     await createDraftRelease({
-      repo: 'jakedomshoots/agent-hub',
+      repo: 'jakedomshoots/janus-code',
       tag: 'v1.4.36',
       token: 'token',
       fetchImpl,
@@ -49,7 +49,7 @@ describe('createDraftRelease', () => {
 
     expect(fetchImpl).toHaveBeenNthCalledWith(
       1,
-      'https://api.github.com/repos/jakedomshoots/agent-hub/releases/generate-notes',
+      'https://api.github.com/repos/jakedomshoots/janus-code/releases/generate-notes',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
@@ -60,7 +60,7 @@ describe('createDraftRelease', () => {
     )
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
-      'https://api.github.com/repos/jakedomshoots/agent-hub/releases',
+      'https://api.github.com/repos/jakedomshoots/janus-code/releases',
       expect.objectContaining({
         method: 'POST',
         body: expect.any(String)
@@ -85,7 +85,7 @@ describe('createDraftRelease', () => {
       .mockResolvedValueOnce(jsonResponse({ tag_name: 'v1.4.36-rc.1', draft: true }))
 
     await createDraftRelease({
-      repo: 'jakedomshoots/agent-hub',
+      repo: 'jakedomshoots/janus-code',
       tag: 'v1.4.36-rc.1',
       token: 'token',
       fetchImpl,

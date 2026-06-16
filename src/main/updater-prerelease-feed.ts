@@ -3,7 +3,7 @@ import { parse } from 'yaml'
 import { compareVersions, isPrereleaseVersion, isValidVersion } from './updater-fallback'
 
 const RELEASE_REPO_OWNER = 'jakedomshoots'
-const RELEASE_REPO_NAME = 'agent-hub'
+const RELEASE_REPO_NAME = 'janus-code'
 const RELEASE_REPO = `${RELEASE_REPO_OWNER}/${RELEASE_REPO_NAME}`
 const ATOM_FEED_URL = `https://github.com/${RELEASE_REPO}/releases.atom`
 const RELEASES_DOWNLOAD_BASE = `https://github.com/${RELEASE_REPO}/releases/download`

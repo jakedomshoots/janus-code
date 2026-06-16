@@ -1,12 +1,12 @@
 {
-  "productName": "Agent Hub",
-  "productSlug": "agent-hub",
-  "appId": "com.jakedom.agenthub",
-  "githubOwner": "jakedom",
-  "githubRepo": "agent-hub",
-  "homepage": "https://github.com/jakedomshoots/agent-hub",
-  "cliBin": "agent-hub",
+  "productName": "Janus Code",
+  "productSlug": "janus-code",
+  "appId": "com.jakedom.januscode",
+  "githubOwner": "jakedomshoots",
+  "githubRepo": "janus-code",
+  "homepage": "https://github.com/jakedomshoots/janus-code",
+  "cliBin": "janus",
   "legacyCliBin": "orca",
-  "macAppName": "Agent Hub.app",
+  "macAppName": "Janus Code.app",
   "copyright": "Copyright (c) 2026 Jake Dominick"
 }

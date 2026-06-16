@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 const API_VERSION = '2022-11-28'
 
 export function resolveReleaseRepository(env = process.env) {
-  return env.GITHUB_REPOSITORY || 'jakedomshoots/agent-hub'
+  return env.GITHUB_REPOSITORY || 'jakedomshoots/janus-code'
 }
 
 export function getRequiredReleaseAssetNames(tag) {
@@ -14,19 +14,19 @@ export function getRequiredReleaseAssetNames(tag) {
     'latest-linux.yml',
     'latest-mac.yml',
     'latest.yml',
-    'agent-hub-linux.AppImage',
-    `agent-hub_${version}_amd64.deb`,
-    `agent-hub-${version}.x86_64.rpm`,
-    'agent-hub-windows-setup.exe',
-    'agent-hub-windows-setup.exe.blockmap',
-    `Agent Hub-${version}-mac.zip`,
-    `Agent Hub-${version}-mac.zip.blockmap`,
-    `Agent Hub-${version}-arm64-mac.zip`,
-    `Agent Hub-${version}-arm64-mac.zip.blockmap`,
-    'agent-hub-macos-x64.dmg',
-    'agent-hub-macos-x64.dmg.blockmap',
-    'agent-hub-macos-arm64.dmg',
-    'agent-hub-macos-arm64.dmg.blockmap'
+    'janus-code-linux.AppImage',
+    `janus-code_${version}_amd64.deb`,
+    `janus-code-${version}.x86_64.rpm`,
+    'janus-code-windows-setup.exe',
+    'janus-code-windows-setup.exe.blockmap',
+    `Janus Code-${version}-mac.zip`,
+    `Janus Code-${version}-mac.zip.blockmap`,
+    `Janus Code-${version}-arm64-mac.zip`,
+    `Janus Code-${version}-arm64-mac.zip.blockmap`,
+    'janus-code-macos-x64.dmg',
+    'janus-code-macos-x64.dmg.blockmap',
+    'janus-code-macos-arm64.dmg',
+    'janus-code-macos-arm64.dmg.blockmap'
   ]
 }
 

@@ -42,8 +42,8 @@ const winSpeechNativeResource = {
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
-  appId: 'com.jakedom.agenthub',
-  productName: 'Agent Hub',
+  appId: 'com.jakedom.januscode',
+  productName: 'Janus Code',
   directories: {
     buildResources: 'resources/build'
   },
@@ -141,10 +141,14 @@ module.exports = {
     }
   },
   win: {
-    executableName: 'Agent Hub',
+    executableName: 'Janus Code',
     extraResources: [
       ...commonExtraResources,
       winSpeechNativeResource,
+      {
+        from: 'resources/win32/bin/agent-hub.cmd',
+        to: 'bin/janus.cmd'
+      },
       {
         from: 'resources/win32/bin/agent-hub.cmd',
         to: 'bin/agent-hub.cmd'
@@ -165,7 +169,7 @@ module.exports = {
     ]
   },
   nsis: {
-    artifactName: 'agent-hub-windows-setup.${ext}',
+    artifactName: 'janus-code-windows-setup.${ext}',
     shortcutName: '${productName}',
     uninstallDisplayName: '${productName}',
     createDesktopShortcut: 'always'
@@ -206,6 +210,10 @@ module.exports = {
       macSpeechNativeResource,
       {
         from: 'resources/darwin/bin/agent-hub',
+        to: 'bin/janus'
+      },
+      {
+        from: 'resources/darwin/bin/agent-hub',
         to: 'bin/agent-hub'
       },
       {
@@ -243,25 +251,27 @@ module.exports = {
   // silently downgrading to ad-hoc artifacts that look shippable in CI logs.
   forceCodeSigning: isMacRelease,
   dmg: {
-    artifactName: 'agent-hub-macos-${arch}.${ext}'
+    artifactName: 'janus-code-macos-${arch}.${ext}'
   },
   linux: {
     // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca.
     // The Linux installer should not claim those system package/file names.
-    executableName: 'orca-ide',
+    executableName: 'janus-code',
     // Why: the icns source lets electron-builder emit standard hicolor PNG
     // sizes; a single 1024px PNG is ignored by some Linux docks/launchers.
     icon: 'resources/build/icon.icns',
     desktop: {
       entry: {
-        // Why: Electron reports WM_CLASS=orca for the visible Linux window;
-        // GNOME docks need an exact match to group it with orca-ide.desktop.
-        StartupWMClass: 'orca'
+        StartupWMClass: 'janus-code'
       }
     },
     extraResources: [
       ...commonExtraResources,
       linuxSpeechNativeResource,
+      {
+        from: 'resources/linux/bin/agent-hub',
+        to: 'bin/janus'
+      },
       {
         from: 'resources/linux/bin/agent-hub',
         to: 'bin/agent-hub'
@@ -285,16 +295,16 @@ module.exports = {
     category: 'Utility'
   },
   appImage: {
-    artifactName: 'agent-hub-linux.${ext}'
+    artifactName: 'janus-code-linux.${ext}'
   },
   deb: {
-    packageName: 'agent-hub',
-    artifactName: 'agent-hub_${version}_${arch}.${ext}',
+    packageName: 'janus-code',
+    artifactName: 'janus-code_${version}_${arch}.${ext}',
     depends: ['python3', 'python3-gi', 'gir1.2-atspi-2.0', 'at-spi2-core', 'xdotool', 'xclip']
   },
   rpm: {
-    packageName: 'agent-hub',
-    artifactName: 'agent-hub-${version}.${arch}.${ext}',
+    packageName: 'janus-code',
+    artifactName: 'janus-code-${version}.${arch}.${ext}',
     depends: ['python3', 'python3-gobject', 'at-spi2-core', 'xdotool', 'xclip']
   },
   beforeBuild: electronBuilderNativeRebuild,
@@ -307,8 +317,8 @@ module.exports = {
   npmRebuild: true,
   publish: {
     provider: 'github',
-    owner: 'jakedom',
-    repo: 'agent-hub',
+    owner: 'jakedomshoots',
+    repo: 'janus-code',
     releaseType: 'release'
   }
 }
@@ -317,7 +327,7 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of ['agent-hub', 'orca', 'orca-ide']) {
+  for (const launcherName of ['janus', 'janus.cmd', 'agent-hub', 'orca', 'orca-ide']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue

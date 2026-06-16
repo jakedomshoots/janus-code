@@ -68,20 +68,20 @@ describe('electron-builder config', () => {
   })
 
   it('matches the Linux desktop entry to Electron window class', () => {
-    expect(electronBuilderConfig.linux.desktop.entry.StartupWMClass).toBe('orca')
+    expect(electronBuilderConfig.linux.desktop.entry.StartupWMClass).toBe('janus-code')
   })
 
-  it('uses Agent Hub artifact names for public release packages', () => {
-    expect(electronBuilderConfig.win.executableName).toBe('Agent Hub')
-    expect(electronBuilderConfig.nsis.artifactName).toBe('agent-hub-windows-setup.${ext}')
-    expect(electronBuilderConfig.dmg.artifactName).toBe('agent-hub-macos-${arch}.${ext}')
+  it('uses Janus Code artifact names for public release packages', () => {
+    expect(electronBuilderConfig.win.executableName).toBe('Janus Code')
+    expect(electronBuilderConfig.nsis.artifactName).toBe('janus-code-windows-setup.${ext}')
+    expect(electronBuilderConfig.dmg.artifactName).toBe('janus-code-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
     expect(electronBuilderConfig.linux.maintainer).toBe('Jake Dominick')
-    expect(electronBuilderConfig.appImage.artifactName).toBe('agent-hub-linux.${ext}')
-    expect(electronBuilderConfig.deb.artifactName).toBe('agent-hub_${version}_${arch}.${ext}')
+    expect(electronBuilderConfig.appImage.artifactName).toBe('janus-code-linux.${ext}')
+    expect(electronBuilderConfig.deb.artifactName).toBe('janus-code_${version}_${arch}.${ext}')
     expect(electronBuilderConfig.rpm).toMatchObject({
-      packageName: 'agent-hub',
-      artifactName: 'agent-hub-${version}.${arch}.${ext}'
+      packageName: 'janus-code',
+      artifactName: 'janus-code-${version}.${arch}.${ext}'
     })
   })
 

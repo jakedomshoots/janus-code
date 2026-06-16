@@ -11,7 +11,7 @@ vi.mock('electron', () => ({
 import { fetchNudge, versionMatchesRange, shouldApplyNudge } from './updater-nudge'
 
 const NUDGE_JSON_URL =
-  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/nudge.json'
+  'https://raw.githubusercontent.com/jakedomshoots/janus-code/main/docs/release/nudge.json'
 
 describe('updater-nudge', () => {
   beforeEach(() => {

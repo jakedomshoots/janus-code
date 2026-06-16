@@ -1,12 +1,11 @@
 <h1 align="center">
-  <a href="https://onOrca.dev"><img src="resources/build/icon.png" alt="Orca" width="64" valign="middle" /></a> Orca
+  <a href="https://github.com/jakedomshoots/janus-code"><img src="resources/build/icon.png" alt="Janus Code" width="64" valign="middle" /></a> Janus Code
 </h1>
 
 <p align="center">
-  <a href="https://github.com/stablyai/orca/stargazers"><img src="https://badgen.net/github/stars/stablyai/orca?label=%E2%98%85" alt="GitHub stars" /></a>
-  <a href="https://github.com/stablyai/orca/releases"><img src="https://img.shields.io/github/downloads/stablyai/orca/total?label=downloads" alt="Total downloads across all releases" /></a>
-  <img src="https://badgen.net/github/license/stablyai/orca" alt="License" />
-  <a href="https://discord.gg/fzjDKHxv8Q"><img src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white" alt="Join the Orca Discord" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/stargazers"><img src="https://badgen.net/github/stars/jakedomshoots/janus-code?label=%E2%98%85" alt="GitHub stars" /></a>
+  <a href="https://github.com/jakedomshoots/janus-code/releases"><img src="https://img.shields.io/github/downloads/jakedomshoots/janus-code/total?label=downloads" alt="Total downloads across all releases" /></a>
+  <img src="https://badgen.net/github/license/jakedomshoots/janus-code" alt="License" />
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4493F8?style=flat-square" alt="Supported platforms: macOS, Windows, and Linux" />
 </p>
 
@@ -15,33 +14,19 @@
 </p>
 
 <p align="center">
-  <strong>The AI Orchestrator for 100x builders.</strong><br/>
-  Run Claude Code, OpenClaude, Codex, or OpenCode side-by-side — each in its own worktree, tracked in one place.
+  <strong>A GUI-first desktop workspace for CLI coding agents.</strong><br/>
+  Run Claude Code, Codex, Gemini, OpenCode, and other terminal-native agents side by side, each in its own worktree and tracked in one place.
 </p>
 
-<h3 align="center"><a href="https://github.com/jakedom/agent-hub/releases/latest"><ins>Download Agent Hub</ins></a></h3>
+<h3 align="center"><a href="https://github.com/jakedomshoots/janus-code/releases/latest"><ins>Download Janus Code</ins></a></h3>
 
 <p align="center">
-  <img src="docs/assets/readme-hero.jpg" alt="Orca desktop app running agents in parallel worktrees, with the Orca mobile companion app in the corner" width="960" />
+  <img src="docs/assets/readme-hero.jpg" alt="Janus Code desktop app running agents in parallel worktrees" width="960" />
 </p>
 
 ## Features
 
 <table>
-<tr>
-<td width="50%" valign="middle">
-
-### Mobile Companion
-
-Monitor and steer your agents from your phone — get notified when an agent finishes and send follow-ups from anywhere.
-
-[iOS App Store](https://apps.apple.com/us/app/orca-ide/id6766130217) · [Android APK](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
-
-</td>
-<td width="50%">
-  <a href="https://www.onorca.dev/docs/mobile"><picture><source srcset="docs/assets/feature-wall/mobile-companion-app-showcase.gif" type="image/gif"><img src="docs/assets/feature-wall/mobile-companion-app-showcase.jpg" alt="Orca desktop with the mobile companion app" width="100%" /></picture></a>
-</td>
-</tr>
 <tr>
 <td width="50%" valign="middle">
 
@@ -95,7 +80,7 @@ Browse PRs, issues, and project boards in-app — open a worktree from any task 
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/review/linear"><picture><source srcset="docs/assets/feature-wall/github-linear.gif" type="image/gif"><img src="docs/assets/feature-wall/github-linear.jpg" alt="GitHub and Linear task workflows in Orca" width="100%" /></picture></a>
+  <a href="https://www.onorca.dev/docs/review/linear"><picture><source srcset="docs/assets/feature-wall/github-linear.gif" type="image/gif"><img src="docs/assets/feature-wall/github-linear.jpg" alt="GitHub and Linear task workflows in Janus Code" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -117,7 +102,7 @@ Run agents on a beefy remote box with full file editing, git, and terminals — 
 
 ### Annotate AI Diffs
 
-Drop comments on any diff line and ship them back to the agent — review, edit, and commit without leaving Orca.
+Drop comments on any diff line and ship them back to the agent — review, edit, and commit without leaving Janus Code.
 
 [Docs →](https://www.onorca.dev/docs/review/annotate-ai-diff)
 
@@ -143,15 +128,15 @@ VS Code's editor with autosave everywhere — drag files or images straight into
 <tr>
 <td width="50%" valign="middle">
 
-### Orca CLI
+### Janus CLI
 
-Agents drive Orca too — script every workflow with `orca worktree create`, `snapshot`, `click`, and `fill`.
+Agents can drive Janus Code too. Script workflows with the primary `janus` CLI, while legacy `orca` compatibility remains available where the inherited runtime still needs it.
 
 [Docs →](https://www.onorca.dev/docs/cli/overview)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/cli/overview"><picture><source srcset="docs/assets/feature-wall/orca-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/orca-cli.jpg" alt="Script Orca from the CLI" width="100%" /></picture></a>
+  <a href="https://www.onorca.dev/docs/cli/overview"><picture><source srcset="docs/assets/feature-wall/orca-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/orca-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
@@ -163,13 +148,13 @@ Agents drive Orca too — script every workflow with `orca worktree create`, `sn
 - **[Rich repo previews](https://www.onorca.dev/docs/editing/markdown)** — Preview Markdown, images, PDFs, and repo docs in the workspace.
 - **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — Let agents operate desktop apps and visible UI when a workflow needs real interaction.
 - **[Notifications and unread state](https://www.onorca.dev/docs/notifications)** — Know when an agent finishes or needs attention, then mark threads unread to come back later.
-- **And many, many more** — we ship daily, so this list is perpetually behind. The [changelog](https://github.com/stablyai/orca/releases) is the real feature list.
+- **And many, many more** — the [changelog](https://github.com/jakedomshoots/janus-code/releases) is the real feature list.
 
 ---
 
 ## Supported Agents
 
-Works with **any CLI agent** — if it runs in a terminal, it runs in Orca.
+Works with **any CLI agent** — if it runs in a terminal, it runs in Janus Code.
 
 <p>
   <a href="https://docs.anthropic.com/claude/docs/claude-code"><kbd><img src="docs/assets/claude-logo.svg" alt="Claude Code logo" width="16" valign="middle" /> Claude Code</kbd></a> &nbsp;
@@ -210,29 +195,18 @@ Works with **any CLI agent** — if it runs in a terminal, it runs in Orca.
 
 ### Desktop — macOS, Windows, Linux
 
-Download the latest Agent Hub desktop builds directly from GitHub Releases:
+Download the latest Janus Code desktop builds directly from GitHub Releases:
 
-- [macOS Apple Silicon](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg)
-- [macOS Intel](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-x64.dmg)
-- [Windows](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-windows-setup.exe)
-- [Linux AppImage](https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-linux.AppImage)
-
-### Mobile Companion — iOS, Android
-
-Pair with your desktop app to monitor and steer your agents from your phone.
-
-- **iOS:** [Download on the App Store](https://apps.apple.com/us/app/orca-ide/id6766130217)
-- **Android:** [Download the APK](https://github.com/stablyai/orca/releases/download/mobile-v0.0.13/app-release.apk)
-
----
+- [macOS Apple Silicon](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-arm64.dmg)
+- [macOS Intel](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-x64.dmg)
+- [Windows](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-windows-setup.exe)
+- [Linux AppImage](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-linux.AppImage)
 
 ## Community &amp; Support
 
-- **Discord:** Join the community on **[Discord](https://discord.gg/fzjDKHxv8Q)**.
-- **Twitter / X:** Follow **[@orca_build](https://x.com/orca_build)** for updates and announcements.
-- **Feedback &amp; Ideas:** We ship fast. Missing something? [Request a new feature](https://github.com/stablyai/orca/issues).
-- **Privacy:** See the [privacy &amp; telemetry docs](https://www.onorca.dev/docs/telemetry) for what anonymous usage data Orca collects and how to opt out.
-- **Show Support:** [Star](https://github.com/stablyai/orca) this repo to follow along with our daily ships.
+- **Feedback &amp; Ideas:** Missing something? [Open an issue](https://github.com/jakedomshoots/janus-code/issues).
+- **Privacy:** See the [privacy &amp; telemetry docs](https://www.onorca.dev/docs/telemetry) inherited from Orca for the current telemetry model.
+- **Show Support:** [Star](https://github.com/jakedomshoots/janus-code) this repo to follow along.
 
 ---
 
@@ -240,17 +214,17 @@ Pair with your desktop app to monitor and steer your agents from your phone.
 
 Want to contribute or run locally? See our [CONTRIBUTING.md](.github/CONTRIBUTING.md) guide.
 
-<a href="https://github.com/stablyai/orca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=stablyai/orca" alt="Orca contributors" />
+<a href="https://github.com/jakedomshoots/janus-code/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Janus Code contributors" />
 </a>
 
 ## License
 
-Orca is free and open source under the [MIT License](LICENSE).
+Janus Code is free and open source under the [MIT License](LICENSE).
 
 ## Attribution
 
-Agent Hub is a public fork of Orca with a GUI-first agent workspace. Orca's
+Janus Code is a public fork of Orca with a GUI-first agent workspace. Orca's
 original MIT license is preserved in `LICENSE`. T3 Code was used as a UI and
 interaction reference; see `NOTICE.md` and
 `docs/reference/t3code-ui-donor-attribution.md`.

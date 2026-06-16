@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Capture one-shot macOS launch diagnostics for a published Agent Hub release.
+# Capture one-shot macOS launch diagnostics for a published Janus Code release.
 #
 # Usage:
 #   ORCA_DIAGNOSTIC_TAG=v1.4.42-rc.1 bash config/scripts/macos-launch-diagnostics.sh
 #   bash config/scripts/macos-launch-diagnostics.sh --tag v1.4.42-rc.1
 set -euo pipefail
 
-REPO="${ORCA_DIAGNOSTIC_REPO:-jakedomshoots/agent-hub}"
-APP_NAME="${ORCA_DIAGNOSTIC_APP_NAME:-Agent Hub}"
-BUNDLE_ID="${ORCA_DIAGNOSTIC_BUNDLE_ID:-com.jakedom.agenthub}"
-APP_EXECUTABLE="${ORCA_DIAGNOSTIC_APP_EXECUTABLE:-Agent Hub}"
+REPO="${ORCA_DIAGNOSTIC_REPO:-jakedomshoots/janus-code}"
+APP_NAME="${ORCA_DIAGNOSTIC_APP_NAME:-Janus Code}"
+BUNDLE_ID="${ORCA_DIAGNOSTIC_BUNDLE_ID:-com.jakedom.januscode}"
+APP_EXECUTABLE="${ORCA_DIAGNOSTIC_APP_EXECUTABLE:-Janus Code}"
 TAG="${ORCA_DIAGNOSTIC_TAG:-}"
 KEEP=0
 
@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -h|--help)
       cat <<'EOF'
-Capture one-shot macOS launch diagnostics for a published Agent Hub release.
+Capture one-shot macOS launch diagnostics for a published Janus Code release.
 
 Usage:
   ORCA_DIAGNOSTIC_TAG=v1.4.42-rc.1 bash config/scripts/macos-launch-diagnostics.sh
@@ -57,8 +57,8 @@ fi
 
 ARCH="$(uname -m)"
 case "$ARCH" in
-  arm64) ASSET="agent-hub-macos-arm64.dmg" ;;
-  x86_64) ASSET="agent-hub-macos-x64.dmg" ;;
+  arm64) ASSET="janus-code-macos-arm64.dmg" ;;
+  x86_64) ASSET="janus-code-macos-x64.dmg" ;;
   *)
     echo "Unsupported macOS architecture: $ARCH" >&2
     exit 2

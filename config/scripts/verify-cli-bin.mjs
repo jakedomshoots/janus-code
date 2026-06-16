@@ -10,19 +10,19 @@ const REQUIRED_PACKAGED_LAUNCHERS = [
   {
     platform: 'mac',
     from: 'resources/darwin/bin/agent-hub',
-    to: 'bin/agent-hub',
+    to: 'bin/janus',
     executable: true
   },
   {
     platform: 'linux',
     from: 'resources/linux/bin/agent-hub',
-    to: 'bin/agent-hub',
+    to: 'bin/janus',
     executable: true
   },
   {
     platform: 'win',
     from: 'resources/win32/bin/agent-hub.cmd',
-    to: 'bin/agent-hub.cmd',
+    to: 'bin/janus.cmd',
     executable: false
   }
 ]
@@ -34,20 +34,22 @@ export function verifyPackageCliBin({
 } = {}) {
   const packageJsonPath = path.join(projectDir, 'package.json')
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
-  const primaryName = 'agent-hub'
-  const aliases = ['orca']
+  const primaryName = 'janus'
+  const aliases = ['agent-hub', 'orca']
   const warnings = []
   const binTarget = packageJson.bin?.[primaryName]
   if (typeof binTarget !== 'string' || binTarget.length === 0) {
-    throw new Error('package.json must declare bin.agent-hub')
+    throw new Error('package.json must declare bin.janus')
   }
-  const orcaAliasTarget = packageJson.bin?.orca
-  if (typeof orcaAliasTarget !== 'string' || orcaAliasTarget.length === 0) {
-    warnings.push('package.json does not declare optional bin.orca compatibility alias')
-  } else if (orcaAliasTarget !== binTarget) {
-    warnings.push(
-      `bin.orca compatibility alias points to ${orcaAliasTarget} instead of ${binTarget}`
-    )
+  for (const alias of aliases) {
+    const aliasTarget = packageJson.bin?.[alias]
+    if (typeof aliasTarget !== 'string' || aliasTarget.length === 0) {
+      warnings.push(`package.json does not declare optional bin.${alias} compatibility alias`)
+    } else if (aliasTarget !== binTarget) {
+      warnings.push(
+        `bin.${alias} compatibility alias points to ${aliasTarget} instead of ${binTarget}`
+      )
+    }
   }
 
   const binPath = path.resolve(projectDir, binTarget)
@@ -56,25 +58,25 @@ export function verifyPackageCliBin({
     stats = statSync(binPath)
   } catch (error) {
     if (error?.code === 'ENOENT') {
-      throw new Error(`bin.agent-hub target is not a file: ${binTarget}`)
+      throw new Error(`bin.janus target is not a file: ${binTarget}`)
     }
     throw error
   }
   if (!stats.isFile()) {
-    throw new Error(`bin.agent-hub target is not a file: ${binTarget}`)
+    throw new Error(`bin.janus target is not a file: ${binTarget}`)
   }
   if (stats.size === 0) {
-    throw new Error(`bin.agent-hub target is empty: ${binTarget}`)
+    throw new Error(`bin.janus target is empty: ${binTarget}`)
   }
 
   const content = readFileSync(binPath, 'utf8')
   if (!content.startsWith('#!/usr/bin/env node\n')) {
-    throw new Error(`bin.agent-hub target must start with a Node shebang: ${binTarget}`)
+    throw new Error(`bin.janus target must start with a Node shebang: ${binTarget}`)
   }
 
   if (process.platform !== 'win32' && (stats.mode & 0o111) === 0) {
     if (!fixExecutable) {
-      throw new Error(`bin.agent-hub target is not executable: ${binTarget}`)
+      throw new Error(`bin.janus target is not executable: ${binTarget}`)
     }
     chmodSync(binPath, stats.mode | 0o755)
   }
@@ -99,18 +101,18 @@ function verifyPackagedLauncherResources(projectDir) {
       stats = statSync(launcherPath)
     } catch (error) {
       if (error?.code === 'ENOENT') {
-        throw new Error(`Missing packaged agent-hub launcher resource: ${launcher.from}`)
+        throw new Error(`Missing packaged janus launcher resource: ${launcher.from}`)
       }
       throw error
     }
     if (!stats.isFile()) {
-      throw new Error(`Packaged agent-hub launcher resource is not a file: ${launcher.from}`)
+      throw new Error(`Packaged janus launcher resource is not a file: ${launcher.from}`)
     }
     if (stats.size === 0) {
-      throw new Error(`Packaged agent-hub launcher resource is empty: ${launcher.from}`)
+      throw new Error(`Packaged janus launcher resource is empty: ${launcher.from}`)
     }
     if (launcher.executable && process.platform !== 'win32' && (stats.mode & 0o111) === 0) {
-      throw new Error(`Packaged agent-hub launcher resource is not executable: ${launcher.from}`)
+      throw new Error(`Packaged janus launcher resource is not executable: ${launcher.from}`)
     }
   }
 

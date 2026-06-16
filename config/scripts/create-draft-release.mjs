@@ -3,7 +3,7 @@
 import { pathToFileURL } from 'node:url'
 
 const API_VERSION = '2022-11-28'
-export const DEFAULT_RELEASE_REPO = 'jakedomshoots/agent-hub'
+export const DEFAULT_RELEASE_REPO = 'jakedomshoots/janus-code'
 const MAX_RELEASE_BODY_LENGTH = 120_000
 const TRUNCATION_NOTICE =
   '\n\n---\nRelease notes were truncated because GitHub release bodies are limited to 125,000 characters.'

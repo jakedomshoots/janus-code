@@ -10,19 +10,19 @@ const expectedRequiredAssets = [
   'latest-linux.yml',
   'latest-mac.yml',
   'latest.yml',
-  'agent-hub-linux.AppImage',
-  'agent-hub_1.4.27_amd64.deb',
-  'agent-hub-1.4.27.x86_64.rpm',
-  'agent-hub-windows-setup.exe',
-  'agent-hub-windows-setup.exe.blockmap',
-  'Agent Hub-1.4.27-mac.zip',
-  'Agent Hub-1.4.27-mac.zip.blockmap',
-  'Agent Hub-1.4.27-arm64-mac.zip',
-  'Agent Hub-1.4.27-arm64-mac.zip.blockmap',
-  'agent-hub-macos-x64.dmg',
-  'agent-hub-macos-x64.dmg.blockmap',
-  'agent-hub-macos-arm64.dmg',
-  'agent-hub-macos-arm64.dmg.blockmap'
+  'janus-code-linux.AppImage',
+  'janus-code_1.4.27_amd64.deb',
+  'janus-code-1.4.27.x86_64.rpm',
+  'janus-code-windows-setup.exe',
+  'janus-code-windows-setup.exe.blockmap',
+  'Janus Code-1.4.27-mac.zip',
+  'Janus Code-1.4.27-mac.zip.blockmap',
+  'Janus Code-1.4.27-arm64-mac.zip',
+  'Janus Code-1.4.27-arm64-mac.zip.blockmap',
+  'janus-code-macos-x64.dmg',
+  'janus-code-macos-x64.dmg.blockmap',
+  'janus-code-macos-arm64.dmg',
+  'janus-code-macos-arm64.dmg.blockmap'
 ]
 
 function jsonResponse(body) {
@@ -54,14 +54,14 @@ afterEach(() => {
 })
 
 describe('getRequiredReleaseAssetNames', () => {
-  it('returns the exact Agent Hub release asset names in upload order', () => {
+  it('returns the exact Janus Code release asset names in upload order', () => {
     expect(getRequiredReleaseAssetNames('v1.4.27')).toEqual(expectedRequiredAssets)
   })
 })
 
 describe('resolveReleaseRepository', () => {
-  it('defaults to the Agent Hub fork when GITHUB_REPOSITORY is unset', () => {
-    expect(resolveReleaseRepository({})).toBe('jakedomshoots/agent-hub')
+  it('defaults to the Janus Code fork when GITHUB_REPOSITORY is unset', () => {
+    expect(resolveReleaseRepository({})).toBe('jakedomshoots/janus-code')
   })
 
   it('uses GITHUB_REPOSITORY when provided by the workflow environment', () => {
@@ -75,15 +75,15 @@ describe('extractManifestAssetNames', () => {
       extractManifestAssetNames(
         [
           'files:',
-          '  - url: Agent Hub-1.4.27-arm64-mac.zip',
-          '  - url: https://example.com/downloads/agent-hub-windows-setup.exe',
-          'path: agent-hub-linux.AppImage'
+          '  - url: Janus Code-1.4.27-arm64-mac.zip',
+          '  - url: https://example.com/downloads/janus-code-windows-setup.exe',
+          'path: janus-code-linux.AppImage'
         ].join('\n')
       )
     ).toEqual([
-      'Agent Hub-1.4.27-arm64-mac.zip',
-      'agent-hub-windows-setup.exe',
-      'agent-hub-linux.AppImage'
+      'Janus Code-1.4.27-arm64-mac.zip',
+      'janus-code-windows-setup.exe',
+      'janus-code-linux.AppImage'
     ])
   })
 })
@@ -92,7 +92,7 @@ describe('verifyRequiredReleaseAssets', () => {
   it('fails when a manifest-referenced asset has not been uploaded', async () => {
     const tag = 'v1.4.27'
     const required = getRequiredReleaseAssetNames(tag)
-    const assets = required.filter((name) => name !== 'Agent Hub-1.4.27-arm64-mac.zip')
+    const assets = required.filter((name) => name !== 'Janus Code-1.4.27-arm64-mac.zip')
     const release = releaseWithAssets(tag, assets)
     const latestMacAsset = release.assets.find((asset) => asset.name === 'latest-mac.yml')
     const fetchMock = vi
@@ -103,9 +103,9 @@ describe('verifyRequiredReleaseAssets', () => {
           [
             'version: 1.4.27',
             'files:',
-            '  - url: Agent Hub-1.4.27-arm64-mac.zip',
+            '  - url: Janus Code-1.4.27-arm64-mac.zip',
             '    sha512: test',
-            'path: Agent Hub-1.4.27-arm64-mac.zip'
+            'path: Janus Code-1.4.27-arm64-mac.zip'
           ].join('\n')
         )
       )
@@ -113,8 +113,8 @@ describe('verifyRequiredReleaseAssets', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
-      verifyRequiredReleaseAssets({ repo: 'jakedomshoots/agent-hub', tag, token: 'token' })
-    ).rejects.toThrow('Missing: Agent Hub-1.4.27-arm64-mac.zip')
+      verifyRequiredReleaseAssets({ repo: 'jakedomshoots/janus-code', tag, token: 'token' })
+    ).rejects.toThrow('Missing: Janus Code-1.4.27-arm64-mac.zip')
     expect(latestMacAsset).toBeTruthy()
   })
 })

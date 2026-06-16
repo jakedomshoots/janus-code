@@ -2,11 +2,11 @@
 
 ## Required Before RC
 
-- Product identity is `Agent Hub`.
+- Product identity is `Janus Code`.
 - App id is `com.jakedom.agenthub`.
-- GitHub release repository is `jakedomshoots/agent-hub`.
-- Auto-update feed points at `jakedomshoots/agent-hub`.
-- README install links point at `jakedomshoots/agent-hub`.
+- GitHub release repository is `jakedomshoots/janus-code`.
+- Auto-update feed points at `jakedomshoots/janus-code`.
+- README install links point at `jakedomshoots/janus-code`.
 - Orca and T3 Code attribution is present in `NOTICE.md`.
 - Full local gate passes:
   - `pnpm run typecheck`

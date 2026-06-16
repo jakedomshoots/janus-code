@@ -13,7 +13,7 @@ function readAppDirArg(argv) {
     return explicit.slice('--app-dir='.length)
   }
   if (process.platform === 'darwin') {
-    return 'dist/mac-arm64/Orca.app'
+    return 'dist/mac-arm64/Janus Code.app'
   }
   if (process.platform === 'win32') {
     return 'dist/win-unpacked'
@@ -31,21 +31,30 @@ function readAllowLegacyCliFallbackArg(argv) {
 function getPackagedCliPath(appDir, { allowLegacyFallback }) {
   if (process.platform === 'darwin' || appDir.endsWith('.app')) {
     return resolvePrimaryPackagedCliPath({
-      primary: join(appDir, 'Contents', 'Resources', 'bin', 'agent-hub'),
-      fallbacks: [join(appDir, 'Contents', 'Resources', 'bin', 'orca')],
+      primary: join(appDir, 'Contents', 'Resources', 'bin', 'janus'),
+      fallbacks: [
+        join(appDir, 'Contents', 'Resources', 'bin', 'agent-hub'),
+        join(appDir, 'Contents', 'Resources', 'bin', 'orca')
+      ],
       allowLegacyFallback
     })
   }
   if (process.platform === 'win32') {
     return resolvePrimaryPackagedCliPath({
-      primary: join(appDir, 'resources', 'bin', 'agent-hub.cmd'),
-      fallbacks: [join(appDir, 'resources', 'bin', 'orca.cmd')],
+      primary: join(appDir, 'resources', 'bin', 'janus.cmd'),
+      fallbacks: [
+        join(appDir, 'resources', 'bin', 'agent-hub.cmd'),
+        join(appDir, 'resources', 'bin', 'orca.cmd')
+      ],
       allowLegacyFallback
     })
   }
   return resolvePrimaryPackagedCliPath({
-    primary: join(appDir, 'resources', 'bin', 'agent-hub'),
-    fallbacks: [join(appDir, 'resources', 'bin', 'orca-ide')],
+    primary: join(appDir, 'resources', 'bin', 'janus'),
+    fallbacks: [
+      join(appDir, 'resources', 'bin', 'agent-hub'),
+      join(appDir, 'resources', 'bin', 'orca-ide')
+    ],
     allowLegacyFallback
   })
 }

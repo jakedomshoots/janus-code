@@ -4,17 +4,21 @@ set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..") do set "RESOURCES_DIR=%%~fI"
 REM Why: once %%~fI canonicalizes RESOURCES_DIR it no longer ends with a slash,
 REM so Windows batch needs an explicit "\.." segment here. Without it the CLI
-REM launcher resolves APP_DIR back to resources/ and cannot find Agent Hub.exe
+REM launcher resolves APP_DIR back to resources/ and cannot find Janus Code.exe
 REM on packaged Windows installs.
 for %%I in ("%RESOURCES_DIR%\..") do set "APP_DIR=%%~fI"
-set "ELECTRON=%APP_DIR%\Agent Hub.exe"
+set "ELECTRON=%APP_DIR%\Janus Code.exe"
 
 if not exist "%ELECTRON%" (
-  echo Unable to locate Agent Hub.exe next to "%RESOURCES_DIR%" 1>&2
+  set "ELECTRON=%APP_DIR%\Agent Hub.exe"
+)
+
+if not exist "%ELECTRON%" (
+  echo Unable to locate Janus Code.exe next to "%RESOURCES_DIR%" 1>&2
   exit /b 1
 )
 
-REM Why: Agent Hub packages the CLI entrypoint outside app.asar so the public
+REM Why: Janus Code packages the CLI entrypoint outside app.asar so the public
 REM shell command can execute it directly with ELECTRON_RUN_AS_NODE instead of
 REM depending on a separately installed Node CLI.
 set "CLI=%RESOURCES_DIR%\app.asar.unpacked\out\cli\index.js"

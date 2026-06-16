@@ -1,6 +1,6 @@
 # Janus Code Public Rebrand Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execution note:** User requested no subagents for this project. Implement this plan directly in the main session. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rebrand public product identity to Janus Code with `janus` as the primary CLI while preserving legacy Orca compatibility where needed.
 
@@ -28,7 +28,7 @@
 - Modify: `config/scripts/verify-release-required-assets.test.mjs`
 - Modify: `config/scripts/verify-public-release-identity.test.mjs`
 
-- [ ] **Step 1: Change package metadata**
+- [x] **Step 1: Change package metadata**
 
 Set package identity to:
 
@@ -48,11 +48,11 @@ Set package identity to:
 
 Keep `agent-hub` and `orca` as compatibility aliases for now.
 
-- [ ] **Step 2: Retarget release owner and artifact names**
+- [x] **Step 2: Retarget release owner and artifact names**
 
 Replace public release repo defaults with `jakedomshoots/janus-code`. Rename release artifact expectations from `agent-hub-*` to `janus-code-*` where those filenames are produced by electron-builder or release scripts.
 
-- [ ] **Step 3: Run release identity tests**
+- [x] **Step 3: Run release identity tests**
 
 ```bash
 pnpm exec vitest run --config config/vitest.config.ts \
@@ -66,7 +66,7 @@ pnpm run verify:public-release-identity
 
 Expected: all pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add package.json config/public-release-identity.json config/electron-builder.config.cjs .github/workflows/release-cut.yml .github/workflows/homebrew-bump.yml config/scripts/create-draft-release.mjs config/scripts/create-draft-release.test.mjs config/scripts/latest-stable-release.mjs config/scripts/latest-stable-release.test.mjs config/scripts/publish-complete-draft-releases.mjs config/scripts/publish-complete-draft-releases.test.mjs config/scripts/verify-release-required-assets.mjs config/scripts/verify-release-required-assets.test.mjs config/scripts/verify-public-release-identity.test.mjs
@@ -91,15 +91,15 @@ git commit -m "chore: rebrand release identity to janus code"
 - Modify: `docs/release/*.md`
 - Modify: `README.md`
 
-- [ ] **Step 1: Update updater URLs**
+- [x] **Step 1: Update updater URLs**
 
 Use `https://github.com/jakedomshoots/janus-code/releases` for all public update, changelog, nudge, and settings release links.
 
-- [ ] **Step 2: Update cask and install docs**
+- [x] **Step 2: Update cask and install docs**
 
 Use Janus Code product text and `janus-code-*` artifact names. Keep cask filenames if needed until a separate Homebrew tap rename is ready, but visible cask copy should say Janus Code.
 
-- [ ] **Step 3: Run updater tests**
+- [x] **Step 3: Run updater tests**
 
 ```bash
 pnpm exec vitest run --config config/vitest.config.ts \

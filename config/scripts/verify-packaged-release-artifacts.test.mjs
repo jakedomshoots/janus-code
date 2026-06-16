@@ -8,7 +8,7 @@ import {
 } from './verify-packaged-release-artifacts.mjs'
 
 function withTempDir(callback) {
-  const dir = join(tmpdir(), `agent-hub-artifacts-${process.pid}-${Date.now()}`)
+  const dir = join(tmpdir(), `janus-code-artifacts-${process.pid}-${Date.now()}`)
   mkdirSync(dir, { recursive: true })
   try {
     callback(dir)
@@ -22,7 +22,7 @@ describe('verifyPackagedArtifacts', () => {
     withTempDir((dir) => {
       writeFileSync(join(dir, 'latest-mac.yml'), '')
 
-      expect(verifyPackagedArtifacts(dir)).toContain('agent-hub-macos-arm64.dmg')
+      expect(verifyPackagedArtifacts(dir)).toContain('janus-code-macos-arm64.dmg')
     })
   })
 

@@ -61,5 +61,5 @@
   passed ad-hoc `codesign --verify --deep --strict`, the packaged CLI launcher
   was present and executable, and the packaged app launched with a temporary
   profile. Public RC install/update smoke remains blocked until the
-  `jakedomshoots/agent-hub` release repository exists and signed/notarized RC assets
+  `jakedomshoots/janus-code` release repository exists and signed/notarized RC assets
   are published.

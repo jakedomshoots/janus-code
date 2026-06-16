@@ -11,14 +11,14 @@ export function requiredPackagedArtifacts({
   version = packageJson.version
 } = {}) {
   const mac = [
-    'agent-hub-macos-arm64.dmg',
-    'agent-hub-macos-x64.dmg',
-    `Agent Hub-${version}-arm64-mac.zip`,
-    `Agent Hub-${version}-mac.zip`,
+    'janus-code-macos-arm64.dmg',
+    'janus-code-macos-x64.dmg',
+    `Janus Code-${version}-arm64-mac.zip`,
+    `Janus Code-${version}-mac.zip`,
     'latest-mac.yml'
   ]
-  const linux = ['agent-hub-linux.AppImage', 'latest-linux.yml']
-  const windows = ['agent-hub-windows-setup.exe', 'latest.yml']
+  const linux = ['janus-code-linux.AppImage', 'latest-linux.yml']
+  const windows = ['janus-code-windows-setup.exe', 'latest.yml']
   if (platform === 'mac') {
     return mac
   }

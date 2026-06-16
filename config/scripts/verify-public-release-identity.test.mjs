@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { verifyIdentity } from './verify-public-release-identity.mjs'
 
 const identity = {
-  productName: 'Agent Hub',
-  productSlug: 'agent-hub',
-  appId: 'com.jakedom.agenthub',
-  githubOwner: 'jakedom',
-  githubRepo: 'agent-hub',
-  homepage: 'https://github.com/jakedomshoots/agent-hub'
+  productName: 'Janus Code',
+  productSlug: 'janus-code',
+  appId: 'com.jakedom.januscode',
+  githubOwner: 'jakedomshoots',
+  githubRepo: 'janus-code',
+  homepage: 'https://github.com/jakedomshoots/janus-code'
 }
 
 describe('verifyIdentity', () => {
@@ -15,12 +15,15 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
+        packageJson: {
+          name: 'janus-code',
+          homepage: 'https://github.com/jakedomshoots/janus-code'
+        },
         builderConfigText: [
-          "appId: 'com.jakedom.agenthub'",
-          "productName: 'Agent Hub'",
-          "owner: 'jakedom'",
-          "repo: 'agent-hub'"
+          "appId: 'com.jakedom.januscode'",
+          "productName: 'Janus Code'",
+          "owner: 'jakedomshoots'",
+          "repo: 'janus-code'"
         ].join('\n')
       })
     ).toEqual([])
@@ -30,10 +33,13 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
+        packageJson: {
+          name: 'janus-code',
+          homepage: 'https://github.com/jakedomshoots/janus-code'
+        },
         builderConfigText: [
-          "appId: 'com.jakedom.agenthub'",
-          "productName: 'Agent Hub'",
+          "appId: 'com.jakedom.januscode'",
+          "productName: 'Janus Code'",
           "owner: 'stablyai'",
           "repo: 'orca'"
         ].join('\n')

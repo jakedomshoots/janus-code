@@ -36,7 +36,7 @@ const NUDGE_POLL_INTERVAL_MS = 30 * 60 * 1000
 const NUDGE_ACTIVATION_COOLDOWN_MS = 5 * 60 * 1000
 const QUIT_AND_INSTALL_DELAY_MS = 100
 const LATEST_RELEASE_DOWNLOAD_URL =
-  'https://github.com/jakedomshoots/agent-hub/releases/latest/download'
+  'https://github.com/jakedomshoots/janus-code/releases/latest/download'
 
 let mainWindowRef: BrowserWindow | null = null
 let currentStatus: UpdateStatus = { state: 'idle' }

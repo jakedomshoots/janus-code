@@ -134,8 +134,8 @@ describe('Electron runtime package contract', () => {
       (step) => step.name === 'Copy cask into tap and open PR'
     )
 
-    expect(resolveCaskStep.run).toContain('token="agent-hub@rc"')
-    expect(resolveCaskStep.run).toContain('token="agent-hub"')
+    expect(resolveCaskStep.run).toContain('token="janus-code@rc"')
+    expect(resolveCaskStep.run).toContain('token="janus-code"')
     expect(renderStep.env.CASK_PATH).toBe('${{ steps.cask.outputs.path }}')
     expect(copyStep.run).toContain('cp "$CASK_PATH" "tap/$CASK_PATH"')
     expect(copyStep.run).toContain('git add "$CASK_PATH"')
@@ -164,17 +164,15 @@ describe('Electron runtime package contract', () => {
     expect(smokeStep.run).not.toContain('--allow-legacy-cli-fallback')
   })
 
-  it('uses agent-hub as the primary packaged CLI smoke launcher', () => {
+  it('uses janus as the primary packaged CLI smoke launcher', () => {
     const smokeScript = readFileSync(
       join(projectDir, 'config/scripts/smoke-packaged-cli.mjs'),
       'utf8'
     )
 
-    expect(smokeScript).toContain(
-      "primary: join(appDir, 'Contents', 'Resources', 'bin', 'agent-hub')"
-    )
-    expect(smokeScript).toContain("primary: join(appDir, 'resources', 'bin', 'agent-hub.cmd')")
-    expect(smokeScript).toContain("primary: join(appDir, 'resources', 'bin', 'agent-hub')")
+    expect(smokeScript).toContain("primary: join(appDir, 'Contents', 'Resources', 'bin', 'janus')")
+    expect(smokeScript).toContain("primary: join(appDir, 'resources', 'bin', 'janus.cmd')")
+    expect(smokeScript).toContain("primary: join(appDir, 'resources', 'bin', 'janus')")
     expect(smokeScript).toContain('readAllowLegacyCliFallbackArg')
     expect(smokeScript).not.toContain("return join(appDir, 'Contents', 'Resources', 'bin', 'orca')")
     expect(smokeScript).not.toContain("return join(appDir, 'resources', 'bin', 'orca.cmd')")

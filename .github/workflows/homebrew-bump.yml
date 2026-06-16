@@ -1,19 +1,19 @@
 name: Homebrew Cask Bump
 
-# Why: keep the jakedom/homebrew-agent-hub tap in sync with GitHub Releases.
+# Why: keep the jakedom/homebrew-janus-code tap in sync with GitHub Releases.
 # Triggers:
 #   - workflow_call → release-cut.yml finished publishing a stable tag
 #   - workflow_dispatch → manual backfill for a specific tag
 #
-# The job computes the sha256 of agent-hub-macos-arm64.dmg + agent-hub-macos-x64.dmg
+# The job computes the sha256 of janus-code-macos-arm64.dmg + janus-code-macos-x64.dmg
 # from the release, templates the channel-specific cask in this repo with the
-# new version and hashes, then PRs the result into jakedom/homebrew-agent-hub.
-# Stable tags update Casks/agent-hub.rb; RC tags update Casks/agent-hub@rc.rb.
+# new version and hashes, then PRs the result into jakedom/homebrew-janus-code.
+# Stable tags update Casks/janus-code.rb; RC tags update Casks/janus-code@rc.rb.
 #
 # Why no `release.published` trigger: other products shipped from this repo
 # (e.g. mobile under `mobile-v*`) also publish GitHub Releases. A blanket
 # `release.published` trigger would fire this workflow for any of them and
-# attempt to download `agent-hub-macos-*.dmg` from a non-desktop release, at
+# attempt to download `janus-code-macos-*.dmg` from a non-desktop release, at
 # best 404ing and at worst (if the filter were weaker) rewriting the cask
 # to a non-desktop version. The tap is only ever bumped by the desktop
 # release pipeline calling this workflow directly.
@@ -43,7 +43,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout Agent Hub
+      - name: Checkout Janus Code
         uses: actions/checkout@v6
 
       - name: Resolve tag and version
@@ -70,11 +70,11 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
-            token="agent-hub@rc"
-            branch_token="agent-hub-rc"
+            token="janus-code@rc"
+            branch_token="janus-code-rc"
           elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            token="agent-hub"
-            branch_token="agent-hub"
+            token="janus-code"
+            branch_token="janus-code"
           else
             echo "::error::Unsupported desktop tag shape: $TAG" >&2
             exit 1
@@ -101,11 +101,11 @@ jobs:
           mkdir -p dmgs
           gh release download "$TAG" \
             --repo "${{ github.repository }}" \
-            --pattern 'agent-hub-macos-arm64.dmg' \
-            --pattern 'agent-hub-macos-x64.dmg' \
+            --pattern 'janus-code-macos-arm64.dmg' \
+            --pattern 'janus-code-macos-x64.dmg' \
             --dir dmgs
-          arm=$(sha256sum dmgs/agent-hub-macos-arm64.dmg | awk '{print $1}')
-          intel=$(sha256sum dmgs/agent-hub-macos-x64.dmg  | awk '{print $1}')
+          arm=$(sha256sum dmgs/janus-code-macos-arm64.dmg | awk '{print $1}')
+          intel=$(sha256sum dmgs/janus-code-macos-x64.dmg  | awk '{print $1}')
           echo "arm=$arm"     >>"$GITHUB_OUTPUT"
           echo "intel=$intel" >>"$GITHUB_OUTPUT"
 
@@ -134,7 +134,7 @@ jobs:
 
       # Why: reuse the existing buf0-bot GitHub App (also used by
       # track-community-prs.yaml) instead of minting a new PAT. The app is
-      # installed for the tap owner, so it has access to jakedom/homebrew-agent-hub
+      # installed for the tap owner, so it has access to jakedom/homebrew-janus-code
       # automatically. GITHUB_TOKEN cannot push cross-repo; a short-lived
       # installation token can.
       - name: Generate buf0-bot token
@@ -144,12 +144,12 @@ jobs:
           app-id: 2590194
           private-key: ${{ secrets.BUFO_BOT_PRIVATE_KEY }}
           owner: jakedom
-          repositories: homebrew-agent-hub
+          repositories: homebrew-janus-code
 
       - name: Checkout tap
         uses: actions/checkout@v6
         with:
-          repository: jakedom/homebrew-agent-hub
+          repository: jakedom/homebrew-janus-code
           path: tap
           token: ${{ steps.app-token.outputs.token }}
 
@@ -187,7 +187,7 @@ jobs:
           # the PR title if creation reports that one already exists.
           gh pr create \
             --title "$TITLE" \
-            --body "Automated bump of $CASK_PATH from jakedomshoots/agent-hub release $TAG." \
+            --body "Automated bump of $CASK_PATH from jakedomshoots/janus-code release $TAG." \
             --base main \
             --head "$branch" \
             || gh pr edit "$branch" --title "$TITLE"

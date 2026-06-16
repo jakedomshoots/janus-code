@@ -114,8 +114,8 @@ describe('isTagBuiltFromCurrentRef', () => {
 })
 
 describe('publishCompleteDraftReleases', () => {
-  it('defaults to the public Agent Hub release repo', () => {
-    expect(DEFAULT_RELEASE_REPO).toBe('jakedomshoots/agent-hub')
+  it('defaults to the public Janus Code release repo', () => {
+    expect(DEFAULT_RELEASE_REPO).toBe('jakedomshoots/janus-code')
   })
 
   it('publishes complete release-cut drafts and skips incomplete ones', async () => {
@@ -148,7 +148,7 @@ describe('publishCompleteDraftReleases', () => {
     const log = vi.fn()
 
     const result = await publishCompleteDraftReleases({
-      repo: 'jakedomshoots/agent-hub',
+      repo: 'jakedomshoots/janus-code',
       token: 'token',
       fetchImpl,
       verifyReleaseAssets,
@@ -166,7 +166,7 @@ describe('publishCompleteDraftReleases', () => {
       ]
     })
     expect(fetchImpl).toHaveBeenLastCalledWith(
-      'https://api.github.com/repos/jakedomshoots/agent-hub/releases/7',
+      'https://api.github.com/repos/jakedomshoots/janus-code/releases/7',
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ draft: false, prerelease: true })
@@ -190,7 +190,7 @@ describe('publishCompleteDraftReleases', () => {
     const log = vi.fn()
 
     const result = await publishCompleteDraftReleases({
-      repo: 'jakedomshoots/agent-hub',
+      repo: 'jakedomshoots/janus-code',
       token: 'token',
       fetchImpl,
       verifyReleaseAssets,
