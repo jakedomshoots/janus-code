@@ -1456,7 +1456,7 @@ From the installed RC 0 app:
 - Download and restart.
 - Confirm app version is RC 1.
 
-- [ ] **Step 6: Add updater regression test for fork repo**
+- [x] **Step 6: Add updater regression test for fork repo**
 
 In `src/main/updater.test.ts`, add an assertion that update URLs include:
 
@@ -1464,12 +1464,20 @@ In `src/main/updater.test.ts`, add an assertion that update URLs include:
 expect(url).toContain('https://github.com/jakedom/agent-hub/releases')
 ```
 
-- [ ] **Step 7: Commit test/doc updates**
+- [x] **Step 7: Commit test/doc updates**
 
 ```bash
 git add docs/release/rc-rollout.md src/main/updater.test.ts
 git commit -m "test: document and assert fork updater flow"
 ```
+
+**Task 13 evidence:**
+- Updated `docs/release/rc-rollout.md` with the `jakedom/agent-hub` RC target, RC 0/RC 1 flow, release asset verifier commands, and a warning not to cut RCs while the checkout remote points at `stablyai/orca`.
+- Added an explicit updater test assertion that prerelease feed URLs contain `https://github.com/jakedom/agent-hub/releases`.
+- `pnpm exec vitest run --config config/vitest.config.ts src/main/updater.test.ts` passed `1 passed`, `55 passed`.
+- `gh auth status` passed for account `jakedomshoots` with `repo` and `workflow` scopes.
+- `gh repo view jakedom/agent-hub --json nameWithOwner,viewerPermission,defaultBranchRef` failed with `Could not resolve to a Repository with the name 'jakedom/agent-hub'`.
+- `git remote -v` still points to `https://github.com/stablyai/orca`, so live RC creation, RC asset verification, RC installation, and RC 0 to RC 1 updater validation remain blocked until the fork release repository exists and this branch is pushed there.
 
 ## Task 14: Smoke Test Public User Workflows
 

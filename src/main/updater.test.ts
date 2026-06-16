@@ -1121,6 +1121,8 @@ describe('updater', () => {
       expect(fetchNewerReleaseTagsMock).toHaveBeenCalledWith('1.3.17-rc.1', 2, {
         includePrerelease: true
       })
+      const feedUrl = autoUpdaterMock.setFeedURL.mock.lastCall?.[0]?.url
+      expect(feedUrl).toContain('https://github.com/jakedom/agent-hub/releases')
       expect(autoUpdaterMock.setFeedURL).toHaveBeenLastCalledWith({
         provider: 'generic',
         url: 'https://github.com/jakedom/agent-hub/releases/download/v1.3.17-rc.2'
