@@ -203,6 +203,7 @@ module.exports = {
     // credentials. Hardened runtime + notarization stay enabled only on the
     // explicit release path so production artifacts remain strict while dev
     // artifacts do not fail with broken ad-hoc launch behavior.
+    identity: isMacRelease ? undefined : null,
     hardenedRuntime: isMacRelease,
     notarize: isMacRelease,
     extraResources: [
