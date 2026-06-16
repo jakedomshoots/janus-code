@@ -129,6 +129,7 @@ describe('orca agent workspace selectors', () => {
       threads: [],
       plans: [],
       timeline: [],
+      approvals: [],
       diffs: [],
       terminalAvailable: false
     })
@@ -313,6 +314,52 @@ describe('orca agent workspace selectors', () => {
         ],
         markdown: '# Build GUI workspace',
         updatedAt: '2026-06-15T14:31:00.000Z'
+      }
+    ])
+  })
+
+  it('maps structured approval requests to workspace approvals', () => {
+    const running = worktree('wt-approval', {
+      path: '/repo/orca/worktrees/approval',
+      branch: 'refs/heads/feature/approval'
+    })
+    const runningTab = tab('tab-agent', running.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(running, {
+        activeWorktreeId: running.id,
+        tabsByWorktree: { [running.id]: [runningTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'waiting',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 35),
+            approval: {
+              id: 'approval-1',
+              status: 'requested',
+              title: 'Approve Bash',
+              description: 'Run the test suite.',
+              toolName: 'Bash',
+              toolInput: 'pnpm test',
+              fallbackText: 'Approve Bash: pnpm test'
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.approvals).toEqual([
+      {
+        id: `${paneKey}:approval:approval-1`,
+        threadId: paneKey,
+        providerKind: 'codex',
+        worktreeId: running.id,
+        status: 'requested',
+        title: 'Approve Bash',
+        description: 'Run the test suite.',
+        toolName: 'Bash',
+        toolInput: 'pnpm test',
+        fallbackText: 'Approve Bash: pnpm test',
+        updatedAt: '2026-06-15T14:35:00.000Z'
       }
     ])
   })

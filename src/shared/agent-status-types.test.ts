@@ -4,6 +4,7 @@ import {
   AGENT_STATUS_MAX_FIELD_LENGTH,
   AGENT_STATUS_TOOL_NAME_MAX_LENGTH,
   AGENT_STATUS_TOOL_INPUT_MAX_LENGTH,
+  AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH,
   AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH,
   AGENT_STATUS_PLAN_MAX_STEPS,
   AGENT_STATUS_STATES,
@@ -284,6 +285,53 @@ describe('parseAgentStatusPayload', () => {
 
     expect(parseAgentStatusPayload('{"state":"working","plan":null}')!.plan).toBeNull()
     expect(parseAgentStatusPayload('{"state":"working","plan":[]}')!.plan).toBeUndefined()
+  })
+
+  it('parses and normalizes a structured approval request payload', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'waiting',
+        approval: {
+          id: ' approval-1 ',
+          status: 'requested',
+          title: '  Approve shell command  ',
+          description: 'Run test suite before commit.',
+          toolName: 'Bash',
+          toolInput: 'pnpm test\npnpm lint',
+          fallbackText: 'Approve Bash: pnpm test'
+        }
+      })
+    )
+
+    expect(result!.approval).toEqual({
+      id: 'approval-1',
+      status: 'requested',
+      title: 'Approve shell command',
+      description: 'Run test suite before commit.',
+      toolName: 'Bash',
+      toolInput: 'pnpm test pnpm lint',
+      fallbackText: 'Approve Bash: pnpm test'
+    })
+  })
+
+  it('bounds approval fallback text and permits explicit approval clears', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'waiting',
+        approval: {
+          id: 'approval-1',
+          status: 'unknown',
+          fallbackText: 'a'.repeat(AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH + 20)
+        }
+      })
+    )
+
+    expect(result!.approval?.status).toBe('requested')
+    expect(result!.approval?.fallbackText).toHaveLength(
+      AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH
+    )
+    expect(parseAgentStatusPayload('{"state":"working","approval":null}')!.approval).toBeNull()
+    expect(parseAgentStatusPayload('{"state":"working","approval":{}}')!.approval).toBeUndefined()
   })
 
   it('preserves interrupted=true when state is done', () => {

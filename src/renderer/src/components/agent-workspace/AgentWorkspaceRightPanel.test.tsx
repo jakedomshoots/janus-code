@@ -3,7 +3,11 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AgentWorkspaceDiffSummary, AgentWorkspaceThread } from './agent-workspace-types'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspaceApproval,
+  AgentWorkspaceThread
+} from './agent-workspace-types'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 
 const runningThread: AgentWorkspaceThread = {
@@ -24,6 +28,20 @@ const diffSummary: AgentWorkspaceDiffSummary = {
   additions: 42,
   deletions: 7,
   status: 'modified'
+}
+
+const approvalRequest: AgentWorkspaceApproval = {
+  id: 'thread-1:approval:approval-1',
+  threadId: 'thread-1',
+  providerKind: 'codex',
+  worktreeId: 'worktree-1',
+  status: 'requested',
+  title: 'Approve Bash',
+  description: 'Run the test suite before commit.',
+  toolName: 'Bash',
+  toolInput: 'pnpm test',
+  fallbackText: 'Approve Bash: pnpm test',
+  updatedAt: '2026-06-16T12:01:00.000Z'
 }
 
 function findTab(container: HTMLElement, label: string): HTMLButtonElement {
@@ -58,6 +76,7 @@ describe('AgentWorkspaceRightPanel', () => {
         <AgentWorkspaceRightPanel
           thread={runningThread}
           plan={null}
+          approval={null}
           diffs={[diffSummary]}
           terminalAvailable
           selectedTab="diff"
@@ -81,6 +100,7 @@ describe('AgentWorkspaceRightPanel', () => {
         <AgentWorkspaceRightPanel
           thread={runningThread}
           plan={null}
+          approval={null}
           diffs={[diffSummary]}
           terminalAvailable
           selectedTab="plan"
@@ -108,6 +128,7 @@ describe('AgentWorkspaceRightPanel', () => {
             cwd: '/Users/jakedom/orca'
           }}
           plan={null}
+          approval={approvalRequest}
           diffs={[]}
           terminalAvailable={false}
           selectedTab="details"
@@ -118,6 +139,7 @@ describe('AgentWorkspaceRightPanel', () => {
 
     expect(findTab(container, 'Details').getAttribute('data-state')).toBe('active')
     expect(container.textContent).toContain('This thread needs approval before it can continue.')
+    expect(container.textContent).toContain('Approve Bash: pnpm test')
     expect(container.textContent).toContain('/Users/jakedom/orca')
   })
 
@@ -129,6 +151,7 @@ describe('AgentWorkspaceRightPanel', () => {
         <AgentWorkspaceRightPanel
           thread={runningThread}
           plan={null}
+          approval={null}
           diffs={[]}
           terminalAvailable
           selectedTab="terminal"

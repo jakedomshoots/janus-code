@@ -77,6 +77,7 @@ function snapshot(plans: readonly AgentWorkspacePlan[]): AgentWorkspaceSnapshot 
     threads: [thread],
     plans,
     timeline: [],
+    approvals: [],
     diffs: [],
     terminalAvailable: true
   }

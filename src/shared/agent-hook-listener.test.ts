@@ -1196,6 +1196,40 @@ describe('shared agent-hook-listener', () => {
     expect(next?.payload.toolInput).toBeUndefined()
   })
 
+  it('adds a structured approval request for Codex permission hooks', () => {
+    const next = normalizeHookPayload(
+      state,
+      'codex',
+      {
+        paneKey: PANE_KEY,
+        payload: {
+          hook_event_name: 'PermissionRequest',
+          request_id: 'approval-1',
+          tool_name: 'Bash',
+          tool_input: { command: 'pnpm test' },
+          reason: 'Run the focused suite before commit'
+        }
+      },
+      'production'
+    )
+
+    expect(next?.payload).toMatchObject({
+      state: 'waiting',
+      agentType: 'codex',
+      toolName: 'Bash',
+      toolInput: 'pnpm test',
+      approval: {
+        id: 'approval-1',
+        status: 'requested',
+        title: 'Approve Bash',
+        description: 'Run the focused suite before commit',
+        toolName: 'Bash',
+        toolInput: 'pnpm test',
+        fallbackText: 'Approve Bash: pnpm test'
+      }
+    })
+  })
+
   it('clears stale Droid tool input when a same-tool update has explicit unpreviewable input', () => {
     normalizeHookPayload(
       state,

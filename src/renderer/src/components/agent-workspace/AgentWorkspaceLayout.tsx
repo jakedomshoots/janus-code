@@ -9,6 +9,7 @@ import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
   AgentWorkspaceProject,
+  AgentWorkspaceApproval,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
@@ -63,6 +64,15 @@ function getThreadDiffs(
   thread: AgentWorkspaceThread | null
 ): readonly AgentWorkspaceDiffSummary[] {
   return thread ? snapshot.diffs.filter((diff) => diff.threadId === thread.id) : []
+}
+
+function getThreadApproval(
+  snapshot: AgentWorkspaceSnapshot,
+  thread: AgentWorkspaceThread | null
+): AgentWorkspaceApproval | null {
+  return thread
+    ? (snapshot.approvals.find((approval) => approval.threadId === thread.id) ?? null)
+    : null
 }
 
 function getRightPanelStateInput(
@@ -233,6 +243,7 @@ export function AgentWorkspaceLayout({
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
+  const selectedApproval = getThreadApproval(snapshot, selectedThread)
   const rightPanelStateInput = getRightPanelStateInput(selectedThread, diffs, selectedPlan)
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
@@ -311,6 +322,7 @@ export function AgentWorkspaceLayout({
           <AgentWorkspaceRightPanel
             thread={selectedThread}
             plan={selectedPlan}
+            approval={selectedApproval}
             diffs={diffs}
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}

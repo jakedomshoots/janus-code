@@ -5,6 +5,7 @@ import { translate } from '@/i18n/i18n'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
+  AgentWorkspaceApproval,
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import { AgentDiffPanel } from './AgentDiffPanel'
@@ -19,6 +20,7 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 export function AgentWorkspaceRightPanel({
   thread,
   plan,
+  approval,
   diffs,
   terminalAvailable,
   selectedTab,
@@ -28,6 +30,7 @@ export function AgentWorkspaceRightPanel({
 }: {
   thread: AgentWorkspaceThread | null
   plan: AgentWorkspacePlan | null
+  approval: AgentWorkspaceApproval | null
   diffs: readonly AgentWorkspaceDiffSummary[]
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
@@ -112,6 +115,48 @@ export function AgentWorkspaceRightPanel({
                       'This thread needs approval before it can continue.'
                     )}
                   </p>
+                ) : null}
+                {approval ? (
+                  <div className="space-y-2 border-l border-amber-500/60 pl-3">
+                    <div className="text-xs font-medium text-foreground">
+                      {approval.title ??
+                        translate(
+                          'auto.components.agentWorkspace.layout.approvalRequest',
+                          'Approval request'
+                        )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{approval.fallbackText}</p>
+                    {approval.description ? (
+                      <p className="text-xs text-muted-foreground">{approval.description}</p>
+                    ) : null}
+                    {approval.toolName || approval.toolInput ? (
+                      <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-x-2 gap-y-1 text-xs">
+                        {approval.toolName ? (
+                          <>
+                            <span className="text-muted-foreground">
+                              {translate('auto.components.agentWorkspace.layout.tool', 'Tool')}
+                            </span>
+                            <span className="min-w-0 truncate text-foreground">
+                              {approval.toolName}
+                            </span>
+                          </>
+                        ) : null}
+                        {approval.toolInput ? (
+                          <>
+                            <span className="text-muted-foreground">
+                              {translate(
+                                'auto.components.agentWorkspace.layout.request',
+                                'Request'
+                              )}
+                            </span>
+                            <span className="min-w-0 truncate text-foreground">
+                              {approval.toolInput}
+                            </span>
+                          </>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 ) : null}
                 <div className="grid grid-cols-[6rem_minmax(0,1fr)] gap-x-2 gap-y-1 text-xs">
                   <span className="text-muted-foreground">

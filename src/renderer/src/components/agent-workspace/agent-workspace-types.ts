@@ -46,6 +46,22 @@ export type AgentWorkspacePlan = {
   readonly updatedAt: string | null
 }
 
+export type AgentWorkspaceApprovalStatus = 'requested' | 'approved' | 'denied' | 'expired'
+
+export type AgentWorkspaceApproval = {
+  readonly id: string
+  readonly threadId: string
+  readonly providerKind: string
+  readonly worktreeId: string
+  readonly status: AgentWorkspaceApprovalStatus
+  readonly title: string | null
+  readonly description: string | null
+  readonly toolName: string | null
+  readonly toolInput: string | null
+  readonly fallbackText: string
+  readonly updatedAt: string | null
+}
+
 export type AgentWorkspaceTimelineEntry = {
   readonly id: string
   readonly threadId: string
@@ -72,6 +88,7 @@ export type AgentWorkspaceSnapshot = {
   readonly threads: readonly AgentWorkspaceThread[]
   readonly plans: readonly AgentWorkspacePlan[]
   readonly timeline: readonly AgentWorkspaceTimelineEntry[]
+  readonly approvals: readonly AgentWorkspaceApproval[]
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
   readonly terminalAvailable: boolean
 }

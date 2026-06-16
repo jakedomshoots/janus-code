@@ -4,6 +4,7 @@ import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePhase,
   AgentWorkspaceProject,
+  AgentWorkspaceApproval,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
@@ -15,6 +16,7 @@ const emptySnapshot = {
   threads: [],
   plans: [],
   timeline: [],
+  approvals: [],
   diffs: [],
   terminalAvailable: false
 } satisfies AgentWorkspaceSnapshot
@@ -48,6 +50,20 @@ const runningTimelineEntry: AgentWorkspaceTimelineEntry = {
   status: 'running'
 }
 
+const runningApproval: AgentWorkspaceApproval = {
+  id: 'approval-running',
+  threadId: runningThread.id,
+  providerKind: 'codex',
+  worktreeId: runningThread.worktreeId,
+  status: 'requested',
+  title: 'Approve Bash',
+  description: 'Run the test suite before commit.',
+  toolName: 'Bash',
+  toolInput: 'pnpm test',
+  fallbackText: 'Approve Bash: pnpm test',
+  updatedAt: '2026-06-15T14:32:00.000Z'
+}
+
 const runningDiff: AgentWorkspaceDiffSummary = {
   id: 'diff-running',
   threadId: runningThread.id,
@@ -79,6 +95,7 @@ const runningSnapshot = {
     }
   ],
   timeline: [runningTimelineEntry],
+  approvals: [runningApproval],
   diffs: [runningDiff],
   terminalAvailable: true
 } satisfies AgentWorkspaceSnapshot
@@ -128,6 +145,7 @@ const completedSnapshot = {
   threads: [completedThread],
   plans: [],
   timeline: [completedTimelineEntry],
+  approvals: [],
   diffs: [completedDiff],
   terminalAvailable: false
 } satisfies AgentWorkspaceSnapshot
@@ -147,6 +165,7 @@ describe('agent workspace types', () => {
     expect(snapshots.map((snapshot) => snapshot.threads.length)).toEqual([0, 1, 1])
     expect(runningSnapshot.threads[0]?.phase).toBe('running')
     expect(runningSnapshot.plans[0]?.steps[0]?.status).toBe('in-progress')
+    expect(runningSnapshot.approvals[0]?.fallbackText).toBe('Approve Bash: pnpm test')
     expect(completedSnapshot.timeline[0]?.status).toBe('done')
     expect(completedSnapshot.diffs[0]?.oldPath).toBe(
       'src/renderer/src/components/agent-workspace/legacy-workspace-types.test.ts'

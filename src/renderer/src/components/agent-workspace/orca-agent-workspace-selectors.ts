@@ -17,6 +17,7 @@ import type {
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread
 } from './agent-workspace-types'
+import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
 
@@ -51,7 +52,10 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed ? trimmed : null
 }
 
-function getPhaseForAgentState(state: string): AgentWorkspacePhase {
+function getPhaseForAgentState(state: string, hasApproval: boolean): AgentWorkspacePhase {
+  if (hasApproval) {
+    return 'needs-approval'
+  }
   switch (state) {
     case 'working':
       return 'running'
@@ -185,7 +189,7 @@ function toAgentWorkspaceThread(
     worktreeId,
     title: getThreadTitle(entry, tab),
     agentKind: entry.agentType ?? 'unknown',
-    phase: getPhaseForAgentState(entry.state),
+    phase: getPhaseForAgentState(entry.state, entry.approval !== undefined),
     updatedAt: getIsoTimestamp(entry.updatedAt),
     cwd: meta?.path ?? null,
     branchName: meta?.branchName ?? null
@@ -284,6 +288,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
   const projects = selectAgentWorkspaceProjects(state)
   const threads = selectAgentWorkspaceThreads(state)
   const plans = selectAgentWorkspacePlans(state, threads)
+  const approvals = selectAgentWorkspaceApprovals(state, threads)
   const diffs = selectAgentWorkspaceDiffs(state, threads)
   const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
@@ -291,6 +296,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     threads,
     plans,
     timeline: [],
+    approvals,
     diffs,
     terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
   }

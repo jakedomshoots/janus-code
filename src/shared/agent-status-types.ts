@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Why: the agent-status wire contract, parser, and field caps must stay co-located so main, relay, and renderer paths normalize the same payload shape. */
 // ─── Explicit agent status (reported via native agent hooks → IPC) ──────────
 // These types define the normalized status that Orca receives from Claude,
 // Codex, and other explicit integrations. Agent state normally comes from
@@ -85,6 +86,24 @@ export type AgentStatusPlan = {
   updatedAt?: number
 }
 
+export const AGENT_STATUS_APPROVAL_STATUSES = [
+  'requested',
+  'approved',
+  'denied',
+  'expired'
+] as const
+export type AgentStatusApprovalStatus = (typeof AGENT_STATUS_APPROVAL_STATUSES)[number]
+
+export type AgentStatusApproval = {
+  id: string
+  status: AgentStatusApprovalStatus
+  title?: string
+  description?: string
+  toolName?: string
+  toolInput?: string
+  fallbackText: string
+}
+
 export type AgentStatusEntry = {
   state: AgentStatusState
   /** The user's most recent prompt, when the hook payload carried one.
@@ -124,6 +143,8 @@ export type AgentStatusEntry = {
   lastAssistantMessage?: string
   /** Latest provider-neutral structured plan for the active turn, when available. */
   plan?: AgentStatusPlan
+  /** Latest provider-neutral approval request for the active turn, when available. */
+  approval?: AgentStatusApproval
   /** True when the current `done` state was reached via an interrupt rather
    *  than a normal turn completion. May be reported by the agent itself or
    *  inferred by Orca's guarded interrupt fallback.
@@ -165,6 +186,7 @@ export type AgentStatusPayload = {
   toolInput?: string
   lastAssistantMessage?: string
   plan?: AgentStatusPlan | null
+  approval?: AgentStatusApproval | null
   interrupted?: boolean
 }
 
@@ -225,6 +247,14 @@ export const AGENT_STATUS_PLAN_EXPLANATION_MAX_LENGTH = 2000
 export const AGENT_STATUS_PLAN_STEP_ID_MAX_LENGTH = 120
 /** Maximum character length for a structured plan step title. */
 export const AGENT_STATUS_PLAN_STEP_TITLE_MAX_LENGTH = 300
+/** Maximum character length for a structured approval id. */
+export const AGENT_STATUS_APPROVAL_ID_MAX_LENGTH = 160
+/** Maximum character length for a structured approval title. */
+export const AGENT_STATUS_APPROVAL_TITLE_MAX_LENGTH = 200
+/** Maximum character length for a structured approval description. */
+export const AGENT_STATUS_APPROVAL_DESCRIPTION_MAX_LENGTH = 2000
+/** Maximum character length for structured approval fallback text. */
+export const AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH = 500
 /**
  * Freshness threshold for explicit agent status. Retained past this point so
  * WorktreeCard's sidebar dot can decay "working" back to "active" when the
@@ -393,6 +423,49 @@ function normalizeStructuredPlan(value: unknown): AgentStatusPlan | null | undef
   }
 }
 
+function normalizeApprovalStatus(value: unknown): AgentStatusApprovalStatus {
+  return AGENT_STATUS_APPROVAL_STATUSES.includes(value as AgentStatusApprovalStatus)
+    ? (value as AgentStatusApprovalStatus)
+    : 'requested'
+}
+
+function normalizeStructuredApproval(value: unknown): AgentStatusApproval | null | undefined {
+  if (value === null) {
+    return null
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const id = normalizeOptionalField(obj.id, AGENT_STATUS_APPROVAL_ID_MAX_LENGTH)
+  const fallbackText = normalizeOptionalField(
+    obj.fallbackText,
+    AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH
+  )
+  if (!id || !fallbackText) {
+    return undefined
+  }
+
+  const title = normalizeOptionalField(obj.title, AGENT_STATUS_APPROVAL_TITLE_MAX_LENGTH)
+  const description = normalizeOptionalMultilineField(
+    obj.description,
+    AGENT_STATUS_APPROVAL_DESCRIPTION_MAX_LENGTH
+  )
+  const toolName = normalizeOptionalField(obj.toolName, AGENT_STATUS_TOOL_NAME_MAX_LENGTH)
+  const toolInput = normalizeOptionalField(obj.toolInput, AGENT_STATUS_TOOL_INPUT_MAX_LENGTH)
+
+  return {
+    id,
+    status: normalizeApprovalStatus(obj.status),
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(toolName ? { toolName } : {}),
+    ...(toolInput ? { toolInput } : {}),
+    fallbackText
+  }
+}
+
 /**
  * Normalize and validate an already-parsed agent status object. Shared by the
  * JSON string entry point (`parseAgentStatusPayload`) and the object entry
@@ -431,6 +504,7 @@ function normalizeAgentStatusObject(parsed: unknown): ParsedAgentStatusPayload |
       AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH
     ),
     plan: normalizeStructuredPlan(obj.plan),
+    approval: normalizeStructuredApproval(obj.approval),
     // Why: only meaningful on `done`. Coerce to undefined on other states so
     // the field doesn't leak stale truth through state transitions.
     interrupted: obj.interrupted === true && state === 'done' ? true : undefined

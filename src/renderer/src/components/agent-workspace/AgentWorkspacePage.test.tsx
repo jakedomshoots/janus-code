@@ -17,6 +17,7 @@ const emptySnapshot: AgentWorkspaceSnapshot = {
   threads: [],
   plans: [],
   timeline: [],
+  approvals: [],
   diffs: [],
   terminalAvailable: false
 }
@@ -101,6 +102,7 @@ describe('AgentWorkspacePage', () => {
           status: 'done'
         }
       ],
+      approvals: [],
       diffs: [
         {
           id: 'diff-1',
@@ -194,6 +196,7 @@ describe('AgentWorkspace phase labels', () => {
           ],
           plans: [],
           timeline: [],
+          approvals: [],
           diffs: [],
           terminalAvailable: false
         }}
@@ -242,6 +245,7 @@ describe('AgentWorkspace phase labels', () => {
               status: 'done'
             }
           ],
+          approvals: [],
           diffs: [
             {
               id: 'diff-1',
@@ -321,6 +325,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
           createdAt: '2026-06-15T12:05:00.000Z'
         }
       ],
+      approvals: [],
       diffs: [],
       terminalAvailable: false
     }
@@ -385,6 +390,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 createdAt: '2026-06-15T12:05:00.000Z'
               }
             ],
+            approvals: [],
             diffs: [],
             terminalAvailable: false
           }}
@@ -472,6 +478,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
             ],
             plans: [],
             timeline: [],
+            approvals: [],
             diffs: [
               {
                 id: 'diff-1',
@@ -567,6 +574,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
             ],
             plans: [],
             timeline: [],
+            approvals: [],
             diffs: [
               {
                 id: 'diff-1',
@@ -654,6 +662,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
               }
             ],
             timeline: [],
+            approvals: [],
             diffs: [],
             terminalAvailable: false
           }}
@@ -703,6 +712,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
             ],
             plans: [],
             timeline: [],
+            approvals: [],
             diffs: [
               {
                 id: 'diff-1',
@@ -761,6 +771,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
             ],
             plans: [],
             timeline: [],
+            approvals: [],
             diffs: [],
             terminalAvailable: true
           }}

@@ -461,6 +461,13 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
               ? undefined
               : existing?.plan
             : (payload.plan ?? undefined)
+        const preservesApprovalState = payload.state === 'waiting' || payload.state === 'blocked'
+        const approval =
+          payload.approval === undefined
+            ? promptChanged || !preservesApprovalState
+              ? undefined
+              : existing?.approval
+            : (payload.approval ?? undefined)
         const runtimeOrchestration = s.runtimeAgentOrchestrationByPaneKey[paneKey]
         const runtimeMergedOrchestration = runtimeOrchestration
           ? mergeCurrentOrchestrationContext(existing?.orchestration, runtimeOrchestration)
@@ -498,6 +505,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           toolInput: payload.toolInput,
           lastAssistantMessage: payload.lastAssistantMessage,
           plan,
+          approval,
           // Why: reused panes may start non-orchestrated work after runtime
           // metadata expires. Only final done rows keep the previous lineage
           // fallback so completed children stay grouped.
@@ -548,6 +556,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.toolInput !== existing.toolInput ||
             entry.lastAssistantMessage !== existing.lastAssistantMessage ||
             entry.plan !== existing.plan ||
+            entry.approval !== existing.approval ||
             entry.orchestration !== existing.orchestration ||
             entry.providerSession !== existing.providerSession ||
             entry.interrupted !== existing.interrupted)

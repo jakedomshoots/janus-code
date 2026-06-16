@@ -27,7 +27,11 @@ import {
 } from 'fs'
 import { join } from 'path'
 
-import { parseAgentStatusPayload, type ParsedAgentStatusPayload } from './agent-status-types'
+import {
+  parseAgentStatusPayload,
+  type AgentStatusApproval,
+  type ParsedAgentStatusPayload
+} from './agent-status-types'
 import { ORCA_HOOK_PROTOCOL_VERSION } from './agent-hook-types'
 import { REMOTE_AGENT_HOOK_ENV, type AgentHookSource } from './agent-hook-relay'
 import {
@@ -1919,6 +1923,121 @@ function extractToolFields(
   }
 }
 
+function readObjectField(record: Record<string, unknown>, key: string): Record<string, unknown> {
+  const value = record[key]
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>
+  }
+  return parseJsonObjectString(value) ?? {}
+}
+
+function readApprovalIdFromPayload(hookPayload: Record<string, unknown>): string | undefined {
+  const direct = readFirstString(hookPayload, [
+    'approval_id',
+    'approvalId',
+    'request_id',
+    'requestId',
+    'permission_id',
+    'permissionId',
+    'tool_use_id',
+    'toolUseId',
+    'id'
+  ])
+  if (direct) {
+    return direct
+  }
+
+  for (const nestedField of ['tool_input', 'input', 'arguments']) {
+    const nested = readObjectField(hookPayload, nestedField)
+    const nestedId = readFirstString(nested, [
+      'approval_id',
+      'approvalId',
+      'request_id',
+      'requestId',
+      'permission_id',
+      'permissionId',
+      'tool_use_id',
+      'toolUseId',
+      'id'
+    ])
+    if (nestedId) {
+      return nestedId
+    }
+  }
+  return undefined
+}
+
+function fallbackApprovalId(args: {
+  source: AgentHookSource
+  eventName: unknown
+  toolName?: string
+  toolInput?: string
+  description?: string
+}): string {
+  const hash = createHash('sha256')
+    .update(
+      JSON.stringify({
+        source: args.source,
+        eventName: String(args.eventName ?? ''),
+        toolName: args.toolName ?? '',
+        toolInput: args.toolInput ?? '',
+        description: args.description ?? ''
+      })
+    )
+    .digest('hex')
+    .slice(0, 16)
+  return `${args.source}-${hash}`
+}
+
+function buildApprovalRequest(args: {
+  source: AgentHookSource
+  eventName: unknown
+  hookPayload: Record<string, unknown>
+  snapshot: ToolSnapshot
+  isApprovalRequest: boolean
+}): AgentStatusApproval | undefined {
+  if (!args.isApprovalRequest) {
+    return undefined
+  }
+
+  const toolName =
+    args.snapshot.toolName ??
+    readFirstString(args.hookPayload, ['tool_name', 'toolName', 'name', 'tool'])
+  const toolInput = args.snapshot.toolInput
+  const description = readFirstString(args.hookPayload, [
+    'reason',
+    'description',
+    'message',
+    'question',
+    'prompt'
+  ])
+  const title = toolName ? `Approve ${toolName}` : 'Approval requested'
+  const fallbackText =
+    toolName && toolInput
+      ? `Approve ${toolName}: ${toolInput}`
+      : toolName
+        ? `Approve ${toolName}`
+        : (description ?? 'Approval requested')
+
+  return {
+    id:
+      readApprovalIdFromPayload(args.hookPayload) ??
+      fallbackApprovalId({
+        source: args.source,
+        eventName: args.eventName,
+        toolName,
+        toolInput,
+        description
+      }),
+    status: 'requested',
+    title,
+    ...(description ? { description } : {}),
+    ...(toolName ? { toolName } : {}),
+    ...(toolInput ? { toolInput } : {}),
+    fallbackText
+  }
+}
+
 function normalizeClaudeEvent(
   state: HookListenerState,
   eventName: unknown,
@@ -1951,6 +2070,13 @@ function normalizeClaudeEvent(
 
   const interrupted =
     eventName === 'Stop' && hookPayload['is_interrupt'] === true ? true : undefined
+  const approval = buildApprovalRequest({
+    source: 'claude',
+    eventName,
+    hookPayload,
+    snapshot,
+    isApprovalRequest: eventName === 'PermissionRequest'
+  })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -1962,6 +2088,7 @@ function normalizeClaudeEvent(
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
       lastAssistantMessage: snapshot.lastAssistantMessage,
+      approval,
       interrupted
     })
   )
@@ -2291,6 +2418,13 @@ function normalizeCodexEvent(
     extractToolFields('codex', eventName, hookPayload),
     { resetOnNewTurn: isNewTurnEvent('codex', eventName) }
   )
+  const approval = buildApprovalRequest({
+    source: 'codex',
+    eventName,
+    hookPayload,
+    snapshot,
+    isApprovalRequest: eventName === 'PermissionRequest'
+  })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2301,7 +2435,8 @@ function normalizeCodexEvent(
       agentType: 'codex',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      approval
     })
   )
 }
@@ -2332,6 +2467,13 @@ function normalizeOpenCodeEvent(
     extractToolFields('opencode', eventName, hookPayload),
     { resetOnNewTurn: isNewTurnEvent('opencode', eventName) }
   )
+  const approval = buildApprovalRequest({
+    source: 'opencode',
+    eventName,
+    hookPayload,
+    snapshot,
+    isApprovalRequest: eventName === 'PermissionRequest'
+  })
 
   return parseAgentStatusPayload(
     JSON.stringify({
@@ -2342,7 +2484,8 @@ function normalizeOpenCodeEvent(
       agentType: 'opencode',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      approval
     })
   )
 }
@@ -2456,6 +2599,13 @@ function normalizeCopilotEvent(
   const snapshot = resolveToolState(state, paneKey, toolSnapshot, {
     resetOnNewTurn: isNewTurnEvent('copilot', normalizedEventName)
   })
+  const approval = buildApprovalRequest({
+    source: 'copilot',
+    eventName: normalizedEventName,
+    hookPayload,
+    snapshot,
+    isApprovalRequest: isBlockingNotification || isAskUserPrompt
+  })
 
   const effectivePrompt = normalizedEventName === 'Notification' ? '' : promptText
 
@@ -2468,7 +2618,8 @@ function normalizeCopilotEvent(
       agentType: 'copilot',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      approval
     })
   )
 }
@@ -2569,6 +2720,16 @@ function normalizeDroidEvent(
     extractToolFields('droid', eventName, hookPayload),
     { resetOnNewTurn: isNewTurnEvent('droid', eventName) }
   )
+  const approval = buildApprovalRequest({
+    source: 'droid',
+    eventName,
+    hookPayload,
+    snapshot,
+    isApprovalRequest:
+      eventName === 'PermissionRequest' ||
+      (eventName === 'PreToolUse' &&
+        (isDroidAskUserTool(droidToolName) || isDroidHighRiskToolUse(hookPayload)))
+  })
 
   // Why: Droid's Notification.message contains status text (e.g. "Droid is
   // waiting for your input"), not the user's prompt. Pass '' so resolvePrompt
@@ -2584,7 +2745,8 @@ function normalizeDroidEvent(
       agentType: 'droid',
       toolName: snapshot.toolName,
       toolInput: snapshot.toolInput,
-      lastAssistantMessage: snapshot.lastAssistantMessage
+      lastAssistantMessage: snapshot.lastAssistantMessage,
+      approval
     })
   )
 }

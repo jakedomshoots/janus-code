@@ -496,6 +496,87 @@ describe('agent status tool + assistant fields', () => {
     expect(store.getState().agentStatusByPaneKey['tab-1:1'].plan).toBeUndefined()
   })
 
+  it('preserves approval requests across same-turn waiting pings', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      approval: {
+        id: 'approval-1',
+        status: 'requested',
+        title: 'Approve Bash',
+        toolName: 'Bash',
+        toolInput: 'pnpm test',
+        fallbackText: 'Approve Bash: pnpm test'
+      }
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex'
+    })
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].approval).toEqual({
+      id: 'approval-1',
+      status: 'requested',
+      title: 'Approve Bash',
+      toolName: 'Bash',
+      toolInput: 'pnpm test',
+      fallbackText: 'Approve Bash: pnpm test'
+    })
+  })
+
+  it('clears approval requests on explicit clear, resume, or a new prompt', () => {
+    vi.useFakeTimers()
+    const store = createTestStore()
+    const approval = {
+      id: 'approval-1',
+      status: 'requested' as const,
+      fallbackText: 'Approve Bash: pnpm test'
+    }
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      approval
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      approval: null
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].approval).toBeUndefined()
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      approval
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex'
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].approval).toBeUndefined()
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      approval
+    })
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'waiting',
+      prompt: 'Review the diff',
+      agentType: 'codex'
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].approval).toBeUndefined()
+  })
+
   it('preserves prior agentType when payload omits it', () => {
     vi.useFakeTimers()
     const store = createTestStore()
