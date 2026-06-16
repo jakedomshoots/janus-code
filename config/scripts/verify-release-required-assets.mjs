@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 const API_VERSION = '2022-11-28'
 
 export function resolveReleaseRepository(env = process.env) {
-  return env.GITHUB_REPOSITORY || 'jakedom/agent-hub'
+  return env.GITHUB_REPOSITORY || 'jakedomshoots/agent-hub'
 }
 
 export function getRequiredReleaseAssetNames(tag) {

@@ -10,9 +10,9 @@ type ChangelogEntry = {
   releaseNotesUrl: string
 }
 
-const CHANGELOG_URL = 'https://github.com/jakedom/agent-hub/releases'
+const CHANGELOG_URL = 'https://github.com/jakedomshoots/agent-hub/releases'
 const CHANGELOG_JSON_URL =
-  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/changelog.json'
+  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/changelog.json'
 
 function isValidEntry(entry: ChangelogEntry): boolean {
   return (

@@ -2,7 +2,7 @@
 
 ## Current Release Target
 
-- Repository: `jakedom/agent-hub`
+- Repository: `jakedomshoots/agent-hub`
 - Branch/ref: `feature/t3code-gui-workspace`
 - First RC tag: `v1.4.73-rc.0`
 - Second RC tag for updater validation: `v1.4.73-rc.1`
@@ -15,7 +15,7 @@ Run the release workflow with:
 - ref: `feature/t3code-gui-workspace`
 - dry_run: `false`
 
-The local checkout must push to `jakedom/agent-hub` before this workflow can
+The local checkout must push to `jakedomshoots/agent-hub` before this workflow can
 produce public RC assets. If `git remote -v` still points at `stablyai/orca`,
 do not cut the RC from that checkout.
 
@@ -31,14 +31,14 @@ do not cut the RC from that checkout.
 Verify required assets after each RC upload:
 
 ```bash
-GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedom/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.0
-GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedom/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.1
+GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedomshoots/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.0
+GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedomshoots/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.1
 ```
 
 Expected output for RC 0:
 
 ```text
-Verified 16 required release assets for jakedom/agent-hub@v1.4.73-rc.0
+Verified 16 required release assets for jakedomshoots/agent-hub@v1.4.73-rc.0
 ```
 
 ## Updater RC Flow
@@ -46,7 +46,7 @@ Verified 16 required release assets for jakedom/agent-hub@v1.4.73-rc.0
 1. Install `v1.4.73-rc.0` from:
 
 ```text
-https://github.com/jakedom/agent-hub/releases/download/v1.4.73-rc.0/agent-hub-macos-arm64.dmg
+https://github.com/jakedomshoots/agent-hub/releases/download/v1.4.73-rc.0/agent-hub-macos-arm64.dmg
 ```
 
 2. Cut `v1.4.73-rc.1` from the same branch.

@@ -5,14 +5,14 @@ cask "agent-hub@rc" do
   sha256 arm:   "563b6b14323fc9d5489299c82442d514bc12cabffc9d06d3964ed572af4b3955",
          intel: "457088c7021f07de1a419197f7b2bd00092741ad4727d4fef3d86af38a6831e7"
 
-  url "https://github.com/jakedom/agent-hub/releases/download/v#{version}/agent-hub-macos-#{arch}.dmg",
-      verified: "github.com/jakedom/agent-hub/"
+  url "https://github.com/jakedomshoots/agent-hub/releases/download/v#{version}/agent-hub-macos-#{arch}.dmg",
+      verified: "github.com/jakedomshoots/agent-hub/"
   name "Agent Hub RC"
   desc "GUI-first desktop workspace for CLI coding agents"
-  homepage "https://github.com/jakedom/agent-hub"
+  homepage "https://github.com/jakedomshoots/agent-hub"
 
   livecheck do
-    url "https://github.com/jakedom/agent-hub"
+    url "https://github.com/jakedomshoots/agent-hub"
     regex(/^v?(\d+(?:\.\d+)+-rc\.\d+)$/i)
     strategy :github_releases do |json, regex|
       json.map do |release|

@@ -4,9 +4,9 @@
 
 - Product identity is `Agent Hub`.
 - App id is `com.jakedom.agenthub`.
-- GitHub release repository is `jakedom/agent-hub`.
-- Auto-update feed points at `jakedom/agent-hub`.
-- README install links point at `jakedom/agent-hub`.
+- GitHub release repository is `jakedomshoots/agent-hub`.
+- Auto-update feed points at `jakedomshoots/agent-hub`.
+- README install links point at `jakedomshoots/agent-hub`.
 - Orca and T3 Code attribution is present in `NOTICE.md`.
 - Full local gate passes:
   - `pnpm run typecheck`

@@ -45,7 +45,7 @@ Use these defaults for the public fork unless the product owner explicitly choos
   "appId": "com.jakedom.agenthub",
   "githubOwner": "jakedom",
   "githubRepo": "agent-hub",
-  "homepage": "https://github.com/jakedom/agent-hub",
+  "homepage": "https://github.com/jakedomshoots/agent-hub",
   "cliBin": "agent-hub",
   "legacyCliBin": "orca"
 }
@@ -135,9 +135,9 @@ Create `docs/release/public-ship-checklist.md` with this content:
 
 - Product identity is `Agent Hub`.
 - App id is `com.jakedom.agenthub`.
-- GitHub release repository is `jakedom/agent-hub`.
-- Auto-update feed points at `jakedom/agent-hub`.
-- README install links point at `jakedom/agent-hub`.
+- GitHub release repository is `jakedomshoots/agent-hub`.
+- Auto-update feed points at `jakedomshoots/agent-hub`.
+- README install links point at `jakedomshoots/agent-hub`.
 - Orca and T3 Code attribution is present in `NOTICE.md`.
 - Full local gate passes:
   - `pnpm run typecheck`
@@ -211,7 +211,7 @@ Create `config/public-release-identity.json`:
   "appId": "com.jakedom.agenthub",
   "githubOwner": "jakedom",
   "githubRepo": "agent-hub",
-  "homepage": "https://github.com/jakedom/agent-hub",
+  "homepage": "https://github.com/jakedomshoots/agent-hub",
   "cliBin": "agent-hub",
   "legacyCliBin": "orca",
   "macAppName": "Agent Hub.app",
@@ -306,7 +306,7 @@ const identity = {
   appId: 'com.jakedom.agenthub',
   githubOwner: 'jakedom',
   githubRepo: 'agent-hub',
-  homepage: 'https://github.com/jakedom/agent-hub'
+  homepage: 'https://github.com/jakedomshoots/agent-hub'
 }
 
 describe('verifyIdentity', () => {
@@ -314,7 +314,7 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedom/agent-hub' },
+        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
         builderConfigText: [
           "appId: 'com.jakedom.agenthub'",
           "productName: 'Agent Hub'",
@@ -329,7 +329,7 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedom/agent-hub' },
+        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
         builderConfigText: [
           "appId: 'com.jakedom.agenthub'",
           "productName: 'Agent Hub'",
@@ -388,7 +388,7 @@ In `package.json`, set:
 {
   "name": "agent-hub",
   "description": "GUI-first desktop workspace for CLI coding agents",
-  "homepage": "https://github.com/jakedom/agent-hub",
+  "homepage": "https://github.com/jakedomshoots/agent-hub",
   "author": "Jake Dominick"
 }
 ```
@@ -463,7 +463,7 @@ const TAG_HREF_RE = new RegExp(
 In `src/main/updater.ts`, replace release download URLs with:
 
 ```ts
-const GITHUB_RELEASE_DOWNLOAD_BASE = 'https://github.com/jakedom/agent-hub/releases/latest/download'
+const GITHUB_RELEASE_DOWNLOAD_BASE = 'https://github.com/jakedomshoots/agent-hub/releases/latest/download'
 ```
 
 Use the constant at every current `https://github.com/stablyai/orca/releases/latest/download` call site.
@@ -473,23 +473,23 @@ Use the constant at every current `https://github.com/stablyai/orca/releases/lat
 In `src/main/updater-changelog.ts`:
 
 ```ts
-const CHANGELOG_URL = 'https://github.com/jakedom/agent-hub/releases'
+const CHANGELOG_URL = 'https://github.com/jakedomshoots/agent-hub/releases'
 const CHANGELOG_JSON_URL =
-  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/changelog.json'
+  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/changelog.json'
 ```
 
 In `src/main/updater-nudge.ts`:
 
 ```ts
 const NUDGE_JSON_URL =
-  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/nudge.json'
+  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/nudge.json'
 ```
 
 Use those constants in the existing fetch calls.
 
 - [ ] **Step 6: Update tests for new URLs and artifact names**
 
-Replace `stablyai/orca` with `jakedom/agent-hub` in updater tests. Replace expected artifact names with:
+Replace `stablyai/orca` with `jakedomshoots/agent-hub` in updater tests. Replace expected artifact names with:
 
 ```text
 agent-hub-macos-arm64.dmg
@@ -760,10 +760,10 @@ git commit -m "docs: add fork attribution and license audit"
 In `README.md`, replace public release links with:
 
 ```markdown
-- macOS Apple Silicon: `https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg`
-- macOS Intel: `https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-x64.dmg`
-- Windows: `https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-windows-setup.exe`
-- Linux AppImage: `https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-linux.AppImage`
+- macOS Apple Silicon: `https://github.com/jakedomshoots/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg`
+- macOS Intel: `https://github.com/jakedomshoots/agent-hub/releases/latest/download/agent-hub-macos-x64.dmg`
+- Windows: `https://github.com/jakedomshoots/agent-hub/releases/latest/download/agent-hub-windows-setup.exe`
+- Linux AppImage: `https://github.com/jakedomshoots/agent-hub/releases/latest/download/agent-hub-linux.AppImage`
 ```
 
 - [ ] **Step 2: Document the RC rollout**
@@ -876,7 +876,7 @@ export function getRequiredReleaseAssetNames(tag) {
 Change:
 
 ```js
-const repo = process.env.GITHUB_REPOSITORY || 'jakedom/agent-hub'
+const repo = process.env.GITHUB_REPOSITORY || 'jakedomshoots/agent-hub'
 ```
 
 - [ ] **Step 3: Update tests**
@@ -916,7 +916,7 @@ if: github.repository == 'stablyai/orca'
 with:
 
 ```yaml
-if: github.repository == 'jakedom/agent-hub'
+if: github.repository == 'jakedomshoots/agent-hub'
 ```
 
 - [ ] **Step 2: Add identity verification to release workflow**
@@ -934,7 +934,7 @@ In `release-cut.yml`, ensure every call to `verify-release-required-assets.mjs` 
 
 ```yaml
 env:
-  GITHUB_REPOSITORY: jakedom/agent-hub
+  GITHUB_REPOSITORY: jakedomshoots/agent-hub
 ```
 
 - [ ] **Step 4: Add identity verification to PR workflow**
@@ -1419,17 +1419,17 @@ Expected: tag `v1.4.73-rc.0` is created and draft release assets upload.
 - [ ] **Step 2: Verify RC 0 assets**
 
 ```bash
-GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedom/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.0
+GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedomshoots/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73-rc.0
 ```
 
-Expected: prints `Verified 16 required release assets for jakedom/agent-hub@v1.4.73-rc.0`.
+Expected: prints `Verified 16 required release assets for jakedomshoots/agent-hub@v1.4.73-rc.0`.
 
 - [ ] **Step 3: Install RC 0**
 
 Download:
 
 ```text
-https://github.com/jakedom/agent-hub/releases/download/v1.4.73-rc.0/agent-hub-macos-arm64.dmg
+https://github.com/jakedomshoots/agent-hub/releases/download/v1.4.73-rc.0/agent-hub-macos-arm64.dmg
 ```
 
 Install and launch.
@@ -1461,7 +1461,7 @@ From the installed RC 0 app:
 In `src/main/updater.test.ts`, add an assertion that update URLs include:
 
 ```ts
-expect(url).toContain('https://github.com/jakedom/agent-hub/releases')
+expect(url).toContain('https://github.com/jakedomshoots/agent-hub/releases')
 ```
 
 - [x] **Step 7: Commit test/doc updates**
@@ -1472,11 +1472,11 @@ git commit -m "test: document and assert fork updater flow"
 ```
 
 **Task 13 evidence:**
-- Updated `docs/release/rc-rollout.md` with the `jakedom/agent-hub` RC target, RC 0/RC 1 flow, release asset verifier commands, and a warning not to cut RCs while the checkout remote points at `stablyai/orca`.
-- Added an explicit updater test assertion that prerelease feed URLs contain `https://github.com/jakedom/agent-hub/releases`.
+- Updated `docs/release/rc-rollout.md` with the `jakedomshoots/agent-hub` RC target, RC 0/RC 1 flow, release asset verifier commands, and a warning not to cut RCs while the checkout remote points at `stablyai/orca`.
+- Added an explicit updater test assertion that prerelease feed URLs contain `https://github.com/jakedomshoots/agent-hub/releases`.
 - `pnpm exec vitest run --config config/vitest.config.ts src/main/updater.test.ts` passed `1 passed`, `55 passed`.
 - `gh auth status` passed for account `jakedomshoots` with `repo` and `workflow` scopes.
-- `gh repo view jakedom/agent-hub --json nameWithOwner,viewerPermission,defaultBranchRef` failed with `Could not resolve to a Repository with the name 'jakedom/agent-hub'`.
+- `gh repo view jakedomshoots/agent-hub --json nameWithOwner,viewerPermission,defaultBranchRef` failed with `Could not resolve to a Repository with the name 'jakedomshoots/agent-hub'`.
 - `git remote -v` still points to `https://github.com/stablyai/orca`, so live RC creation, RC asset verification, RC installation, and RC 0 to RC 1 updater validation remain blocked until the fork release repository exists and this branch is pushed there.
 
 ## Task 14: Smoke Test Public User Workflows
@@ -1548,7 +1548,7 @@ git commit -m "docs: record gui first smoke result"
 - Recorded the latest smoke result in `docs/release/manual-qa-gui-first.md`.
 - Packaged launch smoke passed: `AGENT_HUB_HOME=<tmp> 'dist/mac-arm64/Agent Hub.app/Contents/MacOS/Agent Hub'` stayed alive for the smoke window and was terminated cleanly.
 - Automated GUI-first workflow coverage from Task 10 passed for onboarding, worktree GUI surface, source-control generation/remount behavior, display-name IME input, terminal debug surface, and terminal release evidence.
-- Manual public RC install/update smoke remains blocked until `jakedom/agent-hub` exists and signed/notarized RC assets are published.
+- Manual public RC install/update smoke remains blocked until `jakedomshoots/agent-hub` exists and signed/notarized RC assets are published.
 
 ## Task 15: Cut Stable Release
 
@@ -1590,7 +1590,7 @@ Expected: stable tag `v1.4.73` is created.
 - [ ] **Step 3: Verify stable release assets**
 
 ```bash
-GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedom/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73
+GH_TOKEN="$GITHUB_TOKEN" GITHUB_REPOSITORY=jakedomshoots/agent-hub node config/scripts/verify-release-required-assets.mjs v1.4.73
 ```
 
 Expected: required release assets pass.
@@ -1600,7 +1600,7 @@ Expected: required release assets pass.
 Download and install:
 
 ```text
-https://github.com/jakedom/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg
+https://github.com/jakedomshoots/agent-hub/releases/latest/download/agent-hub-macos-arm64.dmg
 ```
 
 Expected:
@@ -1673,7 +1673,7 @@ Add:
 ## Support
 
 Open bugs and release issues at
-`https://github.com/jakedom/agent-hub/issues`.
+`https://github.com/jakedomshoots/agent-hub/issues`.
 
 Include:
 
@@ -1730,8 +1730,8 @@ Expected:
 
 ### Placeholder Scan
 
-The plan avoids open-ended implementation placeholders. Values default to Agent Hub identity, `jakedom/agent-hub` release ownership, and explicit script/test/doc paths.
+The plan avoids open-ended implementation placeholders. Values default to Agent Hub identity, `jakedomshoots/agent-hub` release ownership, and explicit script/test/doc paths.
 
 ### Type And Name Consistency
 
-The public product name is `Agent Hub`, product slug is `agent-hub`, app id is `com.jakedom.agenthub`, release repository is `jakedom/agent-hub`, and the primary CLI bin is `agent-hub` throughout this plan.
+The public product name is `Agent Hub`, product slug is `agent-hub`, app id is `com.jakedom.agenthub`, release repository is `jakedomshoots/agent-hub`, and the primary CLI bin is `agent-hub` throughout this plan.

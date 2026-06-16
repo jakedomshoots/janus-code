@@ -3,7 +3,7 @@
 import { pathToFileURL } from 'node:url'
 
 const API_VERSION = '2022-11-28'
-export const DEFAULT_RELEASE_REPO = 'jakedom/agent-hub'
+export const DEFAULT_RELEASE_REPO = 'jakedomshoots/agent-hub'
 const DESKTOP_STABLE_TAG_PATTERN = /^v([0-9]+)\.([0-9]+)\.([0-9]+)$/
 
 export function parseDesktopStableTag(tag) {

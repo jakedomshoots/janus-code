@@ -6,7 +6,7 @@
 #   bash config/scripts/macos-launch-diagnostics.sh --tag v1.4.42-rc.1
 set -euo pipefail
 
-REPO="${ORCA_DIAGNOSTIC_REPO:-jakedom/agent-hub}"
+REPO="${ORCA_DIAGNOSTIC_REPO:-jakedomshoots/agent-hub}"
 APP_NAME="${ORCA_DIAGNOSTIC_APP_NAME:-Agent Hub}"
 BUNDLE_ID="${ORCA_DIAGNOSTIC_BUNDLE_ID:-com.jakedom.agenthub}"
 APP_EXECUTABLE="${ORCA_DIAGNOSTIC_APP_EXECUTABLE:-Agent Hub}"

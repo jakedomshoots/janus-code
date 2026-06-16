@@ -2,7 +2,7 @@ import { net } from 'electron'
 import { compareVersions, isValidVersion } from './updater-fallback'
 
 const NUDGE_JSON_URL =
-  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/nudge.json'
+  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/nudge.json'
 
 export type NudgeConfig = {
   id: string

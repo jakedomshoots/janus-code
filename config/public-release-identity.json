@@ -4,7 +4,7 @@
   "appId": "com.jakedom.agenthub",
   "githubOwner": "jakedom",
   "githubRepo": "agent-hub",
-  "homepage": "https://github.com/jakedom/agent-hub",
+  "homepage": "https://github.com/jakedomshoots/agent-hub",
   "cliBin": "agent-hub",
   "legacyCliBin": "orca",
   "macAppName": "Agent Hub.app",

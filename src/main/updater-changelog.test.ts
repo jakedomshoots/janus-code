@@ -9,8 +9,8 @@ vi.mock('electron', () => ({
 import { fetchChangelog } from './updater-changelog'
 
 const CHANGELOG_JSON_URL =
-  'https://raw.githubusercontent.com/jakedom/agent-hub/main/docs/release/changelog.json'
-const CHANGELOG_URL = 'https://github.com/jakedom/agent-hub/releases'
+  'https://raw.githubusercontent.com/jakedomshoots/agent-hub/main/docs/release/changelog.json'
+const CHANGELOG_URL = 'https://github.com/jakedomshoots/agent-hub/releases'
 
 function jsonResponse(body: unknown): Response {
   return { ok: true, json: () => Promise.resolve(body) } as unknown as Response

@@ -61,7 +61,7 @@ jobs:
     # Actions enabled, the scheduled cut would run against the fork's main and
     # diverge it (version line) every slot, conflicting every PR back upstream.
     # Gate to the canonical repo so the workflow no-ops on forks.
-    if: github.repository == 'jakedom/agent-hub'
+    if: github.repository == 'jakedomshoots/agent-hub'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -973,7 +973,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.cut.outputs.tag }}
-          GITHUB_REPOSITORY: jakedom/agent-hub
+          GITHUB_REPOSITORY: jakedomshoots/agent-hub
         run: node config/scripts/verify-release-required-assets.mjs "$TAG"
 
       - name: Publish release

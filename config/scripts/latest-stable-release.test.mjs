@@ -63,7 +63,7 @@ describe('latestStableDesktopReleaseTag', () => {
 
 describe('fetchReleases', () => {
   it('defaults to the public Agent Hub release repo', () => {
-    expect(DEFAULT_RELEASE_REPO).toBe('jakedom/agent-hub')
+    expect(DEFAULT_RELEASE_REPO).toBe('jakedomshoots/agent-hub')
   })
 
   it('fetches all release pages', async () => {
@@ -76,17 +76,17 @@ describe('fetchReleases', () => {
       .mockResolvedValueOnce(jsonResponse(firstPage))
       .mockResolvedValueOnce(jsonResponse([{ tag_name: 'v1.4.44', draft: false }]))
 
-    const releases = await fetchReleases('jakedom/agent-hub', 'token', fetchImpl)
+    const releases = await fetchReleases('jakedomshoots/agent-hub', 'token', fetchImpl)
 
     expect(releases).toHaveLength(101)
     expect(fetchImpl).toHaveBeenNthCalledWith(
       1,
-      'https://api.github.com/repos/jakedom/agent-hub/releases?per_page=100&page=1',
+      'https://api.github.com/repos/jakedomshoots/agent-hub/releases?per_page=100&page=1',
       expect.any(Object)
     )
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
-      'https://api.github.com/repos/jakedom/agent-hub/releases?per_page=100&page=2',
+      'https://api.github.com/repos/jakedomshoots/agent-hub/releases?per_page=100&page=2',
       expect.any(Object)
     )
   })

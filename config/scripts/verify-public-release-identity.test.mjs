@@ -7,7 +7,7 @@ const identity = {
   appId: 'com.jakedom.agenthub',
   githubOwner: 'jakedom',
   githubRepo: 'agent-hub',
-  homepage: 'https://github.com/jakedom/agent-hub'
+  homepage: 'https://github.com/jakedomshoots/agent-hub'
 }
 
 describe('verifyIdentity', () => {
@@ -15,7 +15,7 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedom/agent-hub' },
+        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
         builderConfigText: [
           "appId: 'com.jakedom.agenthub'",
           "productName: 'Agent Hub'",
@@ -30,7 +30,7 @@ describe('verifyIdentity', () => {
     expect(
       verifyIdentity({
         identity,
-        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedom/agent-hub' },
+        packageJson: { name: 'agent-hub', homepage: 'https://github.com/jakedomshoots/agent-hub' },
         builderConfigText: [
           "appId: 'com.jakedom.agenthub'",
           "productName: 'Agent Hub'",

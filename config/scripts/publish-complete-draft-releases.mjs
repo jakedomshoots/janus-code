@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 import { verifyRequiredReleaseAssets } from './verify-release-required-assets.mjs'
 
 const API_VERSION = '2022-11-28'
-export const DEFAULT_RELEASE_REPO = 'jakedom/agent-hub'
+export const DEFAULT_RELEASE_REPO = 'jakedomshoots/agent-hub'
 const RELEASE_CUT_AUTHOR = 'github-actions[bot]'
 const DESKTOP_RC_TAG_PATTERN = /^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$/
 

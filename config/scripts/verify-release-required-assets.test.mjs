@@ -61,7 +61,7 @@ describe('getRequiredReleaseAssetNames', () => {
 
 describe('resolveReleaseRepository', () => {
   it('defaults to the Agent Hub fork when GITHUB_REPOSITORY is unset', () => {
-    expect(resolveReleaseRepository({})).toBe('jakedom/agent-hub')
+    expect(resolveReleaseRepository({})).toBe('jakedomshoots/agent-hub')
   })
 
   it('uses GITHUB_REPOSITORY when provided by the workflow environment', () => {
@@ -113,7 +113,7 @@ describe('verifyRequiredReleaseAssets', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
-      verifyRequiredReleaseAssets({ repo: 'jakedom/agent-hub', tag, token: 'token' })
+      verifyRequiredReleaseAssets({ repo: 'jakedomshoots/agent-hub', tag, token: 'token' })
     ).rejects.toThrow('Missing: Agent Hub-1.4.27-arm64-mac.zip')
     expect(latestMacAsset).toBeTruthy()
   })
