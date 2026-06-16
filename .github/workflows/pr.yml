@@ -48,6 +48,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify public release identity
+        run: pnpm run verify:public-release-identity
+
       - name: Lint
         run: pnpm exec oxlint --format github
 

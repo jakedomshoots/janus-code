@@ -773,6 +773,9 @@ jobs:
           retry_wait_seconds: 30
           command: pnpm install --frozen-lockfile
 
+      - name: Verify public release identity
+        run: pnpm run verify:public-release-identity
+
       # Why: `pnpm build:release` verifies the Linux computer-use provider by
       # importing AT-SPI bindings, which are runtime package deps but are not
       # present on stock GitHub Ubuntu release runners.
@@ -970,6 +973,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.cut.outputs.tag }}
+          GITHUB_REPOSITORY: jakedom/agent-hub
         run: node config/scripts/verify-release-required-assets.mjs "$TAG"
 
       - name: Publish release
