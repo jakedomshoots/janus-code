@@ -88,7 +88,7 @@ describe('verifyPackageCliBin', () => {
     expect(verifyPackageCliBin({ projectDir, runHelp: true })).toMatchObject({
       binPath: cliPath,
       primaryName: 'janus',
-      aliases: ['agent-hub', 'orca'],
+      aliases: ['agent-hub'],
       warnings: []
     })
   })
@@ -101,30 +101,16 @@ describe('verifyPackageCliBin', () => {
     expect(() => verifyPackageCliBin({ projectDir })).toThrow('bin.janus')
   })
 
-  it('warns when the orca compatibility alias is absent', () => {
+  it('warns when the agent-hub compatibility alias points somewhere else', () => {
     const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
       bin: {
         janus: './out/cli/index.js',
-        'agent-hub': './out/cli/index.js'
+        'agent-hub': './out/cli/legacy.js'
       }
     })
 
     expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
-      'package.json does not declare optional bin.orca compatibility alias'
-    )
-  })
-
-  it('warns when the orca compatibility alias points somewhere else', () => {
-    const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
-      bin: {
-        janus: './out/cli/index.js',
-        'agent-hub': './out/cli/index.js',
-        orca: './out/cli/legacy.js'
-      }
-    })
-
-    expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
-      'bin.orca compatibility alias points to ./out/cli/legacy.js instead of ./out/cli/index.js'
+      'bin.agent-hub compatibility alias points to ./out/cli/legacy.js instead of ./out/cli/index.js'
     )
   })
 

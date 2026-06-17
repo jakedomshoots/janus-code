@@ -8,8 +8,7 @@
     "agent-hub": "./out/cli/index.js",
     "janus": "./out/cli/index.js",
     "janus-code-dev": "./config/scripts/janus-dev.mjs",
-    "janus-dev": "./config/scripts/janus-dev.mjs",
-    "orca": "./out/cli/index.js"
+    "janus-dev": "./config/scripts/janus-dev.mjs"
   },
   "main": "./out/main/index.js",
   "scripts": {

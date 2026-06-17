@@ -13,7 +13,6 @@ describe('janus package bin', () => {
     expect(packageJson.bin).toEqual({
       janus: './out/cli/index.js',
       'agent-hub': './out/cli/index.js',
-      orca: './out/cli/index.js',
       'janus-code-dev': './config/scripts/janus-dev.mjs',
       'janus-dev': './config/scripts/janus-dev.mjs'
     })

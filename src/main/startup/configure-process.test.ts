@@ -113,32 +113,59 @@ describe('configureDevUserDataPath', () => {
   it('uses an explicit dev userData override when provided', async () => {
     const { app } = await import('electron')
     const { configureDevUserDataPath } = await import('./configure-process')
-    const originalOverride = process.env.ORCA_DEV_USER_DATA_PATH
-    process.env.ORCA_DEV_USER_DATA_PATH = '/tmp/orca-dev-repro'
+    const originalOverride = process.env.JANUS_DEV_USER_DATA_PATH
+    process.env.JANUS_DEV_USER_DATA_PATH = '/tmp/janus-dev-repro'
 
     try {
       configureDevUserDataPath(true)
     } finally {
       if (originalOverride === undefined) {
-        delete process.env.ORCA_DEV_USER_DATA_PATH
+        delete process.env.JANUS_DEV_USER_DATA_PATH
       } else {
-        process.env.ORCA_DEV_USER_DATA_PATH = originalOverride
+        process.env.JANUS_DEV_USER_DATA_PATH = originalOverride
       }
     }
 
-    expect(app.setPath).toHaveBeenCalledWith('userData', '/tmp/orca-dev-repro')
+    expect(app.setPath).toHaveBeenCalledWith('userData', '/tmp/janus-dev-repro')
   })
 
-  it('moves dev runs onto an orca-dev userData path', async () => {
+  it('uses the legacy Orca dev userData override when the Janus override is absent', async () => {
+    const { app } = await import('electron')
+    const { configureDevUserDataPath } = await import('./configure-process')
+    const originalJanusOverride = process.env.JANUS_DEV_USER_DATA_PATH
+    const originalOrcaOverride = process.env.ORCA_DEV_USER_DATA_PATH
+    delete process.env.JANUS_DEV_USER_DATA_PATH
+    process.env.ORCA_DEV_USER_DATA_PATH = '/tmp/legacy-orca-dev-repro'
+
+    try {
+      configureDevUserDataPath(true)
+    } finally {
+      if (originalJanusOverride === undefined) {
+        delete process.env.JANUS_DEV_USER_DATA_PATH
+      } else {
+        process.env.JANUS_DEV_USER_DATA_PATH = originalJanusOverride
+      }
+      if (originalOrcaOverride === undefined) {
+        delete process.env.ORCA_DEV_USER_DATA_PATH
+      } else {
+        process.env.ORCA_DEV_USER_DATA_PATH = originalOrcaOverride
+      }
+    }
+
+    expect(app.setPath).toHaveBeenCalledWith('userData', '/tmp/legacy-orca-dev-repro')
+  })
+
+  it('moves dev runs onto a janus-dev userData path', async () => {
     const { app } = await import('electron')
     const { configureDevUserDataPath } = await import('./configure-process')
 
+    delete process.env.JANUS_DEV_USER_DATA_PATH
     delete process.env.ORCA_DEV_USER_DATA_PATH
     configureDevUserDataPath(true)
 
-    // Why: production code uses path.join(app.getPath('appData'), 'orca-dev')
+    // Why: production code uses path.join(app.getPath('appData'), 'janus-dev')
     // which produces platform-specific separators.
-    expect(app.setPath).toHaveBeenCalledWith('userData', join('/tmp/app-data', 'orca-dev'))
+    expect(app.setPath).toHaveBeenCalledWith('userData', join('/tmp/app-data', 'janus-dev'))
   })
 
   it('leaves packaged runs on the default userData path', async () => {

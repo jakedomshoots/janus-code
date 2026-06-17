@@ -102,28 +102,28 @@ describe('buildDispatchPreamble', () => {
     expect(result).toContain('refactor the auth module')
   })
 
-  it('uses orca CLI by default when devMode is not set', () => {
+  it('uses janus CLI by default when devMode is not set', () => {
     const result = buildDispatchPreamble(baseParams())
-    expect(result).toContain('orca orchestration send')
-    expect(result).toContain('orca orchestration check')
-    expect(result).toContain('orca orchestration ask')
+    expect(result).toContain('janus orchestration send')
+    expect(result).toContain('janus orchestration check')
+    expect(result).toContain('janus orchestration ask')
   })
 
-  it('uses orca-dev CLI when devMode is true', () => {
+  it('uses janus-dev CLI when devMode is true', () => {
     const result = buildDispatchPreamble(baseParams({ devMode: true }))
-    expect(result).toContain('orca-dev orchestration send')
-    expect(result).toContain('orca-dev orchestration check')
-    expect(result).toContain('orca-dev orchestration ask')
-    const fragments = result.split('orca-dev')
+    expect(result).toContain('janus-dev orchestration send')
+    expect(result).toContain('janus-dev orchestration check')
+    expect(result).toContain('janus-dev orchestration ask')
+    const fragments = result.split('janus-dev')
     for (const fragment of fragments) {
-      expect(fragment).not.toMatch(/orca orchestration/)
+      expect(fragment).not.toMatch(/janus orchestration/)
     }
   })
 
-  it('uses orca CLI when devMode is false', () => {
+  it('uses janus CLI when devMode is false', () => {
     const result = buildDispatchPreamble(baseParams({ devMode: false }))
-    expect(result).toContain('orca orchestration send')
-    expect(result).toContain('orca orchestration check')
+    expect(result).toContain('janus orchestration send')
+    expect(result).toContain('janus orchestration check')
   })
 
   it('appends a BASE DRIFT section when baseDrift.behind > 0', () => {

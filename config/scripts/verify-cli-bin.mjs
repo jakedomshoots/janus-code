@@ -35,7 +35,7 @@ export function verifyPackageCliBin({
   const packageJsonPath = path.join(projectDir, 'package.json')
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
   const primaryName = 'janus'
-  const aliases = ['agent-hub', 'orca']
+  const aliases = ['agent-hub']
   const warnings = []
   const binTarget = packageJson.bin?.[primaryName]
   if (typeof binTarget !== 'string' || binTarget.length === 0) {

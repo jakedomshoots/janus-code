@@ -154,10 +154,6 @@ module.exports = {
         to: 'bin/agent-hub.cmd'
       },
       {
-        from: 'resources/win32/bin/janus.cmd',
-        to: 'bin/orca.cmd'
-      },
-      {
         from: 'node_modules/agent-browser/bin/agent-browser-win32-x64.exe',
         to: 'agent-browser-win32-x64.exe'
       },
@@ -218,10 +214,6 @@ module.exports = {
         to: 'bin/agent-hub'
       },
       {
-        from: 'resources/darwin/bin/janus',
-        to: 'bin/orca'
-      },
-      {
         from: 'node_modules/agent-browser/bin/agent-browser-darwin-${arch}',
         to: 'agent-browser-darwin-${arch}'
       },
@@ -278,10 +270,6 @@ module.exports = {
         to: 'bin/agent-hub'
       },
       {
-        from: 'resources/linux/bin/janus',
-        to: 'bin/orca-ide'
-      },
-      {
         from: 'node_modules/agent-browser/bin/agent-browser-linux-${arch}',
         to: 'agent-browser-linux-${arch}'
       },
@@ -328,7 +316,7 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of ['janus', 'janus.cmd', 'agent-hub', 'orca', 'orca-ide']) {
+  for (const launcherName of ['janus', 'janus.cmd', 'agent-hub']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue

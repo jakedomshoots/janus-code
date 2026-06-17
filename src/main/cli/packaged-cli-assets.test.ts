@@ -16,7 +16,6 @@ const builderConfig = require('../../../config/electron-builder.config.cjs') as 
   win?: { extraResources?: { from?: string; to?: string }[] }
 }
 const macAgentHubLauncherAsset = new URL('../../../resources/darwin/bin/agent-hub', import.meta.url)
-const macLegacyLauncherAsset = new URL('../../../resources/darwin/bin/orca', import.meta.url)
 const linuxAgentHubLauncherAsset = new URL(
   '../../../resources/linux/bin/agent-hub',
   import.meta.url
@@ -69,28 +68,16 @@ describe('packaged CLI assets', () => {
   })
 
   itRunsUnixShell(
-    'keeps the legacy macOS launcher as a Janus Code compatibility alias',
-    async () => {
-      const launcher = await readFile(macLegacyLauncherAsset, 'utf8')
-
-      expect(launcher).toContain('Janus Code.app')
-      expect(launcher).toContain('MacOS/Janus Code')
-      expect(launcher).not.toContain('MacOS/Orca')
-      expect(launcher).toContain('app.asar.unpacked/out/cli/index.js')
-    }
-  )
-
-  itRunsUnixShell(
     'runs the Linux launcher from its packaged path and installed symlink',
     async () => {
-      const root = await mkdtemp(join(tmpdir(), 'orca-linux-cli-'))
+      const root = await mkdtemp(join(tmpdir(), 'janus-linux-cli-'))
       try {
-        const appDir = join(root, 'Agent Hub')
+        const appDir = join(root, 'Janus Code')
         const resourcesDir = join(appDir, 'resources')
         const launcherDir = join(resourcesDir, 'bin')
         const cliDir = join(resourcesDir, 'app.asar.unpacked', 'out', 'cli')
         const launcherPath = join(launcherDir, 'agent-hub')
-        const electronPath = join(appDir, 'agent-hub')
+        const electronPath = join(appDir, 'janus-code')
         const cliPath = join(cliDir, 'index.js')
 
         await mkdir(launcherDir, { recursive: true })
@@ -118,7 +105,7 @@ printf 'arg=%s\\n' "$@"
         const commandDir = join(homeDir, '.local', 'bin')
         const commandPath = join(commandDir, 'agent-hub')
         await mkdir(commandDir, { recursive: true })
-        await mkdir(join(homeDir, 'orca'), { recursive: true })
+        await mkdir(join(homeDir, 'janus'), { recursive: true })
         await symlink(launcherPath, commandPath)
 
         const symlinked = await execFileAsync(commandPath, ['--help'], {
@@ -151,9 +138,9 @@ printf 'arg=%s\\n' "$@"
     appDir: process.env.APPDIR,
     runAsNode: process.env.ELECTRON_RUN_AS_NODE,
     nodeOptions: process.env.NODE_OPTIONS ?? null,
-    orcaNodeOptions: process.env.ORCA_NODE_OPTIONS ?? null,
+    janusNodeOptions: process.env.JANUS_NODE_OPTIONS ?? null,
     nodeReplExternalModule: process.env.NODE_REPL_EXTERNAL_MODULE ?? null,
-    orcaNodeReplExternalModule: process.env.ORCA_NODE_REPL_EXTERNAL_MODULE ?? null
+    janusNodeReplExternalModule: process.env.JANUS_NODE_REPL_EXTERNAL_MODULE ?? null
   }))
 }
 `,
@@ -185,18 +172,18 @@ exec node "$@"
         appDir: string
         runAsNode: string
         nodeOptions: string | null
-        orcaNodeOptions: string | null
+        janusNodeOptions: string | null
         nodeReplExternalModule: string | null
-        orcaNodeReplExternalModule: string | null
+        janusNodeReplExternalModule: string | null
       }
 
       expect(payload.argv).toEqual(['--help', 'two words'])
       expect(payload.appDir).toBe(appDir)
       expect(payload.runAsNode).toBe('1')
       expect(payload.nodeOptions).toBeNull()
-      expect(payload.orcaNodeOptions).toBe('--trace-warnings')
+      expect(payload.janusNodeOptions).toBe('--trace-warnings')
       expect(payload.nodeReplExternalModule).toBeNull()
-      expect(payload.orcaNodeReplExternalModule).toBe('external-loader')
+      expect(payload.janusNodeReplExternalModule).toBe('external-loader')
     } finally {
       await rm(root, { recursive: true, force: true })
     }

@@ -65,7 +65,7 @@ function formatDevInstanceLabel(branch, worktreeName) {
 }
 
 function createDockTitle(branch, label) {
-  return `Orca: ${branch || label || 'dev'}`
+  return `Janus Code: ${branch || label || 'dev'}`
 }
 
 function seedDevInstanceIdentityEnv() {
@@ -117,7 +117,7 @@ function sanitizeMacAppBundleName(value) {
       .join('')
       .replace(/\s+/g, ' ')
       .trim()
-      .slice(0, 120) || 'Orca'
+      .slice(0, 120) || 'Janus Code'
   )
 }
 
@@ -137,7 +137,8 @@ function prepareMacDevElectronApp() {
     electronVersion = JSON.parse(readFileSync(electronPackagePath, 'utf8')).version ?? null
   } catch {}
 
-  const title = process.env.ORCA_DEV_DOCK_TITLE || 'Orca: dev'
+  const title =
+    process.env.JANUS_DEV_DOCK_TITLE || process.env.ORCA_DEV_DOCK_TITLE || 'Janus Code: dev'
   const identityKey = process.env.ORCA_DEV_INSTANCE_KEY || repoRoot
   const bundleLayoutVersion = 'dock-title-app-preserve-framework-symlinks-v4'
   const hash = createHash('sha1')
@@ -299,7 +300,7 @@ function prepareDevCliWrapper() {
     chmodSync(wrapperPath, 0o755)
 
     mkdirSync(userDataBinDir, { recursive: true })
-    for (const commandName of ['janus-dev', 'janus', 'orca']) {
+    for (const commandName of ['janus-dev', 'janus']) {
       const userDataWrapperPath = path.join(userDataBinDir, commandName)
       // Why: dev Janus terminals prepend this directory to PATH; refreshing the
       // aliases prevents stale global/userData wrappers from hijacking

@@ -10,10 +10,9 @@ import type { CliInstallMethod, CliInstallStatus } from '../../shared/cli-instal
 import { buildAppImageCliWrapper } from './appimage-cli-wrapper'
 
 const execFileAsync = promisify(execFile)
-const PUBLIC_COMMAND_NAME = 'agent-hub'
+const PUBLIC_COMMAND_NAME = 'janus'
 const DEFAULT_MAC_COMMAND_PATH = `/usr/local/bin/${PUBLIC_COMMAND_NAME}`
-const DEV_COMMAND_NAME = 'orca-dev'
-const LINUX_COMMAND_NAME = 'orca-ide'
+const DEV_COMMAND_NAME = 'janus-dev'
 const LEGACY_LINUX_COMMAND_NAME = 'orca'
 const DEV_LAUNCHER_DIR = ['cli', 'bin']
 const WINDOWS_PATH_COMMAND_TIMEOUT_MS = 5_000
@@ -174,7 +173,7 @@ export class CliInstaller {
       await this.installAppImageWrapper(status.commandPath, status.launcherPath)
       await this.removeLegacyLinuxCommandIfManaged(status.launcherPath)
     } else if (this.isWindowsPackagedBundledCommand(status.commandPath, status.launcherPath)) {
-      // Why: packaged Windows already ships resources/bin/agent-hub.cmd. Registration
+      // Why: packaged Windows already ships resources/bin/janus.cmd. Registration
       // only owns the user PATH entry; rewriting the asset makes it recurse.
     } else {
       // Why: mkdir stays here for the Windows wrapper path — the target dir is
@@ -266,7 +265,13 @@ export class CliInstaller {
         return join(this.homePath, '.local', 'bin', DEV_COMMAND_NAME)
       }
       if (this.platform === 'win32') {
-        return join(this.localAppDataPath, 'Programs', 'Orca Dev', 'bin', `${DEV_COMMAND_NAME}.cmd`)
+        return join(
+          this.localAppDataPath,
+          'Programs',
+          'Janus Code Dev',
+          'bin',
+          `${DEV_COMMAND_NAME}.cmd`
+        )
       }
     }
 
@@ -285,7 +290,7 @@ export class CliInstaller {
       return join(
         this.localAppDataPath,
         'Programs',
-        'Agent Hub',
+        'Janus Code',
         'resources',
         'bin',
         `${PUBLIC_COMMAND_NAME}.cmd`
@@ -807,9 +812,9 @@ async function ensureDevLauncher(args: {
   })
   if (args.commandName === DEV_COMMAND_NAME && args.platform !== 'win32') {
     // Why: dev PTYs prepend userData/cli/bin to PATH, and product-owned
-    // commands are documented as `orca ...`. Keep that local alias fresh
+    // commands are documented as `janus ...`. Keep that local alias fresh
     // without claiming the global production command.
-    await writeFile(join(dirname(launcherPath), 'orca'), content, {
+    await writeFile(join(dirname(launcherPath), 'janus'), content, {
       encoding: 'utf8',
       mode: 0o755
     })
@@ -831,8 +836,8 @@ if [ -z "\${ORCA_APP_EXECUTABLE:-}" ]; then
   export ORCA_APP_EXECUTABLE="$ELECTRON"
   export ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1
 fi
-export ORCA_NODE_OPTIONS="\${NODE_OPTIONS-}"
-export ORCA_NODE_REPL_EXTERNAL_MODULE="\${NODE_REPL_EXTERNAL_MODULE-}"
+export JANUS_NODE_OPTIONS="\${NODE_OPTIONS-}"
+export JANUS_NODE_REPL_EXTERNAL_MODULE="\${NODE_REPL_EXTERNAL_MODULE-}"
 unset NODE_OPTIONS
 unset NODE_REPL_EXTERNAL_MODULE
 ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"
@@ -853,8 +858,8 @@ if not defined ORCA_APP_EXECUTABLE (
   set "ORCA_APP_EXECUTABLE=%ELECTRON%"
   set "ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1"
 )
-set "ORCA_NODE_OPTIONS=%NODE_OPTIONS%"
-set "ORCA_NODE_REPL_EXTERNAL_MODULE=%NODE_REPL_EXTERNAL_MODULE%"
+set "JANUS_NODE_OPTIONS=%NODE_OPTIONS%"
+set "JANUS_NODE_REPL_EXTERNAL_MODULE=%NODE_REPL_EXTERNAL_MODULE%"
 set NODE_OPTIONS=
 set NODE_REPL_EXTERNAL_MODULE=
 set ELECTRON_RUN_AS_NODE=1
@@ -873,7 +878,7 @@ set "ORCA_LAUNCHER=${escapeWindowsBatchValue(launcherPath)}"
 function extractManagedUnixLauncherTarget(content: string): string | null {
   if (
     !content.includes('ELECTRON_RUN_AS_NODE=1') ||
-    !content.includes('ORCA_NODE_OPTIONS') ||
+    !(content.includes('JANUS_NODE_OPTIONS') || content.includes('ORCA_NODE_OPTIONS')) ||
     !content.includes('NODE_REPL_EXTERNAL_MODULE')
   ) {
     return null
@@ -885,7 +890,7 @@ function extractManagedUnixLauncherTarget(content: string): string | null {
   }
 
   // Why: older dev installs wrote a generated shell launcher directly to
-  // /usr/local/bin/orca. Treat only Orca's compiled CLI entrypoints as managed;
+  // /usr/local/bin/orca. Treat only Janus Code's compiled CLI entrypoints as managed;
   // arbitrary user scripts that happen to launch Electron must stay conflicts.
   return /(?:^|[/\\])(?:out|app\.asar\.unpacked[/\\]out)[/\\]cli[/\\]index\.js$/.test(cliPath)
     ? cliPath
@@ -1037,17 +1042,22 @@ export function getBundledLauncherPath(
   resourcesPath: string
 ): string | null {
   if (platform === 'darwin') {
-    return firstExistingBundledLauncher(resourcesPath, [PUBLIC_COMMAND_NAME, 'orca'])
+    return firstExistingBundledLauncher(resourcesPath, [PUBLIC_COMMAND_NAME, 'agent-hub', 'orca'])
   }
   if (platform === 'linux') {
     return firstExistingBundledLauncher(resourcesPath, [
       PUBLIC_COMMAND_NAME,
-      LINUX_COMMAND_NAME,
+      'agent-hub',
+      'orca-ide',
       LEGACY_LINUX_COMMAND_NAME
     ])
   }
   if (platform === 'win32') {
-    return firstExistingBundledLauncher(resourcesPath, [`${PUBLIC_COMMAND_NAME}.cmd`, 'orca.cmd'])
+    return firstExistingBundledLauncher(resourcesPath, [
+      `${PUBLIC_COMMAND_NAME}.cmd`,
+      'agent-hub.cmd',
+      'orca.cmd'
+    ])
   }
   return null
 }

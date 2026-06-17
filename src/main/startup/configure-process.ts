@@ -78,7 +78,7 @@ function requestDevParentShutdown(): void {
     // Why: in dev, losing the supervising parent means this Electron process is
     // already orphaned from the terminal session. We try app.quit() first so
     // normal cleanup still runs, but fall back to app.exit() when macOS quit
-    // handlers or window-close guards stall and would otherwise leave Orca
+    // handlers or window-close guards stall and would otherwise leave Janus Code
     // hanging after Ctrl+C ends `pnpm dev`.
     app.exit(0)
   }, DEV_PARENT_SHUTDOWN_GRACE_MS)
@@ -190,25 +190,26 @@ export function configureDevUserDataPath(isDev: boolean): void {
   if (!isDev) {
     return
   }
-  const overrideUserDataPath = process.env.ORCA_DEV_USER_DATA_PATH
+  const overrideUserDataPath =
+    process.env.JANUS_DEV_USER_DATA_PATH ?? process.env.ORCA_DEV_USER_DATA_PATH
   if (overrideUserDataPath) {
     // Why: automated Electron repros need an isolated profile so persisted
-    // tabs/worktrees from the developer's normal `orca-dev` session do not
+    // tabs/worktrees from the developer's normal `janus-dev` session do not
     // change startup behavior and hide or create window-management bugs.
     app.setPath('userData', overrideUserDataPath)
     return
   }
-  // Why: development runs share the same machine as packaged Orca, and both
+  // Why: development runs share the same machine as packaged Janus Code, and both
   // publish runtime bootstrap files under userData. Without a dev-only path,
   // `pnpm dev` can overwrite the packaged app's runtime pointer and make the
-  // public `orca` CLI look broken even though the packaged app is still open.
-  app.setPath('userData', join(app.getPath('appData'), 'orca-dev'))
+  // public `janus` CLI look broken even though the packaged app is still open.
+  app.setPath('userData', join(app.getPath('appData'), 'janus-dev'))
 }
 
 export function configureOrcaUserDataPathEnv(): void {
   // Why: app relaunches can inherit an ORCA_USER_DATA_PATH from an older CLI or
   // updater process. Main must canonicalize it before CLI-shared modules build
-  // runtime-home paths, or migrations can bridge two Orca app-data directories.
+  // runtime-home paths, or migrations can bridge two Janus Code app-data directories.
   process.env.ORCA_USER_DATA_PATH = app.getPath('userData')
 }
 
