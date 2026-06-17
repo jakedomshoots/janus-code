@@ -1314,7 +1314,7 @@ export class RuntimeBrowserCommands {
     if (!this.host.getAvailableAuthoritativeWindow()) {
       throw new BrowserError(
         'browser_error',
-        'Browser tab creation requires a desktop renderer; headless orca serve does not support browser panes yet.'
+        'Browser tab creation requires a desktop renderer; headless janus serve does not support browser panes yet.'
       )
     }
     const { browserPageId } = await this.createBrowserTabInRenderer(

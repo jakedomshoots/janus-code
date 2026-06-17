@@ -450,7 +450,7 @@ if (!hasSingleInstanceLock) {
 // prevents from ever dispatching.
 if (hasSingleInstanceLock) {
   // Why: dev parent shutdown coupling is only for electron-vite desktop runs.
-  // `orca serve` may be launched through a CLI shim or background shell whose
+  // `janus serve` may be launched through a CLI shim or background shell whose
   // parent lifetime is not the intended server lifetime.
   const shouldCoupleToDevParent = is.dev && !isServeMode
   installDevParentDisconnectQuit(shouldCoupleToDevParent)
@@ -481,7 +481,7 @@ ipcMain.handle('app:awaitFirstWindowStartupServices', async () => {
 
 function startDesktopFirstWindowStartupServices(): Promise<void> {
   const startupServices = startFirstWindowStartupServices({
-    // Why: the persistent-terminal daemon is desktop-only. Headless `orca serve`
+    // Why: the persistent-terminal daemon is desktop-only. Headless `janus serve`
     // registers its PTY runtime separately and must not spawn the desktop daemon
     // or hook loopback listener.
     startDaemonPtyProvider: (signal) => initDaemonPtyProvider(signal),
@@ -1044,7 +1044,7 @@ async function printServeReady(options: ServeOptions): Promise<void> {
 
 function installServeSignalHandlers(): void {
   const quit = (): void => {
-    // Why: foreground `orca serve` is controlled by the parent CLI/terminal,
+    // Why: foreground `janus serve` is controlled by the parent CLI/terminal,
     // so POSIX termination signals should follow Electron's normal quit path
     // and flush runtime metadata, daemon checkpoints, and telemetry.
     app.quit()

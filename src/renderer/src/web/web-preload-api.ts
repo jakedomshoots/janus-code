@@ -2529,7 +2529,7 @@ function resolveEnvironment(selector: string): StoredWebRuntimeEnvironment {
 function requireActiveEnvironment(): StoredWebRuntimeEnvironment {
   activeEnvironment = activeEnvironment ?? readStoredWebRuntimeEnvironment()
   if (!activeEnvironment) {
-    throw new Error('Pair this web client with an Janus Code server first.')
+    throw new Error('Pair this web client with a Janus Code server first.')
   }
   return activeEnvironment
 }
@@ -2602,7 +2602,7 @@ function getStoredOnboarding(): OnboardingState {
     return closed
   }
   const closed = closeWebOnboarding(getDefaultOnboardingState())
-  // Why: pairing already means the user has an Janus Code server. Desktop first-run
+  // Why: pairing already means the user has a Janus Code server. Desktop first-run
   // onboarding would incorrectly probe browser-local tools and block the client.
   writeJson(ONBOARDING_STORAGE_KEY, closed)
   return closed
