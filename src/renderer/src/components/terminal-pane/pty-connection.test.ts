@@ -4516,7 +4516,7 @@ describe('connectPanePty', () => {
 
     expect(transport.serializeBuffer).not.toHaveBeenCalled()
     expect(pane.terminal.write).not.toHaveBeenCalledWith(
-      expect.stringContaining('Orca skipped hidden terminal output'),
+      expect.stringContaining('Janus Code skipped hidden terminal output'),
       expect.any(Function)
     )
     expect(pane.terminal.write).not.toHaveBeenCalledWith(

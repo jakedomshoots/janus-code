@@ -20,7 +20,7 @@ set -euo pipefail
 APPIMAGE=${quoteShell(appImagePath)}
 if [ ! -f "$APPIMAGE" ]; then
   echo "Orca AppImage not found at $APPIMAGE" >&2
-  echo "If you moved the AppImage, re-run CLI registration from Orca Settings." >&2
+  echo "If you moved the AppImage, re-run CLI registration from Janus Code Settings." >&2
   exit 1
 fi
 export JANUS_NODE_OPTIONS="\${NODE_OPTIONS-}"

@@ -16731,7 +16731,7 @@ export class OrcaRuntimeService {
     }
     if (isLinearAuthError(error)) {
       return linearError('linear_auth_expired', 'Linear authentication expired.', {
-        nextSteps: ['Reconnect Linear from Orca settings.']
+        nextSteps: ['Reconnect Linear from Janus Code settings.']
       })
     }
     return linearError(classifyLinearError(error), linearMessage(error))
@@ -17056,7 +17056,7 @@ export class OrcaRuntimeService {
     }
     if (teams.length === 0 && (getLinearStatus().workspaces?.length ?? 0) === 0) {
       throw linearError('linear_not_connected', 'Linear is not connected.', {
-        nextSteps: ['Connect Linear from Orca settings, then retry the issue create.']
+        nextSteps: ['Connect Linear from Janus Code settings, then retry the issue create.']
       })
     }
     const matches = teams.filter(

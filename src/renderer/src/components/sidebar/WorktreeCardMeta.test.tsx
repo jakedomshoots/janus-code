@@ -83,7 +83,7 @@ describe('WorktreeCardDetailsHover', () => {
     )
 
     const moreActionsIndex = markup.indexOf('aria-label="More PR actions"')
-    const openInOrcaIndex = markup.indexOf('aria-label="Open in Orca"')
+    const openInOrcaIndex = markup.indexOf('aria-label="Open in Janus Code"')
     const viewOnGitHubIndex = markup.indexOf('aria-label="View on GitHub"')
 
     expect(moreActionsIndex).toBeGreaterThan(-1)
