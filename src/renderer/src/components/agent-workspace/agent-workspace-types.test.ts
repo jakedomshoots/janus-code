@@ -37,7 +37,7 @@ const runningThread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: runningPhase,
   updatedAt: '2026-06-15T14:30:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
+  branchName: 'feature/janus-gui-workspace',
   cwd: '/workspace/orca'
 }
 

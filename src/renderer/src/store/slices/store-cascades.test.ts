@@ -463,7 +463,7 @@ describe('removeWorktree cascade', () => {
 
   it.each([
     'Could not connect to the remote Orca runtime.',
-    'Remote Orca runtime closed the connection.',
+    'Remote Janus runtime closed the connection.',
     'Timed out waiting for the remote Orca runtime to respond.'
   ])(
     'does not offer force delete for wrapped remote runtime failure: %s',

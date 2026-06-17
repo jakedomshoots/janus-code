@@ -45,8 +45,8 @@ function formatRemoteRuntimeCloseMessage(code: number, reason: Buffer): string {
     suffixParts.push(reasonText)
   }
   return suffixParts.length > 0
-    ? `Remote Orca runtime closed the connection (${suffixParts.join(': ')}).`
-    : 'Remote Orca runtime closed the connection.'
+    ? `Remote Janus runtime closed the connection (${suffixParts.join(': ')}).`
+    : 'Remote Janus runtime closed the connection.'
 }
 
 export type RemoteRuntimeSubscription = {
@@ -178,7 +178,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an unexpected binary frame.'
+            'Remote Janus runtime returned an unexpected binary frame.'
           )
         })
         return
@@ -196,7 +196,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an undecryptable frame.'
+            'Remote Janus runtime returned an undecryptable frame.'
           )
         })
         return
@@ -224,7 +224,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid E2EE handshake frame.'
+            'Remote Janus runtime returned an invalid E2EE handshake frame.'
           )
         })
         return
@@ -238,7 +238,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an unexpected E2EE handshake frame.'
+            'Remote Janus runtime returned an unexpected E2EE handshake frame.'
           )
         })
         return
@@ -258,7 +258,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid E2EE auth frame.'
+            'Remote Janus runtime returned an invalid E2EE auth frame.'
           )
         })
         return
@@ -275,7 +275,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             code,
-            'Remote Orca runtime rejected the pairing token.'
+            'Remote Janus runtime rejected the pairing token.'
           )
         })
         return
@@ -303,7 +303,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid response frame.'
+            'Remote Janus runtime returned an invalid response frame.'
           )
         })
         return
@@ -318,7 +318,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid response frame.'
+            'Remote Janus runtime returned an invalid response frame.'
           )
         })
         return
@@ -329,7 +329,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
           ok: false,
           error: new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned a mismatched response id.'
+            'Remote Janus runtime returned a mismatched response id.'
           )
         })
         return
@@ -491,7 +491,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an undecryptable frame.'
+            'Remote Janus runtime returned an undecryptable frame.'
           )
         )
         return
@@ -518,7 +518,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid E2EE handshake frame.'
+            'Remote Janus runtime returned an invalid E2EE handshake frame.'
           )
         )
         return
@@ -531,7 +531,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an unexpected E2EE handshake frame.'
+            'Remote Janus runtime returned an unexpected E2EE handshake frame.'
           )
         )
         return
@@ -550,7 +550,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid E2EE auth frame.'
+            'Remote Janus runtime returned an invalid E2EE auth frame.'
           )
         )
         return
@@ -563,7 +563,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
           (authenticated as { error?: { code?: unknown } }).error?.code === 'unauthorized'
             ? 'unauthorized'
             : 'invalid_runtime_response'
-        fail(new RemoteRuntimeClientError(code, 'Remote Orca runtime rejected the pairing token.'))
+        fail(new RemoteRuntimeClientError(code, 'Remote Janus runtime rejected the pairing token.'))
         return
       }
       state = 'ready'
@@ -589,7 +589,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an invalid response frame.'
+            'Remote Janus runtime returned an invalid response frame.'
           )
         )
         return
@@ -603,7 +603,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned a mismatched response id.'
+            'Remote Janus runtime returned a mismatched response id.'
           )
         )
         return
@@ -616,7 +616,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned binary data before authentication.'
+            'Remote Janus runtime returned binary data before authentication.'
           )
         )
         return
@@ -626,7 +626,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
         fail(
           new RemoteRuntimeClientError(
             'invalid_runtime_response',
-            'Remote Orca runtime returned an undecryptable binary frame.'
+            'Remote Janus runtime returned an undecryptable binary frame.'
           )
         )
         return

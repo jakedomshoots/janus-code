@@ -24,7 +24,7 @@ import { SYNC_FIT_PANES_EVENT, TOGGLE_TERMINAL_PANE_EXPAND_EVENT } from '@/const
 import { syncZoomCSSVar } from '@/lib/ui-zoom'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
-import { shouldSuppressOrcaRightSidebar } from './components/agent-workspace/agent-workspace-orca-sidebar'
+import { shouldSuppressProjectRightSidebar } from './components/agent-workspace/agent-workspace-right-sidebar'
 import { buildAppFontFamily } from '@/lib/app-font-family'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
@@ -1291,7 +1291,7 @@ function App(): React.JSX.Element {
   const showRightSidebarControls =
     !creationLayoutActive &&
     canShowRightSidebarForView(activeView) &&
-    !shouldSuppressOrcaRightSidebar({
+    !shouldSuppressProjectRightSidebar({
       guiAgentWorkspaceEnabled,
       activeView,
       agentWorkspaceRightPanelExpanded

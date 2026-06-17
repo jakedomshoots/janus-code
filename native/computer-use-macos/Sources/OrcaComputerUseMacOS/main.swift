@@ -606,7 +606,7 @@ final class Provider {
             // should open macOS privacy prompts/settings; runtime calls stay quiet.
             throw ProviderError.coded(
                 "permission_denied",
-                "Accessibility permission is required for Orca Computer Use. Run `orca computer permissions` or open Settings > Computer Use, grant Accessibility to Orca Computer Use, then retry."
+                "Accessibility permission is required for Janus Computer Use. Run `janus computer permissions` or open Settings > Computer Use, grant Accessibility to Janus Computer Use, then retry."
             )
         }
         let appElement = AXUIElementCreateApplication(app.pid)
@@ -643,7 +643,7 @@ final class Provider {
         let screenshotStatus: ScreenshotStatus = if screenshot != nil {
             .captured
         } else if includeScreenshot && !canCaptureScreenshot {
-            .failed("Screen Recording permission is required for Orca Computer Use; grant permission or pass --no-screenshot to inspect accessibility state only.")
+            .failed("Screen Recording permission is required for Janus Computer Use; grant permission or pass --no-screenshot to inspect accessibility state only.")
         } else if includeScreenshot {
             .failed("window screenshot capture returned no image; retry with --no-screenshot if accessibility state is sufficient.")
         } else {
@@ -1075,7 +1075,7 @@ private func focusedWindow(appElement: AXUIElement, app: AppDescriptor, visibleW
         }
     }
     let permissionHint = visibleWindowCount > 0
-        ? " The app has visible windows, so macOS Accessibility may need Orca Computer Use toggled off and on again in System Settings."
+        ? " The app has visible windows, so macOS Accessibility may need Janus Computer Use toggled off and on again in System Settings."
         : ""
     if visibleWindowCount > 0 {
         throw ProviderError.coded("permission_denied", "app '\(app.name)' has visible windows but no accessibility window.\(permissionHint)")
@@ -2449,7 +2449,7 @@ private final class PermissionWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "Enable Orca Computer Use"
+        window.title = "Enable Janus Computer Use"
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.backgroundColor = PermissionPalette.background
@@ -2563,9 +2563,9 @@ private enum PermissionKind: CaseIterable {
     var dragInstruction: String {
         switch self {
         case .accessibility:
-            "Drag Orca Computer Use into the list above to allow Accessibility."
+            "Drag Janus Computer Use into the list above to allow Accessibility."
         case .screenshots:
-            "Drag Orca Computer Use into the list above to allow Screenshots."
+            "Drag Janus Computer Use into the list above to allow Screenshots."
         }
     }
 
@@ -2661,7 +2661,7 @@ private final class PermissionView: NSView {
         let missingPermissions = PermissionKind.allCases.filter { !$0.isGranted }
         let ready = missingPermissions.isEmpty
 
-        let title = label(ready ? "Computer Use is Ready" : "Enable Orca Computer Use", size: 22, weight: .bold)
+        let title = label(ready ? "Computer Use is Ready" : "Enable Janus Computer Use", size: 22, weight: .bold)
         let subtitle = label(
             ready ? "Orca can use local apps when you ask." : "Grant permissions so Orca can use apps when you ask.",
             size: 12,
@@ -2825,7 +2825,7 @@ private final class PermissionDragAssistantController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "Drag Orca Computer Use"
+        window.title = "Drag Janus Computer Use"
         window.backgroundColor = .clear
         window.isOpaque = false
         window.isReleasedWhenClosed = false
@@ -3237,7 +3237,7 @@ private final class DraggableAppTile: NSView, NSDraggingSource {
         icon.imageScaling = .scaleProportionallyUpOrDown
         icon.translatesAutoresizingMaskIntoConstraints = false
 
-        let title = NSTextField(labelWithString: "Orca Computer Use")
+        let title = NSTextField(labelWithString: "Janus Computer Use")
         title.font = NSFont.systemFont(ofSize: 15, weight: .semibold)
         title.textColor = PermissionPalette.primaryText
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -3532,7 +3532,7 @@ private func writePermissionStatus(to path: String) {
 }
 
 private func runStdio() {
-    fputs("Orca Computer Use provider must be launched by Orca in app-agent mode.\n", stderr)
+    fputs("Janus Computer Use provider must be launched by Janus Code in app-agent mode.\n", stderr)
     exit(13)
 }
 

@@ -1,10 +1,10 @@
 # Janus GUI Polish Status
 
 This note captures the current Janus Code GUI state on
-`feature/t3code-gui-workspace`. The six polish items below are implemented in
-the source tree and are intended to preserve Orca's native browser,
-annotation, terminal, and workspace orchestration plumbing while presenting them
-through the Janus chat-first GUI.
+`feature/janus-identity-cleanup`. The six polish items below are implemented in
+the source tree and are intended to preserve Janus Code's native browser,
+annotation, terminal, and workspace orchestration plumbing through the
+chat-first GUI.
 
 ## Current State
 
@@ -12,7 +12,7 @@ through the Janus chat-first GUI.
   `src/renderer/src/components/agent-workspace/useAgentBrowserWorkbench.ts`.
 - The composer, empty state, and workspace tab strip all use the same browser
   workbench path instead of each creating separate browser behavior.
-- Browser tabs are still owned by Orca's existing browser store and worktree
+- Browser tabs are still owned by Janus Code's browser store and worktree
   surface. Do not mount a second independent `BrowserPane` for the same page.
 - Browser annotations can be attached into the composer draft through the tool
   cluster before the user sends a prompt.
@@ -48,7 +48,7 @@ Implemented:
 
 Design note:
 
-- The Browser tab is an activation affordance for the preserved Orca browser
+- The Browser tab is an activation affordance for the preserved Janus browser
   surface. It intentionally does not create a second webview mount point.
 
 ## 2. Visible Annotation Handoff To Agent Sessions
@@ -64,7 +64,7 @@ Implemented:
 Acceptance covered:
 
 - Browser context is visible in the draft before sending.
-- Attached context includes the existing annotation markdown shape from Orca's
+- Attached context includes the existing annotation markdown shape from Janus'
   browser annotation helpers.
 - Empty annotation state is disabled instead of acting like a dead control.
 
@@ -109,7 +109,7 @@ Implemented:
 
 Acceptance covered:
 
-- No old Orca branding appears in this empty state.
+- No old upstream branding appears in this empty state.
 - No long tutorial copy is shown.
 - Unavailable Browser or Terminal actions are hidden instead of shown as broken
   placeholders.
@@ -159,8 +159,8 @@ Known caveats:
 - `pnpm run lint:react-doctor:changed` reports an existing
   `no-derived-state-effect` warning in `AgentComposer.tsx`; the command exits
   successfully.
-- `pnpm run build:cli` or packaging may print a nonfatal
-  `/usr/local/bin/orca-dev: Permission denied` symlink warning on this machine.
-- Desktop UI smoke through `orca computer` still depends on macOS Accessibility
+- `pnpm run build:cli` or packaging may print a nonfatal dev CLI symlink warning
+  on this machine.
+- Desktop UI smoke through `janus computer` still depends on macOS Accessibility
   and Screenshots permissions for
-  `/Applications/Janus Code.app/Contents/Resources/Orca Computer Use.app`.
+  `/Applications/Janus Code.app/Contents/Resources/Janus Computer Use.app`.

@@ -118,7 +118,7 @@ describe('AgentWorkspacePage', () => {
           agentKind: 'codex',
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
-          branchName: 'feature/t3code-gui-workspace',
+          branchName: 'feature/janus-gui-workspace',
           cwd: '/Users/jakedom/orca'
         }
       ],
@@ -148,7 +148,7 @@ describe('AgentWorkspacePage', () => {
     })
 
     expect(markup).toContain('orca')
-    expect(markup).toContain('feature/t3code-gui-workspace')
+    expect(markup).toContain('feature/janus-gui-workspace')
     expect(markup).toContain('Implement GUI workspace shell')
     expect(markup).toContain('running')
     expect(markup).toContain('Build the first shell')
@@ -180,7 +180,7 @@ describe('AgentWorkspacePage', () => {
           agentKind: 'codex',
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
-          branchName: 'feature/t3code-gui-workspace',
+          branchName: 'feature/janus-gui-workspace',
           cwd: '/Users/jakedom/orca'
         }
       ],

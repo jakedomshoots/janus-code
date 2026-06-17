@@ -54,7 +54,7 @@ function agentEntry(
   const { state, updatedAt, ...rest } = overrides
   return {
     state,
-    prompt: 'Implement Task 1.2 from the Orca T3 Code GUI Fork plan',
+    prompt: 'Implement Task 1.2 from the Janus Code GUI plan',
     updatedAt,
     stateStartedAt: updatedAt,
     agentType: 'codex',
@@ -140,7 +140,7 @@ describe('orca agent workspace selectors', () => {
     const active = worktree('wt-empty', {
       path: '/repo/orca/worktrees/task-1',
       displayName: '',
-      branch: 'refs/heads/feature/t3code-gui-workspace'
+      branch: 'refs/heads/feature/janus-gui-workspace'
     })
 
     const snapshot = selectAgentWorkspaceSnapshot(
@@ -167,10 +167,10 @@ describe('orca agent workspace selectors', () => {
     ).toEqual([
       [
         active.id,
-        'feature/t3code-gui-workspace',
+        'feature/janus-gui-workspace',
         active.path,
         'local',
-        'feature/t3code-gui-workspace',
+        'feature/janus-gui-workspace',
         repo.id,
         true,
         true,

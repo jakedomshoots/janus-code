@@ -92,7 +92,7 @@ export class WebRuntimeClient {
       if (!this.sendEncrypted({ id, deviceToken: this.pairing.deviceToken, method, params })) {
         this.pending.delete(id)
         window.clearTimeout(timeout)
-        reject(new Error('Remote Orca runtime is not connected.'))
+        reject(new Error('Remote Janus runtime is not connected.'))
       }
     })
   }
@@ -263,7 +263,7 @@ export class WebRuntimeClient {
     this.subscriptions.set(id, { method, params, callbacks })
     if (!this.sendEncrypted({ id, deviceToken: this.pairing.deviceToken, method, params })) {
       this.subscriptions.delete(id)
-      throw new Error('Remote Orca runtime is not connected.')
+      throw new Error('Remote Janus runtime is not connected.')
     }
     return {
       unsubscribe: () => {
@@ -283,8 +283,8 @@ export class WebRuntimeClient {
     }
     this.childClients.clear()
     this.clearTimers()
-    this.rejectAllPending('Remote Orca runtime connection closed.')
-    this.rejectAllWaiters(new Error('Remote Orca runtime connection closed.'))
+    this.rejectAllPending('Remote Janus runtime connection closed.')
+    this.rejectAllWaiters(new Error('Remote Janus runtime connection closed.'))
     if (shouldNotifySubscriptions) {
       this.notifySubscriptionsClosed()
     } else {
@@ -496,7 +496,7 @@ export class WebRuntimeClient {
       return Promise.reject(new Error('Unauthorized. Pair this web client again.'))
     }
     if (this.intentionallyClosed) {
-      return Promise.reject(new Error('Remote Orca runtime connection closed.'))
+      return Promise.reject(new Error('Remote Janus runtime connection closed.'))
     }
     return new Promise((resolve, reject) => {
       const timeout = window.setTimeout(() => {
@@ -527,7 +527,7 @@ export class WebRuntimeClient {
     this.sharedKey = null
     this.clearConnectTimer()
     this.clearHandshakeTimer()
-    this.rejectAllPending('Remote Orca runtime connection interrupted.')
+    this.rejectAllPending('Remote Janus runtime connection interrupted.')
     this.notifySubscriptionsClosed()
     if (this.intentionallyClosed || this.state === 'auth-failed') {
       this.setState(this.state === 'auth-failed' ? 'auth-failed' : 'disconnected')

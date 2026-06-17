@@ -449,7 +449,7 @@
         "create": {
           "error": {
             "format": {
-              "37cf0bc991": "Orca could not resolve a usable base ref for this workspace.",
+              "37cf0bc991": "Janus Code could not resolve a usable base ref for this workspace.",
               "64555d0014": "No base branch found"
             }
           }
@@ -8023,7 +8023,7 @@
             "d6a25618aa": "Collapse Folder",
             "d87a4c42e1": "Open Markdown Preview",
             "c2112579f6": "Download",
-            "dd112c81d2": "Open in Orca Browser",
+            "dd112c81d2": "Open in Janus Browser",
             "1bb9be455c": "Add as Project...",
             "0fec99bfd7": "Duplicate",
             "f61af83316": "New Folder",
