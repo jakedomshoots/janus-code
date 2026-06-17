@@ -215,10 +215,10 @@ _또는 패키지 매니저로 설치:_
 
 ```bash
 # macOS (Homebrew)
-brew install --cask jakedomshoots/janus-code/orca
+brew install --cask jakedomshoots/janus-code/janus-code
 
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
+# Arch Linux (AUR) — or janus-code-git to build from source
+yay -S janus-code-bin
 ```
 
 ### 모바일 Companion — iOS, Android

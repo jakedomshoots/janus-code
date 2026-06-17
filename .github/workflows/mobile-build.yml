@@ -53,7 +53,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
         with:
-          name: orca-mobile-apk
+          name: janus-mobile-apk
           path: mobile/android/app/build/outputs/apk/release/*.apk
 
       - name: Create GitHub Release

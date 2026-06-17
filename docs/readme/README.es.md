@@ -215,10 +215,10 @@ _O mediante un gestor de paquetes:_
 
 ```bash
 # macOS (Homebrew)
-brew install --cask jakedomshoots/janus-code/orca
+brew install --cask jakedomshoots/janus-code/janus-code
 
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
+# Arch Linux (AUR) — or janus-code-git to build from source
+yay -S janus-code-bin
 ```
 
 ### App companion móvil — iOS, Android
