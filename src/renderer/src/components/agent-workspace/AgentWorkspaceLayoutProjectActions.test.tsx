@@ -15,7 +15,10 @@ const storeMocks = vi.hoisted(() => ({
   setUpstreamStatus: vi.fn(),
   fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined),
   createBrowserTab: vi.fn(),
-  focusBrowserTabInWorktree: vi.fn()
+  focusBrowserTabInWorktree: vi.fn(),
+  setAgentWorkspaceRightPanelExpanded: vi.fn(),
+  setRightSidebarOpen: vi.fn(),
+  showRightSidebarFiles: vi.fn()
 }))
 const deleteFlowMocks = vi.hoisted(() => ({
   runWorktreeDelete: vi.fn()
@@ -59,6 +62,9 @@ vi.mock('@/store', () => ({
       activeBrowserTabIdByWorktree: Record<string, string | null>
       createBrowserTab: typeof storeMocks.createBrowserTab
       focusBrowserTabInWorktree: typeof storeMocks.focusBrowserTabInWorktree
+      setAgentWorkspaceRightPanelExpanded: (expanded: boolean) => void
+      setRightSidebarOpen: (open: boolean) => void
+      showRightSidebarFiles: () => void
     }) => unknown
   ) =>
     selector({
@@ -81,7 +87,10 @@ vi.mock('@/store', () => ({
       browserAnnotationsByPageId: {},
       activeBrowserTabIdByWorktree: {},
       createBrowserTab: storeMocks.createBrowserTab,
-      focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree
+      focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree,
+      setAgentWorkspaceRightPanelExpanded: storeMocks.setAgentWorkspaceRightPanelExpanded,
+      setRightSidebarOpen: storeMocks.setRightSidebarOpen,
+      showRightSidebarFiles: storeMocks.showRightSidebarFiles
     })
 }))
 

@@ -83,13 +83,13 @@ describe('agent workspace right panel state', () => {
     expect(resolveDefaultTab({ hasStructuredPlan: true })).toBe('plan')
   })
 
-  it('falls back to a collapsed terminal tab when no richer panel has data', () => {
+  it('falls back to a collapsed details tab when no richer panel has data', () => {
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({}))).toEqual({
-      selectedTab: 'terminal',
+      selectedTab: 'details',
       collapsed: true
     })
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({ thread: null }))).toEqual({
-      selectedTab: 'terminal',
+      selectedTab: 'details',
       collapsed: true
     })
   })

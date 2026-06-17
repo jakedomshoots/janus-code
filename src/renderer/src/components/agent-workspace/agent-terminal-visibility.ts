@@ -3,7 +3,8 @@ export const AGENT_TERMINAL_REVEAL_REASONS = [
   'debug-button',
   'failure',
   'keyboard-shortcut',
-  'browser'
+  'browser',
+  'approval'
 ] as const
 
 export type AgentTerminalRevealReason = (typeof AGENT_TERMINAL_REVEAL_REASONS)[number]
@@ -18,7 +19,6 @@ export type AgentTerminalVisibilityState = {
   readonly drawerRendered: boolean
   readonly drawerOpen: boolean
   readonly openReason: AgentTerminalRevealReason | null
-  readonly primaryTerminalHidden: boolean
   readonly terminalWorkspaceMounted: boolean
   readonly terminalAvailable: boolean
 }
@@ -36,7 +36,6 @@ export function getAgentTerminalVisibilityState({
     drawerRendered: guiAgentWorkspaceEnabled,
     drawerOpen: guiAgentWorkspaceEnabled && openReason !== null,
     openReason: guiAgentWorkspaceEnabled ? openReason : null,
-    primaryTerminalHidden: guiAgentWorkspaceEnabled,
     terminalWorkspaceMounted: true,
     terminalAvailable
   }

@@ -1,4 +1,4 @@
-import { Info, Terminal } from 'lucide-react'
+import { Check, Info, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { translate } from '@/i18n/i18n'
@@ -18,6 +18,7 @@ import {
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 
 export function AgentWorkspaceRightPanel({
   thread,
@@ -54,6 +55,13 @@ export function AgentWorkspaceRightPanel({
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
+  const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
+    useAgentWorkspaceApprovalResponse({
+      thread,
+      terminalAvailable,
+      onOpenTerminalDrawer
+    })
+
   return (
     <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-muted/20 p-3">
       <Tabs
@@ -66,7 +74,7 @@ export function AgentWorkspaceRightPanel({
         }}
         className="min-h-0 flex-1"
       >
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="plan">
             {translate('auto.components.agentWorkspace.layout.plan', 'Plan')}
           </TabsTrigger>
@@ -75,9 +83,6 @@ export function AgentWorkspaceRightPanel({
           </TabsTrigger>
           <TabsTrigger value="review">
             {translate('auto.components.agentWorkspace.layout.review', 'Review')}
-          </TabsTrigger>
-          <TabsTrigger value="terminal">
-            {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
           </TabsTrigger>
           <TabsTrigger value="details">
             {translate('auto.components.agentWorkspace.layout.details', 'Details')}
@@ -100,36 +105,6 @@ export function AgentWorkspaceRightPanel({
         </TabsContent>
         <TabsContent value="review" className="mt-3 min-h-0" forceMount>
           <AgentReviewPanel review={review} />
-        </TabsContent>
-        <TabsContent value="terminal" className="mt-3 min-h-0" forceMount>
-          <div className="rounded-md border border-border bg-background p-3">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Terminal className="size-4" aria-hidden="true" />
-              {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {terminalAvailable
-                ? translate(
-                    'auto.components.agentWorkspace.layout.terminalSessionAvailable',
-                    'Terminal session is available as a debug panel.'
-                  )
-                : translate(
-                    'auto.components.agentWorkspace.layout.noTerminalSessionAttached',
-                    'No terminal session is attached to this workspace.'
-                  )}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-3 w-full"
-              disabled={!terminalAvailable || typeof onOpenTerminalDrawer !== 'function'}
-              onClick={() => onOpenTerminalDrawer?.('right-panel')}
-            >
-              <Terminal className="size-3.5" aria-hidden="true" />
-              {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
-            </Button>
-          </div>
         </TabsContent>
         <TabsContent value="details" className="mt-3 min-h-0" forceMount>
           <div className="rounded-md border border-border bg-background p-3">
@@ -184,6 +159,37 @@ export function AgentWorkspaceRightPanel({
                               {approval.toolInput}
                             </span>
                           </>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {thread.phase === 'needs-approval' ? (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            className="flex-1"
+                            disabled={!canRespondInTerminal || approvalBusy}
+                            onClick={() => void handleApprovalDecision('approve')}
+                          >
+                            <Check className="size-3.5" aria-hidden="true" />
+                            {translate('auto.components.agentWorkspace.layout.approve', 'Approve')}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            disabled={!canRespondInTerminal || approvalBusy}
+                            onClick={() => void handleApprovalDecision('deny')}
+                          >
+                            <X className="size-3.5" aria-hidden="true" />
+                            {translate('auto.components.agentWorkspace.layout.deny', 'Deny')}
+                          </Button>
+                        </div>
+                        {approvalFeedback ? (
+                          <p className="text-xs text-muted-foreground">{approvalFeedback}</p>
                         ) : null}
                       </div>
                     ) : null}

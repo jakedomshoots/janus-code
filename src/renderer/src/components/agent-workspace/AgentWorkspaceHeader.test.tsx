@@ -35,4 +35,33 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).not.toContain('Panes')
     expect(markup).not.toContain('Open panes')
   })
+
+  it('renders a right-panel expand affordance when the panel is collapsed', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader
+        project={project}
+        thread={thread}
+        rightPanelCollapsed
+        onExpandRightPanel={() => undefined}
+      />
+    )
+
+    expect(markup).toContain('Show right panel')
+    expect(markup).toContain('Panel')
+    expect(markup).not.toContain('Open project files')
+  })
+
+  it('renders a project files affordance when the right panel is expanded', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader
+        project={project}
+        thread={thread}
+        onOpenProjectFiles={() => undefined}
+      />
+    )
+
+    expect(markup).toContain('Open project files')
+    expect(markup).toContain('Files')
+    expect(markup).not.toContain('Show right panel')
+  })
 })

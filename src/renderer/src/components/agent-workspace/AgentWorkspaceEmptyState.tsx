@@ -1,4 +1,4 @@
-import { FolderOpen, GitBranch, MessageSquareText } from 'lucide-react'
+import { MessageSquareText } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 
 export function AgentWorkspaceEmptyState(): React.JSX.Element {
@@ -21,16 +21,6 @@ export function AgentWorkspaceEmptyState(): React.JSX.Element {
               'Add a project or open a worktree to start tracking agent threads here.'
             )}
           </p>
-        </div>
-        <div className="grid w-full grid-cols-2 gap-2 text-left text-xs text-muted-foreground">
-          <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2">
-            <FolderOpen className="size-4" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.empty.projects', 'Projects')}
-          </div>
-          <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2">
-            <GitBranch className="size-4" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.empty.worktrees', 'Worktrees')}
-          </div>
         </div>
       </div>
     </div>

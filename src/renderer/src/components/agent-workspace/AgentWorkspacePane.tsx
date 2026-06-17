@@ -1,11 +1,13 @@
 import { AlertTriangle, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
+import { AgentApprovalBanner } from './AgentApprovalBanner'
 import { AgentComposer } from './AgentComposer'
 import { AgentTimeline } from './AgentTimeline'
 import { AgentWorkspaceThreadTabs } from './AgentWorkspaceThreadTabs'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type {
+  AgentWorkspaceApproval,
   AgentWorkspaceProject,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
@@ -58,10 +60,13 @@ export function AgentWorkspacePane({
   hasSplitPanes,
   threads,
   thread,
+  approval,
   timeline,
   terminalAvailable,
+  browserWorkbenchActive,
   onFocusPane,
   onSelectThread,
+  onCloseThread,
   onNewSession,
   onSplitRight,
   onSplitDown,
@@ -75,10 +80,13 @@ export function AgentWorkspacePane({
   hasSplitPanes: boolean
   threads: readonly AgentWorkspaceThread[]
   thread: AgentWorkspaceThread | null
+  approval: AgentWorkspaceApproval | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
+  browserWorkbenchActive: boolean
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
+  onCloseThread: (threadId: string) => void
   onNewSession: () => void
   onSplitRight: () => void
   onSplitDown: () => void
@@ -102,6 +110,14 @@ export function AgentWorkspacePane({
         terminalAvailable={terminalAvailable}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
+      {thread?.phase === 'needs-approval' && approval ? (
+        <AgentApprovalBanner
+          thread={thread}
+          approval={approval}
+          terminalAvailable={terminalAvailable}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      ) : null}
       <AgentWorkspaceThreadTabs
         paneLabel={paneLabel}
         threads={threads}
@@ -109,30 +125,23 @@ export function AgentWorkspacePane({
         hasSplitPanes={hasSplitPanes}
         onFocusPane={onFocusPane}
         onSelectThread={onSelectThread}
+        onCloseThread={onCloseThread}
         onNewSession={onNewSession}
         browserAvailable={browserWorkbench.browserAvailable}
+        browserWorkbenchActive={browserWorkbenchActive}
         browserTabCount={browserWorkbench.browserTabCount}
         onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
         onSplitRight={onSplitRight}
         onSplitDown={onSplitDown}
         onClosePane={onClosePane}
       />
-      <AgentTimeline
-        thread={thread}
-        timeline={timeline}
-        terminalAvailable={terminalAvailable}
-        browserAvailable={browserWorkbench.browserAvailable}
-        onNewSession={onNewSession}
-        onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
-        onOpenTerminalDrawer={
-          onOpenTerminalDrawer ? () => onOpenTerminalDrawer('debug-button') : undefined
-        }
-      />
+      <AgentTimeline thread={thread} timeline={timeline} />
       <AgentComposer
         activeWorktreeId={activeWorktreeId}
         selectedProject={project}
         selectedThread={thread}
         terminalAvailable={terminalAvailable}
+        browserWorkbench={browserWorkbench}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </main>

@@ -105,6 +105,7 @@ import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner
 import { browserWorkspaceHasRemoteOwner } from '@/runtime/remote-browser-tab-ownership'
 import { AgentWorkspacePage } from './agent-workspace/AgentWorkspacePage'
 import { AgentTerminalDrawer } from './agent-workspace/AgentTerminalDrawer'
+import { syncAgentTerminalDrawerSurface } from './agent-workspace/agent-terminal-drawer-surface'
 import {
   getAgentTerminalVisibilityState,
   type AgentTerminalRevealReason
@@ -2077,6 +2078,13 @@ function Terminal(): React.JSX.Element | null {
     if (!guiAgentWorkspaceEnabled) {
       return
     }
+    syncAgentTerminalDrawerSurface(terminalDrawerReason)
+  }, [guiAgentWorkspaceEnabled, terminalDrawerReason])
+
+  useEffect(() => {
+    if (!guiAgentWorkspaceEnabled) {
+      return
+    }
 
     const isMac = navigator.userAgent.includes('Mac')
     const shortcutPlatform: NodeJS.Platform = isMac
@@ -2116,7 +2124,12 @@ function Terminal(): React.JSX.Element | null {
   return (
     <TerminalViewSwitch
       guiAgentWorkspaceEnabled={guiAgentWorkspaceEnabled}
-      agentWorkspace={<AgentWorkspacePage onOpenTerminalDrawer={setTerminalDrawerReason} />}
+      agentWorkspace={
+        <AgentWorkspacePage
+          terminalDrawerReason={terminalDrawerReason}
+          onOpenTerminalDrawer={setTerminalDrawerReason}
+        />
+      }
       terminalWorkspace={
         guiAgentWorkspaceEnabled ? (
           <AgentTerminalDrawer

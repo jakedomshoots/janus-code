@@ -297,7 +297,7 @@ async function expectGuiWorkspaceSurface(page: Page): Promise<void> {
     .toBe(true)
   const workspace = page.getByRole('region', { name: /Agent workspace/i })
   await expect(workspace).toBeVisible({ timeout: 30_000 })
-  await expect(workspace.getByText(/Terminal session is available as a debug panel/i)).toBeVisible()
+  await expect(workspace.getByRole('button', { name: /Open terminal drawer/i })).toBeEnabled()
   await expect(workspace.getByRole('textbox', { name: /Message agent/i })).toHaveAttribute(
     'placeholder',
     /Start a new agent session/i

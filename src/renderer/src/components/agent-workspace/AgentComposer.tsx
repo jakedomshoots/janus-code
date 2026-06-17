@@ -9,7 +9,10 @@ import {
   resolveAgentPermissionModeSummary,
   type AgentPermissionMode
 } from '../../../../shared/tui-agent-permissions'
-import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
+import {
+  isTuiAgentThinkingMode,
+  type TuiAgentThinkingMode
+} from '../../../../shared/tui-agent-thinking'
 import {
   getTuiAgentModelOptions,
   isTuiAgentModelSelection,
@@ -23,7 +26,10 @@ import { launchSelectedAgent } from './agent-composer-launch'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
-import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
+import {
+  useAgentBrowserWorkbench,
+  type AgentBrowserWorkbenchState
+} from './useAgentBrowserWorkbench'
 
 type AgentComposerFeedback = Pick<AgentComposerSubmitResult, 'message' | 'status'> & {
   reason?: string
@@ -36,28 +42,33 @@ export function AgentComposer({
   selectedThread,
   selectedProject = null,
   terminalAvailable = false,
+  browserWorkbench: browserWorkbenchProp,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
   selectedProject?: AgentWorkspaceProject | null
   terminalAvailable?: boolean
+  browserWorkbench?: AgentBrowserWorkbenchState
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
-  const [thinkingMode, setThinkingMode] = useState<TuiAgentThinkingMode>('standard')
+  const settings = useAppStore((state) => state.settings)
+  const [thinkingMode, setThinkingMode] = useState<TuiAgentThinkingMode>(
+    () => settings?.agentThinkingMode ?? 'standard'
+  )
   const [composerModelSelections, setComposerModelSelections] = useState<
     Partial<Record<TuiAgent, string>>
   >({})
-  const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
-  const browserWorkbench = useAgentBrowserWorkbench({
+  const browserWorkbenchInternal = useAgentBrowserWorkbench({
     activeWorktreeId,
     onOpenTerminalDrawer
   })
+  const browserWorkbench = browserWorkbenchProp ?? browserWorkbenchInternal
   const settingsModelSelectionsKey = encodeAgentModelSelections(settings?.agentModelSelections)
   const defaultTuiAgent = settings?.defaultTuiAgent ?? null
   const disabledTuiAgents = settings?.disabledTuiAgents ?? EMPTY_DISABLED_TUI_AGENTS
@@ -124,8 +135,8 @@ export function AgentComposer({
   ].join(':')
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
-  const composerDisabled = submitting || readinessMessage !== null
-  const canSubmit = !composerDisabled && trimmedPrompt.length > 0
+  const composerDisabled = submitting
+  const canSubmit = !submitting && readinessMessage === null && trimmedPrompt.length > 0
   const statusMessage = submitResult?.message ?? readinessMessage
   const statusTone = submitResult?.status ?? (readinessMessage ? 'blocked' : null)
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
@@ -143,6 +154,18 @@ export function AgentComposer({
   useEffect(() => {
     setComposerModelSelections(decodeAgentModelSelectionsKey(settingsModelSelectionsKey))
   }, [settingsModelSelectionsKey])
+
+  useEffect(() => {
+    const nextMode = settings?.agentThinkingMode
+    if (nextMode && isTuiAgentThinkingMode(nextMode)) {
+      setThinkingMode(nextMode)
+    }
+  }, [settings?.agentThinkingMode])
+
+  function handleThinkingModeChange(mode: TuiAgentThinkingMode): void {
+    setThinkingMode(mode)
+    void updateSettings({ agentThinkingMode: mode })
+  }
 
   useLayoutEffect(() => {
     submitContextKeyRef.current = submitContextKey
@@ -274,7 +297,7 @@ export function AgentComposer({
             permissionMode={permissionMode}
             onPermissionModeChange={handlePermissionModeChange}
             thinkingMode={thinkingMode}
-            onThinkingModeChange={setThinkingMode}
+            onThinkingModeChange={handleThinkingModeChange}
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
             canOpenBrowserWorkbench={browserWorkbench.browserAvailable}

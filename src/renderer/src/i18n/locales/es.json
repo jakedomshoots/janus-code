@@ -11013,7 +11013,11 @@
           "run": "Ejecutar",
           "newSession": "New session",
           "openPanes": "Open panes",
-          "panes": "Panes"
+          "panes": "Panes",
+          "panel": "Panel",
+          "showRightPanel": "Show right panel",
+          "files": "Files",
+          "openProjectFiles": "Open project files"
         },
         "layout": {
           "projects": "Proyectos",
@@ -11100,7 +11104,18 @@
           "browserWorkbench": "Browser workbench",
           "closeBrowserWorkbench": "Close browser workbench",
           "newSession": "New session",
-          "browser": "Browser"
+          "browser": "Browser",
+          "terminalOpenedFromComposerTools": "Opened from composer tools",
+          "terminalOpenedForApproval": "Respond to the agent approval prompt here.",
+          "respondInTerminal": "Respond in terminal",
+          "approve": "Approve",
+          "deny": "Deny",
+          "approvalApproveSent": "Approval sent to the agent terminal.",
+          "approvalDenySent": "Denial sent to the agent terminal.",
+          "approvalTerminalNotWritable": "Could not write to the agent terminal. Open the terminal drawer and respond manually.",
+          "approvalTerminalUnavailable": "No live terminal session is attached to this thread.",
+          "approvalBannerTitle": "Agent needs your approval",
+          "emptyStateHint": "Use New session in the tab strip above, then describe your task in the composer below."
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
@@ -11216,7 +11231,8 @@
           "splitRight": "Split right",
           "splitDown": "Split down",
           "closePane": "Close pane",
-          "browser": "Browser"
+          "browser": "Browser",
+          "closeThread": "Close thread"
         }
       }
     },

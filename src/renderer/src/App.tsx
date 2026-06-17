@@ -24,6 +24,7 @@ import { SYNC_FIT_PANES_EVENT, TOGGLE_TERMINAL_PANE_EXPAND_EVENT } from '@/const
 import { syncZoomCSSVar } from '@/lib/ui-zoom'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
+import { shouldSuppressOrcaRightSidebar } from './components/agent-workspace/agent-workspace-orca-sidebar'
 import { buildAppFontFamily } from '@/lib/app-font-family'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
@@ -550,6 +551,7 @@ function App(): React.JSX.Element {
   const isFullScreen = useAppStore((s) => s.isFullScreen)
   const settings = useAppStore((s) => s.settings)
   const guiAgentWorkspaceEnabled = settings?.guiAgentWorkspaceEnabled === true
+  const agentWorkspaceRightPanelExpanded = useAppStore((s) => s.agentWorkspaceRightPanelExpanded)
   const systemPrefersDark = useSystemPrefersDark()
   const leftSidebarStyle = useMemo(
     () => resolveLeftSidebarStyleVariables(settings, systemPrefersDark),
@@ -1286,7 +1288,14 @@ function App(): React.JSX.Element {
     !workspaceChromeActive && !creationLayoutActive && showSidebar && sidebarOpen
   // Why: suppress right sidebar controls on full-page navigation surfaces
   // since those surfaces intentionally own the full content area.
-  const showRightSidebarControls = !creationLayoutActive && canShowRightSidebarForView(activeView)
+  const showRightSidebarControls =
+    !creationLayoutActive &&
+    canShowRightSidebarForView(activeView) &&
+    !shouldSuppressOrcaRightSidebar({
+      guiAgentWorkspaceEnabled,
+      activeView,
+      agentWorkspaceRightPanelExpanded
+    })
 
   const handleToggleExpand = (): void => {
     if (!effectiveActiveTabId) {

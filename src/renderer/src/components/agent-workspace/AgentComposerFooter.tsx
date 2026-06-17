@@ -78,8 +78,12 @@ export function AgentComposerFooter({
       </p>
       <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
-          <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
+          {canSendToSelectedThread ? null : (
+            <>
+              <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
+              <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
+            </>
+          )}
         </div>
         <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
           <AgentComposerToolCluster

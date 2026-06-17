@@ -11,6 +11,8 @@ const EMPTY_BROWSER_TABS: readonly BrowserWorkspace[] = []
 const EMPTY_BROWSER_ANNOTATIONS: readonly BrowserPageAnnotation[] = []
 
 export type AgentBrowserWorkbenchState = {
+  readonly browserWorkbenchReady: boolean
+  readonly canOpenBrowserDrawer: boolean
   readonly browserAvailable: boolean
   readonly browserTabCount: number
   readonly browserAnnotationCount: number
@@ -76,8 +78,13 @@ export function useAgentBrowserWorkbench({
     onOpenTerminalDrawer('browser')
   }
 
+  const browserWorkbenchReady = Boolean(activeWorktreeId)
+  const canOpenBrowserDrawer = typeof onOpenTerminalDrawer === 'function'
+
   return {
-    browserAvailable: Boolean(activeWorktreeId && onOpenTerminalDrawer),
+    browserWorkbenchReady,
+    canOpenBrowserDrawer,
+    browserAvailable: browserWorkbenchReady && canOpenBrowserDrawer,
     browserTabCount: browserTabs.length,
     browserAnnotationCount: browserAnnotations.length,
     browserAnnotationMarkdown,

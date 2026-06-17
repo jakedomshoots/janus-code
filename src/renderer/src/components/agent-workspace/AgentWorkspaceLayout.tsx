@@ -26,6 +26,8 @@ import {
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 import { useAgentWorkspaceSourceControlActions } from './useAgentWorkspaceSourceControlActions'
+import { closeAgentWorkspaceThread } from './agent-workspace-thread-close'
+import { pickAgentWorkspaceApprovalThreadId } from './agent-workspace-approval-focus'
 
 type AgentWorkspacePaneState = {
   id: string
@@ -114,9 +116,11 @@ function getRightPanelStateInputKey({
 
 export function AgentWorkspaceLayout({
   snapshot,
+  terminalDrawerReason = null,
   onOpenTerminalDrawer
 }: {
   snapshot: AgentWorkspaceSnapshot
+  terminalDrawerReason?: AgentTerminalRevealReason | null
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
@@ -144,6 +148,11 @@ export function AgentWorkspaceLayout({
     ? (projectThreads.find((thread) => thread.id === activePane.selectedThreadId) ?? null)
     : null
   const openDiff = useAppStore((state) => state.openDiff)
+  const setAgentWorkspaceRightPanelExpanded = useAppStore(
+    (state) => state.setAgentWorkspaceRightPanelExpanded
+  )
+  const setRightSidebarOpen = useAppStore((state) => state.setRightSidebarOpen)
+  const showRightSidebarFiles = useAppStore((state) => state.showRightSidebarFiles)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
   const selectedApproval = getThreadApproval(snapshot, selectedThread)
@@ -188,11 +197,33 @@ export function AgentWorkspaceLayout({
     }
   }, [rightPanelStateInput, rightPanelStateInputKey])
 
+  useEffect(() => {
+    const expanded = !selectedRightPanelState.collapsed
+    setAgentWorkspaceRightPanelExpanded(expanded)
+    if (expanded) {
+      setRightSidebarOpen(false)
+    }
+  }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
+
+  useEffect(
+    () => () => {
+      setAgentWorkspaceRightPanelExpanded(false)
+    },
+    [setAgentWorkspaceRightPanelExpanded]
+  )
+
   function handleRightPanelTabChange(tab: AgentWorkspaceRightPanelTab): void {
     setSelectedRightPanelState({
       selectedTab: tab,
       collapsed: false
     } satisfies AgentWorkspaceRightPanelState)
+  }
+
+  function handleExpandRightPanel(): void {
+    setSelectedRightPanelState((current) => ({
+      ...current,
+      collapsed: false
+    }))
   }
 
   function handlePaneThreadSelect(paneId: string, threadId: string): void {
@@ -204,11 +235,42 @@ export function AgentWorkspaceLayout({
     )
   }
 
+  useEffect(() => {
+    if (!activePane) {
+      return
+    }
+    const approvalThreadId = pickAgentWorkspaceApprovalThreadId(
+      projectThreads,
+      activePane.selectedThreadId
+    )
+    if (!approvalThreadId) {
+      return
+    }
+    handlePaneThreadSelect(activePane.id, approvalThreadId)
+  }, [activePane, projectThreadIdsKey, projectThreads])
+
   function handleNewSession(paneId: string): void {
     setActivePaneId(paneId)
     setPanes((currentPanes) =>
       currentPanes.map((pane) => (pane.id === paneId ? { ...pane, selectedThreadId: null } : pane))
     )
+  }
+
+  function handleCloseThread(paneId: string, threadId: string): void {
+    const remainingThreads = projectThreads.filter((thread) => thread.id !== threadId)
+    const fallbackThreadId = remainingThreads[0]?.id ?? null
+    setPanes((currentPanes) =>
+      currentPanes.map((pane) => {
+        if (pane.selectedThreadId !== threadId) {
+          return pane
+        }
+        return { ...pane, selectedThreadId: fallbackThreadId }
+      })
+    )
+    if (activePane?.selectedThreadId === threadId) {
+      setActivePaneId(paneId)
+    }
+    closeAgentWorkspaceThread(threadId)
   }
 
   function handleSplitPane(paneId: string, direction: AgentWorkspaceSplitDirection): void {
@@ -265,7 +327,18 @@ export function AgentWorkspaceLayout({
 
   return (
     <AgentWorkspaceChrome
-      header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
+      header={
+        <AgentWorkspaceHeader
+          project={selectedProject}
+          thread={selectedThread}
+          rightPanelCollapsed={selectedRightPanelState.collapsed}
+          onExpandRightPanel={handleExpandRightPanel}
+          onOpenProjectFiles={() => {
+            setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
+            showRightSidebarFiles()
+          }}
+        />
+      }
       rightPanel={
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel
@@ -297,6 +370,7 @@ export function AgentWorkspaceLayout({
           const paneThread = pane.selectedThreadId
             ? (projectThreads.find((thread) => thread.id === pane.selectedThreadId) ?? null)
             : null
+          const paneApproval = getThreadApproval(snapshot, paneThread)
           const paneTimeline = getThreadTimeline(snapshot, paneThread)
           return (
             <div
@@ -323,10 +397,13 @@ export function AgentWorkspaceLayout({
                 hasSplitPanes={panes.length > 1}
                 threads={projectThreads}
                 thread={paneThread}
+                approval={paneApproval}
                 timeline={paneTimeline}
                 terminalAvailable={snapshot.terminalAvailable}
+                browserWorkbenchActive={terminalDrawerReason === 'browser'}
                 onFocusPane={() => setActivePaneId(pane.id)}
                 onSelectThread={(threadId) => handlePaneThreadSelect(pane.id, threadId)}
+                onCloseThread={(threadId) => handleCloseThread(pane.id, threadId)}
                 onNewSession={() => handleNewSession(pane.id)}
                 onSplitRight={() => handleSplitPane(pane.id, 'horizontal')}
                 onSplitDown={() => handleSplitPane(pane.id, 'vertical')}

@@ -14,8 +14,13 @@ function formatAgentTerminalRevealReason(reason: AgentTerminalRevealReason): str
       )
     case 'debug-button':
       return translate(
-        'auto.components.agentWorkspace.layout.terminalOpenedFromDebugButton',
-        'Opened from debug button'
+        'auto.components.agentWorkspace.layout.terminalOpenedFromComposerTools',
+        'Opened from composer tools'
+      )
+    case 'approval':
+      return translate(
+        'auto.components.agentWorkspace.layout.terminalOpenedForApproval',
+        'Respond to the agent approval prompt here.'
       )
     case 'failure':
       return translate(

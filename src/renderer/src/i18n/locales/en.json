@@ -11013,7 +11013,11 @@
           "run": "Run",
           "newSession": "New session",
           "openPanes": "Open panes",
-          "panes": "Panes"
+          "panes": "Panes",
+          "panel": "Panel",
+          "showRightPanel": "Show right panel",
+          "files": "Files",
+          "openProjectFiles": "Open project files"
         },
         "layout": {
           "projects": "Projects",
@@ -11064,11 +11068,22 @@
           "terminalDrawer": "Terminal drawer",
           "terminalOpenedFromRightPanel": "Opened from right panel",
           "terminalOpenedFromDebugButton": "Opened from debug button",
+          "terminalOpenedFromComposerTools": "Opened from composer tools",
+          "terminalOpenedForApproval": "Respond to the agent approval prompt here.",
+          "respondInTerminal": "Respond in terminal",
+          "approve": "Approve",
+          "deny": "Deny",
+          "approvalApproveSent": "Approval sent to the agent terminal.",
+          "approvalDenySent": "Denial sent to the agent terminal.",
+          "approvalTerminalNotWritable": "Could not write to the agent terminal. Open the terminal drawer and respond manually.",
+          "approvalTerminalUnavailable": "No live terminal session is attached to this thread.",
           "terminalOpenedFromFailure": "Opened from failure banner",
           "terminalOpenedFromKeyboardShortcut": "Opened from keyboard shortcut",
           "threadFailedOpenTerminal": "Thread failed. Open the terminal drawer to inspect raw output.",
           "threadNeedsApproval": "This thread needs approval before it can continue.",
           "approvalRequest": "Approval request",
+          "approvalBannerTitle": "Agent needs your approval",
+          "emptyStateHint": "Use New session in the tab strip above, then describe your task in the composer below.",
           "tool": "Tool",
           "request": "Request",
           "agent": "Agent",
@@ -11216,6 +11231,7 @@
           "splitRight": "Split right",
           "splitDown": "Split down",
           "closePane": "Close pane",
+          "closeThread": "Close thread",
           "browser": "Browser"
         }
       }

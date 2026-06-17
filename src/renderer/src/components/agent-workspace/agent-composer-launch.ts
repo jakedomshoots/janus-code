@@ -55,7 +55,7 @@ export function launchSelectedAgent({
     worktreeId: activeWorktreeId,
     prompt,
     ...(agentArgs ? { agentArgs } : {}),
-    launchSource: 'sidebar'
+    launchSource: 'new_workspace_composer'
   })
   const agentLabel = getAgentLabel(selectedAgent)
   if (!result) {

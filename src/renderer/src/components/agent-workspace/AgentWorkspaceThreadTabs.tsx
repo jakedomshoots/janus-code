@@ -14,8 +14,10 @@ export function AgentWorkspaceThreadTabs({
   hasSplitPanes,
   onFocusPane,
   onSelectThread,
+  onCloseThread,
   onNewSession,
   browserAvailable,
+  browserWorkbenchActive,
   browserTabCount,
   onOpenBrowserWorkbench,
   onSplitRight,
@@ -28,8 +30,10 @@ export function AgentWorkspaceThreadTabs({
   hasSplitPanes: boolean
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
+  onCloseThread: (threadId: string) => void
   onNewSession: () => void
   browserAvailable: boolean
+  browserWorkbenchActive: boolean
   browserTabCount: number
   onOpenBrowserWorkbench: () => void
   onSplitRight: () => void
@@ -58,6 +62,10 @@ export function AgentWorkspaceThreadTabs({
                 onFocusPane()
                 onSelectThread(thread.id)
               }}
+              onClose={() => {
+                onFocusPane()
+                onCloseThread(thread.id)
+              }}
             />
           ))}
           {hasDraftSession ? (
@@ -70,6 +78,7 @@ export function AgentWorkspaceThreadTabs({
           ) : null}
           {browserAvailable ? (
             <BrowserWorkbenchTab
+              active={browserWorkbenchActive}
               browserTabCount={browserTabCount}
               onSelect={() => {
                 onFocusPane()
@@ -151,9 +160,11 @@ export function AgentWorkspaceThreadTabs({
 }
 
 function BrowserWorkbenchTab({
+  active,
   browserTabCount,
   onSelect
 }: {
+  active: boolean
   browserTabCount: number
   onSelect: () => void
 }): React.JSX.Element {
@@ -161,8 +172,13 @@ function BrowserWorkbenchTab({
     <button
       type="button"
       role="tab"
-      aria-selected="false"
-      className="flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border border-transparent bg-muted/25 px-3 text-xs text-muted-foreground transition-colors hover:bg-muted/45 hover:text-foreground"
+      aria-selected={active}
+      className={cn(
+        'flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border px-3 text-xs transition-colors',
+        active
+          ? 'border-border border-b-background bg-background text-foreground'
+          : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
+      )}
       onClick={onSelect}
     >
       <Globe className="size-3.5" aria-hidden="true" />
@@ -198,33 +214,56 @@ function NewSessionTab({ onSelect }: { onSelect: () => void }): React.JSX.Elemen
 function ThreadTab({
   thread,
   selected,
-  onSelect
+  onSelect,
+  onClose
 }: {
   thread: AgentWorkspaceThread
   selected: boolean
   onSelect: () => void
+  onClose: () => void
 }): React.JSX.Element {
   return (
-    <button
-      type="button"
+    <div
       role="tab"
       aria-selected={selected}
       className={cn(
-        'group flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border px-3 text-xs transition-colors',
+        'group flex h-8 max-w-72 shrink-0 items-center gap-1 rounded-t-md border pl-3 pr-1 text-xs transition-colors',
         selected
           ? 'border-border border-b-background bg-background text-foreground'
           : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
       )}
-      onClick={onSelect}
     >
-      <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
-      <span className="truncate font-medium">{thread.title}</span>
-      <span className="hidden shrink-0 text-muted-foreground/80 sm:inline">
-        {formatAgentTypeLabel(thread.agentKind)}
-      </span>
-      <span className="hidden shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground group-hover:text-foreground md:inline">
-        {formatAgentWorkspacePhase(thread.phase)}
-      </span>
-    </button>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        onClick={onSelect}
+      >
+        <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
+        <span className="truncate font-medium">{thread.title}</span>
+        <span className="hidden shrink-0 text-muted-foreground/80 sm:inline">
+          {formatAgentTypeLabel(thread.agentKind)}
+        </span>
+        <span className="hidden shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground group-hover:text-foreground md:inline">
+          {formatAgentWorkspacePhase(thread.phase)}
+        </span>
+      </button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        className="shrink-0 opacity-70 hover:opacity-100"
+        aria-label={translate(
+          'auto.components.agentWorkspace.threadTabs.closeThread',
+          'Close thread'
+        )}
+        title={translate('auto.components.agentWorkspace.threadTabs.closeThread', 'Close thread')}
+        onClick={(event) => {
+          event.stopPropagation()
+          onClose()
+        }}
+      >
+        <X className="size-3" aria-hidden="true" />
+      </Button>
+    </div>
   )
 }

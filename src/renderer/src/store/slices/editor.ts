@@ -334,6 +334,8 @@ export type EditorSlice = {
   setMarkdownFrontmatterVisible: (fileId: string, visible: boolean) => void
 
   // Right sidebar
+  agentWorkspaceRightPanelExpanded: boolean
+  setAgentWorkspaceRightPanelExpanded: (expanded: boolean) => void
   rightSidebarOpen: boolean
   rightSidebarWidth: number
   rightSidebarTab: ActiveRightSidebarTab
@@ -1452,6 +1454,9 @@ export const createEditorSlice: StateCreator<AppState, [], [], EditorSlice> = (s
     }),
 
   // Right sidebar
+  agentWorkspaceRightPanelExpanded: false,
+  setAgentWorkspaceRightPanelExpanded: (expanded) =>
+    set({ agentWorkspaceRightPanelExpanded: expanded }),
   rightSidebarOpen: false,
   rightSidebarWidth: 280,
   rightSidebarTab: 'explorer',

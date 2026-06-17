@@ -32,7 +32,10 @@ const storeMocks = vi.hoisted(() => {
     browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
     createBrowserTab,
-    focusBrowserTabInWorktree
+    focusBrowserTabInWorktree,
+    setAgentWorkspaceRightPanelExpanded: vi.fn(),
+    setRightSidebarOpen: vi.fn(),
+    showRightSidebarFiles: vi.fn()
   }
 
   return {

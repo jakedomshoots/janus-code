@@ -225,7 +225,7 @@ describe('AgentComposer', () => {
     await setRendererUiLanguage('en')
   })
 
-  it('disables the composer when the selected thread is outside the active worktree', async () => {
+  it('blocks send but keeps drafting when the selected thread is outside the active worktree', async () => {
     await act(async () => {
       root.render(
         <AgentComposer
@@ -238,7 +238,7 @@ describe('AgentComposer', () => {
     const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
     const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
 
-    expect(textarea?.disabled).toBe(true)
+    expect(textarea?.disabled).toBe(false)
     expect(button?.disabled).toBe(true)
     expect(container.textContent).toContain('Switch to this worktree before sending a message.')
     expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
@@ -428,7 +428,7 @@ describe('AgentComposer', () => {
       agent: 'opencode',
       worktreeId: 'worktree-1',
       prompt: 'Use OpenCode for this workspace.',
-      launchSource: 'sidebar'
+      launchSource: 'new_workspace_composer'
     })
     expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
     expect(container.textContent).toContain('Started OpenCode.')
@@ -481,7 +481,7 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use deep reasoning for this.',
       agentArgs: '--dangerously-bypass-approvals-and-sandbox -c model_reasoning_effort=high',
-      launchSource: 'sidebar'
+      launchSource: 'new_workspace_composer'
     })
   })
 
@@ -537,7 +537,7 @@ describe('AgentComposer', () => {
       prompt: 'Use the selected model.',
       agentArgs:
         '--dangerously-bypass-approvals-and-sandbox --model gpt-5.4-mini -c model_reasoning_effort=medium',
-      launchSource: 'sidebar'
+      launchSource: 'new_workspace_composer'
     })
   })
 
