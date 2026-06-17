@@ -45,12 +45,6 @@ function WorkbenchEmptyState(): React.JSX.Element {
       <h2 className="text-xl font-semibold text-foreground">
         {translate('auto.components.agentWorkspace.layout.janusCode', 'Janus Code')}
       </h2>
-      <p className="max-w-md text-sm text-muted-foreground">
-        {translate(
-          'auto.components.agentWorkspace.layout.emptyStateHint',
-          'Use New session in the tab strip above, then describe your task in the composer below.'
-        )}
-      </p>
     </div>
   )
 }

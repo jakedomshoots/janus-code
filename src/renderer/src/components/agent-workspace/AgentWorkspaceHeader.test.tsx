@@ -36,6 +36,23 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).not.toContain('Open panes')
   })
 
+  it('does not render right-panel controls without a selected thread', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader
+        project={project}
+        thread={null}
+        rightPanelCollapsed
+        onExpandRightPanel={() => undefined}
+        onOpenProjectFiles={() => undefined}
+      />
+    )
+
+    expect(markup).not.toContain('Show right panel')
+    expect(markup).not.toContain('Panel')
+    expect(markup).not.toContain('Open project files')
+    expect(markup).not.toContain('Files')
+  })
+
   it('renders a right-panel expand affordance when the panel is collapsed', () => {
     const markup = renderToStaticMarkup(
       <AgentWorkspaceHeader

@@ -220,6 +220,7 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('New session')
     expect(markup).toContain('Split right')
     expect(markup).toContain('Split down')
+    expect(markup).not.toContain('Use New session in the tab strip above')
     expect(markup).not.toContain('Start new session')
     expect(markup).not.toContain('Ready for a Janus session')
     expect(markup).not.toContain('Describe the coding task below.')

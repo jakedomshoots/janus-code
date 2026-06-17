@@ -21,8 +21,11 @@ export function AgentWorkspaceHeader({
   onOpenProjectFiles?: () => void
 }): React.JSX.Element {
   const branchName = thread?.branchName ?? null
-  const canExpandRightPanel = rightPanelCollapsed && typeof onExpandRightPanel === 'function'
-  const canOpenProjectFiles = !rightPanelCollapsed && typeof onOpenProjectFiles === 'function'
+  const hasThread = thread !== null
+  const canExpandRightPanel =
+    hasThread && rightPanelCollapsed && typeof onExpandRightPanel === 'function'
+  const canOpenProjectFiles =
+    hasThread && !rightPanelCollapsed && typeof onOpenProjectFiles === 'function'
 
   return (
     <header className="flex h-[52px] shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-background px-4">
