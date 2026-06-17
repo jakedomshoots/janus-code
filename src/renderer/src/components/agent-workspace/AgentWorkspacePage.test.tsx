@@ -199,10 +199,9 @@ describe('AgentWorkspacePage', () => {
       terminalAvailable: true
     })
 
-    expect(markup).toContain('Ready for a Janus session')
-    expect(markup).toContain('Permissions')
-    expect(markup).toContain('Thinking')
-    expect(markup).toContain('Terminal')
+    expect(markup).toContain('Janus Code')
+    expect(markup).not.toContain('Ready for a Janus session')
+    expect(markup).not.toContain('Describe the coding task below.')
     expect(markup).not.toContain('Refresh')
     expect(markup).not.toContain('Panels')
     expect(markup).not.toContain('Run')

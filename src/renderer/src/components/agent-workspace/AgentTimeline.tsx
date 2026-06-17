@@ -1,12 +1,4 @@
-import {
-  Brain,
-  Clock3,
-  GitBranch,
-  MessageSquareText,
-  ShieldCheck,
-  Sparkles,
-  Terminal
-} from 'lucide-react'
+import { Clock3, GitBranch, MessageSquareText } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { AgentTimelineEntry } from './AgentTimelineEntry'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
@@ -49,38 +41,10 @@ export function AgentTimeline({
 
 function WorkbenchEmptyState(): React.JSX.Element {
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center gap-4 text-center">
-      <div className="flex size-11 items-center justify-center rounded-md border border-border bg-muted/25 text-foreground">
-        <Sparkles className="size-5" aria-hidden="true" />
-      </div>
-      <div className="max-w-md">
-        <h2 className="text-base font-semibold text-foreground">
-          {translate(
-            'auto.components.agentWorkspace.layout.readyForJanusSession',
-            'Ready for a Janus session'
-          )}
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {translate(
-            'auto.components.agentWorkspace.layout.newSessionHint',
-            'Describe the coding task below. Janus will start the selected agent in this workspace.'
-          )}
-        </p>
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5">
-          <ShieldCheck className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.composer.permissions', 'Permissions')}
-        </span>
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5">
-          <Brain className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.composer.thinking', 'Thinking')}
-        </span>
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5">
-          <Terminal className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
-        </span>
-      </div>
+    <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
+      <h2 className="text-xl font-semibold text-foreground">
+        {translate('auto.components.agentWorkspace.layout.janusCode', 'Janus Code')}
+      </h2>
     </div>
   )
 }

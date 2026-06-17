@@ -11091,7 +11091,8 @@
           "discardChangeFailed": "Discard failed",
           "commitFailed": "Commit failed",
           "readyForJanusSession": "Ready for a Janus session",
-          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace."
+          "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace.",
+          "janusCode": "Janus Code"
         },
         "composer": {
           "enterMessageBeforeSending": "送信前にメッセージを入力してください。",
