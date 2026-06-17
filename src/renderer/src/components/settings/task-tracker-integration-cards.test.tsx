@@ -110,7 +110,7 @@ describe('LinearIntegrationCard account scope', () => {
 
     expect(rendered.textContent).toContain(`Account scope: ${localHostLabel}`)
     expect(rendered.textContent).toContain(
-      'Credentials and account checks for this provider are owned by this desktop client. Use Settings > Remote Orca Servers > Advanced to edit server-owned credentials.'
+      'Credentials and account checks for this provider are owned by this desktop client. Use Settings > Remote Janus Code Servers > Advanced to edit server-owned credentials.'
     )
     expect(rendered.textContent).toContain('Open Remote Servers')
     expect(rendered.textContent).toContain('Add access with a Personal API key')
@@ -131,7 +131,7 @@ describe('LinearIntegrationCard account scope', () => {
 
     expect(rendered.textContent).toContain('Account scope: Remote server: runtime-1')
     expect(rendered.textContent).toContain(
-      'Credentials and account checks for this provider are owned by this remote server. Use Settings > Remote Orca Servers > Advanced to edit another default runtime scope.'
+      'Credentials and account checks for this provider are owned by this remote server. Use Settings > Remote Janus Code Servers > Advanced to edit another default runtime scope.'
     )
     await act(async () => {
       Array.from(rendered.querySelectorAll('button'))

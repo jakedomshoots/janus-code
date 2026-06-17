@@ -13,8 +13,8 @@ const runningThread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const modifiedDiff: AgentWorkspaceDiffSummary = {
@@ -71,7 +71,7 @@ describe('agent workspace right panel state', () => {
           number: 7,
           title: 'Ship source control parity',
           state: 'open',
-          url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+          url: 'https://gitlab.com/acme/janus-code/-/merge_requests/7',
           status: 'success',
           updatedAt: '2026-06-16T12:00:00.000Z'
         }
@@ -83,13 +83,13 @@ describe('agent workspace right panel state', () => {
     expect(resolveDefaultTab({ hasStructuredPlan: true })).toBe('plan')
   })
 
-  it('falls back to a collapsed terminal tab when no richer panel has data', () => {
+  it('falls back to a collapsed details tab when no richer panel has data', () => {
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({}))).toEqual({
-      selectedTab: 'terminal',
+      selectedTab: 'details',
       collapsed: true
     })
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({ thread: null }))).toEqual({
-      selectedTab: 'terminal',
+      selectedTab: 'details',
       collapsed: true
     })
   })

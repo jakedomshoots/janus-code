@@ -6,8 +6,10 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspaceSnapshot } from './orca-agent-workspace-selectors'
 
 export function AgentWorkspacePage({
+  terminalDrawerReason = null,
   onOpenTerminalDrawer
 }: {
+  terminalDrawerReason?: AgentTerminalRevealReason | null
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 } = {}): React.JSX.Element {
   const snapshot = useAppStore(selectAgentWorkspaceSnapshot)
@@ -30,7 +32,11 @@ export function AgentWorkspacePage({
           <AgentWorkspaceEmptyState />
         </>
       ) : (
-        <AgentWorkspaceLayout snapshot={snapshot} onOpenTerminalDrawer={onOpenTerminalDrawer} />
+        <AgentWorkspaceLayout
+          snapshot={snapshot}
+          terminalDrawerReason={terminalDrawerReason}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
       )}
     </section>
   )

@@ -21,6 +21,7 @@ import type {
 } from './feature-interactions'
 import type { GitBranchChangeStatus } from './git-status-types'
 import type { KeybindingOverrides, TerminalShortcutPolicy } from './keybindings'
+import type { TuiAgentThinkingMode } from './tui-agent-thinking'
 import type { RepoIcon } from './repo-icon'
 import type { AppIconId } from './app-icon'
 import type {
@@ -2553,6 +2554,10 @@ export type GlobalSettings = {
   agentDefaultArgs?: Partial<Record<TuiAgent, string>>
   /** Per-agent launch environment defaults used when yolo mode is exposed as env. */
   agentDefaultEnv?: Partial<Record<TuiAgent, Record<string, string>>>
+  /** Per-agent model selected from the GUI composer. Missing key means use the provider default. */
+  agentModelSelections?: Partial<Record<TuiAgent, string>>
+  /** Default thinking depth used by the GUI composer when launching agents. */
+  agentThinkingMode?: TuiAgentThinkingMode
   /** One-shot guard for adding yolo-mode default args to untouched agent launch profiles. */
   agentYoloDefaultsMigrated?: boolean
   /** Why: disabling must persist so startup does not reinstall global agent

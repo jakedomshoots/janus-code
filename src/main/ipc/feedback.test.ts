@@ -33,10 +33,32 @@ describe('submitFeedback', () => {
     handlers.clear()
     fetchMock.mockReset()
     fetchMock.mockResolvedValue(okResponse())
+    process.env.JANUS_FEEDBACK_API_URL = 'https://feedback.janus-code.test/v1/feedback'
+    delete process.env.JANUS_FEEDBACK_API_FALLBACK_URL
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    delete process.env.JANUS_FEEDBACK_API_URL
+    delete process.env.JANUS_FEEDBACK_API_FALLBACK_URL
+  })
+
+  it('fails closed without a configured Janus feedback endpoint', async () => {
+    delete process.env.JANUS_FEEDBACK_API_URL
+
+    await expect(
+      submitFeedback({
+        feedback: 'private bug report',
+        submitAnonymously: true,
+        githubLogin: 'trusted-user',
+        githubEmail: 'trusted@example.com'
+      })
+    ).resolves.toEqual({
+      ok: false,
+      status: null,
+      error: 'Feedback submission is not configured for this Janus Code build.'
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('strips GitHub identity and anonymous contact fields when submitted anonymously', async () => {
@@ -99,10 +121,12 @@ describe('submitFeedback', () => {
     })
   })
 
-  it('falls back when the primary feedback request stalls', async () => {
+  it('falls back to a configured secondary endpoint when the primary feedback request stalls', async () => {
+    process.env.JANUS_FEEDBACK_API_FALLBACK_URL =
+      'https://fallback-feedback.janus-code.test/v1/feedback'
     vi.useFakeTimers()
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
-      if (url.includes('api.onorca.dev')) {
+      if (url === 'https://feedback.janus-code.test/v1/feedback') {
         return new Promise((_resolve, reject) => {
           init?.signal?.addEventListener('abort', () => reject(new Error('request aborted')))
         })
@@ -123,9 +147,11 @@ describe('submitFeedback', () => {
   })
 
   it('does not retry the fallback when the fallback fails after a primary server error', async () => {
+    process.env.JANUS_FEEDBACK_API_FALLBACK_URL =
+      'https://fallback-feedback.janus-code.test/v1/feedback'
     vi.useFakeTimers()
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
-      if (url.includes('api.onorca.dev')) {
+      if (url === 'https://feedback.janus-code.test/v1/feedback') {
         return Promise.resolve({ ok: false, status: 500 } as Response)
       }
       return new Promise((_resolve, reject) => {

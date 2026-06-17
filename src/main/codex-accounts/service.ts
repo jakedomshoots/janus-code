@@ -121,7 +121,9 @@ export class CodexAccountService {
       await this.runCodexLogin(managedHomePath)
       const identity = this.readIdentityFromHome(managedHomePath)
       if (!identity.email) {
-        throw new Error('Codex login completed, but Orca could not resolve the account email.')
+        throw new Error(
+          'Codex login completed, but Janus Code could not resolve the account email.'
+        )
       }
 
       const now = Date.now()
@@ -176,7 +178,7 @@ export class CodexAccountService {
     await this.runCodexLogin(managedHomePath)
     const identity = this.readIdentityFromHome(managedHomePath)
     if (!identity.email) {
-      throw new Error('Codex login completed, but Orca could not resolve the account email.')
+      throw new Error('Codex login completed, but Janus Code could not resolve the account email.')
     }
 
     const settings = this.store.getSettings()
@@ -608,7 +610,7 @@ export class CodexAccountService {
         !wslInfo.linuxPath.includes('/.local/share/orca/codex-accounts/') ||
         !wslInfo.linuxPath.endsWith('/home')
       ) {
-        throw new Error('Managed WSL Codex home is outside Orca account storage.')
+        throw new Error('Managed WSL Codex home is outside Janus Code account storage.')
       }
 
       if (process.platform === 'win32') {
@@ -640,14 +642,14 @@ export class CodexAccountService {
           }
           return toWindowsWslPath(canonicalLinuxPath, wslInfo.distro)
         } catch (error) {
-          throw new Error('Managed WSL Codex home is outside Orca account storage.', {
+          throw new Error('Managed WSL Codex home is outside Janus Code account storage.', {
             cause: error
           })
         }
       }
 
       if (wslInfo.linuxPath.split('/').includes('..')) {
-        throw new Error('Managed WSL Codex home is outside Orca account storage.')
+        throw new Error('Managed WSL Codex home is outside Janus Code account storage.')
       }
       if (!existsSync(candidatePath)) {
         throw new Error('Managed Codex home directory does not exist on disk.')

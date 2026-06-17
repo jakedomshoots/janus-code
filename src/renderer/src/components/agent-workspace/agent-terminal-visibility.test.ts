@@ -17,7 +17,6 @@ describe('agent terminal visibility', () => {
       drawerRendered: false,
       drawerOpen: false,
       openReason: null,
-      primaryTerminalHidden: false,
       terminalWorkspaceMounted: true,
       terminalAvailable: true
     })
@@ -34,7 +33,6 @@ describe('agent terminal visibility', () => {
       drawerRendered: true,
       drawerOpen: false,
       openReason: null,
-      primaryTerminalHidden: true,
       terminalWorkspaceMounted: true,
       terminalAvailable: true
     })

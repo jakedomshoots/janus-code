@@ -264,7 +264,7 @@ describe('buildProjectHostSetupOptions', () => {
         id: 'needs-setup:runtime:gpu',
         kind: 'needs-setup',
         label: 'GPU VM',
-        detail: 'Orca server version is incompatible',
+        detail: 'Janus Code server version is incompatible',
         isAvailable: false
       })
     ])
@@ -281,7 +281,7 @@ describe('buildProjectHostSetupOptions', () => {
     expect(options.at(-1)).toMatchObject({
       id: 'needs-setup:runtime:gpu',
       kind: 'needs-setup',
-      detail: 'Update Orca on this host to set up projects',
+      detail: 'Update Janus Code on this host to set up projects',
       isAvailable: false
     })
   })
@@ -303,7 +303,7 @@ describe('buildProjectHostSetupOptions', () => {
     expect(options.at(-1)).toMatchObject({
       id: 'needs-setup:runtime:gpu',
       kind: 'needs-setup',
-      detail: 'Update Orca on this host to set up projects',
+      detail: 'Update Janus Code on this host to set up projects',
       isAvailable: false
     })
   })

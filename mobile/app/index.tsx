@@ -1113,7 +1113,7 @@ function CardGap() {
 
 const ONBOARDING_STEPS = [
   {
-    title: 'Open Orca desktop',
+    title: 'Open Janus Code desktop',
     desc: 'Go to Settings → Mobile and generate a pairing QR code.'
   },
   {

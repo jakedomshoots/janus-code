@@ -14,7 +14,7 @@ import { isTuiAgentEnabled, pickTuiAgent } from '../../../shared/tui-agent-selec
 import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { getWorkspaceIntentName, getWorkspaceSeedName } from '@/lib/new-workspace'
 import { getLaunchableWorkItemDraftContent } from '@/lib/linked-work-item-context'
-import { isOrcaCliAvailableForLaunch } from '@/lib/orca-cli-launch-availability'
+import { isJanusCliAvailableForLaunch } from '@/lib/janus-cli-launch-availability'
 import {
   agentLaunchCommandErrorMessage,
   gitLabIssueNumber,
@@ -50,7 +50,7 @@ async function getDirectDraftContent(
   repoConnectionId: string | null
 ): Promise<string> {
   const cliAvailable = item.linearIdentifier
-    ? await isOrcaCliAvailableForLaunch({ remote: repoConnectionId !== null })
+    ? await isJanusCliAvailableForLaunch({ remote: repoConnectionId !== null })
     : false
   return getLaunchableWorkItemDraftContent({ ...item, cliAvailable })
 }

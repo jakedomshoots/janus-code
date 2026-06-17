@@ -617,7 +617,7 @@ describe('registerPtyHandlers', () => {
       const env = await spawnAndGetEnv()
       expect(env.TERM).toBe('xterm-256color')
       expect(env.COLORTERM).toBe('truecolor')
-      expect(env.TERM_PROGRAM).toBe('Orca')
+      expect(env.TERM_PROGRAM).toBe('Janus Code')
     })
 
     it('advertises OSC 8 hyperlink support via FORCE_HYPERLINK', async () => {

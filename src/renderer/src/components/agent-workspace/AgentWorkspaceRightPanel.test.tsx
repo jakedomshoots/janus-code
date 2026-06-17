@@ -10,6 +10,15 @@ import type {
 } from './agent-workspace-types'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 
+const approvalMocks = vi.hoisted(() => ({
+  respondToAgentWorkspaceApproval: vi.fn(async () => ({ status: 'sent' as const }))
+}))
+
+vi.mock('./agent-workspace-approval-response', () => ({
+  respondToAgentWorkspaceApproval: approvalMocks.respondToAgentWorkspaceApproval,
+  getAgentWorkspaceApprovalResponseMessage: () => 'Approval sent to the agent terminal.'
+}))
+
 const runningThread: AgentWorkspaceThread = {
   id: 'thread-1',
   worktreeId: 'worktree-1',
@@ -17,8 +26,8 @@ const runningThread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const diffSummary: AgentWorkspaceDiffSummary = {
@@ -63,6 +72,7 @@ describe('AgentWorkspaceRightPanel', () => {
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
+    approvalMocks.respondToAgentWorkspaceApproval.mockClear()
   })
 
   afterEach(() => {
@@ -89,7 +99,6 @@ describe('AgentWorkspaceRightPanel', () => {
     expect(findTab(container, 'Plan').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Diff').getAttribute('data-state')).toBe('active')
     expect(findTab(container, 'Review').getAttribute('data-state')).toBe('inactive')
-    expect(findTab(container, 'Terminal').getAttribute('data-state')).toBe('inactive')
     expect(findTab(container, 'Details').getAttribute('data-state')).toBe('inactive')
     expect(container.textContent).toContain(diffSummary.filePath)
   })
@@ -113,68 +122,68 @@ describe('AgentWorkspaceRightPanel', () => {
     })
 
     await act(async () => {
-      findTab(container, 'Terminal').dispatchEvent(
+      findTab(container, 'Details').dispatchEvent(
         new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' })
       )
     })
 
-    expect(onSelectedTabChange).toHaveBeenCalledWith('terminal')
+    expect(onSelectedTabChange).toHaveBeenCalledWith('details')
   })
 
-  it('renders thread details in the details tab', async () => {
+  it('sends approve and deny decisions from the details tab', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+
     await act(async () => {
       root.render(
         <AgentWorkspaceRightPanel
           thread={{
             ...runningThread,
             phase: 'needs-approval',
-            cwd: '/Users/jakedom/orca'
+            cwd: '/Users/jakedom/janus-code'
           }}
           plan={null}
           approval={approvalRequest}
           diffs={[]}
           review={null}
-          terminalAvailable={false}
-          selectedTab="details"
-          onSelectedTabChange={() => undefined}
-        />
-      )
-    })
-
-    expect(findTab(container, 'Details').getAttribute('data-state')).toBe('active')
-    expect(container.textContent).toContain('This thread needs approval before it can continue.')
-    expect(container.textContent).toContain('Approve Bash: pnpm test')
-    expect(container.textContent).toContain('/Users/jakedom/orca')
-  })
-
-  it('opens the terminal drawer from the terminal tab', async () => {
-    const onOpenTerminalDrawer = vi.fn()
-
-    await act(async () => {
-      root.render(
-        <AgentWorkspaceRightPanel
-          thread={runningThread}
-          plan={null}
-          approval={null}
-          diffs={[]}
-          review={null}
           terminalAvailable
-          selectedTab="terminal"
+          selectedTab="details"
           onSelectedTabChange={() => undefined}
           onOpenTerminalDrawer={onOpenTerminalDrawer}
         />
       )
     })
 
-    const openButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
-      (button) => button.textContent?.includes('Open drawer')
+    const approveButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Approve')
     )
-    expect(openButton).toBeDefined()
+    const denyButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Deny')
+    )
+    expect(approveButton).toBeDefined()
+    expect(denyButton).toBeDefined()
 
     await act(async () => {
-      openButton?.click()
+      approveButton?.click()
     })
 
-    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('right-panel')
+    expect(approvalMocks.respondToAgentWorkspaceApproval).toHaveBeenCalledWith({
+      threadId: 'thread-1',
+      worktreeId: 'worktree-1',
+      agentKind: 'codex',
+      decision: 'approve',
+      onOpenTerminalDrawer
+    })
+
+    await act(async () => {
+      denyButton?.click()
+    })
+
+    expect(approvalMocks.respondToAgentWorkspaceApproval).toHaveBeenLastCalledWith({
+      threadId: 'thread-1',
+      worktreeId: 'worktree-1',
+      agentKind: 'codex',
+      decision: 'deny',
+      onOpenTerminalDrawer
+    })
   })
 })

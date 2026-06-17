@@ -5,8 +5,8 @@ import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 
 const project: AgentWorkspaceProject = {
   id: 'worktree-1',
-  label: 'orca',
-  path: '/Users/jakedom/orca',
+  label: 'janus-code',
+  path: '/Users/jakedom/janus-code',
   hostKind: 'local'
 }
 
@@ -18,7 +18,7 @@ const thread: AgentWorkspaceThread = {
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/provider-parity',
-  cwd: '/Users/jakedom/orca'
+  cwd: '/Users/jakedom/janus-code'
 }
 
 describe('AgentWorkspaceHeader', () => {
@@ -27,5 +27,41 @@ describe('AgentWorkspaceHeader', () => {
 
     expect(markup).toContain('OpenCode')
     expect(markup).not.toContain('Codex')
+  })
+
+  it('does not render one-off pane chrome in the workspace header', () => {
+    const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={null} />)
+
+    expect(markup).not.toContain('Panes')
+    expect(markup).not.toContain('Open panes')
+  })
+
+  it('renders a right-panel expand affordance when the panel is collapsed', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader
+        project={project}
+        thread={thread}
+        rightPanelCollapsed
+        onExpandRightPanel={() => undefined}
+      />
+    )
+
+    expect(markup).toContain('Show right panel')
+    expect(markup).toContain('Panel')
+    expect(markup).not.toContain('Open project files')
+  })
+
+  it('renders a project files affordance when the right panel is expanded', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader
+        project={project}
+        thread={thread}
+        onOpenProjectFiles={() => undefined}
+      />
+    )
+
+    expect(markup).toContain('Open project files')
+    expect(markup).toContain('Files')
+    expect(markup).not.toContain('Show right panel')
   })
 })

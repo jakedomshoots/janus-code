@@ -233,7 +233,7 @@ export function LightTerminalThemeSection({
                 )}
                 description={translate(
                   'auto.components.settings.TerminalThemeSections.d56af60e6f',
-                  'Choose the theme used when Orca is in light mode.'
+                  'Choose the theme used when Janus Code is in light mode.'
                 )}
                 keywords={['terminal', 'theme', 'light', 'preview']}
               >
@@ -244,7 +244,7 @@ export function LightTerminalThemeSection({
                   )}
                   description={translate(
                     'auto.components.settings.TerminalThemeSections.d56af60e6f',
-                    'Choose the theme used when Orca is in light mode.'
+                    'Choose the theme used when Janus Code is in light mode.'
                   )}
                   selectedTheme={settings.terminalThemeLight}
                   themeOptions={themeOptions}

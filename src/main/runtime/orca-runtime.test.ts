@@ -9703,7 +9703,7 @@ describe('OrcaRuntimeService', () => {
   })
 
   it('keeps the activated headless tab active across PTY republishes (serve focus-jump regression)', async () => {
-    // Why: in `orca serve`, focusTerminal has no renderer to persist the remote
+    // Why: in `janus serve`, focusTerminal has no renderer to persist the remote
     // client's tab choice before PTY republishes.
     let nextPty = 0
     const spawn = vi.fn().mockImplementation(async () => ({ id: `headless-pty-${++nextPty}` }))
@@ -10284,7 +10284,7 @@ describe('OrcaRuntimeService', () => {
       runtime.browserTabCreate({ worktree: `id:${TEST_WORKTREE_ID}`, url: 'https://example.com' })
     ).rejects.toMatchObject({
       code: 'browser_error',
-      message: expect.stringContaining('headless orca serve')
+      message: expect.stringContaining('headless janus serve')
     })
   })
 

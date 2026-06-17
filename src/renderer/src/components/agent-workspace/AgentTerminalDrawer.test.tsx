@@ -48,6 +48,18 @@ describe('AgentTerminalDrawer', () => {
     expect(markup).toContain('Opened from keyboard shortcut')
   })
 
+  it('labels the browser workbench distinctly from the terminal drawer', () => {
+    const markup = renderToStaticMarkup(
+      <AgentTerminalDrawer open reason="browser" terminalAvailable onClose={() => undefined}>
+        {preservedTerminal}
+      </AgentTerminalDrawer>
+    )
+
+    expect(markup).toContain('Browser workbench')
+    expect(markup).toContain('Browser, grab, and annotations are available here.')
+    expect(markup).toContain('Close browser workbench')
+  })
+
   it('calls onClose from the close button', async () => {
     const onClose = vi.fn()
     const container = document.createElement('div')

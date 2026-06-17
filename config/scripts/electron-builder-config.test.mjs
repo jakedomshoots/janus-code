@@ -10,6 +10,7 @@ const electronBuilderNativeRebuild = require('./electron-builder-native-rebuild.
 const {
   createPackagedRuntimeNodeModuleResources,
   findAsarEntry,
+  isPackagedExternalSpecifier,
   prunePackagedNodePty,
   prunePackagedParcelWatcher,
   prunePackagedSherpaOnnx,
@@ -40,8 +41,8 @@ describe('electron-builder config', () => {
     expect(electronBuilderConfig.mac.extraResources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',
-          to: 'Orca Computer Use.app'
+          from: 'native/computer-use-macos/.build/release/Janus Computer Use.app',
+          to: 'Janus Computer Use.app'
         })
       ])
     )
@@ -74,6 +75,7 @@ describe('electron-builder config', () => {
   it('uses Janus Code artifact names for public release packages', () => {
     expect(electronBuilderConfig.win.executableName).toBe('Janus Code')
     expect(electronBuilderConfig.nsis.artifactName).toBe('janus-code-windows-setup.${ext}')
+    expect(electronBuilderConfig.mac.artifactName).toBe('Janus-Code-${version}-${arch}-mac.${ext}')
     expect(electronBuilderConfig.dmg.artifactName).toBe('janus-code-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
     expect(electronBuilderConfig.linux.maintainer).toBe('Jake Dominick')
@@ -117,6 +119,10 @@ describe('electron-builder config', () => {
       '\\out\\main\\index.js'
     )
     expect(findAsarEntry(['/out/main/index.js'], 'out/main/index.js')).toBe('/out/main/index.js')
+  })
+
+  it('treats node namespace imports as packaged runtime builtins', () => {
+    expect(isPackagedExternalSpecifier('node:sqlite')).toBe(false)
   })
 
   it('prunes non-target node-pty prebuilds from packaged runtime resources', async () => {
@@ -267,10 +273,10 @@ describe('electron-builder config', () => {
   it.skipIf(process.platform === 'win32')(
     'marks packaged Unix CLI launchers executable',
     async () => {
-      const root = await mkdtemp(join(tmpdir(), 'orca-electron-builder-config-'))
+      const root = await mkdtemp(join(tmpdir(), 'janus-electron-builder-config-'))
       try {
         const resourcesDir = join(root, 'linux-unpacked', 'resources')
-        const launcherPath = join(resourcesDir, 'bin', 'orca-ide')
+        const launcherPath = join(resourcesDir, 'bin', 'janus')
         await mkdir(join(resourcesDir, 'bin'), { recursive: true })
         await mkdir(join(resourcesDir, 'node_modules', 'zod', 'src'), { recursive: true })
         await writeFile(launcherPath, '#!/usr/bin/env bash\n', { encoding: 'utf8', mode: 0o644 })

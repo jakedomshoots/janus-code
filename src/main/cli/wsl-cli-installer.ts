@@ -19,7 +19,8 @@ import {
 
 const MANAGED_MARKER = getWslLauncherMarker()
 const BRIDGE_MANAGED_MARKER = getWslBridgeMarker()
-const WSL_COMMAND_NAME = 'agent-hub'
+const WSL_COMMAND_NAME = 'janus'
+const LEGACY_AGENT_HUB_WSL_COMMAND_NAME = 'agent-hub'
 const LEGACY_WSL_COMMAND_NAME = 'orca'
 const WSL_COMMAND_TIMEOUT_MS = 10_000
 
@@ -66,7 +67,7 @@ export class WslCliInstaller {
         state: 'not_installed',
         currentTarget: null,
         pathConfigured: ready.pathConfigured,
-        detail: `Register ${ready.commandPath} to use Orca from WSL.`
+        detail: `Register ${ready.commandPath} to use Janus Code from WSL.`
       })
     }
 
@@ -78,7 +79,7 @@ export class WslCliInstaller {
         state: 'conflict',
         currentTarget: null,
         pathConfigured: ready.pathConfigured,
-        detail: `${ready.commandPath} exists but is not an Orca launcher script.`
+        detail: `${ready.commandPath} exists but is not a Janus Code launcher script.`
       })
     }
 
@@ -115,7 +116,7 @@ export class WslCliInstaller {
         detail:
           bridgeContent === null || bridgeManaged
             ? `${ready.commandPath} is missing its PowerShell bridge.`
-            : `${ready.bridgePath} exists but is not managed by Orca.`
+            : `${ready.bridgePath} exists but is not managed by Janus Code.`
       })
     }
 
@@ -127,8 +128,8 @@ export class WslCliInstaller {
       currentTarget,
       pathConfigured: ready.pathConfigured,
       detail: managed
-        ? `${ready.commandPath} points to a different Orca launcher.`
-        : `${ready.commandPath} exists but is not managed by Orca.`
+        ? `${ready.commandPath} points to a different Janus Code launcher.`
+        : `${ready.commandPath} exists but is not managed by Janus Code.`
     })
   }
 
@@ -138,7 +139,7 @@ export class WslCliInstaller {
       throw new Error(status.detail ?? 'WSL CLI registration is unavailable.')
     }
     if (status.state === 'conflict') {
-      throw new Error(`Refusing to replace non-Orca command at ${status.commandPath}.`)
+      throw new Error(`Refusing to replace non-Janus Code command at ${status.commandPath}.`)
     }
 
     await this.run(
@@ -151,6 +152,9 @@ export class WslCliInstaller {
         `bridge_path=${quoteShell(getBridgePathFromCommandPath(status.commandPath))}`,
         `legacy_command_path=${quoteShell(
           `${getPosixDirname(status.commandPath)}/${LEGACY_WSL_COMMAND_NAME}`
+        )}`,
+        `legacy_agent_hub_command_path=${quoteShell(
+          `${getPosixDirname(status.commandPath)}/${LEGACY_AGENT_HUB_WSL_COMMAND_NAME}`
         )}`,
         'bridge_tmp="${bridge_path}.tmp.$$"',
         'cleanup() { rm -f "$command_tmp" "$bridge_tmp"; }',
@@ -174,8 +178,9 @@ export class WslCliInstaller {
           BRIDGE_MANAGED_MARKER
         ),
         // Why: the command was renamed to avoid GNOME Orca; remove only the
-        // old Orca-managed WSL wrapper so unmanaged `orca` commands survive.
+        // old Janus-managed WSL wrapper so unmanaged `orca` commands survive.
         `if [ -f "$legacy_command_path" ] && grep -Fq ${quoteShell(MANAGED_MARKER)} "$legacy_command_path"; then rm -f "$legacy_command_path"; fi`,
+        `if [ -f "$legacy_agent_hub_command_path" ] && grep -Fq ${quoteShell(MANAGED_MARKER)} "$legacy_agent_hub_command_path"; then rm -f "$legacy_agent_hub_command_path"; fi`,
         `mv -f "$bridge_tmp" ${quoteShell(getBridgePathFromCommandPath(status.commandPath))}`,
         `mv -f "$command_tmp" ${quoteShell(status.commandPath)}`,
         'trap - EXIT'
@@ -193,7 +198,7 @@ export class WslCliInstaller {
       return status
     }
     if (status.state === 'conflict') {
-      throw new Error(`Refusing to remove non-Orca command at ${status.commandPath}.`)
+      throw new Error(`Refusing to remove non-Janus Code command at ${status.commandPath}.`)
     }
 
     await this.run(this.distro as string, buildSafeRemoveCommand(status.commandPath))
@@ -252,7 +257,7 @@ export class WslCliInstaller {
       return {
         status: this.unsupported(
           'launcher_missing',
-          'WSL Windows interop is unavailable; Orca cannot launch the Windows CLI from WSL.'
+          'WSL Windows interop is unavailable; Janus Code cannot launch the Windows CLI from WSL.'
         )
       }
     }

@@ -605,7 +605,7 @@ export function HostedReviewHeaderLink({
         className={className}
         onClick={(e) => {
           e.stopPropagation()
-          // Why: GitHub PR and GitLab MR details live in Orca's Checks tab; keep
+          // Why: GitHub PR and GitLab MR details live in Janus Code's Checks tab; keep
           // the sidebar workflow in-app instead of opening the browser.
           onOpenHostedReviewInChecks()
         }}
@@ -2078,7 +2078,7 @@ function SourceControlInner(): React.JSX.Element {
         toast.warning(
           translate(
             'auto.components.right.sidebar.SourceControl.0453ca3a9a',
-            '{{value0}} created, but Orca could not refresh it yet.',
+            '{{value0}} created, but Janus Code could not refresh it yet.',
             { value0: copy.titleLabel }
           ),
           {

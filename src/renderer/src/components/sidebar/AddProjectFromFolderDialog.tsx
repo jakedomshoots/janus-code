@@ -172,7 +172,7 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
           <DialogDescription>
             {translate(
               'auto.components.sidebar.AddProjectFromFolderDialog.046751dbfb',
-              'Add this folder as a separate Orca project.'
+              'Add this folder as a separate Janus Code project.'
             )}
           </DialogDescription>
         </DialogHeader>

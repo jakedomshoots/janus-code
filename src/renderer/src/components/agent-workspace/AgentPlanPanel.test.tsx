@@ -13,15 +13,15 @@ const thread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const plan: AgentWorkspacePlan = {
   id: 'plan-1',
   threadId: thread.id,
   title: 'GUI workspace plan',
-  explanation: 'Port the T3 plan sidebar pattern onto Orca state.',
+  explanation: 'Render structured Janus Code plans from workspace state.',
   steps: [
     {
       id: 'step-1',
@@ -65,7 +65,9 @@ describe('AgentPlanPanel', () => {
     })
 
     expect(container.textContent).toContain('GUI workspace plan')
-    expect(container.textContent).toContain('Port the T3 plan sidebar pattern onto Orca state.')
+    expect(container.textContent).toContain(
+      'Render structured Janus Code plans from workspace state.'
+    )
     expect(container.textContent).toContain('Create typed plan selectors')
     expect(container.textContent).toContain('completed')
     expect(container.textContent).toContain('Render the plan panel')

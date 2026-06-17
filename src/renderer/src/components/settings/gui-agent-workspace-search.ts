@@ -43,8 +43,8 @@ export const getGuiAgentWorkspaceSearchEntry = createLocalizedCatalog(
         'agents'
       ),
       ...translateSearchKeyword(
-        'auto.components.settings.experimental.search.guiAgentWorkspace.t3',
-        't3'
+        'auto.components.settings.experimental.search.guiAgentWorkspace.codexDesktop',
+        'codex desktop'
       ),
       ...translateSearchKeyword(
         'auto.components.settings.experimental.search.guiAgentWorkspace.codex',

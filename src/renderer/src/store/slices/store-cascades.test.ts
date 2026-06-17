@@ -191,7 +191,7 @@ describe('removeWorktree cascade', () => {
     })
     expect(toast.warning).toHaveBeenCalledWith('Worktree deleted, branch kept', {
       description:
-        'Git could not safely delete branch "feature/test" after deleting worktree "Review cleanup", so Orca kept it to avoid losing local commits.',
+        'Git could not safely delete branch "feature/test" after deleting worktree "Review cleanup", so Janus Code kept it to avoid losing local commits.',
       action: {
         label: 'Force Delete Branch',
         onClick: expect.any(Function)
@@ -463,7 +463,7 @@ describe('removeWorktree cascade', () => {
 
   it.each([
     'Could not connect to the remote Orca runtime.',
-    'Remote Orca runtime closed the connection.',
+    'Remote Janus runtime closed the connection.',
     'Timed out waiting for the remote Orca runtime to respond.'
   ])(
     'does not offer force delete for wrapped remote runtime failure: %s',

@@ -44,6 +44,7 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../../../shared/tui-agent-launch-defaults'
+import { normalizeTuiAgentModelSelections } from '../../../shared/tui-agent-models'
 import { normalizeAutoRenameBranchFromWorkDefaultOn } from '../../../shared/auto-rename-branch-from-work-settings'
 import { normalizeTerminalCursorStyleDefault } from '../../../shared/terminal-cursor-style-settings'
 import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-themes'
@@ -413,7 +414,7 @@ function createWebPreloadApi(): Partial<PreloadApi> {
     app: {
       getIdentity: () =>
         Promise.resolve({
-          name: 'Orca',
+          name: 'Janus Code',
           isDev: false,
           devLabel: null,
           devBranch: null,
@@ -962,7 +963,7 @@ function createRuntimeEnvironmentsApi(): NonNullable<Partial<PreloadApi>['runtim
     addFromPairingCode: async ({ name, pairingCode }) => {
       const offer = parseWebPairingInput(pairingCode)
       if (!offer) {
-        throw new Error('Invalid Orca pairing code.')
+        throw new Error('Invalid Janus Code pairing code.')
       }
       closeActiveRuntimeClients()
       activeEnvironment = createStoredWebRuntimeEnvironment({ name, offer })
@@ -2097,7 +2098,7 @@ function createCliApi(): NonNullable<Partial<PreloadApi>['cli']> {
     state: 'unsupported',
     currentTarget: null,
     unsupportedReason: 'launch_mode_unavailable',
-    detail: 'CLI registration is managed on the Orca server, not in the web browser.'
+    detail: 'CLI registration is managed on the Janus Code server, not in the web browser.'
   } as const
   return {
     getInstallStatus: () => Promise.resolve(status),
@@ -2130,7 +2131,7 @@ function createAgentHooksApi(): NonNullable<Partial<PreloadApi>['agentHooks']> {
       state: 'not_installed',
       configPath: '',
       managedHooksPresent: false,
-      detail: 'Agent hook status is only available on the Orca server.'
+      detail: 'Agent hook status is only available on the Janus Code server.'
     } as const)
   return {
     claudeStatus: () => status('claude'),
@@ -2177,7 +2178,7 @@ function createComputerUsePermissionsApi(): NonNullable<
         helperAppPath: null,
         openedSettings: false,
         launchedHelper: false,
-        nextStep: 'Computer-use permissions are managed on the Orca server.'
+        nextStep: 'Computer-use permissions are managed on the Janus Code server.'
       })),
     reset: () =>
       Promise.resolve({
@@ -2522,13 +2523,13 @@ function resolveEnvironment(selector: string): StoredWebRuntimeEnvironment {
     // a fresh web-* environment id even when it points at the same active server.
     return environment
   }
-  throw new Error(`Unknown Orca runtime environment: ${selector}`)
+  throw new Error(`Unknown Janus Code runtime environment: ${selector}`)
 }
 
 function requireActiveEnvironment(): StoredWebRuntimeEnvironment {
   activeEnvironment = activeEnvironment ?? readStoredWebRuntimeEnvironment()
   if (!activeEnvironment) {
-    throw new Error('Pair this web client with an Orca server first.')
+    throw new Error('Pair this web client with a Janus Code server first.')
   }
   return activeEnvironment
 }
@@ -2601,7 +2602,7 @@ function getStoredOnboarding(): OnboardingState {
     return closed
   }
   const closed = closeWebOnboarding(getDefaultOnboardingState())
-  // Why: pairing already means the user has an Orca server. Desktop first-run
+  // Why: pairing already means the user has a Janus Code server. Desktop first-run
   // onboarding would incorrectly probe browser-local tools and block the client.
   writeJson(ONBOARDING_STORAGE_KEY, closed)
   return closed
@@ -2747,6 +2748,9 @@ function mergeSettings(
       updates.agentDefaultArgs ?? base.agentDefaultArgs
     ),
     agentDefaultEnv: normalizeTuiAgentEnvRecord(updates.agentDefaultEnv ?? base.agentDefaultEnv),
+    agentModelSelections: normalizeTuiAgentModelSelections(
+      updates.agentModelSelections ?? base.agentModelSelections
+    ),
     voice: {
       ...(base.voice ?? defaults.voice),
       ...updates.voice

@@ -63,7 +63,7 @@ export const FEATURE_WALL_SETUP_STEPS: readonly FeatureWallSetupStep[] = [
     name: 'Enable Janus CLI',
     subtitle: 'Enable Janus CLI',
     description:
-      'Register the Orca shell command and install agent skills for browser, computer, and orchestration workflows.'
+      'Register the Janus Code shell command and install agent skills for browser, computer, and orchestration workflows.'
   },
   {
     id: 'task-sources',

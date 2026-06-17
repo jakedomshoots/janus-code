@@ -46,7 +46,7 @@ async function makeFixture(): Promise<{
 
 async function createPackagedMacLauncher(
   root: string,
-  launcherNames: string[] = ['agent-hub']
+  launcherNames: string[] = ['janus']
 ): Promise<string> {
   const resourcesPath = join(root, 'resources')
   await mkdir(join(resourcesPath, 'bin'), { recursive: true })
@@ -91,7 +91,7 @@ describe('CliInstaller', () => {
 
       const initial = await installer.getStatus()
       expect(initial.state).toBe('not_installed')
-      expect(initial.launcherPath).toContain(join('userData', 'cli', 'bin', 'agent-hub'))
+      expect(initial.launcherPath).toContain(join('userData', 'cli', 'bin', 'janus'))
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
@@ -113,12 +113,12 @@ describe('CliInstaller', () => {
     'creates a linux symlink under the requested path and warns when PATH is missing',
     async () => {
       const fixture = await makeFixture()
-      const installPath = join(fixture.root, '.local', 'bin', 'agent-hub')
+      const installPath = join(fixture.root, '.local', 'bin', 'janus')
       const installer = new CliInstaller({
         platform: 'linux',
         isPackaged: false,
         userDataPath: fixture.userDataPath,
-        execPath: '/opt/Agent Hub/agent-hub',
+        execPath: '/opt/Janus Code/janus',
         appPath: fixture.appPath,
         commandPathOverride: installPath,
         processPathEnv: '/usr/bin'
@@ -126,7 +126,7 @@ describe('CliInstaller', () => {
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
-      expect(installed.commandName).toBe('agent-hub')
+      expect(installed.commandName).toBe('janus')
       expect(installed.pathConfigured).toBe(false)
       expect(installed.detail).toContain('.local')
 
@@ -140,9 +140,9 @@ describe('CliInstaller', () => {
   )
 
   // Why: dev installs are useful for validation, but they must not replace the
-  // packaged `orca` / `orca-ide` commands developers rely on day to day.
+  // packaged `janus` command developers rely on day to day.
   it.skipIf(process.platform === 'win32')(
-    'uses a separate orca-dev command for default development installs',
+    'uses a separate janus-dev command for default development installs',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
@@ -151,7 +151,7 @@ describe('CliInstaller', () => {
         platform: 'linux',
         isPackaged: false,
         userDataPath: fixture.userDataPath,
-        execPath: '/opt/Orca/orca-ide',
+        execPath: '/opt/Janus Code/janus',
         appPath: fixture.appPath,
         homePath,
         processPathEnv: commandDir
@@ -159,12 +159,12 @@ describe('CliInstaller', () => {
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
-      expect(installed.commandName).toBe('orca-dev')
-      expect(installed.commandPath).toBe(join(commandDir, 'orca-dev'))
-      expect(installed.launcherPath).toBe(join(fixture.userDataPath, 'cli', 'bin', 'orca-dev'))
+      expect(installed.commandName).toBe('janus-dev')
+      expect(installed.commandPath).toBe(join(commandDir, 'janus-dev'))
+      expect(installed.launcherPath).toBe(join(fixture.userDataPath, 'cli', 'bin', 'janus-dev'))
       await expect(readlink(installed.commandPath as string)).resolves.toBe(installed.launcherPath)
       await expect(
-        readFile(join(fixture.userDataPath, 'cli', 'bin', 'orca'), 'utf8')
+        readFile(join(fixture.userDataPath, 'cli', 'bin', 'janus'), 'utf8')
       ).resolves.toBe(await readFile(installed.launcherPath as string, 'utf8'))
     }
   )
@@ -176,7 +176,7 @@ describe('CliInstaller', () => {
     async () => {
       const fixture = await makeFixture()
       const commandDir = join(fixture.root, '.local', 'bin')
-      const installPath = join(commandDir, 'agent-hub')
+      const installPath = join(commandDir, 'janus')
       const appImagePath = join(fixture.root, 'Orca.AppImage')
       await writeFile(appImagePath, '#!/usr/bin/env bash\n', {
         encoding: 'utf8',
@@ -201,7 +201,7 @@ describe('CliInstaller', () => {
       const installed = await installer.install()
       expect(installed).toMatchObject({
         state: 'installed',
-        commandName: 'agent-hub',
+        commandName: 'janus',
         installMethod: 'wrapper',
         launcherPath: appImagePath,
         currentTarget: appImagePath,
@@ -226,7 +226,7 @@ describe('CliInstaller', () => {
     async () => {
       const fixture = await makeFixture()
       const commandDir = join(fixture.root, '.local', 'bin')
-      const installPath = join(commandDir, 'agent-hub')
+      const installPath = join(commandDir, 'janus')
       const oldAppImagePath = join(fixture.root, 'Old-Orca.AppImage')
       const newAppImagePath = join(fixture.root, 'Orca.AppImage')
       await mkdir(commandDir, { recursive: true })
@@ -263,13 +263,13 @@ describe('CliInstaller', () => {
   // Why: Linux renamed the public command to avoid shadowing GNOME Orca, so
   // upgrading must clean up only the old symlink owned by prior Orca installs.
   it.skipIf(process.platform === 'win32')(
-    'removes the old managed linux orca symlink when installing agent-hub',
+    'removes the old managed linux orca symlink when installing janus',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const commandDir = join(homePath, '.local', 'bin')
       const resourcesPath = join(fixture.root, 'resources')
-      const launcherPath = join(resourcesPath, 'bin', 'agent-hub')
+      const launcherPath = join(resourcesPath, 'bin', 'janus')
       const oldLauncherPath = join(resourcesPath, 'bin', 'orca')
       const legacyCommandPath = join(commandDir, 'orca')
       await mkdir(commandDir, { recursive: true })
@@ -287,7 +287,7 @@ describe('CliInstaller', () => {
       })
 
       const installed = await installer.install()
-      expect(installed.commandPath).toBe(join(commandDir, 'agent-hub'))
+      expect(installed.commandPath).toBe(join(commandDir, 'janus'))
       await expect(lstat(legacyCommandPath)).rejects.toMatchObject({ code: 'ENOENT' })
     }
   )
@@ -316,7 +316,7 @@ describe('CliInstaller', () => {
       })
 
       const installed = await installer.install()
-      expect(installed.commandPath).toBe(join(commandDir, 'agent-hub'))
+      expect(installed.commandPath).toBe(join(commandDir, 'janus'))
       await expect(lstat(legacyCommandPath)).rejects.toMatchObject({ code: 'ENOENT' })
     }
   )
@@ -345,7 +345,7 @@ describe('CliInstaller', () => {
 
     const wrapperContent = await readFile(installPath, 'utf8')
     expect(wrapperContent).toContain('ORCA_LAUNCHER=')
-    expect(wrapperContent).toContain('agent-hub.cmd')
+    expect(wrapperContent).toContain('janus.cmd')
     const launcherContent = await readFile(installed.launcherPath as string, 'utf8')
     expect(launcherContent).toContain(`set "ORCA_USER_DATA_PATH=${fixture.userDataPath}"`)
     expect(launcherContent).toContain('set "ORCA_APP_EXECUTABLE=%ELECTRON%"')
@@ -410,7 +410,9 @@ describe('CliInstaller', () => {
         state: 'conflict',
         supported: true
       })
-      await expect(installer.install()).rejects.toThrow('Refusing to replace non-Orca command')
+      await expect(installer.install()).rejects.toThrow(
+        'Refusing to replace non-Janus Code command'
+      )
       await expect(readlink(installPath)).resolves.toBe(existingTarget)
     }
   )
@@ -418,7 +420,7 @@ describe('CliInstaller', () => {
   // Why: packaged app moves can leave a symlink to an older Orca-owned launcher;
   // those are safe to refresh, unlike arbitrary user symlinks.
   it.skipIf(process.platform === 'win32')(
-    'replaces stale packaged Orca launcher symlinks',
+    'replaces stale packaged Janus launcher symlinks',
     async () => {
       const fixture = await makeFixture()
       const commandDir = join(fixture.root, 'bin')
@@ -448,7 +450,7 @@ describe('CliInstaller', () => {
     }
   )
 
-  // Why: old dev/package experiments wrote a generated Orca launcher file
+  // Why: old dev/package experiments wrote a generated Janus launcher file
   // directly into /usr/local/bin/orca. That broke profiling because Settings
   // treated the regular file as a hard conflict and would not self-heal it.
   it.skipIf(process.platform === 'win32')(
@@ -470,8 +472,8 @@ describe('CliInstaller', () => {
           'set -euo pipefail',
           "ELECTRON='/tmp/Old.app/Contents/MacOS/Electron'",
           `CLI='${oldCliPath}'`,
-          'export ORCA_NODE_OPTIONS="${NODE_OPTIONS-}"',
-          'export ORCA_NODE_REPL_EXTERNAL_MODULE="${NODE_REPL_EXTERNAL_MODULE-}"',
+          'export JANUS_NODE_OPTIONS="${NODE_OPTIONS-}"',
+          'export JANUS_NODE_REPL_EXTERNAL_MODULE="${NODE_REPL_EXTERNAL_MODULE-}"',
           'unset NODE_OPTIONS',
           'unset NODE_REPL_EXTERNAL_MODULE',
           'ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"',
@@ -523,18 +525,20 @@ describe('CliInstaller', () => {
         state: 'conflict',
         currentTarget: null
       })
-      await expect(installer.install()).rejects.toThrow('Refusing to replace non-Orca command')
+      await expect(installer.install()).rejects.toThrow(
+        'Refusing to replace non-Janus Code command'
+      )
       await expect(readFile(installPath, 'utf8')).resolves.toContain('/tmp/not-orca')
     }
   )
 
   // Why: a dev build can temporarily own the public command on developer
-  // machines; packaged Orca should treat that as stale, not a hard conflict.
+  // machines; packaged Janus Code should treat that as stale, not a hard conflict.
   it.skipIf(process.platform === 'win32')(
     'replaces stale sibling dev launcher symlinks from packaged installs',
     async () => {
       const fixture = await makeFixture()
-      for (const devLauncherName of ['orca', 'orca-dev']) {
+      for (const devLauncherName of ['orca', 'janus-dev']) {
         const caseRoot = join(fixture.root, devLauncherName)
         const commandDir = join(caseRoot, 'bin')
         const installPath = join(commandDir, 'orca')
@@ -572,14 +576,14 @@ describe('CliInstaller', () => {
   // must fall back to ~/.local/bin (user-writable, no sudo) rather than failing
   // silently when the parent directory is absent.
   it.skipIf(process.platform === 'win32')(
-    'falls back to ~/.local/bin/agent-hub on macOS when /usr/local/bin does not exist',
+    'falls back to ~/.local/bin/janus on macOS when /usr/local/bin does not exist',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
       // Simulate arm64: point defaultMacCommandPath at a dir that does not exist
       // in the fixture so existsSync(dirname(...)) returns false.
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'janus')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -593,13 +597,13 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
+      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'janus'))
       expect(status.state).toBe('not_installed')
       expect(status.supported).toBe(true)
 
       const installed = await installer.install()
       expect(installed.state).toBe('installed')
-      expect(installed.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
+      expect(installed.commandPath).toBe(join(homePath, '.local', 'bin', 'janus'))
       expect(installed.pathConfigured).toBe(true)
     }
   )
@@ -607,14 +611,14 @@ describe('CliInstaller', () => {
   // Why: on Intel Macs /usr/local/bin exists, so the installer must keep using
   // it as the canonical path and not regress to ~/.local/bin.
   it.skipIf(process.platform === 'win32')(
-    'uses /usr/local/bin/agent-hub on macOS when /usr/local/bin exists',
+    'uses /usr/local/bin/janus on macOS when /usr/local/bin exists',
     async () => {
       const fixture = await makeFixture()
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
       const usrLocalBin = join(fixture.root, 'usr', 'local', 'bin')
       await mkdir(usrLocalBin, { recursive: true })
 
-      const installPath = join(usrLocalBin, 'agent-hub')
+      const installPath = join(usrLocalBin, 'janus')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -633,15 +637,15 @@ describe('CliInstaller', () => {
     }
   )
 
-  // Why: when macCommandPath falls back to ~/.local/bin/agent-hub on arm64, commandName
-  // must still be 'agent-hub' (not a legacy compatibility launcher).
+  // Why: when macCommandPath falls back to ~/.local/bin/janus on arm64, commandName
+  // must still be 'janus' (not a legacy compatibility launcher).
   it.skipIf(process.platform === 'win32')(
-    'reports commandName as agent-hub when falling back to ~/.local/bin on macOS',
+    'reports commandName as janus when falling back to ~/.local/bin on macOS',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'janus')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -655,7 +659,7 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandName).toBe('agent-hub')
+      expect(status.commandName).toBe('janus')
     }
   )
 
@@ -711,7 +715,7 @@ describe('CliInstaller', () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
       const resourcesPath = await createPackagedMacLauncher(fixture.root)
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'janus')
       const installer = new CliInstaller({
         platform: 'darwin',
         isPackaged: true,
@@ -731,16 +735,16 @@ describe('CliInstaller', () => {
 
       expect(s1.commandPath).toBe(s2.commandPath)
       expect(s2.commandPath).toBe(s3.commandPath)
-      expect(s1.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
+      expect(s1.commandPath).toBe(join(homePath, '.local', 'bin', 'janus'))
     }
   )
 
-  it('resolves packaged Windows command path to resources/bin/agent-hub.cmd', async () => {
+  it('resolves packaged Windows command path to resources/bin/janus.cmd', async () => {
     const fixture = await makeFixture()
     const localAppDataPath = fixture.root
     const resourcesPath = join(fixture.root, 'resources')
     await mkdir(join(resourcesPath, 'bin'), { recursive: true })
-    await writeFile(join(resourcesPath, 'bin', 'agent-hub.cmd'), '@echo off\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'janus.cmd'), '@echo off\n', 'utf8')
 
     const installer = new CliInstaller({
       platform: 'win32',
@@ -748,7 +752,7 @@ describe('CliInstaller', () => {
       resourcesPath,
       localAppDataPath,
       userDataPath: fixture.userDataPath,
-      execPath: join(localAppDataPath, 'Programs', 'Agent Hub', 'Agent Hub.exe'),
+      execPath: join(localAppDataPath, 'Programs', 'Janus Code', 'Janus Code.exe'),
       appPath: fixture.appPath,
       userPathReader: async () => null,
       userPathWriter: async () => {}
@@ -756,16 +760,16 @@ describe('CliInstaller', () => {
 
     const status = await installer.getStatus()
     expect(status.commandPath).toBe(
-      join(localAppDataPath, 'Programs', 'Agent Hub', 'resources', 'bin', 'agent-hub.cmd')
+      join(localAppDataPath, 'Programs', 'Janus Code', 'resources', 'bin', 'janus.cmd')
     )
   })
 
   it('does not overwrite the packaged Windows launcher while registering PATH', async () => {
     const fixture = await makeFixture()
     const localAppDataPath = fixture.root
-    const resourcesPath = join(localAppDataPath, 'Programs', 'Agent Hub', 'resources')
-    const bundledLauncher = join(resourcesPath, 'bin', 'agent-hub.cmd')
-    const bundledContent = '@echo off\r\necho bundled-agent-hub %*\r\n'
+    const resourcesPath = join(localAppDataPath, 'Programs', 'Janus Code', 'resources')
+    const bundledLauncher = join(resourcesPath, 'bin', 'janus.cmd')
+    const bundledContent = '@echo off\r\necho bundled-janus %*\r\n'
     await mkdir(dirname(bundledLauncher), { recursive: true })
     await writeFile(bundledLauncher, bundledContent, 'utf8')
 
@@ -776,7 +780,7 @@ describe('CliInstaller', () => {
       resourcesPath,
       localAppDataPath,
       userDataPath: fixture.userDataPath,
-      execPath: join(localAppDataPath, 'Programs', 'Agent Hub', 'Agent Hub.exe'),
+      execPath: join(localAppDataPath, 'Programs', 'Janus Code', 'Janus Code.exe'),
       appPath: fixture.appPath,
       userPathReader: async () => userPath,
       userPathWriter: async (value) => {
@@ -802,13 +806,13 @@ describe('CliInstaller', () => {
 
   // Why: the arm64 fallback must apply for packaged builds, not just dev launchers.
   it.skipIf(process.platform === 'win32')(
-    'resolves to ~/.local/bin/agent-hub on arm64 even when isPackaged is true',
+    'resolves to ~/.local/bin/janus on arm64 even when isPackaged is true',
     async () => {
       const fixture = await makeFixture()
       const homePath = join(fixture.root, 'home')
-      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'agent-hub')
+      const absentUsrLocalBin = join(fixture.root, 'usr', 'local', 'bin', 'janus')
       const resourcesPath = join(fixture.root, 'resources')
-      const bundledLauncher = join(resourcesPath, 'bin', 'agent-hub')
+      const bundledLauncher = join(resourcesPath, 'bin', 'janus')
       await mkdir(join(resourcesPath, 'bin'), { recursive: true })
       await writeFile(bundledLauncher, '#!/usr/bin/env bash\necho orca\n', {
         encoding: 'utf8',
@@ -828,29 +832,29 @@ describe('CliInstaller', () => {
       })
 
       const status = await installer.getStatus()
-      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'agent-hub'))
+      expect(status.commandPath).toBe(join(homePath, '.local', 'bin', 'janus'))
       expect(status.supported).toBe(true)
     }
   )
 
-  it('prefers packaged agent-hub launchers before legacy bundled launchers', async () => {
+  it('prefers packaged janus launchers before neutral and legacy bundled launchers', async () => {
     const fixture = await makeFixture()
     const resourcesPath = join(fixture.root, 'resources')
     await mkdir(join(resourcesPath, 'bin'), { recursive: true })
+    await writeFile(join(resourcesPath, 'bin', 'janus'), '#!/usr/bin/env bash\n', 'utf8')
     await writeFile(join(resourcesPath, 'bin', 'agent-hub'), '#!/usr/bin/env bash\n', 'utf8')
     await writeFile(join(resourcesPath, 'bin', 'orca'), '#!/usr/bin/env bash\n', 'utf8')
     await writeFile(join(resourcesPath, 'bin', 'orca-ide'), '#!/usr/bin/env bash\n', 'utf8')
+    await writeFile(join(resourcesPath, 'bin', 'janus.cmd'), '@echo off\n', 'utf8')
     await writeFile(join(resourcesPath, 'bin', 'agent-hub.cmd'), '@echo off\n', 'utf8')
     await writeFile(join(resourcesPath, 'bin', 'orca.cmd'), '@echo off\n', 'utf8')
 
     expect(getBundledLauncherPath('darwin', resourcesPath)).toBe(
-      join(resourcesPath, 'bin', 'agent-hub')
+      join(resourcesPath, 'bin', 'janus')
     )
-    expect(getBundledLauncherPath('linux', resourcesPath)).toBe(
-      join(resourcesPath, 'bin', 'agent-hub')
-    )
+    expect(getBundledLauncherPath('linux', resourcesPath)).toBe(join(resourcesPath, 'bin', 'janus'))
     expect(getBundledLauncherPath('win32', resourcesPath)).toBe(
-      join(resourcesPath, 'bin', 'agent-hub.cmd')
+      join(resourcesPath, 'bin', 'janus.cmd')
     )
   })
 

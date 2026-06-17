@@ -130,13 +130,13 @@ VS Code's editor with autosave everywhere — drag files or images straight into
 
 ### Janus CLI
 
-Agents can drive Janus Code too. Script workflows with the primary `janus` CLI, while legacy `orca` compatibility remains available where the inherited runtime still needs it.
+Agents can drive Janus Code too. Script workflows with the primary `janus` CLI for workspace, terminal, browser, and progress automation.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/orca-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/orca-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/janus-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/janus-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
@@ -205,7 +205,7 @@ Download the latest Janus Code desktop builds directly from GitHub Releases:
 ## Community &amp; Support
 
 - **Feedback &amp; Ideas:** Missing something? [Open an issue](https://github.com/jakedomshoots/janus-code/issues).
-- **Privacy:** See the [privacy &amp; telemetry docs](https://github.com/jakedomshoots/janus-code/tree/main/docs) inherited from Orca for the current telemetry model.
+- **Privacy:** See the [privacy &amp; telemetry docs](https://github.com/jakedomshoots/janus-code/tree/main/docs) for the current telemetry model.
 - **Show Support:** [Star](https://github.com/jakedomshoots/janus-code) this repo to follow along.
 
 ---
@@ -224,7 +224,5 @@ Janus Code is free and open source under the [MIT License](LICENSE).
 
 ## Attribution
 
-Janus Code is a public fork of Orca with a GUI-first agent workspace. Orca's
-original MIT license is preserved in `LICENSE`. T3 Code was used as a UI and
-interaction reference; see `NOTICE.md` and
-`docs/reference/t3code-ui-donor-attribution.md`.
+Janus Code includes code originally published under the MIT License. Required
+copyright and license notices are preserved in `LICENSE` and `NOTICE.md`.

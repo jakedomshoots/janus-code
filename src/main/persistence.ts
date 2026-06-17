@@ -167,6 +167,7 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../shared/tui-agent-launch-defaults'
+import { normalizeTuiAgentModelSelections } from '../shared/tui-agent-models'
 import { normalizeTerminalCursorStyleDefault } from '../shared/terminal-cursor-style-settings'
 import { normalizeUiLanguage } from '../shared/ui-language'
 import { normalizeBrowserPageZoomLevel } from '../shared/browser-page-zoom'
@@ -4191,6 +4192,11 @@ export class Store {
     if ('agentDefaultEnv' in updates) {
       sanitizedUpdates.agentDefaultEnv = normalizeTuiAgentEnvRecord(updates.agentDefaultEnv)
       sanitizedUpdates.agentYoloDefaultsMigrated = true
+    }
+    if ('agentModelSelections' in updates) {
+      sanitizedUpdates.agentModelSelections = normalizeTuiAgentModelSelections(
+        updates.agentModelSelections
+      )
     }
     if ('terminalQuickCommands' in updates) {
       sanitizedUpdates.terminalQuickCommands = normalizeTerminalQuickCommands(

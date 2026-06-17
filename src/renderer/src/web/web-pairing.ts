@@ -14,7 +14,7 @@ export function parseWebPairingInput(input: string): WebPairingOffer | null {
   }
 
   try {
-    if (trimmed.toLowerCase().startsWith('orca://')) {
+    if (isPairingDeepLink(trimmed)) {
       const code = extractPairingCodeFromUrl(trimmed)
       return code ? decodePairingPayload(code) : null
     }
@@ -37,7 +37,7 @@ export function readPairingInputFromLocation(location: Location): string | null 
   if (!hash) {
     return null
   }
-  if (hash.startsWith('orca://pair')) {
+  if (isPairingDeepLink(hash)) {
     return hash
   }
   const hashParams = new URLSearchParams(hash)
@@ -89,9 +89,10 @@ function extractPairingCodeFromUrl(url: string): string | null {
   } catch {
     return null
   }
-  // Why: prefix checks accepted routes like `orca://pairing?...`; only the
-  // pairing deep-link host may carry runtime auth material.
-  if (parsed.protocol !== 'orca:' || parsed.hostname !== 'pair') {
+  // Why: prefix checks accepted routes like `janus://pairing?...`; only the
+  // pairing deep-link host may carry runtime auth material. Keep `orca:`
+  // accepted as a legacy protocol so older pairing links can still import.
+  if (!isSupportedPairingProtocol(parsed.protocol) || parsed.hostname !== 'pair') {
     return null
   }
   if (parsed.pathname !== '' && parsed.pathname !== '/') {
@@ -102,6 +103,15 @@ function extractPairingCodeFromUrl(url: string): string | null {
     return code
   }
   return parsed.hash ? parsed.hash.slice(1) || null : null
+}
+
+function isPairingDeepLink(value: string): boolean {
+  const lower = value.toLowerCase()
+  return lower.startsWith('janus://') || lower.startsWith('orca://')
+}
+
+function isSupportedPairingProtocol(protocol: string): boolean {
+  return protocol === 'janus:' || protocol === 'orca:'
 }
 
 function base64UrlToBytes(value: string): Uint8Array {

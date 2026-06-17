@@ -2884,7 +2884,7 @@ export function registerHeadlessPtyRuntime(
   prepareClaudeAuth?: PrepareClaudeAuth,
   store?: Store
 ): void {
-  // Why: headless `orca serve` has no renderer window, but the runtime still
+  // Why: headless `janus serve` has no renderer window, but the runtime still
   // needs the same PTY controller and provider listeners as desktop so remote
   // clients can create, stream, inspect, and stop terminals.
   const headlessWindow = {

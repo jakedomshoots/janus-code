@@ -71,7 +71,7 @@ describe('Electron runtime package contract', () => {
         command.indexOf('electron-builder')
       )
     }
-    expect(releaseCommands.get('mac')).toContain(' && ORCA_MAC_RELEASE="${ORCA_MAC_RELEASE:-0}" ')
+    expect(releaseCommands.get('mac')).toContain(' && JANUS_MAC_RELEASE="${JANUS_MAC_RELEASE:-0}" ')
     expect(releaseCommands.get('linux')).toContain(' && pnpm exec electron-builder ')
     expect(releaseCommands.get('win')).toContain(
       '; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; pnpm exec electron-builder '

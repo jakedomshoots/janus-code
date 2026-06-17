@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://onOrca.dev"><img src="../../resources/build/icon.png" alt="Orca" width="64" valign="middle" /></a> Orca
+  <a href="https://github.com/jakedomshoots/janus-code"><img src="../../resources/build/icon.png" alt="Janus Code" width="64" valign="middle" /></a> Janus Code
 </h1>
 
 <p align="center">
@@ -18,10 +18,10 @@
   Ejecuta Claude Code, OpenClaude, Codex u OpenCode en paralelo — cada uno en su propio worktree, supervisados desde un solo lugar.
 </p>
 
-<h3 align="center"><a href="https://onorca.dev/download"><ins>Descargar Orca</ins></a></h3>
+<h3 align="center"><a href="https://github.com/jakedomshoots/janus-code/download"><ins>Descargar Janus Code</ins></a></h3>
 
 <p align="center">
-  <img src="../assets/readme-hero.jpg" alt="La app de escritorio de Orca ejecutando agentes en worktrees paralelos, con la app companion móvil de Orca en la esquina" width="960" />
+  <img src="../assets/readme-hero.jpg" alt="La app de escritorio de Janus Code ejecutando agentes en worktrees paralelos, con la app companion móvil de Janus Code en la esquina" width="960" />
 </p>
 
 ## Características
@@ -34,11 +34,11 @@
 
 Supervisa y dirige a tus agentes desde el teléfono — recibe una notificación cuando un agente termine y envía instrucciones de seguimiento desde cualquier lugar.
 
-[App Store de iOS](https://apps.apple.com/us/app/orca-ide/id6766130217) · [APK para Android](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk) · [Docs →](https://www.onorca.dev/docs/mobile)
+[App Store de iOS](https://apps.apple.com/us/app/janus-code/id6766130217) · [APK para Android](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk) · [Docs →](https://www.github.com/jakedomshoots/janus-code/docs/mobile)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/mobile"><picture><source srcset="../assets/feature-wall/mobile-companion-app-showcase.gif" type="image/gif"><img src="../assets/feature-wall/mobile-companion-app-showcase.jpg" alt="Orca de escritorio con la app companion móvil" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/mobile"><picture><source srcset="../assets/feature-wall/mobile-companion-app-showcase.gif" type="image/gif"><img src="../assets/feature-wall/mobile-companion-app-showcase.jpg" alt="Janus Code de escritorio con la app companion móvil" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -48,11 +48,11 @@ Supervisa y dirige a tus agentes desde el teléfono — recibe una notificación
 
 Lanza un mismo prompt a cinco agentes, cada uno en su propio worktree de git aislado — compara los resultados y haz merge del ganador.
 
-[Docs →](https://www.onorca.dev/docs/model/worktrees)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/model/worktrees)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/model/worktrees"><picture><source srcset="../assets/feature-wall/parallel-worktrees.gif" type="image/gif"><img src="../assets/feature-wall/parallel-worktrees.jpg" alt="Orquestación de worktrees en paralelo" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/model/worktrees"><picture><source srcset="../assets/feature-wall/parallel-worktrees.gif" type="image/gif"><img src="../assets/feature-wall/parallel-worktrees.jpg" alt="Orquestación de worktrees en paralelo" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -62,11 +62,11 @@ Lanza un mismo prompt a cinco agentes, cada uno en su propio worktree de git ais
 
 Terminales de nivel Ghostty con renderizado WebGL, divisiones infinitas y un scrollback que sobrevive a los reinicios.
 
-[Docs →](https://www.onorca.dev/docs/terminal)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/terminal)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/terminal"><picture><source srcset="../assets/feature-wall/terminal-splits.gif" type="image/gif"><img src="../assets/feature-wall/terminal-splits.jpg" alt="Terminales divididas" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/terminal"><picture><source srcset="../assets/feature-wall/terminal-splits.gif" type="image/gif"><img src="../assets/feature-wall/terminal-splits.jpg" alt="Terminales divididas" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -76,11 +76,11 @@ Terminales de nivel Ghostty con renderizado WebGL, divisiones infinitas y un scr
 
 Haz clic en cualquier elemento de UI en una ventana real de Chromium para enviar su HTML, su CSS y una captura recortada directo al prompt de tu agente.
 
-[Docs →](https://www.onorca.dev/docs/browser/design-mode)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/browser/design-mode)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/browser/design-mode"><picture><source srcset="../assets/feature-wall/design-mode.gif" type="image/gif"><img src="../assets/feature-wall/design-mode.jpg" alt="Navegador integrado y modo diseño" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/browser/design-mode"><picture><source srcset="../assets/feature-wall/design-mode.gif" type="image/gif"><img src="../assets/feature-wall/design-mode.jpg" alt="Navegador integrado y modo diseño" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -90,11 +90,11 @@ Haz clic en cualquier elemento de UI en una ventana real de Chromium para enviar
 
 Explora PRs, issues y tableros de proyecto dentro de la app — abre un worktree desde cualquier tarea y revisa sin cambiar de contexto.
 
-[Docs →](https://www.onorca.dev/docs/review/linear)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/review/linear)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/review/linear"><picture><source srcset="../assets/feature-wall/github-linear.gif" type="image/gif"><img src="../assets/feature-wall/github-linear.jpg" alt="Flujos de trabajo de GitHub y Linear en Orca" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/review/linear"><picture><source srcset="../assets/feature-wall/github-linear.gif" type="image/gif"><img src="../assets/feature-wall/github-linear.jpg" alt="Flujos de trabajo de GitHub y Linear en Janus Code" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -104,11 +104,11 @@ Explora PRs, issues y tableros de proyecto dentro de la app — abre un worktree
 
 Ejecuta agentes en una máquina remota potente con edición completa de archivos, git y terminales — con reconexión automática y reenvío de puertos incluidos.
 
-[Docs →](https://www.onorca.dev/docs/ssh)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/ssh)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/ssh"><picture><source srcset="../assets/feature-wall/ssh-worktrees.gif" type="image/gif"><img src="../assets/feature-wall/ssh-worktrees.jpg" alt="Worktrees remotos por SSH" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/ssh"><picture><source srcset="../assets/feature-wall/ssh-worktrees.gif" type="image/gif"><img src="../assets/feature-wall/ssh-worktrees.jpg" alt="Worktrees remotos por SSH" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -116,13 +116,13 @@ Ejecuta agentes en una máquina remota potente con edición completa de archivos
 
 ### Anotar diffs de IA
 
-Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente — revisa, edita y haz commit sin salir de Orca.
+Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente — revisa, edita y haz commit sin salir de Janus Code.
 
-[Docs →](https://www.onorca.dev/docs/review/annotate-ai-diff)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/review/annotate-ai-diff)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/review/annotate-ai-diff"><picture><source srcset="../assets/feature-wall/annotate-diff.gif" type="image/gif"><img src="../assets/feature-wall/annotate-diff.jpg" alt="Anotar diffs generados por IA" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/review/annotate-ai-diff"><picture><source srcset="../assets/feature-wall/annotate-diff.gif" type="image/gif"><img src="../assets/feature-wall/annotate-diff.jpg" alt="Anotar diffs generados por IA" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -132,11 +132,11 @@ Deja comentarios en cualquier línea de un diff y envíalos de vuelta al agente 
 
 El editor de VS Code con autoguardado en todas partes — arrastra archivos o imágenes directo al prompt de un agente.
 
-[Docs →](https://www.onorca.dev/docs/editing/file-explorer)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/editing/file-explorer)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/editing/file-explorer"><picture><source srcset="../assets/feature-wall/file-drag.gif" type="image/gif"><img src="../assets/feature-wall/file-drag.jpg" alt="Arrastra archivos e imágenes al prompt de un agente" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/editing/file-explorer"><picture><source srcset="../assets/feature-wall/file-drag.gif" type="image/gif"><img src="../assets/feature-wall/file-drag.jpg" alt="Arrastra archivos e imágenes al prompt de un agente" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
@@ -144,31 +144,31 @@ El editor de VS Code con autoguardado en todas partes — arrastra archivos o im
 
 ### Janus CLI
 
-Los agentes también manejan Orca — automatiza cualquier flujo de trabajo con `orca worktree create`, `snapshot`, `click` y `fill`.
+Los agentes también manejan Janus Code — automatiza cualquier flujo de trabajo con `janus worktree create`, `snapshot`, `click` y `fill`.
 
-[Docs →](https://www.onorca.dev/docs/cli/overview)
+[Docs →](https://www.github.com/jakedomshoots/janus-code/docs/cli/overview)
 
 </td>
 <td width="50%">
-  <a href="https://www.onorca.dev/docs/cli/overview"><picture><source srcset="../assets/feature-wall/orca-cli.gif" type="image/gif"><img src="../assets/feature-wall/orca-cli.jpg" alt="Automatiza Orca desde la CLI" width="100%" /></picture></a>
+  <a href="https://www.github.com/jakedomshoots/janus-code/docs/cli/overview"><picture><source srcset="../assets/feature-wall/janus-cli.gif" type="image/gif"><img src="../assets/feature-wall/janus-cli.jpg" alt="Automatiza Janus Code desde la CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
 
 **También incluye:**
 
-- **[Apertura rápida](https://www.onorca.dev/docs/model/quick-open)** — Busca entre worktrees, archivos, agentes, comandos y contexto del repo sin salir de tu flujo.
-- **[Cambio de cuenta y seguimiento de uso](https://www.onorca.dev/docs/agents/usage-tracking)** — Consulta el uso de Claude y Codex y los reinicios de límites de uso, y cambia de cuenta al instante sin volver a iniciar sesión.
-- **[Previews ricos del repo](https://www.onorca.dev/docs/editing/markdown)** — Previsualiza Markdown, imágenes, PDFs y documentos del repo en el workspace.
-- **[Computer Use](https://www.onorca.dev/docs/cli/computer-use)** — Deja que los agentes manejen apps de escritorio y UI visible cuando un flujo de trabajo necesita interacción real.
-- **[Notificaciones y estado de no leído](https://www.onorca.dev/docs/notifications)** — Entérate cuando un agente termine o necesite tu atención, y marca hilos como no leídos para retomarlos después.
+- **[Apertura rápida](https://www.github.com/jakedomshoots/janus-code/docs/model/quick-open)** — Busca entre worktrees, archivos, agentes, comandos y contexto del repo sin salir de tu flujo.
+- **[Cambio de cuenta y seguimiento de uso](https://www.github.com/jakedomshoots/janus-code/docs/agents/usage-tracking)** — Consulta el uso de Claude y Codex y los reinicios de límites de uso, y cambia de cuenta al instante sin volver a iniciar sesión.
+- **[Previews ricos del repo](https://www.github.com/jakedomshoots/janus-code/docs/editing/markdown)** — Previsualiza Markdown, imágenes, PDFs y documentos del repo en el workspace.
+- **[Computer Use](https://www.github.com/jakedomshoots/janus-code/docs/cli/computer-use)** — Deja que los agentes manejen apps de escritorio y UI visible cuando un flujo de trabajo necesita interacción real.
+- **[Notificaciones y estado de no leído](https://www.github.com/jakedomshoots/janus-code/docs/notifications)** — Entérate cuando un agente termine o necesite tu atención, y marca hilos como no leídos para retomarlos después.
 - **Y muchas, muchas más** — lanzamos a diario, así que esta lista siempre va atrasada. El [changelog](https://github.com/jakedomshoots/janus-code/releases) es la verdadera lista de funciones.
 
 ---
 
 ## Agentes compatibles
 
-Funciona con **cualquier agente CLI** — si corre en una terminal, corre en Orca.
+Funciona con **cualquier agente CLI** — si corre en una terminal, corre en Janus Code.
 
 <p>
   <a href="https://docs.anthropic.com/claude/docs/claude-code"><kbd><img src="../assets/claude-logo.svg" alt="Claude Code logo" width="16" valign="middle" /> Claude Code</kbd></a> &nbsp;
@@ -208,24 +208,24 @@ Funciona con **cualquier agente CLI** — si corre en una terminal, corre en Orc
 
 ### Escritorio — macOS, Windows, Linux
 
-- **[Descarga desde onOrca.dev](https://onorca.dev/download)**
+- **[Descarga desde github.com/jakedomshoots/janus-code](https://github.com/jakedomshoots/janus-code/download)**
 - O descarga un build directamente: [macOS Apple Silicon](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-arm64.dmg) · [macOS Intel](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-macos-x64.dmg) · [Windows (.exe)](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-windows-setup.exe) · [Linux AppImage](https://github.com/jakedomshoots/janus-code/releases/latest/download/janus-code-linux.AppImage) · [Todos los builds](https://github.com/jakedomshoots/janus-code/releases/latest)
 
 _O mediante un gestor de paquetes:_
 
 ```bash
 # macOS (Homebrew)
-brew install --cask jakedomshoots/janus-code/orca
+brew install --cask jakedomshoots/janus-code/janus-code
 
-# Arch Linux (AUR) — or stably-orca-git to build from source
-yay -S stably-orca-bin
+# Arch Linux (AUR) — or janus-code-git to build from source
+yay -S janus-code-bin
 ```
 
 ### App companion móvil — iOS, Android
 
 Vincúlala con tu app de escritorio para supervisar y dirigir a tus agentes desde el teléfono.
 
-- **iOS:** [Descargar desde App Store](https://apps.apple.com/us/app/orca-ide/id6766130217)
+- **iOS:** [Descargar desde App Store](https://apps.apple.com/us/app/janus-code/id6766130217)
 - **Android:** [Descargar el APK](https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk)
 
 ---
@@ -240,12 +240,12 @@ Vincúlala con tu app de escritorio para supervisar y dirigir a tus agentes desd
 
 ## Desarrollo
 
-¿Quieres contribuir o ejecutar Orca localmente? Consulta nuestra guía [CONTRIBUTING.md](../../.github/CONTRIBUTING.md).
+¿Quieres contribuir o ejecutar Janus Code localmente? Consulta nuestra guía [CONTRIBUTING.md](../../.github/CONTRIBUTING.md).
 
 <a href="https://github.com/jakedomshoots/janus-code/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Contribuidores de Orca" />
+  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Contribuidores de Janus Code" />
 </a>
 
 ## Licencia
 
-Orca es libre y de código abierto bajo la [Licencia MIT](../../LICENSE).
+Janus Code es libre y de código abierto bajo la [Licencia MIT](../../LICENSE).

@@ -11,7 +11,7 @@ import {
 import { translate } from '@/i18n/i18n'
 export { getMobileSettingsPaneSearchEntries }
 
-const ORCA_IOS_APP_STORE_URL = 'https://apps.apple.com/app/orca-ide/id6766130217'
+const ORCA_IOS_APP_STORE_URL = 'https://apps.apple.com/app/janus/id6766130217'
 const ORCA_ANDROID_APK_URL =
   'https://github.com/jakedomshoots/janus-code/releases/download/mobile-v0.0.13/app-release.apk'
 

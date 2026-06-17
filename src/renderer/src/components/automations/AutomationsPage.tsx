@@ -2578,7 +2578,7 @@ export default function AutomationsPage(): React.JSX.Element {
                         selectedAutomationRunPage.scheduledFor,
                         relativeNow
                       ),
-                      'Orca',
+                      'Janus Code',
                       selectedAutomationRunPageWorkspaceDisplay?.detailLabel ?? 'No workspace'
                     ]}
                     detail={

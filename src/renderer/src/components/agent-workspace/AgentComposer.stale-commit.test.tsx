@@ -20,7 +20,9 @@ const mocks = vi.hoisted(() => ({
   sendNotesToActiveAgentSession: vi.fn(),
   launchAgentInNewTab: vi.fn(),
   useDetectedAgents: vi.fn(),
-  updateSettings: vi.fn()
+  updateSettings: vi.fn(),
+  createBrowserTab: vi.fn(),
+  focusBrowserTabInWorktree: vi.fn()
 }))
 
 vi.mock('@/lib/active-agent-note-send', () => ({
@@ -40,11 +42,21 @@ vi.mock('@/store', () => ({
     selector: (state: {
       settings: { defaultTuiAgent: 'claude'; disabledTuiAgents: [] }
       updateSettings: typeof mocks.updateSettings
+      browserTabsByWorktree: Record<string, unknown[]>
+      browserAnnotationsByPageId: Record<string, unknown[]>
+      activeBrowserTabIdByWorktree: Record<string, string | null>
+      createBrowserTab: typeof mocks.createBrowserTab
+      focusBrowserTabInWorktree: typeof mocks.focusBrowserTabInWorktree
     }) => unknown
   ) =>
     selector({
       settings: { defaultTuiAgent: 'claude', disabledTuiAgents: [] },
-      updateSettings: mocks.updateSettings
+      updateSettings: mocks.updateSettings,
+      browserTabsByWorktree: {},
+      browserAnnotationsByPageId: {},
+      activeBrowserTabIdByWorktree: {},
+      createBrowserTab: mocks.createBrowserTab,
+      focusBrowserTabInWorktree: mocks.focusBrowserTabInWorktree
     })
 }))
 
@@ -55,8 +67,8 @@ const runningThread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
 }
 
 function makeThread(overrides: Partial<AgentWorkspaceThread>): AgentWorkspaceThread {
@@ -93,6 +105,8 @@ describe('AgentComposer stale submit commit guard', () => {
     mocks.launchAgentInNewTab.mockReset()
     mocks.useDetectedAgents.mockReset()
     mocks.updateSettings.mockReset()
+    mocks.createBrowserTab.mockReset()
+    mocks.focusBrowserTabInWorktree.mockReset()
     mocks.useDetectedAgents.mockReturnValue({
       detectedIds: ['claude', 'codex'],
       isLoading: false,

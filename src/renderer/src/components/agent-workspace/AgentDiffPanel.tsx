@@ -114,7 +114,7 @@ export function AgentDiffPanel({
         <p className="mt-1 text-sm text-muted-foreground">
           {translate(
             'auto.components.agentWorkspace.layout.sourceControlChangesWillAppear',
-            'Git changes from Orca source control will appear here.'
+            'Git changes from Janus Code source control will appear here.'
           )}
         </p>
       </div>

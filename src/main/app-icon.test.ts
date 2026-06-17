@@ -32,11 +32,11 @@ vi.mock('../../resources/icon-dev.png?asset', () => ({
   default: 'classic-dev-icon'
 }))
 
-vi.mock('../../resources/app-icons/orca-watercolor.png?asset', () => ({
+vi.mock('../../resources/app-icons/janus-watercolor.png?asset', () => ({
   default: 'watercolor-icon'
 }))
 
-vi.mock('../../resources/app-icons/orca-blue.png?asset', () => ({
+vi.mock('../../resources/app-icons/janus-blue.png?asset', () => ({
   default: 'blue-icon'
 }))
 

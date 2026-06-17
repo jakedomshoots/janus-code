@@ -8,7 +8,7 @@ const {
   verifyPackagedMainRuntimeDeps
 } = require('./packaged-runtime-node-modules.cjs')
 
-const isMacRelease = process.env.ORCA_MAC_RELEASE === '1'
+const isMacRelease = process.env.JANUS_MAC_RELEASE === '1' || process.env.ORCA_MAC_RELEASE === '1'
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -137,7 +137,7 @@ module.exports = {
       chmodSync(join(resourcesDir, filename), 0o755)
     }
     if (context.electronPlatformName === 'darwin') {
-      await signMacComputerUseHelper(join(resourcesDir, 'Orca Computer Use.app'), context.packager)
+      await signMacComputerUseHelper(join(resourcesDir, 'Janus Computer Use.app'), context.packager)
     }
   },
   win: {
@@ -146,16 +146,12 @@ module.exports = {
       ...commonExtraResources,
       winSpeechNativeResource,
       {
-        from: 'resources/win32/bin/agent-hub.cmd',
+        from: 'resources/win32/bin/janus.cmd',
         to: 'bin/janus.cmd'
       },
       {
         from: 'resources/win32/bin/agent-hub.cmd',
         to: 'bin/agent-hub.cmd'
-      },
-      {
-        from: 'resources/win32/bin/orca.cmd',
-        to: 'bin/orca.cmd'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-win32-x64.exe',
@@ -176,23 +172,24 @@ module.exports = {
   },
   mac: {
     icon: 'resources/build/icon.icns',
+    artifactName: 'Janus-Code-${version}-${arch}-mac.${ext}',
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
     extendInfo: {
       NSAppleEventsUsageDescription:
-        'Orca allows terminal-launched developer tools to automate local apps when you request it.',
+        'Janus Code allows terminal-launched developer tools to automate local apps when you request it.',
       NSBluetoothAlwaysUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+        'Janus Code allows terminal-launched developer tools to access Bluetooth devices when you request it.',
       NSBluetoothPeripheralUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+        'Janus Code allows terminal-launched developer tools to access Bluetooth devices when you request it.',
       NSCameraUsageDescription: "Application requests access to the device's camera.",
       NSLocationUsageDescription:
-        'Orca allows terminal-launched developer tools to access location when you request it.',
+        'Janus Code allows terminal-launched developer tools to access location when you request it.',
       NSLocalNetworkUsageDescription:
-        'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
+        'Janus Code allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
       NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
       NSAudioCaptureUsageDescription:
-        'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',
+        'Janus Code allows terminal-launched developer tools to capture desktop audio when you request it.',
       NSBonjourServices: ['_http._tcp', '_https._tcp'],
       NSDocumentsFolderUsageDescription:
         "Application requests access to the user's Documents folder.",
@@ -210,16 +207,12 @@ module.exports = {
       ...commonExtraResources,
       macSpeechNativeResource,
       {
-        from: 'resources/darwin/bin/agent-hub',
+        from: 'resources/darwin/bin/janus',
         to: 'bin/janus'
       },
       {
         from: 'resources/darwin/bin/agent-hub',
         to: 'bin/agent-hub'
-      },
-      {
-        from: 'resources/darwin/bin/orca',
-        to: 'bin/orca'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-darwin-${arch}',
@@ -232,8 +225,8 @@ module.exports = {
         to: 'serve-sim'
       },
       {
-        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',
-        to: 'Orca Computer Use.app'
+        from: 'native/computer-use-macos/.build/release/Janus Computer Use.app',
+        to: 'Janus Computer Use.app'
       },
       featureWallResources
     ],
@@ -270,16 +263,12 @@ module.exports = {
       ...commonExtraResources,
       linuxSpeechNativeResource,
       {
-        from: 'resources/linux/bin/agent-hub',
+        from: 'resources/linux/bin/janus',
         to: 'bin/janus'
       },
       {
         from: 'resources/linux/bin/agent-hub',
         to: 'bin/agent-hub'
-      },
-      {
-        from: 'resources/linux/bin/orca-ide',
-        to: 'bin/orca-ide'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-linux-${arch}',
@@ -313,7 +302,7 @@ module.exports = {
   // (node-pty) for each target architecture when producing dual-arch macOS
   // builds (x64 + arm64). With npmRebuild disabled, CI on an arm64 runner
   // packages arm64 binaries into the x64 DMG, causing "posix_spawnp failed"
-  // on Intel Macs. The beforeBuild hook performs Orca's targeted rebuild and
+  // on Intel Macs. The beforeBuild hook performs Janus's targeted rebuild and
   // returns false so electron-builder does not rebuild optional cpu-features.
   npmRebuild: true,
   publish: {
@@ -328,7 +317,7 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of ['janus', 'janus.cmd', 'agent-hub', 'orca', 'orca-ide']) {
+  for (const launcherName of ['janus', 'janus.cmd', 'agent-hub']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue
@@ -359,7 +348,7 @@ function chmodMacServeSimHelpers(resourcesDir, electronPlatformName) {
 async function signMacComputerUseHelper(helperAppPath, packager) {
   if (!existsSync(helperAppPath)) {
     if (isMacRelease) {
-      throw new Error(`Missing Orca Computer Use helper app at ${helperAppPath}`)
+      throw new Error(`Missing Janus Computer Use helper app at ${helperAppPath}`)
     }
     return
   }
@@ -373,10 +362,10 @@ async function signMacComputerUseHelper(helperAppPath, packager) {
     findInstalledMacSigningIdentity(codeSigningInfo?.keychainFile) ??
     (isMacRelease ? null : '-')
   if (!identity) {
-    throw new Error('Missing signing identity for Orca Computer Use helper app')
+    throw new Error('Missing signing identity for Janus Computer Use helper app')
   }
   // Why: TCC grants attach to this nested app's code identity. Sign it before
-  // the outer Orca.app is sealed so production builds preserve that identity.
+  // the outer Janus Code.app is sealed so production builds preserve that identity.
   execFileSync('codesign', codesignArgs(identity, helperAppPath), { stdio: 'inherit' })
   execFileSync('codesign', ['--verify', '--deep', '--strict', helperAppPath], {
     stdio: 'inherit'

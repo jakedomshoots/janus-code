@@ -12,14 +12,13 @@ vi.mock('node:child_process', () => ({
 import { WslCliInstaller, _internals } from './wsl-cli-installer'
 
 function makeHostStatus(
-  launcherPath = 'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd'
+  launcherPath = 'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd'
 ) {
   return {
     platform: 'win32',
-    commandName: 'agent-hub',
-    commandPath:
-      'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd',
-    pathDirectory: 'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin',
+    commandName: 'janus',
+    commandPath: 'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd',
+    pathDirectory: 'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin',
     pathConfigured: true,
     launcherPath,
     installMethod: 'wrapper',
@@ -32,7 +31,7 @@ function makeHostStatus(
 }
 
 function createWslRunner(initialFile: string | null = null, pathIncludesLocalBin = true) {
-  const commandPath = '/home/alice/.local/bin/agent-hub'
+  const commandPath = '/home/alice/.local/bin/janus'
   const bridgePath = '/home/alice/.local/share/orca/orca-wsl-bridge.ps1'
   const files = new Map<string, string>()
   if (initialFile !== null) {
@@ -100,7 +99,7 @@ describe('WslCliInstaller', () => {
     vi.useRealTimers()
   })
 
-  it('installs a WSL launcher that forwards to the Windows Orca launcher', async () => {
+  it('installs a WSL launcher that forwards to the Windows Janus launcher', async () => {
     const wsl = createWslRunner()
     const installer = new WslCliInstaller({
       platform: 'win32',
@@ -111,7 +110,7 @@ describe('WslCliInstaller', () => {
 
     await expect(installer.getStatus()).resolves.toMatchObject({
       state: 'not_installed',
-      commandPath: '/home/alice/.local/bin/agent-hub'
+      commandPath: '/home/alice/.local/bin/janus'
     })
 
     const installed = await installer.install()
@@ -119,22 +118,28 @@ describe('WslCliInstaller', () => {
     expect(installed).toMatchObject({
       state: 'installed',
       pathConfigured: true,
-      launcherPath:
-        'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd'
+      launcherPath: 'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd'
     })
     expect(wsl.getFile()).toBe(
       _internals.buildWslLauncher(
-        'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd',
+        'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd',
         '/home/alice/.local/share/orca/orca-wsl-bridge.ps1'
       )
     )
     expect(wsl.getBridge()).toBe(_internals.buildWslBridgeScript())
     const installCommand = wsl.calls.find((command) => command.includes('cat > "$command_tmp"'))
     expect(installCommand).toContain("legacy_command_path='/home/alice/.local/bin/orca'")
+    expect(installCommand).toContain(
+      "legacy_agent_hub_command_path='/home/alice/.local/bin/agent-hub'"
+    )
     expect(installCommand).toContain('rm -f "$legacy_command_path"')
+    expect(installCommand).toContain('rm -f "$legacy_agent_hub_command_path"')
   })
 
   it('derives the shared WSL bridge path for current and legacy command names', () => {
+    expect(_internals.getBridgePathFromCommandPath('/home/alice/.local/bin/janus')).toBe(
+      '/home/alice/.local/share/orca/orca-wsl-bridge.ps1'
+    )
     expect(_internals.getBridgePathFromCommandPath('/home/alice/.local/bin/agent-hub')).toBe(
       '/home/alice/.local/share/orca/orca-wsl-bridge.ps1'
     )
@@ -231,7 +236,7 @@ describe('WslCliInstaller', () => {
     expect(launcher).toContain('command -v powershell.exe')
     expect(launcher).toContain('/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe')
     expect(launcher).toContain(
-      'Orca WSL CLI requires Windows interop and could not find powershell.exe.'
+      'Janus Code WSL CLI requires Windows interop and could not find powershell.exe.'
     )
     expect(launcher).toContain('"$ORCA_POWERSHELL" -NoProfile -ExecutionPolicy Bypass -File')
     expect(launcher).toContain('"$ORCA_WIN_LAUNCHER" "$@"')
@@ -278,7 +283,7 @@ describe('WslCliInstaller', () => {
 
     await expect(installer.getStatus()).resolves.toMatchObject({
       state: 'not_installed',
-      commandPath: '/home/alice/.local/bin/agent-hub'
+      commandPath: '/home/alice/.local/bin/janus'
     })
   })
 
@@ -298,14 +303,13 @@ describe('WslCliInstaller', () => {
     await expect(installer.getStatus()).resolves.toMatchObject({
       state: 'stale',
       currentTarget: 'C:\\Users\\me\\AppData\\Local\\Programs\\Orca\\bin\\orca.cmd',
-      launcherPath:
-        'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd'
+      launcherPath: 'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd'
     })
 
     await expect(installer.install()).resolves.toMatchObject({
       state: 'installed',
       currentTarget:
-        'C:\\Users\\me\\AppData\\Local\\Programs\\Agent Hub\\resources\\bin\\agent-hub.cmd'
+        'C:\\Users\\me\\AppData\\Local\\Programs\\Janus Code\\resources\\bin\\janus.cmd'
     })
   })
 

@@ -1198,7 +1198,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     expect(linkTooltip.textContent).toBe('/repo (Ctrl+click to switch workspace)')
   })
 
-  it('shows the Orca hint for SSH file link hover', async () => {
+  it('shows the Janus Code hint for SSH file link hover', async () => {
     setPlatform('Macintosh')
     vi.mocked(getConnectionId).mockReturnValue('ssh-1')
     const { provider, linkTooltip } = createProviderSetup([makeBufferLine('CLAUDE.md')])
@@ -1209,7 +1209,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     expect(links[0]).toBeDefined()
     links[0]!.hover?.({} as MouseEvent, links[0]!.text)
 
-    expect(linkTooltip.textContent).toBe('/repo/CLAUDE.md (⌘+click to open in Orca)')
+    expect(linkTooltip.textContent).toBe('/repo/CLAUDE.md (⌘+click to open in Janus Code)')
   })
 
   it('bounds the terminal path-exists cache while preserving recent probes', async () => {

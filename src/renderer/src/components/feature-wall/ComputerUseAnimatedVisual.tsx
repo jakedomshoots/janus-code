@@ -11,8 +11,8 @@ type ComputerUsePhase = 'inspect' | 'target' | 'click' | 'verified'
 const PHASES: readonly ComputerUsePhase[] = ['inspect', 'target', 'click', 'verified', 'verified']
 const PHASE_MS = 1350
 
-// Why: the visual must read as "an agent in an Orca worktree drives the
-// local app via the `orca computer` CLI" — each command on the left causes
+// Why: the visual must read as "an agent in a Janus Code worktree drives the
+// local app via the `janus computer` CLI" — each command on the left causes
 // the visible effect on the right, in lockstep.
 const WORKTREE_LABEL = 'checkout fix'
 

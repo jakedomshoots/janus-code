@@ -2315,7 +2315,7 @@ function RemoteBrowserPagePane({
                     >
                       {translate(
                         'auto.components.browser.pane.BrowserPane.b5b87d6cbb',
-                        'Open Link In Orca Browser'
+                        'Open Link In Janus Code Browser'
                       )}
                     </button>
                     <button
@@ -4462,7 +4462,7 @@ function BrowserPagePane({
                     >
                       {translate(
                         'auto.components.browser.pane.BrowserPane.b5b87d6cbb',
-                        'Open Link In Orca Browser'
+                        'Open Link In Janus Code Browser'
                       )}
                     </button>
                     <button

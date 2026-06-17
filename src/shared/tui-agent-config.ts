@@ -64,12 +64,12 @@ export const TUI_AGENT_CONFIG: Record<TuiAgent, TuiAgentConfig> = {
     draftPromptFlag: '--prefill'
   },
   'claude-agent-teams': {
-    // Why: this is an Orca-provided launch mode, not a separate upstream
+    // Why: this is a Janus-provided launch mode, not a separate upstream
     // binary. Detection follows the Janus CLI, while the wrapper validates the
     // real Claude binary when it starts.
-    detectCmd: 'orca',
-    detectCmdAliases: ['orca-dev', 'orca-ide'],
-    launchCmd: 'orca claude-teams',
+    detectCmd: 'janus',
+    detectCmdAliases: ['janus-dev', 'agent-hub', 'orca', 'orca-dev', 'orca-ide'],
+    launchCmd: 'janus claude-teams',
     expectedProcess: 'claude',
     promptInjectionMode: 'stdin-after-start'
   },

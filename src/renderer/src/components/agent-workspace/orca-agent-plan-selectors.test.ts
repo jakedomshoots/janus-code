@@ -20,8 +20,8 @@ const thread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const olderPlan: AgentWorkspacePlan = {
@@ -69,8 +69,8 @@ function snapshot(plans: readonly AgentWorkspacePlan[]): AgentWorkspaceSnapshot 
     projects: [
       {
         id: 'worktree-1',
-        label: 'orca',
-        path: '/Users/jakedom/orca',
+        label: 'janus-code',
+        path: '/Users/jakedom/janus-code',
         hostKind: 'local'
       }
     ],
@@ -130,7 +130,7 @@ describe('orca agent plan selectors', () => {
     expect(hasStructuredAgentWorkspacePlan(unstructuredSnapshot, thread)).toBe(false)
   })
 
-  it('derives titles and displayed markdown with T3-compatible heading rules', () => {
+  it('derives titles and displayed markdown with Janus heading rules', () => {
     const markdown = '# Build GUI Workspace\n\n## Summary\n\n1. Add the plan panel.\n2. Wire it.'
     const markdownOnlyPlan = {
       ...newerPlan,

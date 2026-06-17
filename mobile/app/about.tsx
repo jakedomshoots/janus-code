@@ -58,26 +58,26 @@ export default function AboutScreen() {
       <View style={styles.section}>
         <Pressable
           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          onPress={() => void Linking.openURL('https://onOrca.dev')}
+          onPress={() => void Linking.openURL('https://github.com/jakedomshoots/janus-code')}
         >
           <Globe size={16} color={colors.textSecondary} />
-          <Text style={styles.rowValue}>onOrca.dev</Text>
+          <Text style={styles.rowValue}>github.com/jakedomshoots/janus-code</Text>
         </Pressable>
         <View style={styles.separator} />
         <Pressable
           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          onPress={() => void Linking.openURL('https://github.com/stablyai/orca')}
+          onPress={() => void Linking.openURL('https://github.com/jakedomshoots/janus-code')}
         >
           <GithubIcon />
-          <Text style={styles.rowValue}>stablyai/orca</Text>
+          <Text style={styles.rowValue}>jakedomshoots/janus-code</Text>
         </Pressable>
         <View style={styles.separator} />
         <Pressable
           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          onPress={() => void Linking.openURL('https://x.com/orca_build')}
+          onPress={() => void Linking.openURL('https://github.com/jakedomshoots/janus-code')}
         >
           <XIcon />
-          <Text style={styles.rowValue}>@orca_build</Text>
+          <Text style={styles.rowValue}>Janus Code</Text>
         </Pressable>
       </View>
 

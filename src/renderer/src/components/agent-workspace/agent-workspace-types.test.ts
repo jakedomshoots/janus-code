@@ -24,9 +24,9 @@ const emptySnapshot = {
 const runningPhase: AgentWorkspacePhase = 'running'
 
 const runningProject: AgentWorkspaceProject = {
-  id: 'project-local-orca',
-  label: 'Orca',
-  path: '/workspace/orca',
+  id: 'project-local-janus',
+  label: 'Janus Code',
+  path: '/workspace/janus-code',
   hostKind: 'local'
 }
 
@@ -37,8 +37,8 @@ const runningThread: AgentWorkspaceThread = {
   agentKind: 'codex',
   phase: runningPhase,
   updatedAt: '2026-06-15T14:30:00.000Z',
-  branchName: 'feature/t3code-gui-workspace',
-  cwd: '/workspace/orca'
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/workspace/janus-code'
 }
 
 const runningTimelineEntry: AgentWorkspaceTimelineEntry = {
@@ -103,9 +103,9 @@ const runningSnapshot = {
 const completedPhase: AgentWorkspacePhase = 'completed'
 
 const completedProject: AgentWorkspaceProject = {
-  id: 'project-remote-orca',
-  label: 'Orca Remote',
-  path: '/srv/orca',
+  id: 'project-remote-janus',
+  label: 'Janus Remote',
+  path: '/srv/janus',
   hostKind: 'runtime'
 }
 
@@ -113,7 +113,7 @@ const completedThread: AgentWorkspaceThread = {
   id: 'thread-completed',
   worktreeId: 'worktree-completed',
   title: 'Review completed workspace',
-  agentKind: 't3-code',
+  agentKind: 'codex',
   phase: completedPhase,
   updatedAt: null,
   branchName: null,

@@ -696,7 +696,7 @@ jobs:
         include:
           - os: macos-15
             platform: mac
-            release_command: node config/scripts/ensure-native-runtime.mjs --runtime=electron && ORCA_MAC_RELEASE="${ORCA_MAC_RELEASE:-0}" pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always
+            release_command: node config/scripts/ensure-native-runtime.mjs --runtime=electron && JANUS_MAC_RELEASE="${JANUS_MAC_RELEASE:-0}" pnpm exec electron-builder --config config/electron-builder.config.cjs --mac --publish always
             eb_cache_path: |
               ~/Library/Caches/electron
               ~/Library/Caches/electron-builder
@@ -798,13 +798,13 @@ jobs:
           done
 
           if (( ${#missing[@]} == 0 )); then
-            echo "ORCA_MAC_RELEASE=1" >>"$GITHUB_ENV"
+            echo "JANUS_MAC_RELEASE=1" >>"$GITHUB_ENV"
             echo "macOS release signing enabled."
             exit 0
           fi
 
           if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
-            echo "ORCA_MAC_RELEASE=0" >>"$GITHUB_ENV"
+            echo "JANUS_MAC_RELEASE=0" >>"$GITHUB_ENV"
             echo "::warning::macOS signing secrets are missing (${missing[*]}). Building unsigned, unnotarized macOS RC artifacts for tester validation."
             exit 0
           fi

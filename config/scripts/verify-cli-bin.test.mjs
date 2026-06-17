@@ -5,9 +5,9 @@ import { describe, expect, it } from 'vitest'
 import { verifyPackageCliBin } from './verify-cli-bin.mjs'
 
 const requiredPackagedResources = [
-  ['mac', 'resources/darwin/bin/agent-hub', 'bin/janus'],
-  ['linux', 'resources/linux/bin/agent-hub', 'bin/janus'],
-  ['win', 'resources/win32/bin/agent-hub.cmd', 'bin/janus.cmd']
+  ['mac', 'resources/darwin/bin/janus', 'bin/janus'],
+  ['linux', 'resources/linux/bin/janus', 'bin/janus'],
+  ['win', 'resources/win32/bin/janus.cmd', 'bin/janus.cmd']
 ]
 
 function writePackagedCliResources(
@@ -55,7 +55,7 @@ function writePackagedCliResources(
 }
 
 function makeProjectWithCli(content, mode = 0o755, packageJson = null, resourceOptions = {}) {
-  const projectDir = mkdtempSync(path.join(tmpdir(), 'orca-cli-bin-'))
+  const projectDir = mkdtempSync(path.join(tmpdir(), 'janus-cli-bin-'))
   const cliPath = path.join(projectDir, 'out', 'cli', 'index.js')
   mkdirSync(path.dirname(cliPath), { recursive: true })
   writeFileSync(
@@ -88,7 +88,7 @@ describe('verifyPackageCliBin', () => {
     expect(verifyPackageCliBin({ projectDir, runHelp: true })).toMatchObject({
       binPath: cliPath,
       primaryName: 'janus',
-      aliases: ['agent-hub', 'orca'],
+      aliases: ['agent-hub'],
       warnings: []
     })
   })
@@ -101,30 +101,16 @@ describe('verifyPackageCliBin', () => {
     expect(() => verifyPackageCliBin({ projectDir })).toThrow('bin.janus')
   })
 
-  it('warns when the orca compatibility alias is absent', () => {
+  it('warns when the agent-hub compatibility alias points somewhere else', () => {
     const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
       bin: {
         janus: './out/cli/index.js',
-        'agent-hub': './out/cli/index.js'
+        'agent-hub': './out/cli/legacy.js'
       }
     })
 
     expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
-      'package.json does not declare optional bin.orca compatibility alias'
-    )
-  })
-
-  it('warns when the orca compatibility alias points somewhere else', () => {
-    const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, {
-      bin: {
-        janus: './out/cli/index.js',
-        'agent-hub': './out/cli/index.js',
-        orca: './out/cli/legacy.js'
-      }
-    })
-
-    expect(verifyPackageCliBin({ projectDir }).warnings).toContain(
-      'bin.orca compatibility alias points to ./out/cli/legacy.js instead of ./out/cli/index.js'
+      'bin.agent-hub compatibility alias points to ./out/cli/legacy.js instead of ./out/cli/index.js'
     )
   })
 
@@ -135,18 +121,18 @@ describe('verifyPackageCliBin', () => {
   })
 
   it('rejects package bin targets without a Node shebang', () => {
-    const { projectDir } = makeProjectWithCli('console.log("orca")\n')
+    const { projectDir } = makeProjectWithCli('console.log("janus")\n')
 
     expect(() => verifyPackageCliBin({ projectDir })).toThrow('Node shebang')
   })
 
   it('rejects missing packaged janus launcher resources', () => {
     const { projectDir } = makeProjectWithCli('#!/usr/bin/env node\n', 0o755, null, {
-      missingResource: 'resources/linux/bin/agent-hub'
+      missingResource: 'resources/linux/bin/janus'
     })
 
     expect(() => verifyPackageCliBin({ projectDir })).toThrow(
-      'Missing packaged janus launcher resource: resources/linux/bin/agent-hub'
+      'Missing packaged janus launcher resource: resources/linux/bin/janus'
     )
   })
 
@@ -157,13 +143,13 @@ describe('verifyPackageCliBin', () => {
 
     expect(() => verifyPackageCliBin({ projectDir })).toThrow(
       'electron-builder win.extraResources must map ' +
-        'resources/win32/bin/agent-hub.cmd to bin/janus.cmd'
+        'resources/win32/bin/janus.cmd to bin/janus.cmd'
     )
   })
 
   it.skipIf(process.platform === 'win32')('can repair the POSIX executable bit', () => {
     const { projectDir, cliPath } = makeProjectWithCli(
-      '#!/usr/bin/env node\nconsole.log("orca")\n',
+      '#!/usr/bin/env node\nconsole.log("janus")\n',
       0o644
     )
 

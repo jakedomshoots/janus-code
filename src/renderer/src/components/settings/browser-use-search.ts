@@ -15,7 +15,7 @@ export const getBrowserUsePaneSearchEntries = createLocalizedCatalog(() => [
         'browser use'
       ),
       ...translateSearchKeyword('auto.components.settings.browser.use.search.85fab5e12c', 'cli'),
-      ...translateSearchKeyword('auto.components.settings.browser.use.search.ff05cbc344', 'orca'),
+      ...translateSearchKeyword('auto.components.settings.browser.use.search.ff05cbc344', 'janus'),
       ...translateSearchKeyword('auto.components.settings.browser.use.search.30c74aaa1f', 'path'),
       ...translateSearchKeyword(
         'auto.components.settings.browser.use.search.3ffafc9b95',
@@ -48,7 +48,7 @@ export const getBrowserUsePaneSearchEntries = createLocalizedCatalog(() => [
       ),
       ...translateSearchKeyword(
         'auto.components.settings.browser.use.search.f5b8fdddf5',
-        'orca-cli'
+        'janus-cli'
       ),
       ...translateSearchKeyword('auto.components.settings.browser.use.search.6ea88e5206', 'npx'),
       ...translateSearchKeyword(

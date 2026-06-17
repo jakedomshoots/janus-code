@@ -1,6 +1,6 @@
 # GUI Workspace Transition
 
-Orca is now GUI-first for agent workspaces. New profiles default to the GUI agent workspace, where projects, agent threads, plans, diffs, hosted reviews, approvals, and provider-aware composer controls are visible without making the terminal the primary surface.
+Janus Code is now GUI-first for agent workspaces. New profiles default to the GUI agent workspace, where projects, agent threads, plans, diffs, hosted reviews, approvals, and provider-aware composer controls are visible without making the terminal the primary surface.
 
 The classic terminal workspace remains available as a fallback. Users can enable it from Settings > Experimental > Classic terminal workspace. Enabling that option makes the terminal-first workspace primary again.
 

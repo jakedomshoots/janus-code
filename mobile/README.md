@@ -1,10 +1,10 @@
-# Orca Mobile
+# Janus Mobile
 
-React Native companion app for Orca. Monitor worktrees, view terminal output, and send commands from your phone.
+React Native companion app for Janus Code. Monitor worktrees, view terminal output, and send commands from your phone.
 
 Local development uses two processes:
 
-- Orca desktop/Electron from the repo root. This hosts the mobile WebSocket RPC server on port `6768`.
+- Janus Code desktop/Electron from the repo root. This hosts the mobile WebSocket RPC server on port `6768`.
 - Expo Metro from `mobile/`. This serves the React Native app on port `8081`.
 
 Unless a command says otherwise, run mobile app commands from the `mobile/` directory.
@@ -17,7 +17,7 @@ Unless a command says otherwise, run mobile app commands from the `mobile/` dire
 - Expo Go on your phone, or a development client build when native modules are needed
 - Phone and desktop on the same LAN when testing a physical phone
 
-## Start Desktop Orca
+## Start Janus Code Desktop
 
 From the repository root:
 
@@ -52,9 +52,9 @@ pnpm exec expo run:ios
 pnpm start --dev-client
 ```
 
-## Pair With Desktop Orca
+## Pair With Janus Code Desktop
 
-1. Open Orca desktop.
+1. Open Janus Code desktop.
 2. Go to Settings > Mobile.
 3. Scan the pairing QR code from the mobile app.
 4. Confirm the mobile host endpoint is `ws://<desktop-ip>:6768`.
@@ -82,10 +82,10 @@ If the phone has a stale host entry, remove it from the app and pair again.
 The phone can be inspected through the connected device tooling:
 
 ```bash
-orca snapshot --json
-orca click --element @e3 --json
-orca fill --element @e1 --value "ls" --json
-orca screenshot --json
+janus snapshot --json
+janus click --element @e3 --json
+janus fill --element @e1 --value "ls" --json
+janus screenshot --json
 ```
 
 Use `snapshot` first to find the current element refs, then click/fill those refs. After mobile file edits, Metro usually hot reloads automatically, but navigating out of and back into the session screen can be useful because it re-runs `terminal.subscribe`.
@@ -173,7 +173,7 @@ To exercise the block screen locally: set `MIN_COMPATIBLE_DESKTOP_VERSION = 999`
 
 ## Mock Server
 
-Develop the mobile app without a running Orca desktop instance:
+Develop the mobile app without a running Janus Code desktop instance:
 
 ```bash
 pnpm mock-server           # starts mock WebSocket server on port 6768
@@ -183,7 +183,7 @@ Connect from the app using endpoint `ws://localhost:6768` and token `mock-device
 
 ## Connecting to Real Orca
 
-1. Start Orca desktop with WebSocket transport enabled
+1. Start Janus Code desktop with WebSocket transport enabled
 2. In Orca, go to Settings > Mobile and scan the QR code with this app
 3. The QR encodes the connection endpoint, device token, and TLS fingerprint
 

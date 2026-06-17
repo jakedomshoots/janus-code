@@ -3,8 +3,7 @@ import { router } from 'expo-router'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 import type { CompatVerdict } from '../transport/protocol-compat'
 
-const RELEASES_URL = 'https://github.com/stablyai/orca/releases'
-const IOS_APP_STORE_URL = 'itms-apps://apps.apple.com/app/orca-ide/id6766130217'
+const RELEASES_URL = 'https://github.com/jakedomshoots/janus-code/releases'
 
 type Props = {
   verdict: Extract<CompatVerdict, { kind: 'blocked' }>
@@ -14,7 +13,7 @@ export function ProtocolBlockScreen({ verdict }: Props) {
   const isMobileTooOld = verdict.reason === 'mobile-too-old'
   const mobileUpdateTarget =
     Platform.OS === 'ios'
-      ? { label: 'Open App Store', url: IOS_APP_STORE_URL, storeName: 'the App Store' }
+      ? { label: 'Open GitHub Releases', url: RELEASES_URL, storeName: 'GitHub Releases' }
       : { label: null, url: null, storeName: 'your mobile app store' }
   const primaryAction = isMobileTooOld
     ? mobileUpdateTarget.url && mobileUpdateTarget.label
@@ -22,10 +21,10 @@ export function ProtocolBlockScreen({ verdict }: Props) {
       : null
     : { label: 'Open GitHub Releases', url: RELEASES_URL }
 
-  const title = isMobileTooOld ? 'Update Orca Mobile' : 'Update Orca on your computer'
+  const title = isMobileTooOld ? 'Update Janus Mobile' : 'Update Janus Code on your computer'
   const body = isMobileTooOld
-    ? `This desktop needs a newer Orca Mobile app. Update Orca Mobile from ${mobileUpdateTarget.storeName}, then try this host again.`
-    : 'This paired desktop app is too old for your current Orca Mobile app. Update Orca on your computer, then try this host again.'
+    ? `This desktop needs a newer Janus Mobile app. Update Janus Mobile from ${mobileUpdateTarget.storeName}, then try this host again.`
+    : 'This paired desktop app is too old for your current Janus Mobile app. Update Janus Code on your computer, then try this host again.'
   const recoveryNote =
     'Already updated? Go back to Hosts and refresh the connection. If this message stays, remove this host and pair it again.'
 
@@ -34,8 +33,7 @@ export function ProtocolBlockScreen({ verdict }: Props) {
       <View style={styles.card}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>{body}</Text>
-        {/* Why: desktop updates come from GitHub; mobile update links depend
-            on the native store available for this platform. */}
+        {/* Why: desktop and pre-store mobile updates currently ship from GitHub Releases. */}
         {primaryAction ? (
           <Pressable
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}

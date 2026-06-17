@@ -8,6 +8,15 @@ describe('shouldShowWorktreeHistoryControls', () => {
     expect(shouldShowWorktreeHistoryControls('automations')).toBe(true)
   })
 
+  it('hides terminal history controls while the GUI agent workspace owns the terminal view', () => {
+    expect(shouldShowWorktreeHistoryControls('terminal', { guiAgentWorkspaceEnabled: true })).toBe(
+      false
+    )
+    expect(shouldShowWorktreeHistoryControls('tasks', { guiAgentWorkspaceEnabled: true })).toBe(
+      true
+    )
+  })
+
   it('hides controls on full-page views outside the history stack', () => {
     expect(shouldShowWorktreeHistoryControls('settings')).toBe(false)
     expect(shouldShowWorktreeHistoryControls('activity')).toBe(false)

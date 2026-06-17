@@ -1,6 +1,4 @@
-import { AlertTriangle, Terminal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { detectLanguage } from '@/lib/language-detect'
 import { joinPath } from '@/lib/path'
@@ -15,13 +13,10 @@ import type {
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
-import { AgentComposer } from './AgentComposer'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
+import { AgentWorkspacePane } from './AgentWorkspacePane'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
-import { AgentWorkspaceSidebar } from './AgentWorkspaceSidebar'
-import { AgentTimeline } from './AgentTimeline'
-import { runWorktreeDelete } from '../sidebar/delete-worktree-flow'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
@@ -31,6 +26,15 @@ import {
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 import { useAgentWorkspaceSourceControlActions } from './useAgentWorkspaceSourceControlActions'
+import { closeAgentWorkspaceThread } from './agent-workspace-thread-close'
+import { pickAgentWorkspaceApprovalThreadId } from './agent-workspace-approval-focus'
+
+type AgentWorkspacePaneState = {
+  id: string
+  selectedThreadId: string | null
+}
+
+type AgentWorkspaceSplitDirection = 'horizontal' | 'vertical'
 
 function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
   return (
@@ -40,19 +44,13 @@ function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspacePro
   )
 }
 
-function getSelectedThread(
+function getProjectThreads(
   snapshot: AgentWorkspaceSnapshot,
-  project: AgentWorkspaceProject | null,
-  selectedThreadId?: string | null
-): AgentWorkspaceThread | null {
-  const projectThreads = project
+  project: AgentWorkspaceProject | null
+): readonly AgentWorkspaceThread[] {
+  return project
     ? snapshot.threads.filter((thread) => thread.worktreeId === project.id)
     : snapshot.threads
-  return (
-    (selectedThreadId ? projectThreads.find((thread) => thread.id === selectedThreadId) : null) ??
-    projectThreads[0] ??
-    null
-  )
 }
 
 function getThreadTimeline(
@@ -116,141 +114,24 @@ function getRightPanelStateInputKey({
   ].join(':')
 }
 
-function TerminalDrawerAffordance({
-  terminalAvailable,
-  onOpenTerminalDrawer
-}: {
-  terminalAvailable: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-}): React.JSX.Element {
-  const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
-
-  return (
-    <div className="border-t border-border bg-muted/20 px-3 py-1.5">
-      <div className="mx-auto flex h-8 w-full max-w-3xl items-center justify-between gap-3 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground">
-        <span className="flex min-w-0 items-center gap-2 font-medium text-foreground">
-          <Terminal className="size-3.5 shrink-0" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
-        </span>
-        <span className="min-w-0 truncate">
-          {terminalAvailable
-            ? translate(
-                'auto.components.agentWorkspace.layout.terminalSessionAvailable',
-                'Terminal session is available as a debug panel.'
-              )
-            : translate(
-                'auto.components.agentWorkspace.layout.noTerminalSessionAttached',
-                'No terminal session is attached to this workspace.'
-              )}
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="xs"
-          disabled={!canOpenTerminalDrawer}
-          onClick={() => onOpenTerminalDrawer?.('debug-button')}
-        >
-          <Terminal className="size-3" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-function AgentFailureTerminalBanner({
-  thread,
-  terminalAvailable,
-  onOpenTerminalDrawer
-}: {
-  thread: AgentWorkspaceThread | null
-  terminalAvailable: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-}): React.JSX.Element | null {
-  if (thread?.phase !== 'failed') {
-    return null
-  }
-
-  return (
-    <div className="flex min-h-10 items-center justify-between gap-3 border-b border-destructive/25 bg-destructive/10 px-4 py-2 text-sm">
-      <div className="flex min-w-0 items-center gap-2 text-destructive">
-        <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
-        <span className="min-w-0 truncate">
-          {translate(
-            'auto.components.agentWorkspace.layout.threadFailedOpenTerminal',
-            'Thread failed. Open the terminal drawer to inspect raw output.'
-          )}
-        </span>
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="xs"
-        disabled={!terminalAvailable || typeof onOpenTerminalDrawer !== 'function'}
-        onClick={() => onOpenTerminalDrawer?.('failure')}
-      >
-        <Terminal className="size-3" aria-hidden="true" />
-        {translate('auto.components.agentWorkspace.layout.openTerminalDrawer', 'Open drawer')}
-      </Button>
-    </div>
-  )
-}
-
-function AgentWorkspaceCenter({
-  activeWorktreeId,
-  project,
-  thread,
-  timeline,
-  terminalAvailable,
-  onOpenTerminalDrawer
-}: {
-  activeWorktreeId: string | null
-  project: AgentWorkspaceProject | null
-  thread: AgentWorkspaceThread | null
-  timeline: readonly AgentWorkspaceTimelineEntry[]
-  terminalAvailable: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-}): React.JSX.Element {
-  return (
-    <main className="flex min-w-0 flex-1 flex-col bg-background">
-      <AgentFailureTerminalBanner
-        thread={thread}
-        terminalAvailable={terminalAvailable}
-        onOpenTerminalDrawer={onOpenTerminalDrawer}
-      />
-      <AgentTimeline thread={thread} timeline={timeline} />
-      <TerminalDrawerAffordance
-        terminalAvailable={terminalAvailable}
-        onOpenTerminalDrawer={onOpenTerminalDrawer}
-      />
-      <AgentComposer
-        activeWorktreeId={activeWorktreeId}
-        selectedProject={project}
-        selectedThread={thread}
-      />
-    </main>
-  )
-}
-
 export function AgentWorkspaceLayout({
   snapshot,
+  terminalDrawerReason = null,
   onOpenTerminalDrawer
 }: {
   snapshot: AgentWorkspaceSnapshot
+  terminalDrawerReason?: AgentTerminalRevealReason | null
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
-  const defaultProject = getSelectedProject(snapshot)
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    () => defaultProject?.id ?? null
-  )
-  const selectedProjectFromState =
-    snapshot.projects.find((project) => project.id === selectedProjectId) ?? null
-  const selectedProject = selectedProjectFromState ?? defaultProject
+  const selectedProject = getSelectedProject(snapshot)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
-  const defaultThread = getSelectedThread(snapshot, selectedProject)
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
-    () => defaultThread?.id ?? null
-  )
+  const projectThreads = getProjectThreads(snapshot, selectedProject)
+  const defaultThread = projectThreads[0] ?? null
+  const [panes, setPanes] = useState<AgentWorkspacePaneState[]>(() => [
+    { id: 'pane-1', selectedThreadId: defaultThread?.id ?? null }
+  ])
+  const [activePaneId, setActivePaneId] = useState('pane-1')
+  const [splitDirection, setSplitDirection] = useState<AgentWorkspaceSplitDirection>('horizontal')
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
       getRightPanelStateInput(
@@ -261,12 +142,17 @@ export function AgentWorkspaceLayout({
       )
     )
   )
-  const selectedThread = getSelectedThread(snapshot, selectedProject, selectedThreadId)
+  const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
+  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0] ?? null
+  const selectedThread = activePane?.selectedThreadId
+    ? (projectThreads.find((thread) => thread.id === activePane.selectedThreadId) ?? null)
+    : null
   const openDiff = useAppStore((state) => state.openDiff)
-  const openModal = useAppStore((state) => state.openModal)
-  const setActiveWorktree = useAppStore((state) => state.setActiveWorktree)
-  const previousActiveWorktreeIdRef = useRef(snapshot.activeWorktreeId)
-  const timeline = getThreadTimeline(snapshot, selectedThread)
+  const setAgentWorkspaceRightPanelExpanded = useAppStore(
+    (state) => state.setAgentWorkspaceRightPanelExpanded
+  )
+  const setRightSidebarOpen = useAppStore((state) => state.setRightSidebarOpen)
+  const showRightSidebarFiles = useAppStore((state) => state.showRightSidebarFiles)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
   const selectedApproval = getThreadApproval(snapshot, selectedThread)
@@ -279,26 +165,30 @@ export function AgentWorkspaceLayout({
   )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
+  const nextPaneSequenceRef = useRef(2)
 
   useEffect(() => {
-    if (previousActiveWorktreeIdRef.current !== snapshot.activeWorktreeId) {
-      previousActiveWorktreeIdRef.current = snapshot.activeWorktreeId
-      const nextProject = getSelectedProject(snapshot)
-      setSelectedProjectId(nextProject?.id ?? null)
-      setSelectedThreadId(getSelectedThread(snapshot, nextProject)?.id ?? null)
-      return
-    }
-
-    if (selectedProjectId !== (selectedProject?.id ?? null)) {
-      setSelectedProjectId(selectedProject?.id ?? null)
-    }
-  }, [selectedProject, selectedProjectId, snapshot])
+    setPanes((currentPanes) => {
+      let changed = false
+      const nextPanes = currentPanes.map((pane) => {
+        if (!pane.selectedThreadId) {
+          return pane
+        }
+        if (projectThreads.some((thread) => thread.id === pane.selectedThreadId)) {
+          return pane
+        }
+        changed = true
+        return { ...pane, selectedThreadId: defaultThread?.id ?? null }
+      })
+      return changed ? nextPanes : currentPanes
+    })
+  }, [defaultThread?.id, projectThreadIdsKey, projectThreads])
 
   useEffect(() => {
-    if (selectedThreadId !== (selectedThread?.id ?? null)) {
-      setSelectedThreadId(selectedThread?.id ?? null)
+    if (!panes.some((pane) => pane.id === activePaneId)) {
+      setActivePaneId(panes[0]?.id ?? 'pane-1')
     }
-  }, [selectedThread, selectedThreadId])
+  }, [activePaneId, panes])
 
   useEffect(() => {
     if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
@@ -307,11 +197,119 @@ export function AgentWorkspaceLayout({
     }
   }, [rightPanelStateInput, rightPanelStateInputKey])
 
+  useEffect(() => {
+    const expanded = !selectedRightPanelState.collapsed
+    setAgentWorkspaceRightPanelExpanded(expanded)
+    if (expanded) {
+      setRightSidebarOpen(false)
+    }
+  }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
+
+  useEffect(
+    () => () => {
+      setAgentWorkspaceRightPanelExpanded(false)
+    },
+    [setAgentWorkspaceRightPanelExpanded]
+  )
+
   function handleRightPanelTabChange(tab: AgentWorkspaceRightPanelTab): void {
     setSelectedRightPanelState({
       selectedTab: tab,
       collapsed: false
     } satisfies AgentWorkspaceRightPanelState)
+  }
+
+  function handleExpandRightPanel(): void {
+    setSelectedRightPanelState((current) => ({
+      ...current,
+      collapsed: false
+    }))
+  }
+
+  function handlePaneThreadSelect(paneId: string, threadId: string): void {
+    setActivePaneId(paneId)
+    setPanes((currentPanes) =>
+      currentPanes.map((pane) =>
+        pane.id === paneId ? { ...pane, selectedThreadId: threadId } : pane
+      )
+    )
+  }
+
+  useEffect(() => {
+    if (!activePane) {
+      return
+    }
+    const approvalThreadId = pickAgentWorkspaceApprovalThreadId(
+      projectThreads,
+      activePane.selectedThreadId
+    )
+    if (!approvalThreadId) {
+      return
+    }
+    handlePaneThreadSelect(activePane.id, approvalThreadId)
+  }, [activePane, projectThreadIdsKey, projectThreads])
+
+  function handleNewSession(paneId: string): void {
+    setActivePaneId(paneId)
+    setPanes((currentPanes) =>
+      currentPanes.map((pane) => (pane.id === paneId ? { ...pane, selectedThreadId: null } : pane))
+    )
+  }
+
+  function handleCloseThread(paneId: string, threadId: string): void {
+    const remainingThreads = projectThreads.filter((thread) => thread.id !== threadId)
+    const fallbackThreadId = remainingThreads[0]?.id ?? null
+    setPanes((currentPanes) =>
+      currentPanes.map((pane) => {
+        if (pane.selectedThreadId !== threadId) {
+          return pane
+        }
+        return { ...pane, selectedThreadId: fallbackThreadId }
+      })
+    )
+    if (activePane?.selectedThreadId === threadId) {
+      setActivePaneId(paneId)
+    }
+    closeAgentWorkspaceThread(threadId)
+  }
+
+  function handleSplitPane(paneId: string, direction: AgentWorkspaceSplitDirection): void {
+    setSplitDirection(direction)
+    const nextPaneId = `pane-${nextPaneSequenceRef.current}`
+    nextPaneSequenceRef.current += 1
+    const sourcePane = panes.find((pane) => pane.id === paneId)
+    setPanes((currentPanes) => {
+      const insertIndex = currentPanes.findIndex((pane) => pane.id === paneId)
+      const nextPane = {
+        id: nextPaneId,
+        selectedThreadId: sourcePane?.selectedThreadId ?? defaultThread?.id ?? null
+      }
+      if (insertIndex === -1) {
+        return [...currentPanes, nextPane]
+      }
+      return [
+        ...currentPanes.slice(0, insertIndex + 1),
+        nextPane,
+        ...currentPanes.slice(insertIndex + 1)
+      ]
+    })
+    setActivePaneId(nextPaneId)
+  }
+
+  function handleClosePane(paneId: string): void {
+    setPanes((currentPanes) => {
+      if (currentPanes.length <= 1) {
+        return currentPanes
+      }
+      const closingIndex = currentPanes.findIndex((pane) => pane.id === paneId)
+      const nextPanes = currentPanes.filter((pane) => pane.id !== paneId)
+      if (activePaneId === paneId) {
+        setActivePaneId(
+          nextPanes[Math.max(0, closingIndex - 1)]?.id ?? nextPanes[0]?.id ?? 'pane-1'
+        )
+      }
+      return nextPanes
+    })
   }
 
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
@@ -327,53 +325,20 @@ export function AgentWorkspaceLayout({
     )
   }
 
-  function handleCreateProjectWorktree(project: AgentWorkspaceProject): void {
-    if (project.canCreateWorktree !== true || !project.repoId) {
-      return
-    }
-    openModal('new-workspace-composer', {
-      initialRepoId: project.repoId,
-      telemetrySource: 'sidebar'
-    })
-  }
-
-  function handleDeleteProject(project: AgentWorkspaceProject): void {
-    if (project.canDeleteWorktree !== true) {
-      return
-    }
-    runWorktreeDelete(project.id)
-  }
-
   return (
     <AgentWorkspaceChrome
-      sidebar={
-        <AgentWorkspaceSidebar
-          projects={snapshot.projects}
-          threads={snapshot.threads}
-          selectedProjectId={selectedProject?.id ?? null}
-          selectedThreadId={selectedThread?.id ?? null}
-          activeWorktreeId={snapshot.activeWorktreeId}
-          onSelectProject={(projectId) => {
-            if (projectId !== snapshot.activeWorktreeId) {
-              setActiveWorktree(projectId)
-            }
-            setSelectedProjectId(projectId)
-            const nextProject =
-              snapshot.projects.find((project) => project.id === projectId) ?? null
-            setSelectedThreadId(getSelectedThread(snapshot, nextProject)?.id ?? null)
+      header={
+        <AgentWorkspaceHeader
+          project={selectedProject}
+          thread={selectedThread}
+          rightPanelCollapsed={selectedRightPanelState.collapsed}
+          onExpandRightPanel={handleExpandRightPanel}
+          onOpenProjectFiles={() => {
+            setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
+            showRightSidebarFiles()
           }}
-          onSelectThread={(projectId, threadId) => {
-            if (projectId !== snapshot.activeWorktreeId) {
-              setActiveWorktree(projectId)
-            }
-            setSelectedProjectId(projectId)
-            setSelectedThreadId(threadId)
-          }}
-          onCreateProjectWorktree={handleCreateProjectWorktree}
-          onDeleteProject={handleDeleteProject}
         />
       }
-      header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
       rightPanel={
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel
@@ -397,14 +362,58 @@ export function AgentWorkspaceLayout({
         )
       }
     >
-      <AgentWorkspaceCenter
-        activeWorktreeId={snapshot.activeWorktreeId}
-        project={selectedProject}
-        thread={selectedThread}
-        timeline={timeline}
-        terminalAvailable={snapshot.terminalAvailable}
-        onOpenTerminalDrawer={onOpenTerminalDrawer}
-      />
+      <div
+        className="flex min-w-0 flex-1 overflow-hidden"
+        style={{ flexDirection: splitDirection === 'horizontal' ? 'row' : 'column' }}
+      >
+        {panes.map((pane, index) => {
+          const paneThread = pane.selectedThreadId
+            ? (projectThreads.find((thread) => thread.id === pane.selectedThreadId) ?? null)
+            : null
+          const paneApproval = getThreadApproval(snapshot, paneThread)
+          const paneTimeline = getThreadTimeline(snapshot, paneThread)
+          return (
+            <div
+              key={pane.id}
+              className={`flex min-h-0 min-w-0 flex-1 overflow-hidden ${
+                index > 0
+                  ? splitDirection === 'horizontal'
+                    ? 'border-l border-border'
+                    : 'border-t border-border'
+                  : ''
+              }`}
+            >
+              <AgentWorkspacePane
+                activeWorktreeId={snapshot.activeWorktreeId}
+                project={selectedProject}
+                paneLabel={translate(
+                  'auto.components.agentWorkspace.layout.paneLabel',
+                  'Pane {{index}}',
+                  {
+                    index: String(index + 1)
+                  }
+                )}
+                active={pane.id === activePaneId}
+                hasSplitPanes={panes.length > 1}
+                threads={projectThreads}
+                thread={paneThread}
+                approval={paneApproval}
+                timeline={paneTimeline}
+                terminalAvailable={snapshot.terminalAvailable}
+                browserWorkbenchActive={terminalDrawerReason === 'browser'}
+                onFocusPane={() => setActivePaneId(pane.id)}
+                onSelectThread={(threadId) => handlePaneThreadSelect(pane.id, threadId)}
+                onCloseThread={(threadId) => handleCloseThread(pane.id, threadId)}
+                onNewSession={() => handleNewSession(pane.id)}
+                onSplitRight={() => handleSplitPane(pane.id, 'horizontal')}
+                onSplitDown={() => handleSplitPane(pane.id, 'vertical')}
+                onClosePane={() => handleClosePane(pane.id)}
+                onOpenTerminalDrawer={onOpenTerminalDrawer}
+              />
+            </div>
+          )
+        })}
+      </div>
     </AgentWorkspaceChrome>
   )
 }

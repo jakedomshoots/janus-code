@@ -70,7 +70,7 @@ export function MobileNetworkInterfaceSection({
             </SelectContent>
           </Select>
           {/* Why: VPN/tailnet interfaces can appear after this pane mounts.
-              Re-enumerating OS state here avoids requiring an Janus Code restart. */}
+              Re-enumerating OS state here avoids requiring a Janus Code restart. */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

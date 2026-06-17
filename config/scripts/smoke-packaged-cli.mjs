@@ -32,29 +32,20 @@ function getPackagedCliPath(appDir, { allowLegacyFallback }) {
   if (process.platform === 'darwin' || appDir.endsWith('.app')) {
     return resolvePrimaryPackagedCliPath({
       primary: join(appDir, 'Contents', 'Resources', 'bin', 'janus'),
-      fallbacks: [
-        join(appDir, 'Contents', 'Resources', 'bin', 'agent-hub'),
-        join(appDir, 'Contents', 'Resources', 'bin', 'orca')
-      ],
+      fallbacks: [join(appDir, 'Contents', 'Resources', 'bin', 'agent-hub')],
       allowLegacyFallback
     })
   }
   if (process.platform === 'win32') {
     return resolvePrimaryPackagedCliPath({
       primary: join(appDir, 'resources', 'bin', 'janus.cmd'),
-      fallbacks: [
-        join(appDir, 'resources', 'bin', 'agent-hub.cmd'),
-        join(appDir, 'resources', 'bin', 'orca.cmd')
-      ],
+      fallbacks: [join(appDir, 'resources', 'bin', 'agent-hub.cmd')],
       allowLegacyFallback
     })
   }
   return resolvePrimaryPackagedCliPath({
     primary: join(appDir, 'resources', 'bin', 'janus'),
-    fallbacks: [
-      join(appDir, 'resources', 'bin', 'agent-hub'),
-      join(appDir, 'resources', 'bin', 'orca-ide')
-    ],
+    fallbacks: [join(appDir, 'resources', 'bin', 'agent-hub')],
     allowLegacyFallback
   })
 }
@@ -75,7 +66,7 @@ function resolvePrimaryPackagedCliPath({ primary, fallbacks, allowLegacyFallback
 const argv = process.argv.slice(2)
 const appDir = resolve(readAppDirArg(argv))
 const allowLegacyFallback = readAllowLegacyCliFallbackArg(argv)
-const tempRoot = await mkdtemp(join(tmpdir(), 'orca-packaged-cli-smoke-'))
+const tempRoot = await mkdtemp(join(tmpdir(), 'janus-packaged-cli-smoke-'))
 const copiedAppDir = join(tempRoot, basename(appDir))
 
 try {

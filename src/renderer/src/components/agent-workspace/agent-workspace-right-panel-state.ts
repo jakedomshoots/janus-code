@@ -4,7 +4,7 @@ import type {
   AgentWorkspaceThread
 } from './agent-workspace-types'
 
-export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'review' | 'terminal' | 'details'
+export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'review' | 'details'
 
 export type AgentWorkspaceRightPanelState = {
   readonly selectedTab: AgentWorkspaceRightPanelTab
@@ -39,7 +39,7 @@ export function getDefaultAgentWorkspaceRightPanelState({
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): AgentWorkspaceRightPanelState {
   if (!thread) {
-    return { selectedTab: 'terminal', collapsed: true }
+    return { selectedTab: 'details', collapsed: true }
   }
   if (thread.phase === 'needs-approval') {
     return { selectedTab: 'details', collapsed: false }
@@ -53,7 +53,7 @@ export function getDefaultAgentWorkspaceRightPanelState({
   if (thread.phase === 'running' && hasStructuredPlan) {
     return { selectedTab: 'plan', collapsed: false }
   }
-  return { selectedTab: 'terminal', collapsed: true }
+  return { selectedTab: 'details', collapsed: true }
 }
 
 export function coerceAgentWorkspaceRightPanelTab(
@@ -63,7 +63,6 @@ export function coerceAgentWorkspaceRightPanelTab(
     case 'plan':
     case 'diff':
     case 'review':
-    case 'terminal':
     case 'details':
       return value
     default:

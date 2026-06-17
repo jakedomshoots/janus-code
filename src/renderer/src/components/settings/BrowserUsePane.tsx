@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import type { CliInstallStatus } from '../../../../shared/cli-install-types'
 import {
-  ORCA_CLI_SKILL_INSTALL_COMMAND,
-  ORCA_CLI_SKILL_NAME
+  JANUS_CLI_SKILL_INSTALL_COMMAND,
+  JANUS_CLI_SKILL_NAME
 } from '@/lib/agent-feature-install-commands'
 import {
   AGENT_SKILL_CLI_PREREQUISITE_NOTICE,
@@ -112,7 +112,7 @@ export function BrowserUseSetup({
     loading: skillLoading,
     error: skillError,
     refresh: refreshSkill
-  } = useInstalledAgentSkill(ORCA_CLI_SKILL_NAME, {
+  } = useInstalledAgentSkill(JANUS_CLI_SKILL_NAME, {
     enabled: browserUseEnabled,
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
   })
@@ -230,7 +230,7 @@ export function BrowserUseSetup({
           )}
           description={translate(
             'auto.components.settings.BrowserUsePane.68ea76eb71',
-            "Install the Browser Use skill so agents can operate Orca's browser."
+            "Install the Browser Use skill so agents can operate Janus Code's browser."
           )}
           keywords={getBrowserUsePaneSearchEntries()[1].keywords}
           className={cn(
@@ -239,7 +239,7 @@ export function BrowserUseSetup({
           )}
         >
           <BrowserUseSkillStep
-            command={ORCA_CLI_SKILL_INSTALL_COMMAND}
+            command={JANUS_CLI_SKILL_INSTALL_COMMAND}
             skillDetected={skillDetected}
             skillLoading={skillLoading}
             skillError={skillError}

@@ -13,7 +13,12 @@ const storeMocks = vi.hoisted(() => ({
   setGitStatus: vi.fn(),
   updateWorktreeGitIdentity: vi.fn(),
   setUpstreamStatus: vi.fn(),
-  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined)
+  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined),
+  createBrowserTab: vi.fn(),
+  focusBrowserTabInWorktree: vi.fn(),
+  setAgentWorkspaceRightPanelExpanded: vi.fn(),
+  setRightSidebarOpen: vi.fn(),
+  showRightSidebarFiles: vi.fn()
 }))
 const deleteFlowMocks = vi.hoisted(() => ({
   runWorktreeDelete: vi.fn()
@@ -52,6 +57,14 @@ vi.mock('@/store', () => ({
       ) => void
       setUpstreamStatus: (worktreeId: string, status: unknown) => void
       fetchUpstreamStatus: () => Promise<void>
+      browserTabsByWorktree: Record<string, unknown[]>
+      browserAnnotationsByPageId: Record<string, unknown[]>
+      activeBrowserTabIdByWorktree: Record<string, string | null>
+      createBrowserTab: typeof storeMocks.createBrowserTab
+      focusBrowserTabInWorktree: typeof storeMocks.focusBrowserTabInWorktree
+      setAgentWorkspaceRightPanelExpanded: (expanded: boolean) => void
+      setRightSidebarOpen: (open: boolean) => void
+      showRightSidebarFiles: () => void
     }) => unknown
   ) =>
     selector({
@@ -61,15 +74,23 @@ vi.mock('@/store', () => ({
       settings: { activeRuntimeEnvironmentId: 'focused-runtime' },
       repos: [
         {
-          id: 'repo-orca',
-          path: '/Users/jakedom/orca',
-          displayName: 'Orca'
+          id: 'repo-janus',
+          path: '/Users/jakedom/janus-code',
+          displayName: 'Janus Code'
         }
       ],
       setGitStatus: storeMocks.setGitStatus,
       updateWorktreeGitIdentity: storeMocks.updateWorktreeGitIdentity,
       setUpstreamStatus: storeMocks.setUpstreamStatus,
-      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus
+      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus,
+      browserTabsByWorktree: {},
+      browserAnnotationsByPageId: {},
+      activeBrowserTabIdByWorktree: {},
+      createBrowserTab: storeMocks.createBrowserTab,
+      focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree,
+      setAgentWorkspaceRightPanelExpanded: storeMocks.setAgentWorkspaceRightPanelExpanded,
+      setRightSidebarOpen: storeMocks.setRightSidebarOpen,
+      showRightSidebarFiles: storeMocks.showRightSidebarFiles
     })
 }))
 
@@ -92,6 +113,8 @@ afterEach(() => {
   storeMocks.updateWorktreeGitIdentity.mockClear()
   storeMocks.setUpstreamStatus.mockClear()
   storeMocks.fetchUpstreamStatus.mockClear()
+  storeMocks.createBrowserTab.mockClear()
+  storeMocks.focusBrowserTabInWorktree.mockClear()
   deleteFlowMocks.runWorktreeDelete.mockClear()
   runtimeGitMocks.stageRuntimeGitPath.mockClear()
   runtimeGitMocks.discardRuntimeGitPath.mockClear()
@@ -106,19 +129,19 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
     projects: [
       {
         id: 'worktree-1',
-        label: 'orca one',
-        path: '/Users/jakedom/orca-one',
+        label: 'janus one',
+        path: '/Users/jakedom/janus-one',
         hostKind: 'local',
-        repoId: 'repo-orca',
+        repoId: 'repo-janus',
         canCreateWorktree: true,
         canDeleteWorktree: true
       },
       {
         id: 'worktree-2',
-        label: 'orca two',
-        path: '/Users/jakedom/orca-two',
+        label: 'janus two',
+        path: '/Users/jakedom/janus-two',
         hostKind: 'local',
-        repoId: 'repo-orca',
+        repoId: 'repo-janus',
         canCreateWorktree: true,
         canDeleteWorktree: true
       }
@@ -132,7 +155,7 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
         phase: 'running',
         updatedAt: '2026-06-15T12:00:00.000Z',
         branchName: 'feature/first',
-        cwd: '/Users/jakedom/orca-one'
+        cwd: '/Users/jakedom/janus-one'
       },
       {
         id: 'thread-2',
@@ -142,7 +165,7 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
         phase: 'waiting-for-user',
         updatedAt: '2026-06-15T12:05:00.000Z',
         branchName: 'feature/second',
-        cwd: '/Users/jakedom/orca-two'
+        cwd: '/Users/jakedom/janus-two'
       }
     ],
     plans: [],
@@ -221,56 +244,30 @@ describe('AgentWorkspaceLayout project actions', () => {
     expect(container.textContent).toContain('Second timeline event')
   })
 
-  it('activates a selected project through the Orca worktree store', () => {
+  it('leaves project switching and worktree actions to the app shell sidebar', () => {
     const container = renderLayout()
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-
-    const secondProjectButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('orca two')
-    )
-    expect(secondProjectButton).toBeDefined()
-
-    act(() => {
-      secondProjectButton?.click()
-    })
-
-    expect(storeMocks.setActiveWorktree).toHaveBeenCalledWith('worktree-2')
-    expect(container.textContent).toContain('Second timeline event')
-  })
-
-  it('opens the existing workspace composer for the selected project repo', () => {
-    const container = renderLayout()
-
-    const createButton = Array.from(container.querySelectorAll('button')).find(
-      (button) => button.getAttribute('aria-label') === 'Create worktree'
-    )
-    expect(createButton).toBeDefined()
-
-    act(() => {
-      createButton?.click()
-    })
-
-    expect(storeMocks.openModal).toHaveBeenCalledWith('new-workspace-composer', {
-      initialRepoId: 'repo-orca',
-      telemetrySource: 'sidebar'
-    })
-  })
-
-  it('routes project deletion through the existing worktree delete preflight flow', () => {
-    const container = renderLayout()
-
-    const deleteButton = Array.from(container.querySelectorAll('button')).find(
-      (button) => button.getAttribute('aria-label') === 'Delete worktree'
-    )
-    expect(deleteButton).toBeDefined()
-
-    act(() => {
-      deleteButton?.click()
-    })
-
-    expect(deleteFlowMocks.runWorktreeDelete).toHaveBeenCalledWith('worktree-1')
+    expect(container.textContent).not.toContain('janus two')
+    expect(
+      Array.from(container.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('janus two')
+      )
+    ).toBe(false)
+    expect(
+      Array.from(container.querySelectorAll('button')).some(
+        (button) => button.getAttribute('aria-label') === 'Create worktree'
+      )
+    ).toBe(false)
+    expect(
+      Array.from(container.querySelectorAll('button')).some(
+        (button) => button.getAttribute('aria-label') === 'Delete worktree'
+      )
+    ).toBe(false)
+    expect(storeMocks.setActiveWorktree).not.toHaveBeenCalled()
+    expect(storeMocks.openModal).not.toHaveBeenCalled()
+    expect(deleteFlowMocks.runWorktreeDelete).not.toHaveBeenCalled()
   })
 
   it('runs source-control actions against the selected local project host', async () => {
@@ -308,7 +305,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'src/app.ts'
@@ -324,7 +321,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'src/app.ts'
@@ -352,7 +349,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'feat: wire gui source control'

@@ -2,8 +2,8 @@ import { app, BrowserWindow, nativeImage } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import classicIcon from '../../resources/icon.png?asset'
 import classicDevIcon from '../../resources/icon-dev.png?asset'
-import watercolorIcon from '../../resources/app-icons/orca-watercolor.png?asset'
-import blueIcon from '../../resources/app-icons/orca-blue.png?asset'
+import watercolorIcon from '../../resources/app-icons/janus-watercolor.png?asset'
+import blueIcon from '../../resources/app-icons/janus-blue.png?asset'
 import { normalizeAppIconId, type AppIconId } from '../shared/app-icon'
 
 const APP_ICON_PATHS = {

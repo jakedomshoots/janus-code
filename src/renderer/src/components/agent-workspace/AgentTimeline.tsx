@@ -11,7 +11,7 @@ export function AgentTimeline({
   timeline: readonly AgentWorkspaceTimelineEntry[]
 }): React.JSX.Element {
   return (
-    <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-4 py-3">
+    <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-4 py-4">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
         {thread ? (
           <>
@@ -32,14 +32,25 @@ export function AgentTimeline({
             )}
           </>
         ) : (
-          <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-            {translate(
-              'auto.components.agentWorkspace.layout.selectThreadTimeline',
-              'Select a thread to view its timeline.'
-            )}
-          </div>
+          <WorkbenchEmptyState />
         )}
       </div>
+    </div>
+  )
+}
+
+function WorkbenchEmptyState(): React.JSX.Element {
+  return (
+    <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 px-6 text-center">
+      <h2 className="text-xl font-semibold text-foreground">
+        {translate('auto.components.agentWorkspace.layout.janusCode', 'Janus Code')}
+      </h2>
+      <p className="max-w-md text-sm text-muted-foreground">
+        {translate(
+          'auto.components.agentWorkspace.layout.emptyStateHint',
+          'Use New session in the tab strip above, then describe your task in the composer below.'
+        )}
+      </p>
     </div>
   )
 }

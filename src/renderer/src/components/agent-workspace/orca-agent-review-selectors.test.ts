@@ -6,7 +6,12 @@ import type { HostedReviewInfo } from '../../../../shared/hosted-review'
 import type { Repo } from '../../../../shared/types'
 import { selectAgentWorkspaceReviews } from './orca-agent-review-selectors'
 
-const repo: Repo = { ...TEST_REPO, id: 'repo-orca', path: '/repo/orca', displayName: 'Orca' }
+const repo: Repo = {
+  ...TEST_REPO,
+  id: 'repo-janus',
+  path: '/repo/janus-code',
+  displayName: 'Janus Code'
+}
 
 function getState(overrides: Partial<AppState> = {}): AppState {
   const store = createTestStore()
@@ -19,7 +24,7 @@ const gitLabReview: HostedReviewInfo = {
   number: 7,
   title: 'Add review panel',
   state: 'open',
-  url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+  url: 'https://gitlab.com/acme/janus-code/-/merge_requests/7',
   status: 'success',
   updatedAt: '2026-06-16T12:00:00.000Z',
   mergeable: 'MERGEABLE'
@@ -30,7 +35,7 @@ describe('selectAgentWorkspaceReviews', () => {
     const worktree = makeWorktree({
       id: 'worktree-1',
       repoId: repo.id,
-      path: '/repo/orca/worktrees/review',
+      path: '/repo/janus-code/worktrees/review',
       branch: 'refs/heads/feature/review'
     })
     const cacheKey = getHostedReviewCacheKey(
@@ -61,7 +66,7 @@ describe('selectAgentWorkspaceReviews', () => {
         number: 7,
         title: 'Add review panel',
         state: 'open',
-        url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+        url: 'https://gitlab.com/acme/janus-code/-/merge_requests/7',
         status: 'success',
         updatedAt: '2026-06-16T12:00:00.000Z'
       }

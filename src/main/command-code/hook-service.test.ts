@@ -24,7 +24,7 @@ describe('CommandCodeHookService', () => {
   let homeDir: string
 
   beforeEach(() => {
-    homeDir = mkdtempSync(join(tmpdir(), 'orca-command-code-home-'))
+    homeDir = mkdtempSync(join(tmpdir(), 'janus-command-code-home-'))
     homedirMock.mockReturnValue(homeDir)
   })
 
@@ -62,6 +62,7 @@ describe('CommandCodeHookService', () => {
 
     if (process.platform === 'win32') {
       expect(script).toContain('sourceEndpointByPort')
+      expect(script).toContain('janus-dev\\agent-hooks')
       expect(script).toContain('orca-dev\\agent-hooks')
       expect(script).toContain('set ORCA_AGENT_HOOK_PORT=')
     } else {
@@ -71,6 +72,7 @@ describe('CommandCodeHookService', () => {
       expect(script).toContain('__orca_fill_from_endpoint_file')
       expect(script).toContain('[ "$__orca_endpoint_port" != "$ORCA_AGENT_HOOK_PORT" ]')
       expect(script).toContain('ORCA_PANE_KEY')
+      expect(script).toContain('janus-dev/agent-hooks')
       expect(script).toContain('orca-dev/agent-hooks')
       expect(script).toContain('endpoint_port=')
     }

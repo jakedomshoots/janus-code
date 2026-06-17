@@ -25,7 +25,7 @@ export function OrchestrationSetupCard(props: {
       )}
       description={translate(
         'auto.components.settings.OrchestrationSetupCard.e7d2a5146c',
-        'Enables agents to hand off context and coordinate work through Orca.'
+        'Enables agents to hand off context and coordinate work through Janus Code.'
       )}
       command={ORCHESTRATION_SKILL_INSTALL_COMMAND}
       terminalTitle="Orchestration setup"

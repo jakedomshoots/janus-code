@@ -14,7 +14,7 @@ export const getThemeEntries = createLocalizedCatalog((): SettingsSearchEntry[] 
     title: translate('auto.components.settings.appearance.search.71e06350b4', 'Theme'),
     description: translate(
       'auto.components.settings.appearance.search.0709c794f7',
-      'Choose how Orca looks in the app window.'
+      'Choose how Janus Code looks in the app window.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.appearance.search.262fe1d24f', 'dark'),
@@ -29,13 +29,13 @@ export const getLanguageEntries = createLocalizedCatalog((): SettingsSearchEntry
     title: translate('settings.appearance.language.title', 'Language'),
     description: translate(
       'settings.appearance.language.description',
-      'Choose the language used by the Orca interface.'
+      'Choose the language used by the Janus Code interface.'
     ),
     keywords: [
       ...translateSearchKeyword('settings.appearance.language.title', 'Language'),
       ...translateSearchKeyword(
         'settings.appearance.language.description',
-        'Choose the language used by the Orca interface.'
+        'Choose the language used by the Janus Code interface.'
       ),
       ...translateSearchKeyword('settings.appearance.language.system', 'System'),
       ...translateSearchKeyword('settings.appearance.language.english', 'English'),
@@ -75,7 +75,7 @@ export const getTypographyEntries = createLocalizedCatalog((): SettingsSearchEnt
     title: translate('auto.components.settings.appearance.search.ddb991024d', 'IDE Font'),
     description: translate(
       'auto.components.settings.appearance.search.07c7c38fac',
-      'Choose the font used by the Orca interface.'
+      'Choose the font used by the Janus Code interface.'
     ),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.appearance.search.24094af355', 'font'),
@@ -88,7 +88,7 @@ export const getTypographyEntries = createLocalizedCatalog((): SettingsSearchEnt
         'typography'
       ),
       ...translateSearchKeyword('auto.components.settings.appearance.search.fab91464dd', 'ide'),
-      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'orca'),
+      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'janus'),
       ...translateSearchKeyword(
         'auto.components.settings.appearance.search.5095258df2',
         'interface'
@@ -131,14 +131,14 @@ export const getTitlebarEntries = createLocalizedCatalog((): SettingsSearchEntry
     title: translate('auto.components.settings.appearance.search.fdd31b00d0', 'Titlebar App Name'),
     description: translate(
       'auto.components.settings.appearance.search.18b4c4c30b',
-      'Show Orca in the titlebar.'
+      'Show Janus Code in the titlebar.'
     ),
     keywords: [
       ...translateSearchKeyword(
         'auto.components.settings.appearance.search.bed343b03e',
         'titlebar'
       ),
-      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'orca'),
+      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'janus'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.36e006efc1', 'app'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.51f957ce39', 'name'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.a895d0f938', 'brand')
@@ -168,7 +168,7 @@ export const getAppIconEntries = createLocalizedCatalog((): SettingsSearchEntry[
         'auto.components.settings.appearance.search.2cfb3420c0',
         'app icon'
       ),
-      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'orca'),
+      ...translateSearchKeyword('auto.components.settings.appearance.search.1f2880a9d5', 'janus'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.d18b54ca90', 'dock'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.e5bc35d59e', 'window'),
       ...translateSearchKeyword(

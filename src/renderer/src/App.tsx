@@ -19,11 +19,12 @@ import {
   PanelLeft,
   PanelRight
 } from 'lucide-react'
-import logo from '../../../resources/logo.svg'
+import logo from '../../../resources/janus-logo.png'
 import { SYNC_FIT_PANES_EVENT, TOGGLE_TERMINAL_PANE_EXPAND_EVENT } from '@/constants/terminal'
 import { syncZoomCSSVar } from '@/lib/ui-zoom'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
+import { shouldSuppressProjectRightSidebar } from './components/agent-workspace/agent-workspace-right-sidebar'
 import { buildAppFontFamily } from '@/lib/app-font-family'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
@@ -128,7 +129,7 @@ import {
 } from './components/feature-tips/feature-tip-startup-gate'
 import {
   trackCmdJPaletteFeatureTipShown,
-  trackOrcaCliFeatureTipShown
+  trackJanusCliFeatureTipShown
 } from './components/feature-tips/feature-tip-telemetry'
 import {
   keybindingMatchesAction,
@@ -549,6 +550,8 @@ function App(): React.JSX.Element {
   const rightSidebarExplorerView = useAppStore((s) => s.rightSidebarExplorerView)
   const isFullScreen = useAppStore((s) => s.isFullScreen)
   const settings = useAppStore((s) => s.settings)
+  const guiAgentWorkspaceEnabled = settings?.guiAgentWorkspaceEnabled === true
+  const agentWorkspaceRightPanelExpanded = useAppStore((s) => s.agentWorkspaceRightPanelExpanded)
   const systemPrefersDark = useSystemPrefersDark()
   const leftSidebarStyle = useMemo(
     () => resolveLeftSidebarStyleVariables(settings, systemPrefersDark),
@@ -571,6 +574,9 @@ function App(): React.JSX.Element {
   })
   const canGoBackWorktree = useAppStore(canGoBackWorktreeHistory)
   const canGoForwardWorktree = useAppStore(canGoForwardWorktreeHistory)
+  const showWorktreeHistoryControls = shouldShowWorktreeHistoryControls(activeView, {
+    guiAgentWorkspaceEnabled
+  })
   const titlebarLeftControlsRef = useRef<HTMLDivElement | null>(null)
   const [collapsedSidebarHeaderWidth, setCollapsedSidebarHeaderWidth] = useState(0)
   const [mountedLazyModalIds, setMountedLazyModalIds] = useState<Set<LazyModalId>>(() => new Set())
@@ -689,8 +695,8 @@ function App(): React.JSX.Element {
     }
 
     featureTipsPromptedThisSessionRef.current = true
-    if (featureTipsDecision.tipId === 'orca-cli') {
-      trackOrcaCliFeatureTipShown('app_open')
+    if (featureTipsDecision.tipId === 'janus-cli') {
+      trackJanusCliFeatureTipShown('app_open')
     } else if (featureTipsDecision.tipId === 'cmd-j-palette') {
       trackCmdJPaletteFeatureTipShown('app_open')
     }
@@ -1282,7 +1288,14 @@ function App(): React.JSX.Element {
     !workspaceChromeActive && !creationLayoutActive && showSidebar && sidebarOpen
   // Why: suppress right sidebar controls on full-page navigation surfaces
   // since those surfaces intentionally own the full content area.
-  const showRightSidebarControls = !creationLayoutActive && canShowRightSidebarForView(activeView)
+  const showRightSidebarControls =
+    !creationLayoutActive &&
+    canShowRightSidebarForView(activeView) &&
+    !shouldSuppressProjectRightSidebar({
+      guiAgentWorkspaceEnabled,
+      activeView,
+      agentWorkspaceRightPanelExpanded
+    })
 
   const handleToggleExpand = (): void => {
     if (!effectiveActiveTabId) {
@@ -1412,7 +1425,7 @@ function App(): React.JSX.Element {
         // Why: Back/Forward traverse mixed worktree + page visits, so the
         // shortcut is active wherever the titlebar button cluster is (terminal
         // or stack-backed pages). Still suppressed in Settings.
-        if (creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)) {
+        if (creationLayoutActive || !showWorktreeHistoryControls) {
           return
         }
         e.preventDefault()
@@ -1571,6 +1584,7 @@ function App(): React.JSX.Element {
     floatingTerminalOpen,
     floatingVisibleTabCount,
     keybindings,
+    showWorktreeHistoryControls,
     settings?.terminalShortcutPolicy,
     setFloatingTerminalOpenWithFocus,
     workspaceChromeActive,
@@ -1625,7 +1639,7 @@ function App(): React.JSX.Element {
           <div className="titlebar-traffic-light-pad" />
         ) : isWindows ? (
           /* Why: on Windows the native title bar is hidden, so we render the
-             Orca logo as a non-interactive identity anchor and a ··· button
+             Janus Code logo as a non-interactive identity anchor and a ··· button
              that pops up the application menu (the same menu revealed by Alt
              on the default autoHideMenuBar). */
           <>
@@ -1655,10 +1669,10 @@ function App(): React.JSX.Element {
                 <ContextMenuTrigger asChild>
                   <div
                     className="titlebar-app-name"
-                    aria-label={translate('auto.App.5096cbbc86', 'Orca')}
+                    aria-label={translate('auto.App.5096cbbc86', 'Janus Code')}
                   >
                     <span className="titlebar-app-name-main">
-                      {translate('auto.App.5096cbbc86', 'Orca')}
+                      {translate('auto.App.5096cbbc86', 'Janus Code')}
                     </span>
                   </div>
                 </ContextMenuTrigger>
@@ -1697,7 +1711,7 @@ function App(): React.JSX.Element {
       {/* Why: Back/Forward traverse mixed worktree + page history, so the
           cluster is shown wherever the history shortcut is live. Hidden in
           Settings and non-stack page views. */}
-      {shouldShowWorktreeHistoryControls(activeView) && (
+      {showWorktreeHistoryControls && (
         // Why: when the workspace sidebar is collapsed, this header shrink-wraps
         // and ml-auto has no spare width; keep a fixed gutter before Back.
         <div className="ml-auto mr-3 flex items-center pl-2">
@@ -2007,7 +2021,7 @@ function App(): React.JSX.Element {
                               title={translate('auto.App.b7a714db1e', 'This page hit an error.')}
                               description={translate(
                                 'auto.App.03a14f6b5b',
-                                'Retry the page or navigate to another Orca surface.'
+                                'Retry the page or navigate to another Janus Code surface.'
                               )}
                             >
                               {activeView === 'settings' ? <Settings /> : null}

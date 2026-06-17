@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { ORCA_CLI_SKILL_INSTALL_COMMAND } from '@/lib/agent-feature-install-commands'
+import { JANUS_CLI_SKILL_INSTALL_COMMAND } from '@/lib/agent-feature-install-commands'
 import {
   AGENT_SKILL_CLI_PREREQUISITE_NOTICE,
   ensureOrcaCliAvailableForAgentSkillTerminal
@@ -32,9 +32,9 @@ export function BrowserUseSkillSetupCard(props: {
       )}
       description={translate(
         'auto.components.feature.wall.BrowserUseSkillSetupCard.cbc45022d4',
-        "Enables agents to navigate and verify pages in Orca's browser."
+        "Enables agents to navigate and verify pages in Janus Code's browser."
       )}
-      command={ORCA_CLI_SKILL_INSTALL_COMMAND}
+      command={JANUS_CLI_SKILL_INSTALL_COMMAND}
       terminalTitle="Browser Use setup"
       terminalAriaLabel="Browser Use skill install terminal"
       terminalWorktreeId="feature-wall-browser-use-skill-terminal"

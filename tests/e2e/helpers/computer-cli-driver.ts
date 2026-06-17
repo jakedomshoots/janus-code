@@ -6,10 +6,10 @@ import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
 const RUNTIME_METADATA_FILE = 'orca-runtime.json'
-let orcaDevUserDataPath: string | null = null
-let orcaServeProcess: ChildProcess | null = null
-let orcaServeStdout = ''
-let orcaServeStderr = ''
+let janusDevUserDataPath: string | null = null
+let janusServeProcess: ChildProcess | null = null
+let janusServeStdout = ''
+let janusServeStderr = ''
 
 export type CliResult = {
   stdout: string
@@ -41,12 +41,16 @@ export async function runOrcaCli(
 }
 
 async function runOrcaCliOnce(args: string[]): Promise<CliResult> {
-  const devCli = join(process.cwd(), 'config/scripts/orca-dev.mjs')
+  const devCli = join(process.cwd(), 'config/scripts/janus-dev.mjs')
   const command = process.env.ORCA_COMPUTER_CLI ?? process.execPath
   const cliArgs = process.env.ORCA_COMPUTER_CLI ? args : [devCli, ...args]
   const env = { ...process.env }
-  if (!process.env.ORCA_COMPUTER_CLI && !env.ORCA_DEV_USER_DATA_PATH) {
-    env.ORCA_DEV_USER_DATA_PATH = await getComputerE2eOrcaDevUserDataPath()
+  if (
+    !process.env.ORCA_COMPUTER_CLI &&
+    !env.JANUS_DEV_USER_DATA_PATH &&
+    !env.ORCA_DEV_USER_DATA_PATH
+  ) {
+    env.JANUS_DEV_USER_DATA_PATH = await getComputerE2eJanusDevUserDataPath()
   }
   try {
     const result = await execFileAsync(command, cliArgs, {
@@ -73,11 +77,11 @@ export async function ensureOrcaRuntimeLaunched(): Promise<void> {
 }
 
 export async function stopOrcaRuntime(): Promise<void> {
-  const processToStop = orcaServeProcess
+  const processToStop = janusServeProcess
   if (!processToStop?.pid) {
     return
   }
-  orcaServeProcess = null
+  janusServeProcess = null
   if (process.platform === 'win32') {
     try {
       await execFileAsync('taskkill.exe', ['/PID', String(processToStop.pid), '/T', '/F'])
@@ -93,17 +97,17 @@ export function parseJsonOutput<T>(stdout: string): T {
   return JSON.parse(stdout) as T
 }
 
-async function getComputerE2eOrcaDevUserDataPath(): Promise<string> {
-  if (!orcaDevUserDataPath) {
-    // Why: the shared orca-dev profile can keep an older runtime alive across
+async function getComputerE2eJanusDevUserDataPath(): Promise<string> {
+  if (!janusDevUserDataPath) {
+    // Why: the shared janus-dev profile can keep an older runtime alive across
     // local test runs, making computer-use E2E exercise stale provider code.
-    orcaDevUserDataPath = await mkdtemp(join(tmpdir(), 'orca-computer-runtime-'))
+    janusDevUserDataPath = await mkdtemp(join(tmpdir(), 'janus-computer-runtime-'))
   }
-  return orcaDevUserDataPath
+  return janusDevUserDataPath
 }
 
 async function waitForOrcaRuntimeReady(): Promise<void> {
-  const userDataPath = await getComputerE2eOrcaDevUserDataPath()
+  const userDataPath = await getComputerE2eJanusDevUserDataPath()
   const metadataPath = join(userDataPath, RUNTIME_METADATA_FILE)
   const deadline = Date.now() + 15000
   let lastError: unknown = null
@@ -125,8 +129,8 @@ async function waitForOrcaRuntimeReady(): Promise<void> {
 
   const detail = [
     lastError instanceof Error ? `Last error: ${lastError.message}` : null,
-    orcaServeStdout.trim() ? `serve stdout: ${orcaServeStdout.trim()}` : null,
-    orcaServeStderr.trim() ? `serve stderr: ${orcaServeStderr.trim()}` : null
+    janusServeStdout.trim() ? `serve stdout: ${janusServeStdout.trim()}` : null,
+    janusServeStderr.trim() ? `serve stderr: ${janusServeStderr.trim()}` : null
   ]
     .filter(Boolean)
     .join(' ')
@@ -138,29 +142,29 @@ function delay(ms: number): Promise<void> {
 }
 
 async function ensureOrcaRuntimeServed(): Promise<void> {
-  if (!orcaServeProcess || orcaServeProcess.exitCode !== null) {
-    const devCli = join(process.cwd(), 'config/scripts/orca-dev.mjs')
+  if (!janusServeProcess || janusServeProcess.exitCode !== null) {
+    const devCli = join(process.cwd(), 'config/scripts/janus-dev.mjs')
     const env = {
       ...process.env,
-      ORCA_DEV_USER_DATA_PATH: await getComputerE2eOrcaDevUserDataPath()
+      JANUS_DEV_USER_DATA_PATH: await getComputerE2eJanusDevUserDataPath()
     }
-    orcaServeStdout = ''
-    orcaServeStderr = ''
-    orcaServeProcess = spawn(process.execPath, [devCli, 'serve', '--no-pairing', '--json'], {
+    janusServeStdout = ''
+    janusServeStderr = ''
+    janusServeProcess = spawn(process.execPath, [devCli, 'serve', '--no-pairing', '--json'], {
       env,
       windowsHide: true
     })
-    orcaServeProcess.stdout?.on('data', (chunk) => {
-      orcaServeStdout += String(chunk)
+    janusServeProcess.stdout?.on('data', (chunk) => {
+      janusServeStdout += String(chunk)
     })
-    orcaServeProcess.stderr?.on('data', (chunk) => {
-      orcaServeStderr += String(chunk)
+    janusServeProcess.stderr?.on('data', (chunk) => {
+      janusServeStderr += String(chunk)
     })
-    orcaServeProcess.once('exit', () => {
-      orcaServeProcess = null
+    janusServeProcess.once('exit', () => {
+      janusServeProcess = null
     })
     process.once('exit', () => {
-      orcaServeProcess?.kill()
+      janusServeProcess?.kill()
     })
   }
   await waitForOrcaRuntimeReady()

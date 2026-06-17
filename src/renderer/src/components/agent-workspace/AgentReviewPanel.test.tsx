@@ -11,7 +11,7 @@ const gitHubReview: AgentWorkspaceReviewSummary = {
   number: 42,
   title: 'Add GUI review panel',
   state: 'open',
-  url: 'https://github.com/acme/orca/pull/42',
+  url: 'https://github.com/acme/janus-code/pull/42',
   status: 'pending',
   updatedAt: '2026-06-16T12:00:00.000Z'
 }
@@ -23,7 +23,7 @@ const gitLabReview: AgentWorkspaceReviewSummary = {
   providerLabel: 'GitLab',
   number: 7,
   title: 'Add GUI review panel for GitLab',
-  url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+  url: 'https://gitlab.com/acme/janus-code/-/merge_requests/7',
   status: 'success'
 }
 

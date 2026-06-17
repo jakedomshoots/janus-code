@@ -62,7 +62,8 @@ function getManagedScript(target: 'local' | 'posix' = 'local'): string {
       'exit /b 0',
       ':sourceEndpointByPort',
       'if not defined APPDATA exit /b 0',
-      'if exist "%APPDATA%\\orca-dev\\agent-hooks" for /r "%APPDATA%\\orca-dev\\agent-hooks" %%F in (endpoint.cmd) do call :maybeSourceEndpoint "%%~fF"',
+      'if exist "%APPDATA%\\janus-dev\\agent-hooks" for /r "%APPDATA%\\janus-dev\\agent-hooks" %%F in (endpoint.cmd) do call :maybeSourceEndpoint "%%~fF"',
+      'if "%ORCA_AGENT_HOOK_TOKEN%"=="" if exist "%APPDATA%\\orca-dev\\agent-hooks" for /r "%APPDATA%\\orca-dev\\agent-hooks" %%F in (endpoint.cmd) do call :maybeSourceEndpoint "%%~fF"',
       'if "%ORCA_AGENT_HOOK_TOKEN%"=="" if exist "%APPDATA%\\orca\\agent-hooks" for /r "%APPDATA%\\orca\\agent-hooks" %%F in (endpoint.cmd) do call :maybeSourceEndpoint "%%~fF"',
       'exit /b 0',
       ':maybeSourceEndpoint',
@@ -130,7 +131,7 @@ function getManagedScript(target: 'local' | 'posix' = 'local'): string {
     '  done',
     '}',
     '# Why: Command Code sanitizes hook subprocess env. The parent TUI process',
-    '# still has Orca pane/hook metadata, so recover it before posting.',
+    '# still has Janus pane/hook metadata, so recover it before posting.',
     'for __orca_name in ORCA_AGENT_HOOK_ENDPOINT ORCA_AGENT_HOOK_PORT ORCA_AGENT_HOOK_TOKEN ORCA_AGENT_HOOK_ENV ORCA_AGENT_HOOK_VERSION ORCA_PANE_KEY ORCA_TAB_ID ORCA_WORKTREE_ID; do',
     '  __orca_fill_from_ancestor "$__orca_name"',
     'done',
@@ -142,6 +143,10 @@ function getManagedScript(target: 'local' | 'posix' = 'local'): string {
     '# matching endpoint file by the unstripped loopback port.',
     'if [ -z "$ORCA_AGENT_HOOK_TOKEN" ] && [ -n "$ORCA_AGENT_HOOK_PORT" ]; then',
     '  for endpoint in \\',
+    '    "$HOME/Library/Application Support/janus-dev/agent-hooks"/*/endpoint.env \\',
+    '    "$HOME/Library/Application Support/janus-dev/agent-hooks/endpoint.env" \\',
+    '    "${XDG_CONFIG_HOME:-$HOME/.config}/janus-dev/agent-hooks"/*/endpoint.env \\',
+    '    "${XDG_CONFIG_HOME:-$HOME/.config}/janus-dev/agent-hooks/endpoint.env" \\',
     '    "$HOME/Library/Application Support/orca-dev/agent-hooks"/*/endpoint.env \\',
     '    "$HOME/Library/Application Support/orca-dev/agent-hooks/endpoint.env" \\',
     '    "${XDG_CONFIG_HOME:-$HOME/.config}/orca-dev/agent-hooks"/*/endpoint.env \\',
@@ -188,7 +193,7 @@ function buildInstalledConfig(
   const isManagedCommand = createManagedCommandMatcher(scriptFileName)
   const managedEvents = new Set<string>(COMMAND_CODE_EVENTS.map((event) => event.eventName))
 
-  // Why: Orca owns only command-code-hook.* entries. Sweep retired managed
+  // Why: Janus Code owns only command-code-hook.* entries. Sweep retired managed
   // events while preserving user-authored Command Code hooks.
   for (const [eventName, definitions] of Object.entries(nextHooks)) {
     if (managedEvents.has(eventName) || !Array.isArray(definitions)) {

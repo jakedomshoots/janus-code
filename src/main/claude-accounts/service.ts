@@ -135,7 +135,9 @@ export class ClaudeAccountService {
     try {
       const captured = await this.runClaudeLoginAndCapture(managedAuth)
       if (!captured.identity.email) {
-        throw new Error('Claude login completed, but Orca could not resolve the account email.')
+        throw new Error(
+          'Claude login completed, but Janus Code could not resolve the account email.'
+        )
       }
       await this.writeManagedAuth(accountId, managedAuthPath, captured)
 
@@ -184,7 +186,7 @@ export class ClaudeAccountService {
       wslLinuxAuthPath: account.wslLinuxAuthPath ?? null
     })
     if (!captured.identity.email) {
-      throw new Error('Claude login completed, but Orca could not resolve the account email.')
+      throw new Error('Claude login completed, but Janus Code could not resolve the account email.')
     }
 
     const settings = this.store.getSettings()
@@ -779,7 +781,7 @@ export class ClaudeAccountService {
         !wslInfo.linuxPath.includes('/.local/share/orca/claude-accounts/') ||
         !wslInfo.linuxPath.endsWith('/auth')
       ) {
-        throw new Error('Managed WSL Claude auth storage is outside Orca account storage.')
+        throw new Error('Managed WSL Claude auth storage is outside Janus Code account storage.')
       }
       if (process.platform === 'win32') {
         try {
@@ -813,16 +815,19 @@ export class ClaudeAccountService {
           }
           return toWindowsWslPath(canonicalLinuxPath, wslInfo.distro)
         } catch (error) {
-          throw new Error('Managed WSL Claude auth storage is outside Orca account storage.', {
-            cause: error
-          })
+          throw new Error(
+            'Managed WSL Claude auth storage is outside Janus Code account storage.',
+            {
+              cause: error
+            }
+          )
         }
       }
       if (
         !existsSync(candidatePath) ||
         !existsSync(join(candidatePath, '.orca-managed-claude-auth'))
       ) {
-        throw new Error('Managed Claude auth storage is not owned by Orca.')
+        throw new Error('Managed Claude auth storage is not owned by Janus Code.')
       }
       return candidatePath
     }
@@ -836,7 +841,7 @@ export class ClaudeAccountService {
       adoptLegacyMarker: true
     })
     if (!trustedPath) {
-      throw new Error('Managed Claude auth storage is not owned by Orca.')
+      throw new Error('Managed Claude auth storage is not owned by Janus Code.')
     }
     return trustedPath
   }

@@ -15,9 +15,9 @@ import {
   selectAgentWorkspaceTerminalAvailable
 } from './orca-agent-workspace-selectors'
 
-const repo = { ...TEST_REPO, id: 'repo-orca', path: '/repo/orca', displayName: 'Orca' }
+const repo = { ...TEST_REPO, id: 'repo-janus', path: '/repo/janus-code', displayName: 'Janus Code' }
 const sshRepo = { ...TEST_REPO, id: 'repo-ssh', connectionId: 'ssh-target-1' }
-const runtimeRepo = { ...TEST_REPO, id: 'repo-runtime', path: '/runtime/orca' }
+const runtimeRepo = { ...TEST_REPO, id: 'repo-runtime', path: '/runtime/janus-code' }
 
 const paneKey = makePaneKey('tab-agent', '11111111-1111-4111-8111-111111111111')
 const waitingPaneKey = makePaneKey('tab-waiting', '22222222-2222-4222-8222-222222222222')
@@ -32,7 +32,7 @@ function getState(overrides: Partial<AppState> = {}): AppState {
 }
 
 function worktree(id: string, overrides: Partial<Worktree> = {}): Worktree {
-  return makeWorktree({ id, repoId: repo.id, path: `/repo/orca/${id}`, ...overrides })
+  return makeWorktree({ id, repoId: repo.id, path: `/repo/janus-code/${id}`, ...overrides })
 }
 
 function tab(id: string, worktreeId: string, overrides: Partial<TerminalTab> = {}): TerminalTab {
@@ -54,7 +54,7 @@ function agentEntry(
   const { state, updatedAt, ...rest } = overrides
   return {
     state,
-    prompt: 'Implement Task 1.2 from the Orca T3 Code GUI Fork plan',
+    prompt: 'Implement Task 1.2 from the Janus Code GUI plan',
     updatedAt,
     stateStartedAt: updatedAt,
     agentType: 'codex',
@@ -138,9 +138,9 @@ describe('orca agent workspace selectors', () => {
 
   it('shows an active worktree project without tabs or threads', () => {
     const active = worktree('wt-empty', {
-      path: '/repo/orca/worktrees/task-1',
+      path: '/repo/janus-code/worktrees/task-1',
       displayName: '',
-      branch: 'refs/heads/feature/t3code-gui-workspace'
+      branch: 'refs/heads/feature/janus-gui-workspace'
     })
 
     const snapshot = selectAgentWorkspaceSnapshot(
@@ -167,10 +167,10 @@ describe('orca agent workspace selectors', () => {
     ).toEqual([
       [
         active.id,
-        'feature/t3code-gui-workspace',
+        'feature/janus-gui-workspace',
         active.path,
         'local',
-        'feature/t3code-gui-workspace',
+        'feature/janus-gui-workspace',
         repo.id,
         true,
         true,
@@ -181,7 +181,7 @@ describe('orca agent workspace selectors', () => {
 
   it('returns a stable snapshot reference when the backing state slices have not changed', () => {
     const active = worktree('wt-stable', {
-      path: '/repo/orca/worktrees/stable',
+      path: '/repo/janus-code/worktrees/stable',
       branch: 'refs/heads/feature/stable'
     })
     const state = stateWithWorktree(active, { activeWorktreeId: active.id })
@@ -191,7 +191,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps a running agent tab to a running thread', () => {
     const running = worktree('wt-running', {
-      path: '/repo/orca/worktrees/running',
+      path: '/repo/janus-code/worktrees/running',
       branch: 'refs/heads/feature/running',
       displayName: 'Running Work'
     })
@@ -230,7 +230,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps source-control git status entries to selected agent diffs', () => {
     const running = worktree('wt-diff', {
-      path: '/repo/orca/worktrees/diff',
+      path: '/repo/janus-code/worktrees/diff',
       branch: 'refs/heads/feature/diff'
     })
     const runningTab = tab('tab-agent', running.id)
@@ -292,7 +292,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps structured agent status plans to workspace plans', () => {
     const running = worktree('wt-plan', {
-      path: '/repo/orca/worktrees/plan',
+      path: '/repo/janus-code/worktrees/plan',
       branch: 'refs/heads/feature/plan'
     })
     const runningTab = tab('tab-agent', running.id)
@@ -338,7 +338,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps structured approval requests to workspace approvals', () => {
     const running = worktree('wt-approval', {
-      path: '/repo/orca/worktrees/approval',
+      path: '/repo/janus-code/worktrees/approval',
       branch: 'refs/heads/feature/approval'
     })
     const runningTab = tab('tab-agent', running.id)
@@ -384,7 +384,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps structured tool lifecycle events to timeline entries', () => {
     const running = worktree('wt-tool-event', {
-      path: '/repo/orca/worktrees/tool-event',
+      path: '/repo/janus-code/worktrees/tool-event',
       branch: 'refs/heads/feature/tool-event'
     })
     const runningTab = tab('tab-agent', running.id)
@@ -424,7 +424,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps structured agent failures to failed threads and error timeline entries', () => {
     const failed = worktree('wt-failure', {
-      path: '/repo/orca/worktrees/failure',
+      path: '/repo/janus-code/worktrees/failure',
       branch: 'refs/heads/feature/failure'
     })
     const failedTab = tab('tab-agent', failed.id)
@@ -469,7 +469,7 @@ describe('orca agent workspace selectors', () => {
 
   it('maps completed agent summaries to timeline entries', () => {
     const completed = worktree('wt-completion', {
-      path: '/repo/orca/worktrees/completion',
+      path: '/repo/janus-code/worktrees/completion',
       branch: 'refs/heads/feature/completion'
     })
     const completedTab = tab('tab-agent', completed.id)
@@ -501,7 +501,7 @@ describe('orca agent workspace selectors', () => {
   })
 
   it('maps waiting and blocked statuses to user-action phases', () => {
-    const action = worktree('wt-action', { path: '/repo/orca/worktrees/action' })
+    const action = worktree('wt-action', { path: '/repo/janus-code/worktrees/action' })
 
     const snapshot = selectAgentWorkspaceSnapshot(
       stateWithWorktree(action, {
@@ -534,7 +534,7 @@ describe('orca agent workspace selectors', () => {
   })
 
   it('maps done status to completed', () => {
-    const done = worktree('wt-done', { path: '/repo/orca/done' })
+    const done = worktree('wt-done', { path: '/repo/janus-code/done' })
 
     expect(
       selectAgentWorkspaceSnapshot(
@@ -557,7 +557,7 @@ describe('orca agent workspace selectors', () => {
   })
 
   it('maps unexpected agent statuses to disconnected', () => {
-    const disconnected = worktree('wt-disconnected', { path: '/repo/orca/disconnected' })
+    const disconnected = worktree('wt-disconnected', { path: '/repo/janus-code/disconnected' })
 
     expect(
       selectAgentWorkspaceSnapshot(
@@ -578,7 +578,7 @@ describe('orca agent workspace selectors', () => {
 
   it('keeps retained completed agents visible when their tab is gone', () => {
     const retained = worktree('wt-retained', {
-      path: '/repo/orca/retained',
+      path: '/repo/janus-code/retained',
       branch: 'refs/heads/feature/retained'
     })
     const retainedTab = tab('tab-retained', retained.id, {
@@ -614,13 +614,13 @@ describe('orca agent workspace selectors', () => {
     const sshWorktree = makeWorktree({
       id: 'wt-ssh',
       repoId: sshRepo.id,
-      path: '/srv/orca/ssh',
+      path: '/srv/janus-code/ssh',
       displayName: 'SSH Work'
     })
     const runtimeWorktree = makeWorktree({
       id: 'wt-runtime',
       repoId: runtimeRepo.id,
-      path: '/runtime/orca/work',
+      path: '/runtime/janus-code/work',
       displayName: 'Runtime Work'
     })
 
@@ -644,7 +644,7 @@ describe('orca agent workspace selectors', () => {
   it('uses worktree host ownership before repo or focused host defaults', () => {
     const runtimeOwnedWorktree = worktree('wt-host-owned', {
       hostId: 'runtime:owned-runtime',
-      path: '/runtime/orca/owned',
+      path: '/runtime/janus-code/owned',
       displayName: 'Runtime Owned'
     })
 
@@ -706,7 +706,7 @@ describe('orca agent workspace selectors', () => {
   })
 
   it('reports terminal availability for empty, tabbed, and live-thread states', () => {
-    const terminal = worktree('wt-terminal', { path: '/repo/orca/term' })
+    const terminal = worktree('wt-terminal', { path: '/repo/janus-code/term' })
     const terminalTab = tab('tab-terminal', terminal.id)
 
     expect(selectAgentWorkspaceTerminalAvailable(getState())).toBe(false)

@@ -1,4 +1,4 @@
-import { Terminal, X } from 'lucide-react'
+import { Globe, Terminal, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -14,8 +14,13 @@ function formatAgentTerminalRevealReason(reason: AgentTerminalRevealReason): str
       )
     case 'debug-button':
       return translate(
-        'auto.components.agentWorkspace.layout.terminalOpenedFromDebugButton',
-        'Opened from debug button'
+        'auto.components.agentWorkspace.layout.terminalOpenedFromComposerTools',
+        'Opened from composer tools'
+      )
+    case 'approval':
+      return translate(
+        'auto.components.agentWorkspace.layout.terminalOpenedForApproval',
+        'Respond to the agent approval prompt here.'
       )
     case 'failure':
       return translate(
@@ -26,6 +31,11 @@ function formatAgentTerminalRevealReason(reason: AgentTerminalRevealReason): str
       return translate(
         'auto.components.agentWorkspace.layout.terminalOpenedFromKeyboardShortcut',
         'Opened from keyboard shortcut'
+      )
+    case 'browser':
+      return translate(
+        'auto.components.agentWorkspace.layout.browserWorkbenchReady',
+        'Browser, grab, and annotations are available here.'
       )
   }
 }
@@ -43,6 +53,21 @@ export function AgentTerminalDrawer({
   onClose: () => void
   children: ReactNode
 }): React.JSX.Element {
+  const isBrowserWorkbench = reason === 'browser'
+  const DrawerIcon = isBrowserWorkbench ? Globe : Terminal
+  const title = isBrowserWorkbench
+    ? translate('auto.components.agentWorkspace.layout.browserWorkbench', 'Browser workbench')
+    : translate('auto.components.agentWorkspace.layout.terminalDrawer', 'Terminal drawer')
+  const closeLabel = isBrowserWorkbench
+    ? translate(
+        'auto.components.agentWorkspace.layout.closeBrowserWorkbench',
+        'Close browser workbench'
+      )
+    : translate(
+        'auto.components.agentWorkspace.layout.closeTerminalDrawer',
+        'Close terminal drawer'
+      )
+
   return (
     <aside
       data-agent-terminal-drawer="true"
@@ -57,11 +82,9 @@ export function AgentTerminalDrawer({
     >
       <div className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-border bg-muted/30 px-3">
         <div className="flex min-w-0 items-center gap-2">
-          <Terminal className="size-4 shrink-0" aria-hidden="true" />
+          <DrawerIcon className="size-4 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
-            <div className="truncate text-sm font-medium">
-              {translate('auto.components.agentWorkspace.layout.terminalDrawer', 'Terminal drawer')}
-            </div>
+            <div className="truncate text-sm font-medium">{title}</div>
             <div className="truncate text-xs text-muted-foreground">
               {terminalAvailable
                 ? ((reason ? formatAgentTerminalRevealReason(reason) : null) ??
@@ -81,10 +104,7 @@ export function AgentTerminalDrawer({
           variant="ghost"
           size="icon-xs"
           onClick={onClose}
-          aria-label={translate(
-            'auto.components.agentWorkspace.layout.closeTerminalDrawer',
-            'Close terminal drawer'
-          )}
+          aria-label={closeLabel}
         >
           <X className="size-3.5" aria-hidden="true" />
         </Button>

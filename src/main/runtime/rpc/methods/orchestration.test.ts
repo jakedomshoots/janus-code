@@ -849,7 +849,7 @@ describe('orchestration RPC methods', () => {
         devMode: true
       })
 
-      expect(send.mock.calls[0]?.[1].text).toContain('orca-dev orchestration send')
+      expect(send.mock.calls[0]?.[1].text).toContain('janus-dev orchestration send')
     })
 
     it('rejects inject to terminal without recognized agent', async () => {

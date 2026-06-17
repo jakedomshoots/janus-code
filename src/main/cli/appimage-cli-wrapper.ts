@@ -20,11 +20,11 @@ set -euo pipefail
 APPIMAGE=${quoteShell(appImagePath)}
 if [ ! -f "$APPIMAGE" ]; then
   echo "Orca AppImage not found at $APPIMAGE" >&2
-  echo "If you moved the AppImage, re-run CLI registration from Orca Settings." >&2
+  echo "If you moved the AppImage, re-run CLI registration from Janus Code Settings." >&2
   exit 1
 fi
-export ORCA_NODE_OPTIONS="\${NODE_OPTIONS-}"
-export ORCA_NODE_REPL_EXTERNAL_MODULE="\${NODE_REPL_EXTERNAL_MODULE-}"
+export JANUS_NODE_OPTIONS="\${NODE_OPTIONS-}"
+export JANUS_NODE_REPL_EXTERNAL_MODULE="\${NODE_REPL_EXTERNAL_MODULE-}"
 unset NODE_OPTIONS
 unset NODE_REPL_EXTERNAL_MODULE
 # Why: AppImage mount paths change on each launch; $APPDIR is the runtime mount.

@@ -19,7 +19,7 @@ function makeRepo(path: string, connectionId: string | null = null): Repo {
 
 describe('skill discovery', () => {
   it('discovers home and repo SKILL.md packages with provider metadata', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'orca-skills-'))
+    const root = await mkdtemp(join(tmpdir(), 'janus-skills-'))
     const home = join(root, 'home')
     const repo = join(root, 'repo')
     const codexSkill = join(home, '.codex', 'skills', 'review')
@@ -60,11 +60,11 @@ describe('skill discovery', () => {
   it('discovers skill packages through symlinked skill directories', async () => {
     const root = await mkdtemp(join(tmpdir(), 'orca-skills-'))
     const home = join(root, 'home')
-    const realSkill = join(root, 'central-skills', 'orca-cli')
-    const linkedSkill = join(home, '.agents', 'skills', 'orca-cli')
+    const realSkill = join(root, 'central-skills', 'janus-cli')
+    const linkedSkill = join(home, '.agents', 'skills', 'janus-cli')
     await mkdir(realSkill, { recursive: true })
     await mkdir(join(home, '.agents', 'skills'), { recursive: true })
-    await writeFile(join(realSkill, 'SKILL.md'), '# Orca CLI\n\nUse the Orca CLI.')
+    await writeFile(join(realSkill, 'SKILL.md'), '# Janus CLI\n\nUse the Janus CLI.')
     await symlink(realSkill, linkedSkill, process.platform === 'win32' ? 'junction' : 'dir')
 
     const result = await discoverSkills({
@@ -72,19 +72,19 @@ describe('skill discovery', () => {
       cwd: join(root, 'missing-cwd')
     })
 
-    const skill = result.skills.find((entry) => entry.name === 'Orca CLI')
+    const skill = result.skills.find((entry) => entry.name === 'Janus CLI')
     expect(skill?.sourceKind).toBe('home')
     expect(skill?.directoryPath).toBe(linkedSkill)
   })
 
   it('keeps home classification when cwd points at the same directory as home', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'orca-skills-'))
+    const root = await mkdtemp(join(tmpdir(), 'janus-skills-'))
     const home = join(root, 'home')
-    const skillDir = join(home, '.agents', 'skills', 'orca-cli')
+    const skillDir = join(home, '.agents', 'skills', 'janus-cli')
     await mkdir(skillDir, { recursive: true })
     await writeFile(
       join(skillDir, 'SKILL.md'),
-      ['---', 'name: orca-cli', 'description: Use the Orca CLI.', '---', ''].join('\n')
+      ['---', 'name: janus-cli', 'description: Use the Janus CLI.', '---', ''].join('\n')
     )
 
     const result = await discoverSkills({
@@ -93,7 +93,7 @@ describe('skill discovery', () => {
       repos: []
     })
 
-    expect(result.skills.filter((entry) => entry.name === 'orca-cli')).toMatchObject([
+    expect(result.skills.filter((entry) => entry.name === 'janus-cli')).toMatchObject([
       {
         sourceKind: 'home',
         sourceLabel: 'Agent skills home',

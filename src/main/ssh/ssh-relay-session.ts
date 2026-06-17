@@ -1041,7 +1041,7 @@ function buildRemoteCliShim(env: RemoteCliBridgeEnv): {
       `ORCA_RELAY_DIR=\${ORCA_RELAY_DIR:-${quoteSh(env.relayDir)}}`,
       `ORCA_RELAY_SOCKET_PATH=\${ORCA_RELAY_SOCKET_PATH:-${quoteSh(env.sockPath)}}`,
       'if [ ! -S "$ORCA_RELAY_SOCKET_PATH" ]; then',
-      '  echo "Orca SSH CLI bridge cannot find the relay socket: $ORCA_RELAY_SOCKET_PATH" >&2',
+      '  echo "Janus Code SSH CLI bridge cannot find the relay socket: $ORCA_RELAY_SOCKET_PATH" >&2',
       '  exit 1',
       'fi',
       'exec "$ORCA_RELAY_NODE_PATH" "$ORCA_RELAY_DIR/relay.js" --sock-path "$ORCA_RELAY_SOCKET_PATH" --orca-cli "$@"',

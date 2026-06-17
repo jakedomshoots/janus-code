@@ -1,21 +1,57 @@
 // Chinese phrase fixes from high-visibility UI audit round 5.
 export const ZH_PHRASE_FIXES_ROUND5 = [
-  { pattern: /Orca集成开发环境/g, replacement: 'Orca IDE', whenEnIncludes: 'Orca IDE' },
-  { pattern: /Orca第一/g, replacement: 'Orca 优先', whenEnIncludes: 'Orca first' },
-  { pattern: /Orca移动/g, replacement: 'Janus Mobile', whenEnIncludes: 'Janus Mobile' },
-  { pattern: /Orca归属/g, replacement: 'Orca 归因', whenEnIncludes: 'Orca Attribution' },
-  { pattern: /Orca标志/g, replacement: 'Orca 标志', whenEnIncludes: 'Orca logo' },
-  { pattern: /喜欢Orca/g, replacement: '喜欢 Orca', whenEnIncludes: 'Enjoying Orca' },
-  { pattern: /认识Orca/g, replacement: '了解 Orca', whenEnIncludes: 'Get to know Orca' },
-  { pattern: /支持Orca/g, replacement: '支持 Orca', whenEnIncludes: 'Support Orca' },
-  { pattern: /展开Orca/g, replacement: '展开 Orca', whenEnIncludes: 'Expand Orca' },
-  { pattern: /来自Orca/g, replacement: '来自 Orca', whenEnIncludes: 'from Orca' },
+  { pattern: /Janus Code/g, replacement: 'Janus Code', whenEnIncludes: 'Janus Code' },
   {
-    pattern: /正在重新启动Orca/g,
-    replacement: '正在重启 Orca',
-    whenEnIncludes: 'Restarting Orca'
+    pattern: /Janus Code第一/g,
+    replacement: 'Janus Code 优先',
+    whenEnIncludes: 'Janus Code first'
   },
-  { pattern: /Orca([\u4e00-\u9fff])/g, replacement: 'Orca $1', whenEnIncludes: 'Orca' },
+  { pattern: /Janus Code移动/g, replacement: 'Janus Mobile', whenEnIncludes: 'Janus Mobile' },
+  {
+    pattern: /Janus Code归属/g,
+    replacement: 'Janus Code 归因',
+    whenEnIncludes: 'Janus Code Attribution'
+  },
+  {
+    pattern: /Janus Code 标志/g,
+    replacement: 'Janus Code 标志',
+    whenEnIncludes: 'Janus Code logo'
+  },
+  {
+    pattern: /喜欢 Janus Code/g,
+    replacement: '喜欢 Janus Code',
+    whenEnIncludes: 'Enjoying Janus Code'
+  },
+  {
+    pattern: /了解 Janus Code/g,
+    replacement: '了解 Janus Code',
+    whenEnIncludes: 'Get to know Janus Code'
+  },
+  {
+    pattern: /支持 Janus Code/g,
+    replacement: '支持 Janus Code',
+    whenEnIncludes: 'Support Janus Code'
+  },
+  {
+    pattern: /展开 Janus Code/g,
+    replacement: '展开 Janus Code',
+    whenEnIncludes: 'Expand Janus Code'
+  },
+  {
+    pattern: /来自 Janus Code/g,
+    replacement: '来自 Janus Code',
+    whenEnIncludes: 'from Janus Code'
+  },
+  {
+    pattern: /正在重新启动Janus Code/g,
+    replacement: '正在重启 Janus Code',
+    whenEnIncludes: 'Restarting Janus Code'
+  },
+  {
+    pattern: /Janus Code([\u4e00-\u9fff])/g,
+    replacement: 'Janus Code $1',
+    whenEnIncludes: 'Janus Code'
+  },
   { pattern: /Linear([\u4e00-\u9fff])/g, replacement: 'Linear $1', whenEnIncludes: 'Linear' },
   { pattern: /Codex([\u4e00-\u9fff])/g, replacement: 'Codex $1', whenEnIncludes: 'Codex' },
   { pattern: /Claude([\u4e00-\u9fff])/g, replacement: 'Claude $1', whenEnIncludes: 'Claude' },
@@ -50,7 +86,7 @@ export const ZH_PHRASE_FIXES_ROUND5 = [
     whenEnIncludes: 'actionable issues'
   },
   {
-    pattern: /显示 Orca 移动按钮/g,
+    pattern: /显示 Janus Mobile 按钮/g,
     replacement: '显示 Janus Mobile 按钮',
     whenEnIncludes: 'Show Janus Mobile Button'
   }

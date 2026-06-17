@@ -17,15 +17,22 @@ describe('web pairing input', () => {
       .replace(/=+$/, '')
   }
 
-  it('parses query-form pairing URLs', () => {
-    expect(parseWebPairingInput(`orca://pair?code=${encodeOffer()}`)).toEqual(offer)
+  it('parses query-form Janus pairing URLs', () => {
+    expect(parseWebPairingInput(`janus://pair?code=${encodeOffer()}`)).toEqual(offer)
   })
 
-  it('still parses legacy hash-form pairing URLs', () => {
+  it('parses hash-form Janus pairing URLs', () => {
+    expect(parseWebPairingInput(`janus://pair#${encodeOffer()}`)).toEqual(offer)
+  })
+
+  it('still parses legacy Orca pairing URLs', () => {
+    expect(parseWebPairingInput(`orca://pair?code=${encodeOffer()}`)).toEqual(offer)
     expect(parseWebPairingInput(`orca://pair#${encodeOffer()}`)).toEqual(offer)
   })
 
-  it('rejects orca URLs outside the exact pairing route', () => {
+  it('rejects pairing URLs outside the exact route', () => {
+    expect(parseWebPairingInput(`janus://pairing?code=${encodeOffer()}`)).toBeNull()
+    expect(parseWebPairingInput(`janus://pair-extra?code=${encodeOffer()}`)).toBeNull()
     expect(parseWebPairingInput(`orca://pairing?code=${encodeOffer()}`)).toBeNull()
     expect(parseWebPairingInput(`orca://pair-extra?code=${encodeOffer()}`)).toBeNull()
   })

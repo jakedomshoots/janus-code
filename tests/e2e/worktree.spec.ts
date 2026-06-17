@@ -48,12 +48,9 @@ test.describe('Create Workspace', () => {
 
     const workspace = orcaPage.getByRole('region', { name: /Agent workspace/i })
     await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('button', { name: /Open terminal drawer/i })).toBeEnabled()
 
-    await expect(
-      workspace.getByText(/Terminal session is available as a debug panel/i)
-    ).toBeVisible()
-
-    await workspace.getByRole('button', { name: /Open drawer/i }).click()
+    await workspace.getByRole('button', { name: /Open terminal drawer/i }).click()
 
     const drawer = orcaPage.locator('[data-agent-terminal-drawer="true"][data-state="open"]')
     await expect(drawer).toBeVisible()

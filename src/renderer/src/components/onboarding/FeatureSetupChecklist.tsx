@@ -35,7 +35,7 @@ const FEATURE_SETUP_ROWS: readonly FeatureSetupRow[] = [
         'Agents can navigate sites, inspect pages, and work through browser tasks.'
       )
     },
-    setupSummary: 'Enables browser use, prepares orca-cli, and leaves cookies for Settings.',
+    setupSummary: 'Enables browser use, prepares janus-cli, and leaves cookies for Settings.',
     icon: <Globe2 className="size-4" />
   },
   {

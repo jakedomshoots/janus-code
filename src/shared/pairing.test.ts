@@ -16,7 +16,7 @@ describe('pairing offer', () => {
 
   it('encode then decode round-trips correctly', () => {
     const url = encodePairingOffer(offer)
-    expect(url).toMatch(/^orca:\/\/pair\?code=/)
+    expect(url).toMatch(/^janus:\/\/pair\?code=/)
 
     const decoded = decodePairingOffer(url)
     expect(decoded).toEqual(offer)
@@ -32,17 +32,17 @@ describe('pairing offer', () => {
     expect(() => decodePairingOffer('https://example.com#abc')).toThrow('Invalid pairing URL')
   })
 
-  it('rejects orca URLs outside the exact pairing route', () => {
+  it('rejects Janus URLs outside the exact pairing route', () => {
     const url = encodePairingOffer(offer)
     const code = new URLSearchParams(url.slice(url.indexOf('?') + 1)).get('code')!
 
-    expect(parsePairingCode(`orca://pairing?code=${code}`)).toBeNull()
-    expect(parsePairingCode(`orca://pair-extra?code=${code}`)).toBeNull()
-    expect(() => decodePairingOffer(`orca://pairing?code=${code}`)).toThrow('Invalid pairing URL')
+    expect(parsePairingCode(`janus://pairing?code=${code}`)).toBeNull()
+    expect(parsePairingCode(`janus://pair-extra?code=${code}`)).toBeNull()
+    expect(() => decodePairingOffer(`janus://pairing?code=${code}`)).toThrow('Invalid pairing URL')
   })
 
   it('rejects URLs without a pairing code', () => {
-    expect(() => decodePairingOffer('orca://pair')).toThrow('Invalid pairing URL')
+    expect(() => decodePairingOffer('janus://pair')).toThrow('Invalid pairing URL')
   })
 
   it('decodes legacy hash URLs', () => {
@@ -78,9 +78,15 @@ describe('parsePairingCode', () => {
     publicKeyB64: 'pubkey-xyz'
   }
 
-  it('parses a full orca://pair# URL', () => {
+  it('parses a full janus://pair URL', () => {
     const url = encodePairingOffer(offer)
     expect(parsePairingCode(url)).toEqual(offer)
+  })
+
+  it('parses a legacy orca://pair URL', () => {
+    const url = encodePairingOffer(offer)
+    const code = new URLSearchParams(url.slice(url.indexOf('?') + 1)).get('code')!
+    expect(parsePairingCode(`orca://pair?code=${code}`)).toEqual(offer)
   })
 
   it('parses a bare base64url payload (without scheme prefix)', () => {

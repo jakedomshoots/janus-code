@@ -2259,7 +2259,7 @@ export class OrcaRuntimeService {
       liveLeafCount: this.leaves.size,
       runtimeProtocolVersion: RUNTIME_PROTOCOL_VERSION,
       minCompatibleRuntimeClientVersion: MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
-      // Why: headless orca serve cannot create/stream BrowserViews, so clients
+      // Why: headless janus serve cannot create/stream BrowserViews, so clients
       // must not treat browser panes as supported just because runtime RPC is up.
       capabilities,
       hostPlatform: process.platform,
@@ -7277,7 +7277,7 @@ export class OrcaRuntimeService {
     }
     if (!isAbsolute(path)) {
       // Why: remote clients may run in a different cwd than the server. Require
-      // server-side repo paths to be explicit so `orca serve` cwd is irrelevant.
+      // server-side repo paths to be explicit so `janus serve` cwd is irrelevant.
       throw new Error('Project path must be an absolute path')
     }
     if (kind === 'git' && !isGitRepo(path)) {
@@ -11833,7 +11833,7 @@ export class OrcaRuntimeService {
     const shouldCreateInBackground =
       worktreeSelector !== undefined &&
       ((opts.focus !== true && opts.rendererBacked !== true) ||
-        // Why: `orca serve` exposes the local runtime without a renderer
+        // Why: `janus serve` exposes the local runtime without a renderer
         // window. Renderer-backed Codex terminals are preferred for the app,
         // but headless CLI users still need a usable terminal handle.
         (opts.rendererBacked === true && rendererWindow === null))
@@ -16731,7 +16731,7 @@ export class OrcaRuntimeService {
     }
     if (isLinearAuthError(error)) {
       return linearError('linear_auth_expired', 'Linear authentication expired.', {
-        nextSteps: ['Reconnect Linear from Orca settings.']
+        nextSteps: ['Reconnect Linear from Janus Code settings.']
       })
     }
     return linearError(classifyLinearError(error), linearMessage(error))
@@ -17056,7 +17056,7 @@ export class OrcaRuntimeService {
     }
     if (teams.length === 0 && (getLinearStatus().workspaces?.length ?? 0) === 0) {
       throw linearError('linear_not_connected', 'Linear is not connected.', {
-        nextSteps: ['Connect Linear from Orca settings, then retry the issue create.']
+        nextSteps: ['Connect Linear from Janus Code settings, then retry the issue create.']
       })
     }
     const matches = teams.filter(

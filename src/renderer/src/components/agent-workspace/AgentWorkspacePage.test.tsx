@@ -24,28 +24,45 @@ const emptySnapshot: AgentWorkspaceSnapshot = {
 
 let currentSnapshot: AgentWorkspaceSnapshot = emptySnapshot
 const roots: Root[] = []
-const storeMocks = vi.hoisted(() => ({
-  setActiveWorktree: vi.fn(),
-  openDiff: vi.fn(),
-  openModal: vi.fn()
-}))
+const storeMocks = vi.hoisted(() => {
+  const state = {
+    agentWorkspaceTestSnapshot: {
+      activeWorktreeId: null,
+      projects: [],
+      threads: [],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: false
+    } as AgentWorkspaceSnapshot,
+    settings: { guiAgentWorkspaceEnabled: false },
+    setActiveWorktree: vi.fn(),
+    openDiff: vi.fn(),
+    openModal: vi.fn(),
+    browserTabsByWorktree: {},
+    browserAnnotationsByPageId: {},
+    activeBrowserTabIdByWorktree: {},
+    createBrowserTab: vi.fn(),
+    focusBrowserTabInWorktree: vi.fn(),
+    setAgentWorkspaceRightPanelExpanded: vi.fn(),
+    setRightSidebarOpen: vi.fn(),
+    showRightSidebarFiles: vi.fn()
+  }
+
+  return {
+    state,
+    setActiveWorktree: state.setActiveWorktree,
+    openDiff: state.openDiff,
+    openModal: state.openModal
+  }
+})
 
 vi.mock('@/store', () => ({
-  useAppStore: (
-    selector: (state: {
-      agentWorkspaceTestSnapshot: AgentWorkspaceSnapshot
-      settings: { guiAgentWorkspaceEnabled: boolean }
-      setActiveWorktree: typeof storeMocks.setActiveWorktree
-      openDiff: typeof storeMocks.openDiff
-      openModal: typeof storeMocks.openModal
-    }) => unknown
-  ) =>
+  useAppStore: (selector: (state: typeof storeMocks.state) => unknown) =>
     selector({
-      agentWorkspaceTestSnapshot: currentSnapshot,
-      settings: { guiAgentWorkspaceEnabled: false },
-      setActiveWorktree: storeMocks.setActiveWorktree,
-      openDiff: storeMocks.openDiff,
-      openModal: storeMocks.openModal
+      ...storeMocks.state,
+      agentWorkspaceTestSnapshot: currentSnapshot
     })
 }))
 
@@ -88,8 +105,8 @@ describe('AgentWorkspacePage', () => {
       projects: [
         {
           id: 'worktree-1',
-          label: 'orca',
-          path: '/Users/jakedom/orca',
+          label: 'janus-code',
+          path: '/Users/jakedom/janus-code',
           hostKind: 'local'
         }
       ],
@@ -101,8 +118,8 @@ describe('AgentWorkspacePage', () => {
           agentKind: 'codex',
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
-          branchName: 'feature/t3code-gui-workspace',
-          cwd: '/Users/jakedom/orca'
+          branchName: 'feature/janus-gui-workspace',
+          cwd: '/Users/jakedom/janus-code'
         }
       ],
       plans: [],
@@ -130,8 +147,8 @@ describe('AgentWorkspacePage', () => {
       terminalAvailable: true
     })
 
-    expect(markup).toContain('orca')
-    expect(markup).toContain('feature/t3code-gui-workspace')
+    expect(markup).toContain('janus-code')
+    expect(markup).toContain('feature/janus-gui-workspace')
     expect(markup).toContain('Implement GUI workspace shell')
     expect(markup).toContain('running')
     expect(markup).toContain('Build the first shell')
@@ -140,6 +157,77 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Terminal')
     expect(markup).toContain('Message the selected agent')
     expect(markup).toContain('src/renderer/src/components/Terminal.tsx')
+  })
+
+  it('uses the app shell sidebar instead of rendering an internal project rail', () => {
+    const markup = renderPage({
+      activeWorktreeId: 'worktree-1',
+      projects: [
+        {
+          id: 'worktree-1',
+          repoId: 'repo-1',
+          label: 'janus-code',
+          path: '/Users/jakedom/janus-code',
+          hostKind: 'local',
+          canCreateWorktree: true
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'Blend the GUI into the app shell',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/janus-gui-workspace',
+          cwd: '/Users/jakedom/janus-code'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: true
+    })
+
+    expect(markup).toContain('janus-code')
+    expect(markup).toContain('Blend the GUI into the app shell')
+    expect(markup).not.toContain('Projects')
+    expect(markup).not.toContain('Create worktree')
+  })
+
+  it('renders the Janus workbench without disabled scaffold controls', () => {
+    const markup = renderPage({
+      activeWorktreeId: 'worktree-1',
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'janus',
+          path: '/Users/jakedom/janus',
+          hostKind: 'local'
+        }
+      ],
+      threads: [],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: true
+    })
+
+    expect(markup).toContain('Janus Code')
+    expect(markup).toContain('New session')
+    expect(markup).toContain('Split right')
+    expect(markup).toContain('Split down')
+    expect(markup).not.toContain('Start new session')
+    expect(markup).not.toContain('Ready for a Janus session')
+    expect(markup).not.toContain('Describe the coding task below.')
+    expect(markup).not.toContain('Refresh')
+    expect(markup).not.toContain('Panels')
+    expect(markup).not.toContain('Run')
+    expect(markup).not.toContain('Terminal session is available as a debug panel.')
+    expect(markup).not.toContain('Select a thread to view its timeline.')
   })
 })
 
@@ -191,8 +279,8 @@ describe('AgentWorkspace phase labels', () => {
           projects: [
             {
               id: 'worktree-1',
-              label: 'orca',
-              path: '/Users/jakedom/orca',
+              label: 'janus-code',
+              path: '/Users/jakedom/janus-code',
               hostKind: 'local'
             }
           ],
@@ -205,7 +293,7 @@ describe('AgentWorkspace phase labels', () => {
               phase: 'waiting-for-user',
               updatedAt: null,
               branchName: null,
-              cwd: '/Users/jakedom/orca'
+              cwd: '/Users/jakedom/janus-code'
             }
           ],
           plans: [],
@@ -231,8 +319,8 @@ describe('AgentWorkspace phase labels', () => {
           projects: [
             {
               id: 'worktree-1',
-              label: 'orca',
-              path: '/Users/jakedom/orca',
+              label: 'janus-code',
+              path: '/Users/jakedom/janus-code',
               hostKind: 'local'
             }
           ],
@@ -245,7 +333,7 @@ describe('AgentWorkspace phase labels', () => {
               phase: 'completed',
               updatedAt: null,
               branchName: null,
-              cwd: '/Users/jakedom/orca'
+              cwd: '/Users/jakedom/janus-code'
             }
           ],
           plans: [],
@@ -282,8 +370,8 @@ describe('AgentWorkspace phase labels', () => {
   })
 })
 
-describe('AgentWorkspaceLayout thread selection', () => {
-  it('lets users select another thread from the left rail', async () => {
+describe('AgentWorkspaceLayout active worktree selection', () => {
+  it('uses the active worktree thread and switches agent tabs inside the workbench', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -298,8 +386,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -312,7 +400,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'running',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               },
               {
                 id: 'thread-2',
@@ -322,7 +410,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'waiting-for-user',
                 updatedAt: '2026-06-15T12:05:00.000Z',
                 branchName: 'feature/second',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],
@@ -353,85 +441,90 @@ describe('AgentWorkspaceLayout thread selection', () => {
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
 
-    const secondThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Second thread')
-    )
-    expect(secondThreadButton).toBeDefined()
+    const secondThreadTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((button) => button.textContent?.includes('Second thread'))
+    expect(secondThreadTab).toBeDefined()
 
     await act(async () => {
-      secondThreadButton?.click()
+      secondThreadTab?.click()
     })
 
+    expect(container.textContent).not.toContain('First timeline event')
     expect(container.textContent).toContain('Second timeline event')
   })
 
-  it('preserves right-panel tab state while selected thread data changes', async () => {
+  it('updates right-panel content when the app shell changes the active worktree', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     roots.push(root)
 
+    const makeSnapshot = (activeWorktreeId: string): AgentWorkspaceSnapshot => ({
+      activeWorktreeId,
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'janus one',
+          path: '/Users/jakedom/janus-one',
+          hostKind: 'local'
+        },
+        {
+          id: 'worktree-2',
+          label: 'janus two',
+          path: '/Users/jakedom/janus-two',
+          hostKind: 'local'
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'First thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/first',
+          cwd: '/Users/jakedom/janus-one'
+        },
+        {
+          id: 'thread-2',
+          worktreeId: 'worktree-2',
+          title: 'Second thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:05:00.000Z',
+          branchName: 'feature/second',
+          cwd: '/Users/jakedom/janus-two'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [
+        {
+          id: 'diff-1',
+          threadId: 'thread-1',
+          filePath: 'src/first.tsx',
+          additions: 3,
+          deletions: 1,
+          status: 'modified'
+        },
+        {
+          id: 'diff-2',
+          threadId: 'thread-2',
+          filePath: 'src/second.tsx',
+          additions: 7,
+          deletions: 2,
+          status: 'added'
+        }
+      ],
+      terminalAvailable: false
+    })
+
     await act(async () => {
-      root.render(
-        <AgentWorkspaceLayout
-          snapshot={{
-            activeWorktreeId: 'worktree-1',
-            projects: [
-              {
-                id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
-                hostKind: 'local'
-              }
-            ],
-            threads: [
-              {
-                id: 'thread-1',
-                worktreeId: 'worktree-1',
-                title: 'First thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:00:00.000Z',
-                branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
-              },
-              {
-                id: 'thread-2',
-                worktreeId: 'worktree-1',
-                title: 'Second thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:05:00.000Z',
-                branchName: 'feature/second',
-                cwd: '/Users/jakedom/orca'
-              }
-            ],
-            plans: [],
-            timeline: [],
-            approvals: [],
-            diffs: [
-              {
-                id: 'diff-1',
-                threadId: 'thread-1',
-                filePath: 'src/first.tsx',
-                additions: 3,
-                deletions: 1,
-                status: 'modified'
-              },
-              {
-                id: 'diff-2',
-                threadId: 'thread-2',
-                filePath: 'src/second.tsx',
-                additions: 7,
-                deletions: 2,
-                status: 'added'
-              }
-            ],
-            terminalAvailable: false
-          }}
-        />
-      )
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
     const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
@@ -447,79 +540,81 @@ describe('AgentWorkspaceLayout thread selection', () => {
     expect(container.textContent).toContain('src/first.tsx')
     expect(container.textContent).not.toContain('src/second.tsx')
 
-    const secondThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Second thread')
-    )
-    expect(secondThreadButton).toBeDefined()
-
     await act(async () => {
-      secondThreadButton?.click()
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
-    expect(diffTab?.getAttribute('data-state')).toBe('active')
+    const updatedDiffTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+    ).find((button) => button.textContent === 'Diff')
+    expect(updatedDiffTab?.getAttribute('data-state')).toBe('active')
     expect(container.textContent).not.toContain('src/first.tsx')
     expect(container.textContent).toContain('src/second.tsx')
   })
 
-  it('re-defaults to details when selecting a thread that needs approval', async () => {
+  it('re-defaults to details when the active worktree changes to a thread that needs approval', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
     roots.push(root)
 
+    const makeSnapshot = (activeWorktreeId: string): AgentWorkspaceSnapshot => ({
+      activeWorktreeId,
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'janus one',
+          path: '/Users/jakedom/janus-one',
+          hostKind: 'local'
+        },
+        {
+          id: 'worktree-2',
+          label: 'janus two',
+          path: '/Users/jakedom/janus-two',
+          hostKind: 'local'
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-1',
+          worktreeId: 'worktree-1',
+          title: 'First thread',
+          agentKind: 'codex',
+          phase: 'running',
+          updatedAt: '2026-06-15T12:00:00.000Z',
+          branchName: 'feature/first',
+          cwd: '/Users/jakedom/janus-one'
+        },
+        {
+          id: 'thread-2',
+          worktreeId: 'worktree-2',
+          title: 'Needs approval thread',
+          agentKind: 'codex',
+          phase: 'needs-approval',
+          updatedAt: '2026-06-15T12:05:00.000Z',
+          branchName: 'feature/approval',
+          cwd: '/Users/jakedom/janus-two'
+        }
+      ],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [
+        {
+          id: 'diff-1',
+          threadId: 'thread-1',
+          filePath: 'src/first.tsx',
+          additions: 3,
+          deletions: 1,
+          status: 'modified'
+        }
+      ],
+      terminalAvailable: false
+    })
+
     await act(async () => {
-      root.render(
-        <AgentWorkspaceLayout
-          snapshot={{
-            activeWorktreeId: 'worktree-1',
-            projects: [
-              {
-                id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
-                hostKind: 'local'
-              }
-            ],
-            threads: [
-              {
-                id: 'thread-1',
-                worktreeId: 'worktree-1',
-                title: 'First thread',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-15T12:00:00.000Z',
-                branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
-              },
-              {
-                id: 'thread-2',
-                worktreeId: 'worktree-1',
-                title: 'Needs approval thread',
-                agentKind: 'codex',
-                phase: 'needs-approval',
-                updatedAt: '2026-06-15T12:05:00.000Z',
-                branchName: 'feature/approval',
-                cwd: '/Users/jakedom/orca'
-              }
-            ],
-            plans: [],
-            timeline: [],
-            approvals: [],
-            diffs: [
-              {
-                id: 'diff-1',
-                threadId: 'thread-1',
-                filePath: 'src/first.tsx',
-                additions: 3,
-                deletions: 1,
-                status: 'modified'
-              }
-            ],
-            terminalAvailable: false
-          }}
-        />
-      )
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
     const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
@@ -527,13 +622,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
     )
     expect(diffTab?.getAttribute('data-state')).toBe('active')
 
-    const approvalThreadButton = Array.from(container.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Needs approval thread')
-    )
-    expect(approvalThreadButton).toBeDefined()
-
     await act(async () => {
-      approvalThreadButton?.click()
+      root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
     const detailsTab = Array.from(
@@ -558,8 +648,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -572,7 +662,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'running',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/plan',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [
@@ -624,8 +714,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -638,7 +728,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'needs-approval',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/approval',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],
@@ -667,7 +757,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
     expect(container.textContent).toContain('This thread needs approval before it can continue.')
   })
 
-  it('opens the terminal drawer from failure and debug controls', async () => {
+  it('opens the terminal drawer from failure and composer controls', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const onOpenTerminalDrawer = vi.fn()
     const container = document.createElement('div')
@@ -683,8 +773,8 @@ describe('AgentWorkspaceLayout thread selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -697,7 +787,7 @@ describe('AgentWorkspaceLayout thread selection', () => {
                 phase: 'failed',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/failure',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],
@@ -716,16 +806,20 @@ describe('AgentWorkspaceLayout thread selection', () => {
     )
 
     const centerButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('main button'))
-    const openButtons = centerButtons.filter((button) =>
+    const failureButton = centerButtons.find((button) =>
       button.textContent?.includes('Open drawer')
     )
-    expect(openButtons).toHaveLength(2)
+    const composerTerminalButton = centerButtons.find(
+      (button) => button.getAttribute('aria-label') === 'Open terminal drawer'
+    )
+    expect(failureButton).not.toBeUndefined()
+    expect(composerTerminalButton).not.toBeUndefined()
 
     await act(async () => {
-      openButtons[0]?.click()
+      failureButton?.click()
     })
     await act(async () => {
-      openButtons[1]?.click()
+      composerTerminalButton?.click()
     })
 
     expect(onOpenTerminalDrawer).toHaveBeenNthCalledWith(1, 'failure')

@@ -17,7 +17,7 @@ if command -v powershell.exe >/dev/null 2>&1; then
 elif [ -x /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe ]; then
   ORCA_POWERSHELL=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
 else
-  echo "Orca WSL CLI requires Windows interop and could not find powershell.exe." >&2
+  echo "Janus Code WSL CLI requires Windows interop and could not find powershell.exe." >&2
   exit 1
 fi
 ORCA_BRIDGE_PS1_WIN=$(wslpath -w "$ORCA_BRIDGE_PS1")
@@ -52,10 +52,10 @@ try {
 }
 
 export function getBridgePathFromCommandPath(commandPath: string): string {
-  // Why: the current Agent Hub command and legacy pre-rename commands share one
-  // WSL bridge under ~/.local/share/orca.
+  // Why: the current Janus command and legacy pre-rename commands share one
+  // WSL bridge location so old managed wrappers can be retired safely.
   const bridgeBasePath = commandPath.replace(
-    /\/\.local\/bin\/(?:agent-hub|orca|orca-ide)$/,
+    /\/\.local\/bin\/(?:janus|agent-hub|orca|orca-ide)$/,
     '/.local/share/orca'
   )
   return `${bridgeBasePath}/orca-wsl-bridge.ps1`

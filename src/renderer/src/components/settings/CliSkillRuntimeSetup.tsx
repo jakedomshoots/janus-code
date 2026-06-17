@@ -188,7 +188,7 @@ export function CliSkillRuntimeControl({
               )
             : translate(
                 'auto.components.settings.CliSkillRuntimeSetup.0c9f3cf9da',
-                'Choose where Orca checks and installs global agent skills.'
+                'Choose where Janus Code checks and installs global agent skills.'
               )}
         </p>
       </div>
