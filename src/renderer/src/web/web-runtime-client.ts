@@ -356,7 +356,7 @@ export class WebRuntimeClient {
     ws.onclose = () => this.handleSocketClosed(ws)
     ws.onerror = () => {
       if (this.state === 'connecting') {
-        this.rejectAllWaiters(new Error('Could not connect to the remote Orca runtime.'))
+        this.rejectAllWaiters(new Error('Could not connect to the remote Janus Code runtime.'))
       }
     }
   }
@@ -504,7 +504,7 @@ export class WebRuntimeClient {
         if (index !== -1) {
           this.waiters.splice(index, 1)
         }
-        reject(new Error('Timed out while connecting to the remote Orca runtime.'))
+        reject(new Error('Timed out while connecting to the remote Janus Code runtime.'))
       }, timeoutMs)
       this.waiters.push({
         resolve: () => {

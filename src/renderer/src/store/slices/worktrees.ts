@@ -118,7 +118,7 @@ function showLocalBaseRefRefreshToast(result: LocalBaseRefRefreshResult | undefi
     {
       description: translate(
         'auto.store.slices.worktrees.903b51c2ed',
-        'Workspace created from {{value0}}, but Orca could not fast-forward local {{value1}} because {{value2}}',
+        'Workspace created from {{value0}}, but Janus Code could not fast-forward local {{value1}} because {{value2}}',
         { value0: result.baseRef, value1: result.localBranch, value2: reason }
       )
     }
@@ -153,7 +153,7 @@ function showPreservedBranchToast(
     {
       description: translate(
         'auto.store.slices.worktrees.d1d78a7baa',
-        'Git could not safely delete branch "{{value0}}"{{value1}}, so Orca kept it to avoid losing local commits.',
+        'Git could not safely delete branch "{{value0}}"{{value1}}, so Janus Code kept it to avoid losing local commits.',
         { value0: branch, value1: deletedTarget }
       ),
       ...(action ? { action } : {})

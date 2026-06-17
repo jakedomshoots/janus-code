@@ -52,7 +52,7 @@ export function getDeleteWorktreeDialogCopy(args: {
       ? allFolderWorkspaceDeletes
         ? 'from Janus Code. Project folders on disk will not be deleted.'
         : mixedFolderWorkspaceDeletes
-          ? 'from Janus Code. Git worktrees will also be removed from git and disk; folder workspaces will only remove the Orca workspace entry.'
+          ? 'from Janus Code. Git worktrees will also be removed from git and disk; folder workspaces will only remove the Janus Code workspace entry.'
           : 'from git and delete their workspace folders.'
       : args.isFolderWorkspaceDelete
         ? 'from Janus Code. The project folder on disk will not be deleted.'
@@ -84,7 +84,7 @@ export function getDeleteWorktreeLineageDialogCopy(args: {
     descriptionSuffix: allFolderWorkspaceDeletes
       ? 'from Janus Code. Project folders on disk will not be deleted.'
       : mixedFolderWorkspaceDeletes
-        ? 'from Janus Code. Git worktrees will also be removed from git and disk; folder workspaces will only remove the Orca workspace entry.'
+        ? 'from Janus Code. Git worktrees will also be removed from git and disk; folder workspaces will only remove the Janus Code workspace entry.'
         : 'from git and delete their workspace folders.'
   }
 }

@@ -9,10 +9,10 @@ export function getTerminalFileOpenHint(): string {
 }
 
 export function getTerminalOrcaFileOpenHint(): string {
-  return isMacPlatform() ? '⌘+click to open in Orca' : 'Ctrl+click to open in Orca'
+  return isMacPlatform() ? '⌘+click to open in Janus Code' : 'Ctrl+click to open in Janus Code'
 }
 
-// Why: local .html/.htm links keep the ordinary Orca browser route, with the
+// Why: local .html/.htm links keep the ordinary Janus Code browser route, with the
 // same Shift+modifier escape hatch to the system default browser as URL links.
 export function getTerminalHtmlFileOpenHint(): string {
   return isMacPlatform()

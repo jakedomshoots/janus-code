@@ -228,7 +228,7 @@ export function createMainWindow(
     ...(savedBounds ? { x: savedBounds.x, y: savedBounds.y } : {}),
     minWidth: MIN_WIDTH,
     minHeight: MIN_HEIGHT,
-    title: opts?.title ?? 'Orca',
+    title: opts?.title ?? 'Janus Code',
     show: false,
     // Why: macOS swallows the app-activating click by default, so clicking
     // back into Orca (e.g. the floating workspace) needed a second click.

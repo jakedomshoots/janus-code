@@ -31,8 +31,8 @@ function formatSummary(report: CrashReportRecord): string {
 
 function getDialogTitle(report: CrashReportRecord | null): string {
   return report && isReactErrorBoundaryReport(report)
-    ? 'Orca hit a recoverable UI error'
-    : 'Orca closed unexpectedly'
+    ? 'Janus Code hit a recoverable UI error'
+    : 'Janus Code closed unexpectedly'
 }
 
 function getDialogDescription(report: CrashReportRecord | null): string {
@@ -44,7 +44,7 @@ function getDialogDescription(report: CrashReportRecord | null): string {
 function getNotesPlaceholder(report: CrashReportRecord | null): string {
   return report && isReactErrorBoundaryReport(report)
     ? 'Optional: what were you doing before this UI error?'
-    : 'Optional: what were you doing before Orca closed?'
+    : 'Optional: what were you doing before Janus Code closed?'
 }
 
 type CrashReportDialogSurfaceProps = {
@@ -213,7 +213,10 @@ export function CrashReportDialogSurface({
               <div className="font-medium text-foreground">{formatSummary(report)}</div>
               <div className="mt-1 text-muted-foreground">
                 {new Date(report.createdAt).toLocaleString()} · {report.platform} {report.arch} ·
-                {translate('auto.components.crash.report.CrashReportDialog.835037edc9', 'Orca')}{' '}
+                {translate(
+                  'auto.components.crash.report.CrashReportDialog.835037edc9',
+                  'Janus Code'
+                )}{' '}
                 {report.appVersion}
               </div>
             </div>

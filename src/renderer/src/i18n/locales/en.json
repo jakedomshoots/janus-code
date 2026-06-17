@@ -1,9 +1,9 @@
 {
   "app": {
     "recoverableError": {
-      "rootTitle": "Orca hit a renderer error.",
-      "rootDescription": "The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.",
-      "webTitle": "Orca web hit a renderer error.",
+      "rootTitle": "Janus Code hit a renderer error.",
+      "rootDescription": "The app shell could not finish rendering. Retry to remount it, or relaunch Janus Code if the error persists.",
+      "webTitle": "Janus Code web hit a renderer error.",
       "webDescription": "Retry the web client or reconnect to the paired runtime."
     }
   },
@@ -11,7 +11,7 @@
     "appearance": {
       "language": {
         "title": "Language",
-        "description": "Choose the language used by the Orca interface.",
+        "description": "Choose the language used by the Janus Code interface.",
         "system": "System",
         "english": "English",
         "chinese": "中文（简体）",
@@ -25,7 +25,7 @@
         "geminiToggleDescription": "Show Gemini token and cost usage for the active workspace.",
         "opencodeGoToggleDescription": "Show OpenCode Go token and cost usage for the active workspace.",
         "kimiToggleDescription": "Show Kimi subscription usage for the active workspace.",
-        "sshToggleDescription": "Show configured SSH and remote Orca hosts when any are available.",
+        "sshToggleDescription": "Show configured SSH and remote Janus Code hosts when any are available.",
         "resourceUsageToggleDescription": "Show the Resource Manager. Click it for CPU, memory, sessions, daemon controls, and workspace disk scans.",
         "portsToggleDescription": "Show live workspace ports. Click it for workspace-scoped ports and external listeners."
       }
@@ -79,7 +79,7 @@
       "1b3024bcd6": "The floating workspace hit an error.",
       "8d1e160ed1": "Retry the sidebar or switch tabs to reload this surface.",
       "ed6b168d00": "The right sidebar hit an error.",
-      "03a14f6b5b": "Retry the page or navigate to another Orca surface.",
+      "03a14f6b5b": "Retry the page or navigate to another Janus Code surface.",
       "b7a714db1e": "This page hit an error.",
       "98d4ea2823": "Terminal, browser, or editor rendering failed in this workspace. Retry to remount it.",
       "5a9519aef0": "The workspace workbench hit an error.",
@@ -125,8 +125,8 @@
         "27393856e4": "orca://pair?code=...",
         "7a566540de": "Pairing URL or code",
         "cb4d287238": "Server name",
-        "3affe7de3a": "Paste a pairing URL from an Orca server that this browser can reach.",
-        "e3bcd082ac": "Connect to Orca"
+        "3affe7de3a": "Paste a pairing URL from an Janus Code server that this browser can reach.",
+        "e3bcd082ac": "Connect to Janus Code"
       },
       "web": {
         "preload": {
@@ -201,7 +201,7 @@
         },
         "worktrees": {
           "5a58e03a26": "Deleted \"{{value0}}\".",
-          "d1d78a7baa": "Git could not safely delete branch \"{{value0}}\"{{value1}}, so Orca kept it to avoid losing local commits.",
+          "d1d78a7baa": "Git could not safely delete branch \"{{value0}}\"{{value1}}, so Janus Code kept it to avoid losing local commits.",
           "4e6496f3d2": "{{value0}} deleted, branch kept",
           "e50495aae6": "Force Delete Branch",
           "889487d8bb": "Dismiss",
@@ -210,7 +210,7 @@
           "fa9299a66f": "Your new worktree is current, but local {{value0}} is {{value1}} {{value2}} behind. AI diffs may miss recent commits.",
           "14bc053a47": "Local {{value0}} was not refreshed",
           "4a18052018": "Local {{value0}} is behind {{value1}}",
-          "903b51c2ed": "Workspace created from {{value0}}, but Orca could not fast-forward local {{value1}} because {{value2}}",
+          "903b51c2ed": "Workspace created from {{value0}}, but Janus Code could not fast-forward local {{value1}} because {{value2}}",
           "0216895fb5": "Failed to delete branch",
           "19db0085fb": "Local branch deleted",
           "2b0afc7f14": "Could not keep local {{value0}} up to date",
@@ -473,10 +473,10 @@
           "unavailable": "Cannot check folder"
         },
         "description": {
-          "missing": "Orca cannot find {{path}}. Remove and re-import this folder workspace.",
+          "missing": "Janus Code cannot find {{path}}. Remove and re-import this folder workspace.",
           "notDirectory": "{{path}} exists, but it is not a folder.",
-          "ambiguousConnection": "Orca cannot tell which SSH connection owns this folder scope.",
-          "unavailable": "Orca cannot verify this folder right now. Check the runtime or SSH connection and try again."
+          "ambiguousConnection": "Janus Code cannot tell which SSH connection owns this folder scope.",
+          "unavailable": "Janus Code cannot verify this folder right now. Check the runtime or SSH connection and try again."
         },
         "createError": {
           "title": {
@@ -487,10 +487,10 @@
             "generic": "Failed to create folder workspace"
           },
           "description": {
-            "missing": "Orca cannot find {{path}}. Remove and re-import the folder.",
+            "missing": "Janus Code cannot find {{path}}. Remove and re-import the folder.",
             "notDirectory": "{{path}} exists, but it is not a folder.",
-            "ambiguousConnection": "Orca cannot tell which SSH connection owns this folder scope.",
-            "unavailable": "Orca cannot verify this folder right now. Check the runtime or SSH connection and try again."
+            "ambiguousConnection": "Janus Code cannot tell which SSH connection owns this folder scope.",
+            "unavailable": "Janus Code cannot verify this folder right now. Check the runtime or SSH connection and try again."
           }
         }
       }
@@ -544,8 +544,8 @@
         "31e57d1c70": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
         "94a5afe910": "SSH Hosts",
         "40d80bad8a": "Beta",
-        "de0c2907a1": "Remote Orca Servers",
-        "b351014180": "Orca stats plus Claude, Codex, and OpenCode usage analytics.",
+        "de0c2907a1": "Remote Janus Code Servers",
+        "b351014180": "Janus Code stats plus Claude, Codex, and OpenCode usage analytics.",
         "d72a58b5b9": "Stats & Usage",
         "dcd0d9b74f": "Keyboard shortcuts for common actions.",
         "94295ebfb3": "Shortcuts",
@@ -557,7 +557,7 @@
         "93d88d20bf": "Appearance",
         "2d0659f6f0": "Global terminal, browser, and markdown tabs.",
         "65b19f5bde": "Floating Workspace",
-        "3d65d3f1b9": "Configure mobile emulator support for Orca and coding agents.",
+        "3d65d3f1b9": "Configure mobile emulator support for Janus Code and coding agents.",
         "1e761cff2b": "Mobile Emulator",
         "e815fd01bd": "Home page, link routing, and session cookies.",
         "8c197f74a1": "Browser",
@@ -574,11 +574,11 @@
         "2cd4ea75da": "Workspace defaults, app setup, and maintenance.",
         "13241992bd": "General",
         "724c440e72": "getting started",
-        "0505d0df29": "get started with Orca",
+        "0505d0df29": "get started with Janus Code",
         "ea0b1bc7b8": "setup guide",
         "17005c73d4": "Open the onboarding checklist for setup and milestone steps.",
         "ded9e9032f": "Onboarding checklist",
-        "5f32ac08f3": "Finish the onboarding checklist for core Orca workflows.",
+        "5f32ac08f3": "Finish the onboarding checklist for core Janus Code workflows.",
         "8ac3de82f5": "Local speech-to-text dictation with on-device models.",
         "6a50cdcd7c": "Voice",
         "0059bd17f3": "Enable agents to control any app on your computer.",
@@ -892,7 +892,7 @@
         "c1cf168479": "Hide",
         "00cee697c1": "Run \"gh auth login\" in a terminal to connect your GitHub account.",
         "9f96d018b7": "GitHub CLI is not authenticated",
-        "73e1ad4282": "Orca uses the GitHub CLI (gh) to show pull requests, issues, and checks.",
+        "73e1ad4282": "Janus Code uses the GitHub CLI (gh) to show pull requests, issues, and checks.",
         "5beaef5f9e": "GitHub CLI is not installed",
         "b673e7cf1b": "Git is required for Git projects, source control, and workspace management.",
         "e5b7296d9d": "Git is not installed",
@@ -1251,9 +1251,9 @@
         "92b0f9d921": "is authenticated and try again.",
         "cd8c34aac1": "gh",
         "cf82170065": "Could not star the repo. Make sure",
-        "30c36231c1": "If Orca has saved you time, a GitHub star goes a long way. It helps other developers discover the project and keeps the team motivated to ship improvements.",
+        "30c36231c1": "If Janus Code has saved you time, a GitHub star goes a long way. It helps other developers discover the project and keeps the team motivated to ship improvements.",
         "b5e685e4d9": "Dismiss",
-        "5f6df21046": "Enjoying Orca?",
+        "5f6df21046": "Enjoying Janus Code?",
         "2d67b6c849": "Star on GitHub",
         "af3c9bbb37": "Starring…",
         "68a41bc3aa": "Could not star with",
@@ -1581,8 +1581,8 @@
       },
       "UpdateCard": {
         "68b235d264": "Restart to Update",
-        "6714206e5a": "Orca v{{value0}} is downloaded. Restart when you're ready.",
-        "93794ea932": "Orca v{{value0}} is downloading.",
+        "6714206e5a": "Janus Code v{{value0}} is downloaded. Restart when you're ready.",
+        "93794ea932": "Janus Code v{{value0}} is downloading.",
         "8acbdd3961": "Minimize to status bar",
         "17412483da": "Ready to Install",
         "47126bcf57": "Download Manually",
@@ -1594,7 +1594,7 @@
         "ec8fe71cfc": "Update",
         "44324ef542": "Release notes",
         "fdd4a364fa": "Sessions won't be interrupted.",
-        "05ad78a6d1": "Orca v{{value0}} is ready.",
+        "05ad78a6d1": "Janus Code v{{value0}} is ready.",
         "318d3b4bc7": "Dismiss update",
         "9abc59f814": "Update Available",
         "aad383aecc": "Read the full release notes",
@@ -1630,7 +1630,7 @@
         "1ebe225fee": "Search worktrees, settings, tabs, and actions...",
         "4e4ff044d5": "Search worktrees, settings, tabs, and actions",
         "4ee378034d": "Jump to...",
-        "f7fda8d562": "Create a worktree or open a tab in Orca to get started.",
+        "f7fda8d562": "Create a worktree or open a tab in Janus Code to get started.",
         "1628fd7dfa": "No active worktrees, settings, actions, or open tabs",
         "b781ae05e3": "Type to search worktrees, settings, tabs, and actions.",
         "f60f8730be": "No other worktrees to switch to",
@@ -1779,21 +1779,21 @@
             "463f1205c0": "Loading project view",
             "23b87ba9f7": "Open in GitHub",
             "4d2a77a119": "File feature request",
-            "1bf8c01c8b": "Switch to a Table view to work with this project in Orca.",
+            "1bf8c01c8b": "Switch to a Table view to work with this project in Janus Code.",
             "55de4fb57a": "{{value0}}. {{value1}} File a feature request at {{value2}}.",
-            "2edf5e7e77": "{{value0}} — Orca doesn't support {{value1}} project views yet. File a feature request at {{value2}}.",
+            "2edf5e7e77": "{{value0}} — Janus Code doesn't support {{value1}} project views yet. File a feature request at {{value2}}.",
             "7245c3d7ac": "Clear search",
             "c5bc7ec007": "View filter: {{value0}}",
             "840c268665": "Add repo",
             "dffa899f36": "Cancel",
-            "7037c8f5f1": "Repository not in Orca",
+            "7037c8f5f1": "Repository not in Janus Code",
             "512fc171d6": "Choose a project to get started.",
             "71fb69926c": "Refresh",
             "a8fa0d2bf5": "Refreshing",
             "fd15491034": "Open view in GitHub",
             "22df63c393": "Sub-issue data is unavailable for your token.",
             "067119985c": "GitHub search, e.g. assignee:@me is:open",
-            "1850fceac8": "{{value0}}/{{value1}} isn't added to Orca. Add it to start work, or open in GitHub.",
+            "1850fceac8": "{{value0}}/{{value1}} isn't added to Janus Code. Add it to start work, or open in GitHub.",
             "1aa7c952b9": "Project view"
           },
           "slug": {
@@ -1899,7 +1899,7 @@
                 "5509443543": "Loading GitHub API budget…",
                 "34973d4695": "GitHub API budget is unavailable.",
                 "d12d3d6f33": "Refresh GitHub API budget",
-                "d5e5de9070": "Orca uses REST, Search, and GraphQL through the GitHub CLI.",
+                "d5e5de9070": "Janus Code uses REST, Search, and GraphQL through the GitHub CLI.",
                 "58c5f88216": "GitHub API Budget",
                 "6da1858354": "left · resets in",
                 "f42790d150": "of",
@@ -1965,7 +1965,7 @@
               "e603ee9156": "Workspace API settings",
               "dc7ccb0f7c": "Personal API keys",
               "e3100b36b9": "If member API keys are blocked, ask a workspace admin to allow them from workspace API settings.",
-              "d56d3629f4": "Prefer full access when Orca should show every team the account can access in that workspace. Restricted keys only expose permitted teams, and private teams require the key owner to have access.",
+              "d56d3629f4": "Prefer full access when Janus Code should show every team the account can access in that workspace. Restricted keys only expose permitted teams, and private teams require the key owner to have access.",
               "af52a6227f": "Create a Personal API key from Account > Security & Access.",
               "edec49dfae": "lin_api_...",
               "7d498f653c": "Personal API key",
@@ -2117,7 +2117,7 @@
             "7eee951968": "Checking workspace safety",
             "191f0bc98e": "Close",
             "7ae2ad30f4": "Refresh",
-            "e0b5a4deaa": "Review inactive workspaces before deleting their local files and Orca state.",
+            "e0b5a4deaa": "Review inactive workspaces before deleting their local files and Janus Code state.",
             "b2c1331844": "Delete Inactive Workspaces",
             "41d594d01e": "{{value0}} workspace{{value1}} could not be removed",
             "0f00612b6d": "Removed {{value0}} workspace{{value1}}",
@@ -2276,7 +2276,7 @@
             "6bee0c8f17": "Open Disk Space Analyzer",
             "ae20d0ffc2": "Dismiss",
             "38c282a2c4": "The analyzer opens directly from here. You can also open it later from the lower-left toolbox menu by choosing Space Analyzer.",
-            "e2fcf07c0d": "Orca could not save this terminal session because local storage is full or not writable. Open the disk space analyzer to find workspace storage you can clean up.",
+            "e2fcf07c0d": "Janus Code could not save this terminal session because local storage is full or not writable. Open the disk space analyzer to find workspace storage you can clean up.",
             "678c780a2c": "Disk space is unavailable"
           },
           "osc52": {
@@ -2567,9 +2567,9 @@
             "298f4be7f2": "CPU",
             "2aa2de6cb9": "Name",
             "30ff2c3c31": "{{value0}} orphan",
-            "6449a95c78": "How much of this machine's physical RAM the Orca-tracked processes are sitting on.",
+            "6449a95c78": "How much of this machine's physical RAM the Janus Code-tracked processes are sitting on.",
             "e7ccce7e87": "of system RAM",
-            "9e2525c89f": "Resident memory held by Orca plus the processes under each worktree's terminals.",
+            "9e2525c89f": "Resident memory held by Janus Code plus the processes under each worktree's terminals.",
             "1fedf94eae": "Combined CPU load. Values above 100% mean more than one core is working at once.",
             "e7cf14ec78": "Terminal sessions unavailable. The list may be stale.",
             "93b0de3c21": "Restart",
@@ -2585,9 +2585,9 @@
             "bbcd9b7b85": "Collapse workspace",
             "c4a8968bdd": "Expand workspace",
             "b10695d6ce": "Kill session",
-            "288a4dd177": "Orca",
-            "53dd5560ae": "Collapse Orca",
-            "e419d27083": "Expand Orca",
+            "288a4dd177": "Janus Code",
+            "53dd5560ae": "Collapse Janus Code",
+            "e419d27083": "Expand Janus Code",
             "41ae4fa725": "Killing…",
             "138b99bd80": "this session",
             "888dad8c55": "Loading…",
@@ -2691,10 +2691,10 @@
             "2201df6987": "Update failed — click to see details",
             "8533c12c3c": "Update failed",
             "962404f68e": "Update ready to install. Click to expand.",
-            "248ee5d8ef": "Orca v{{value0}} downloading… {{value1}}%",
+            "248ee5d8ef": "Janus Code v{{value0}} downloading… {{value1}}%",
             "57a29c3b0e": "Update ready",
             "fd1d3b3a1d": "Update downloading, {{value0}} percent. Click to expand.",
-            "9d13213a56": "Orca v{{value0}} ready to install"
+            "9d13213a56": "Janus Code v{{value0}} ready to install"
           },
           "WorkspaceSpaceCompactPanel": {
             "a471aa9c24": "Updated",
@@ -2871,7 +2871,7 @@
           "6afacbee37": "Claude Usage Tracking",
           "0cb1a36d7d": "Reads local Claude usage logs to show token, model, and session stats.",
           "5ce4842c2c": "All local Claude usage",
-          "4f8368c272": "Orca worktrees only",
+          "4f8368c272": "Janus Code worktrees only",
           "cfe2282ffa": "Unknown",
           "7765a4c3e1": "n/a",
           "2d41fd45c6": " • Last scan error: {{value0}}",
@@ -2923,7 +2923,7 @@
           "408210470c": "Codex Usage Tracking",
           "13badcd8f2": "Reads local Codex usage logs to show token, model, and session stats.",
           "4fe8820098": "All local Codex usage",
-          "201766b754": "Orca worktrees only",
+          "201766b754": "Janus Code worktrees only",
           "bf6cf2d4dd": "Unknown",
           "ae255c3dba": "n/a",
           "247c93ca92": "• inferred pricing",
@@ -2967,7 +2967,7 @@
           "bea80ceae0": "OpenCode Usage Tracking",
           "b8b3522436": "Reads local OpenCode usage logs to show token, model, and session stats.",
           "144a6050e9": "All local OpenCode usage",
-          "e04c58327c": "Orca worktrees only",
+          "e04c58327c": "Janus Code worktrees only",
           "362231082f": "Unknown",
           "8095a63426": "n/a",
           "6cc7782458": " • Last scan error: {{value0}}",
@@ -2990,7 +2990,7 @@
           "2d9eb39264": "Total tokens",
           "beb6f24f37": "Est. cost",
           "da62578d9d": "Usage",
-          "0eb31e79ee": "Orca IDE",
+          "0eb31e79ee": "Janus Code IDE",
           "960324e9b8": "events",
           "6adac63cfe": "turns"
         },
@@ -3058,7 +3058,7 @@
             "0bba8ca244": "statistics",
             "0e2a0b6431": "usage",
             "372debfac0": "stats",
-            "26bb901fcd": "Orca stats plus combined Claude, Codex, and OpenCode usage analytics, tokens, cache, models, and sessions.",
+            "26bb901fcd": "Janus Code stats plus combined Claude, Codex, and OpenCode usage analytics, tokens, cache, models, and sessions.",
             "cb2430ae6a": "Stats & Usage"
           }
         },
@@ -3178,7 +3178,7 @@
                   "670864ab52": "Keeping local {{value0}} up to date",
                   "84c62e4d7f": "Could not turn on {{value0}}",
                   "442552c656": "Open Settings and try again.",
-                  "f15fd80989": "Your new worktree is current, but local {{value0}} is {{value1}} {{value2}} behind, so AI diffs may compare to stale history. Let Orca keep it up to date automatically. Change this anytime in",
+                  "f15fd80989": "Your new worktree is current, but local {{value0}} is {{value1}} {{value2}} behind, so AI diffs may compare to stale history. Let Janus Code keep it up to date automatically. Change this anytime in",
                   "3d260e1a5d": "Settings › {{value0}}",
                   "34a03a6565": "Keep {{value0}} up to date",
                   "4a18052018": "Local {{value0}} is behind {{value1}}",
@@ -3192,7 +3192,7 @@
         "AddProjectFromFolderDialog": {
           "7d1f51678c": "Add Project",
           "7726a16374": "Cancel",
-          "046751dbfb": "Add this folder as a separate Orca project.",
+          "046751dbfb": "Add this folder as a separate Janus Code project.",
           "e643b30398": "Project added on SSH host"
         },
         "AddRepoCreateStep": {
@@ -3287,7 +3287,7 @@
         },
         "AddRepoStartSteps": {
           "87596c1446": "Other ways to add",
-          "acf895cb42": "Add a project to get started with Orca.",
+          "acf895cb42": "Add a project to get started with Janus Code.",
           "d13757911c": "Add a project",
           "d301db1c9a": "Scanning repositories. Click to stop.",
           "69ea7f8dc4": "Stop scanning",
@@ -3319,7 +3319,7 @@
           "a23b22d16f": "Copied",
           "74fc00776f": "Error details",
           "3afcad0497": "from the first agent message.",
-          "ff62a18580": "Orca couldn't generate a branch name for",
+          "ff62a18580": "Janus Code couldn't generate a branch name for",
           "ca3b225195": "Branch auto-name failed"
         },
         "CreateProjectLocationField": {
@@ -3405,7 +3405,7 @@
           "ad407c2d55": "more",
           "removeContainedProjectSingular": "Remove 1 contained project",
           "removeContainedProjectPlural": "Remove {{value0}} contained projects",
-          "eeabb8e8e4": "Remove {{value0}} contained {{value1}} from Orca",
+          "eeabb8e8e4": "Remove {{value0}} contained {{value1}} from Janus Code",
           "55f75628c0": "Project folders on disk are not deleted.",
           "897e5d3d4c": "Delete Group and Remove Projects",
           "fec7e9c8ae": "Delete Group"
@@ -3426,7 +3426,7 @@
         "RemoveFolderDialog": {
           "4dc5b5065b": "Remove",
           "d36883e046": "Cancel",
-          "8c097ef04e": "from Orca. It is still on your disk.",
+          "8c097ef04e": "from Janus Code. It is still on your disk.",
           "e62415c3d0": "This only removes",
           "b79b39d865": "Remove Project"
         },
@@ -3478,7 +3478,7 @@
           "26108d3699": "Join Discord",
           "d245c4ef6c": "GitHub issues",
           "9b33530b3d": "Other ways to reach us",
-          "a828fa4aee": "Share what's working, what's broken, or what Orca should do next.",
+          "a828fa4aee": "Share what's working, what's broken, or what Janus Code should do next.",
           "0eb643f07f": "Send Feedback",
           "60b721e857": "Failed to submit feedback. Please try again.",
           "7a46c228b8": "Thanks for the feedback.",
@@ -3534,7 +3534,7 @@
           "bbbc6e8e3b": "No unselected projects match"
         },
         "SidebarSettingsHelpMenu": {
-          "ad3d3ed7f1": "Restart Orca",
+          "ad3d3ed7f1": "Restart Janus Code",
           "29c56f30ee": "Check for Updates",
           "eb9884e55b": "Discord",
           "5687ab246a": "GitHub",
@@ -3544,8 +3544,8 @@
           "4cf5b868d7": "Send Feedback",
           "a428c25998": "Settings",
           "2991a0106c": "Help",
-          "4e8f5710d3": "Couldn't restart Orca.",
-          "5161eef55d": "Restarting Orca…",
+          "4e8f5710d3": "Couldn't restart Janus Code.",
+          "5161eef55d": "Restarting Janus Code…",
           "d396773ef0": "checking",
           "f8a2c91d4e": "Milestones",
           "b7e4d2a19c": "Onboarding",
@@ -3700,7 +3700,7 @@
           "dbe2d18972": "More {{value0}} actions",
           "ae76907ca6": "Unlink {{value0}}",
           "ad25c3ff05": "View on {{value0}}",
-          "2c67730e07": "Open in Orca",
+          "2c67730e07": "Open in Janus Code",
           "e42941631a": "View on Linear",
           "5e982e6128": "Linear {{value0}}",
           "807b13b9ec": "Edit issue",
@@ -3744,7 +3744,7 @@
           "503ec0f8e6": "New group from project",
           "3350101edb": "Copy Path",
           "f4475537d8": "Delete",
-          "f5ac91531d": "Remove Project from Orca",
+          "f5ac91531d": "Remove Project from Janus Code",
           "b42391d8bf": "Deleting…",
           "0918b35e4f": "Close all active panels in this workspace to free up memory and CPU.",
           "7d190f7d2b": "Close all active panels in the selected workspaces to free up memory and CPU.",
@@ -3792,7 +3792,7 @@
           "e97297cb75": "Hide {{value0}} child workspace",
           "0cd15956d4": "Hide {{value0}} child workspaces",
           "bd37a57ac8": "Create workspace for {{value0}}",
-          "b667b59632": "Some projects could not be removed from Orca",
+          "b667b59632": "Some projects could not be removed from Janus Code",
           "f94466bc39": "{{value0}} of {{value1}} contained project{{value2}} remained after deleting the group.",
           "groupDeleteFailed": "Failed to delete group",
           "groupDeleteFailedDesc": "Something went wrong while deleting the group. No projects were removed."
@@ -3823,7 +3823,7 @@
           "8009ab69a6": "Open in",
           "bd0e8159f8": "Check the editor command or file manager configuration on this machine.",
           "9a5381eb09": "Could not open workspace folder.",
-          "0bed8727db": "It may have been moved or deleted. Refresh workspaces or remove it from Orca.",
+          "0bed8727db": "It may have been moved or deleted. Refresh workspaces or remove it from Janus Code.",
           "3921d3d9a5": "Workspace folder was not found.",
           "f387af445b": "Workspace path is not a valid local path.",
           "3ec372b664": "file-manager"
@@ -3834,7 +3834,7 @@
           "8df295a78d": "Failed to rename workspace."
         },
         "WorktreeVisibilityDialog": {
-          "83a5ba8dd1": "Non-Orca worktrees",
+          "83a5ba8dd1": "Non-Janus Code worktrees",
           "f1f71b9f02": "Import",
           "759371df43": "Hide",
           "25ddf19920": "{{value0}} available to import",
@@ -3877,7 +3877,7 @@
             "toast": {
               "1d0fa5c0a5": "Failed to delete workspace {{value0}}",
               "ead7b8ee15": "It has changed files. Use Force Delete to delete it anyway.",
-              "905fc8efac": "Git already removed this workspace. Use Force Delete to clear it from Orca.",
+              "905fc8efac": "Git already removed this workspace. Use Force Delete to clear it from Janus Code.",
               "0899ebdb28": "Git already forgot this workspace, but its directory is still on disk. Use Force Delete to remove the orphaned directory."
             }
           }
@@ -4008,7 +4008,7 @@
           "1a2b3c4d5e": "Removed {{value0}}",
           "2b3c4d5e6f": "Failed to remove host",
           "3c4d5e6f7a": "Remove {{value0}}?",
-          "4d5e6f7a8b": "This opens the Orca servers settings where you can remove this server.",
+          "4d5e6f7a8b": "This opens the Janus Code servers settings where you can remove this server.",
           "5e6f7a8b9c": "This removes the saved SSH host and its credentials from this computer. Remote files are not deleted.",
           "6f7a8b9c0d": "Cancel",
           "7a8b9c0d1e": "Open settings",
@@ -4115,7 +4115,7 @@
       "setup": {
         "guide": {
           "SetupGuideModal": {
-            "3598a3ca0c": "Finish the core workflows that make Orca useful for parallel agent work.",
+            "3598a3ca0c": "Finish the core workflows that make Janus Code useful for parallel agent work.",
             "48a9e5ef2d": "Getting started",
             "28cf59fcb4": "This will hide the checklist from the sidebar",
             "f3b5ffb2a6": "Hide checklist from sidebar"
@@ -4144,9 +4144,9 @@
         "AccountsPane": {
           "c2d2751587": "Remove Account",
           "dbb9626ed1": "Cancel",
-          "854ebbcc45": "Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Orca falls back to the system default Claude login.",
+          "854ebbcc45": "Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Janus Code falls back to the system default Claude login.",
           "63843e37e2": "Remove Claude Account?",
-          "99c8f9e498": "Janus Code will delete the managed Codex home for this saved account. If it is currently active, Orca falls back to the system default Codex login.",
+          "99c8f9e498": "Janus Code will delete the managed Codex home for this saved account. If it is currently active, Janus Code falls back to the system default Codex login.",
           "0d47394635": "Remove Codex Account?",
           "ae3b21eb6c": "opencode.ai/workspace/wrk_…/go",
           "51c9104e13": "Find this in the URL after logging into opencode.ai (e.g.",
@@ -4166,9 +4166,9 @@
           "36223200ac": "OpenCode Go Session Cookie",
           "ea631977b5": "Configure OpenCode Go provider settings.",
           "4ac10b4d08": "OpenCode Go",
-          "c2aee76420": "Extracts OAuth credentials from your local Gemini CLI installation to authenticate with Google for {{value0}}. This uses credentials issued to the Gemini CLI app, not Orca. May break if Google updates the CLI. Use at your own risk.",
+          "c2aee76420": "Extracts OAuth credentials from your local Gemini CLI installation to authenticate with Google for {{value0}}. This uses credentials issued to the Gemini CLI app, not Janus Code. May break if Google updates the CLI. Use at your own risk.",
           "96f3649526": "Use Gemini CLI credentials (experimental)",
-          "d676c41fc6": "Extracts OAuth credentials from your local Gemini CLI installation to authenticate with Google. This uses credentials issued to the Gemini CLI app, not Orca. May break if Google updates the CLI. Use at your own risk.",
+          "d676c41fc6": "Extracts OAuth credentials from your local Gemini CLI installation to authenticate with Google. This uses credentials issued to the Gemini CLI app, not Janus Code. May break if Google updates the CLI. Use at your own risk.",
           "0c7f915b01": "Use Gemini CLI credentials",
           "973741a871": "Configure Gemini provider settings.",
           "0c64dc2a64": "Gemini",
@@ -4183,17 +4183,17 @@
           "b0e948a4f9": "Add Account",
           "c0a52abfc5": "Showing accounts for {{value0}}. New accounts are added there.",
           "94d351af4a": "Accounts",
-          "d0d53b7eb0": "Manage which Codex account Orca uses for live rate limit fetching.",
+          "d0d53b7eb0": "Manage which Codex account Janus Code uses for live rate limit fetching.",
           "3180536c7a": "Codex Accounts",
-          "340d6f7a85": "Each account keeps its own local sign-in context in Orca. Account auth stays on this device.",
-          "cedfab35ab": "Optional. Orca can use your normal Codex login; add accounts only if you want quick switching in Orca.",
+          "340d6f7a85": "Each account keeps its own local sign-in context in Janus Code. Account auth stays on this device.",
+          "cedfab35ab": "Optional. Janus Code can use your normal Codex login; add accounts only if you want quick switching in Janus Code.",
           "ef91cfa06b": "Codex",
           "3fe7862418": "No managed Claude accounts for {{value0}}. Janus Code will use that environment's system default Claude login until you add one here.",
           "3455cf43fa": "Claude login.",
           "fcc4093fc1": "Use your current {{value0}} Codex login.",
           "79e484c3b2": "Optional account switcher for the shared Claude auth files.",
           "8bbfd74556": "Claude Accounts",
-          "72b36ea174": "Optional. Orca can use your normal Claude login; add accounts only if you want quick switching without moving chat sessions.",
+          "72b36ea174": "Optional. Janus Code can use your normal Claude login; add accounts only if you want quick switching without moving chat sessions.",
           "26ef4b55be": "Claude",
           "2743cdc0af": "Claude account update failed.",
           "b15ce90870": "{{value0}} -> {{value1}}. Restart live Claude terminals before continuing old sessions.",
@@ -4220,7 +4220,7 @@
         },
         "AdvancedPane": {
           "40b29e0bf3": "Restart",
-          "87a2cb2ac8": "Orca applies this networking mode at startup.",
+          "87a2cb2ac8": "Janus Code applies this networking mode at startup.",
           "89958d7edf": "Restart required",
           "b3ad629640": "Use only when a corporate VPN or proxy breaks update downloads with HTTP/2 protocol errors. It affects all Electron networking after restart.",
           "6627e75c92": "Explain HTTP/1.1 compatibility",
@@ -4285,7 +4285,7 @@
           "agentPermissions": "Agent Permissions",
           "agentPermissionsInfo": "Agent permissions info",
           "agentPermissionsTooltip": "Doesn't apply to agents where you've overridden launch arguments.",
-          "agentPermissionsDescription": "Choose whether Orca launches agents with fewer permission prompts or with manual checks.",
+          "agentPermissionsDescription": "Choose whether Janus Code launches agents with fewer permission prompts or with manual checks.",
           "agentPermissionsYolo": "Yolo",
           "agentPermissionsManual": "Manual"
         },
@@ -4308,7 +4308,7 @@
           "dc29f3cc0d": "Sidebar",
           "ea943d0db0": "Choose which indicators appear at the bottom of the window. You can also right-click the status bar for the same toggles.",
           "3e4175e5c6": "Status Bar",
-          "2df8f79aa5": "Show Orca in the titlebar.",
+          "2df8f79aa5": "Show Janus Code in the titlebar.",
           "9868f39007": "Titlebar App Name",
           "4de76f6902": "Control what appears in the application titlebar.",
           "6a272ca553": "Titlebar",
@@ -4316,7 +4316,7 @@
           "0fafabcf35": "Show Git-Ignored Files",
           "75f07ab60c": "Show files matched by .gitignore in the file explorer.",
           "d496901cd0": "File Explorer",
-          "42554f615f": "Choose the font used by the Orca interface.",
+          "42554f615f": "Choose the font used by the Janus Code interface.",
           "102d6b5f9b": "IDE Font",
           "ef89200c1f": "when not in a terminal pane.",
           "f687711a9b": "Scale the entire application interface. Use",
@@ -4326,7 +4326,7 @@
           "7d26ccabe8": "Dark",
           "fb0e0b4453": "System",
           "932ff1fbff": "Theme",
-          "0f28e7b30c": "Choose how Orca looks in the app window.",
+          "0f28e7b30c": "Choose how Janus Code looks in the app window.",
           "leftSidebarAppearance": {
             "title": "Left Sidebar Appearance",
             "rowDescription": "Make the left sidebar match your terminal, stay default, or use a tint.",
@@ -4346,16 +4346,16 @@
           "c71770c455": "{basePrompt}",
           "f19a56498d": "; your branch prefix setting still applies.",
           "800edb1e54": "fix-login-flow",
-          "5d569f5199": ". Orca generates only the final segment, like",
+          "5d569f5199": ". Janus Code generates only the final segment, like",
           "570817d126": "and",
           "56580dcf60": ". You can also reference",
           "9c9b54e4ea": "built-in branch-name prompt",
-          "69bf4830c2": "to include Orca's",
+          "69bf4830c2": "to include Janus Code's",
           "9241b59bf5": "Use",
           "a869d0edd8": "Branch name command template",
           "e784ea62dc": "Advanced",
-          "d9b65054ef": ") to a short name summarizing the task. Only branches Orca named itself are renamed, and never after they have been pushed.",
-          "12ea4a408d": "When an agent starts working in a new workspace, Orca renames its auto-generated branch (e.g.",
+          "d9b65054ef": ") to a short name summarizing the task. Only branches Janus Code named itself are renamed, and never after they have been pushed.",
+          "12ea4a408d": "When an agent starts working in a new workspace, Janus Code renames its auto-generated branch (e.g.",
           "ef787db0e3": "Auto-Rename Branch",
           "6a051586d2": "Rename the auto-generated branch based on the work once an agent starts.",
           "ec3e0c388e": "Save",
@@ -4370,9 +4370,9 @@
           "4416b25d29": "Prefer domain nouns from the task, avoid ticket IDs, and keep names reviewer-friendly.",
           "39278f4411": "; your branch prefix setting still applies.",
           "ebb942a2ec": "fix-login-flow",
-          "af2d9a2cc6": ". Orca generates only the final segment, like",
+          "af2d9a2cc6": ". Janus Code generates only the final segment, like",
           "182d419b97": "built-in branch-name prompt",
-          "2f5dc661fe": "Appended to Orca's",
+          "2f5dc661fe": "Appended to Janus Code's",
           "7d6176f506": "Prompt",
           "5968112152": "Save",
           "54ac229ad4": "Saving...",
@@ -4413,7 +4413,7 @@
           "612f7f6861": "Failed to create profile.",
           "8f22b7580d": "Profile \"{{value0}}\" created.",
           "8481ee0331": "New Browser Profile",
-          "c0f85056d9": "Browser profiles on this Orca server.",
+          "c0f85056d9": "Browser profiles on this Janus Code server.",
           "86b7c83fee": "This computer",
           "6480776a03": "Browser profiles for the selected host.",
           "5e19a692f7": "Host",
@@ -4468,7 +4468,7 @@
           "e44c5d681e": "From",
           "67d9a53f47": "Manage profiles for separate logins",
           "112f70adc4": "Last imported from",
-          "72d4815523": "Bring your existing logins into Orca so agents can reach authenticated pages. Imports into the default profile.",
+          "72d4815523": "Bring your existing logins into Janus Code so agents can reach authenticated pages. Imports into the default profile.",
           "2eb906706c": "Import Browser Cookies",
           "af8c83ed61": "Import cookies from Chrome, Edge, or other browsers so agents can reuse your logins.",
           "68ea76eb71": "Install the Browser Use skill so agents can operate Janus Code's browser.",
@@ -4498,9 +4498,9 @@
         "CliSection": {
           "8671e406f0": "Cancel",
           "a4aafe46e3": "Target path:",
-          "e8012c03a1": "Enables agents to use Orca workspace, terminal, and progress commands.",
+          "e8012c03a1": "Enables agents to use Janus Code workspace, terminal, and progress commands.",
           "6053cf736c": "CLI skill",
-          "36a6f919ba": "Give agents Orca-aware workspace, terminal, and progress workflows.",
+          "36a6f919ba": "Give agents Janus Code-aware workspace, terminal, and progress workflows.",
           "04873eea3e": "Agent skills",
           "7f2747f7dd": "is not currently visible on PATH for this shell.",
           "b0c310ab46": "Existing launcher target:",
@@ -4508,7 +4508,7 @@
           "5dae812f50": "Refresh",
           "52e640f3a0": "Refresh CLI status",
           "38edbb5721": "Shell command",
-          "6930feda9e": "Use Orca from your terminal to open the app, manage worktrees, and interact with Orca terminals.",
+          "6930feda9e": "Use Janus Code from your terminal to open the app, manage worktrees, and interact with Janus Code terminals.",
           "c5c0f2641d": "Janus CLI",
           "d77352f2df": "Failed to remove `{{value0}}` from PATH.",
           "af5540930c": "Removed `{{value0}}` from PATH.",
@@ -4522,7 +4522,7 @@
           "068552b191": "Removing…",
           "8d96213669": "remove",
           "aa6536977e": "Janus Code will register {{value0}} so the command works from your terminal.",
-          "a030816e3e": "This removes the shell command symlink. Orca itself remains installed.",
+          "a030816e3e": "This removes the shell command symlink. Janus Code itself remains installed.",
           "fa87db3d6e": "Register `{{value0}}` in PATH?",
           "14444243ba": "Remove `{{value0}}` from PATH?",
           "5d432fe44d": "installed",
@@ -4538,7 +4538,7 @@
           "3728a94fb6": "WSL shell command needs attention",
           "775a4cfbb8": "WSL shell command registration is unavailable",
           "c47127f222": "WSL default",
-          "0c9f3cf9da": "Choose where Orca checks and installs global agent skills.",
+          "0c9f3cf9da": "Choose where Janus Code checks and installs global agent skills.",
           "f00d6aa9b5": "WSL is not available on this machine.",
           "7c776ff9d8": "wsl",
           "fc0fcf72fd": "Register the WSL shell command before skill setup."
@@ -4558,10 +4558,10 @@
           "e001734396": "Create hosted reviews as drafts unless changed in the composer.",
           "6ba48f07a4": "Draft by default",
           "15b60d54b2": "e.g. ollama run llama3.1 {prompt}",
-          "3f1b26cc91": "to pass the command input as an argument; otherwise Orca pipes it on stdin.",
+          "3f1b26cc91": "to pass the command input as an argument; otherwise Janus Code pipes it on stdin.",
           "4f722a5f53": "Used by commit-message, pull-request, and branch-name recipes that select Custom command. Use",
           "47e45cbd5a": "Custom command",
-          "1ef29f8c29": "Command line Orca runs when a text recipe uses Custom command.",
+          "1ef29f8c29": "Command line Janus Code runs when a text recipe uses Custom command.",
           "2339a89104": "Adds AI buttons that run the selected agent with the command template for that action.",
           "d5b45a3628": "Show Source Control AI actions",
           "7bcad2b200": "Adds action recipes for Source Control commit, pull request, branch-name, and fix actions.",
@@ -4609,8 +4609,8 @@
         },
         "DeveloperPermissionsPane": {
           "4c17304beb": "Refresh",
-          "6326a4c5cc": "Use these controls when a CLI, local app, or automation tool needs macOS privacy access. Orca does not ask at startup.",
-          "6f011b9bf6": "Terminal tools inherit Orca's macOS privacy envelope.",
+          "6326a4c5cc": "Use these controls when a CLI, local app, or automation tool needs macOS privacy access. Janus Code does not ask at startup.",
+          "6f011b9bf6": "Terminal tools inherit Janus Code's macOS privacy envelope.",
           "bfa3402305": "Could not request permission",
           "66e94d6cf3": "Permission request sent",
           "fa809e8ada": "Opened macOS Privacy & Security",
@@ -4649,7 +4649,7 @@
           "agentHibernation": {
             "copy": "Stops idle background agent terminals after the configured idle window and resumes supported sessions when you open them again. Experimental while we tune the safety model.",
             "description": "Stops idle background agent terminals after the configured idle window and resumes supported sessions when you open them again.",
-            "idleMinutesDescription": "How many idle minutes a completed background agent must wait before Orca can hibernate it.",
+            "idleMinutesDescription": "How many idle minutes a completed background agent must wait before Janus Code can hibernate it.",
             "idleMinutesLabel": "Hibernate after",
             "idleMinutesSuffix": "minutes",
             "title": "Agent hibernation",
@@ -4671,7 +4671,7 @@
           "3c900e26e5": "The keyboard shortcut works regardless of where the toggle is shown.",
           "5e5a8da236": "Toggle Button Location",
           "505001823e": "Choose floating workspace directory",
-          "81afb79785": "New floating terminal tabs start here. Markdown notes are saved in Orca's app-owned floating workspace.",
+          "81afb79785": "New floating terminal tabs start here. Markdown notes are saved in Janus Code's app-owned floating workspace.",
           "12aa09f10c": "Terminal Directory",
           "41eb95f7f0": "Shows the floating workspace button and panel.",
           "5136813663": "Enable Floating Workspace",
@@ -4706,12 +4706,12 @@
           "b492397d34": "Preferred presentation format for showing git diffs by default.",
           "a5db1d3975": "ms",
           "fc5c5306ff": "ms.",
-          "8112cd6dcf": "How long Orca waits after your last edit before saving automatically. First launch defaults to",
+          "8112cd6dcf": "How long Janus Code waits after your last edit before saving automatically. First launch defaults to",
           "d6cf227ca0": "Auto Save Delay",
-          "1bec6d8318": "How long Orca waits after your last edit before saving automatically.",
+          "1bec6d8318": "How long Janus Code waits after your last edit before saving automatically.",
           "70bb30feb1": "Save editor and editable diff changes automatically after a short pause.",
           "0df2e4fd12": "Auto Save Files",
-          "d21136d9ef": "Configure how Orca persists file edits.",
+          "d21136d9ef": "Configure how Janus Code persists file edits.",
           "45c6e85c4d": "Editor"
         },
         "GeneralNetworkSettingsSection": {
@@ -4723,7 +4723,7 @@
           "476f302aca": "http://proxy.example.com:8080",
           "1e214e265a": "Leave empty to use system proxy settings and inherited proxy environment variables.",
           "f00daf6324": "HTTP Proxy",
-          "823e0f15b1": "Proxy URL for Orca network requests and local terminal children.",
+          "823e0f15b1": "Proxy URL for Janus Code network requests and local terminal children.",
           "d93c7cd531": "Configure app-level network routing.",
           "c46cdbbd4e": "Network"
         },
@@ -4732,9 +4732,9 @@
         },
         "GeneralSupportSection": {
           "af7d9f4396": "Thanks for the support!",
-          "6922c1fa2b": "Star Orca on GitHub",
+          "6922c1fa2b": "Star Janus Code on GitHub",
           "511782265b": "Support the project with a GitHub star via the gh CLI.",
-          "55a87e5fd1": "Support Orca",
+          "55a87e5fd1": "Support Janus Code",
           "964acc6bb4": "Star",
           "73b327e793": "Try Again",
           "c9f96d4234": "error",
@@ -4806,9 +4806,9 @@
         },
         "WarpThemeImportModal": {
           "title": "Import themes from Warp",
-          "description": "Import Warp themes as Orca terminal themes.",
+          "description": "Import Warp themes as Janus Code terminal themes.",
           "yaml_title": "Import theme YAML",
-          "yaml_description": "Import theme YAML files (Warp format) as Orca terminal themes.",
+          "yaml_description": "Import theme YAML files (Warp format) as Janus Code terminal themes.",
           "yaml_no_themes_found": "No themes found in the selected files.",
           "choose_file": "Choose File",
           "choose_folder": "Choose Folder",
@@ -4820,7 +4820,7 @@
           "select_all": "Select all",
           "colors_only": "Colors only",
           "no_themes_found": "No custom Warp themes found.",
-          "builtin_themes_hint": "Warp's preloaded themes are part of the Warp app and can't be read from disk. Orca already includes most of them, like Dracula, Gruvbox, Solarized, and Tokyo Night.",
+          "builtin_themes_hint": "Warp's preloaded themes are part of the Warp app and can't be read from disk. Janus Code already includes most of them, like Dracula, Gruvbox, Solarized, and Tokyo Night.",
           "custom_theme_yaml_hint": "Custom and community themes need to exist as YAML files in a Warp themes folder before auto-import can find them. If you cloned Warp's public themes repo, use Choose Folder to import that checkout.",
           "choose_manually": "Choose a theme YAML file or folder to import manually.",
           "skipped_files": "Skipped files",
@@ -4842,8 +4842,8 @@
           "label": "Import from YAML"
         },
         "GitPane": {
-          "d2eede4c54": "Add Orca attribution to commits, PRs, and issues.",
-          "e02ea23a32": "Orca Attribution",
+          "d2eede4c54": "Add Janus Code attribution to commits, PRs, and issues.",
+          "e02ea23a32": "Janus Code Attribution",
           "e71ce09c42": "orca",
           "b9b5771bb1": "attribution",
           "b5f534717a": "coauthored",
@@ -4861,13 +4861,13 @@
           "aa204f185f": "Current GitHub CLI REST, Search, and GraphQL rate limits.",
           "612a440e57": "GitHub API Budget",
           "2cde9044a8": "graphql",
-          "36e3de3619": "from comparing against stale history. Orca skips the update if that branch has uncommitted changes or local-only commits.",
+          "36e3de3619": "from comparing against stale history. Janus Code skips the update if that branch has uncommitted changes or local-only commits.",
           "d072a12995": "git diff main...HEAD",
           "db3a127eb1": ". This keeps commands like",
           "3ae3de8898": "master",
           "5bf885be48": "or",
           "ffba483bae": "main",
-          "976afc6b3e": "When you create a workspace, Orca refreshes the remote base and safely fast-forwards your matching local branch, such as",
+          "976afc6b3e": "When you create a workspace, Janus Code refreshes the remote base and safely fast-forwards your matching local branch, such as",
           "1ec5c91e1d": "Choose whether branch names use your Git username, a custom prefix, or no prefix.",
           "330f584b50": "Branch Prefix",
           "1ffaadf0a0": "Prefix added to branch names when creating worktrees.",
@@ -4901,15 +4901,15 @@
           "264a9b6128": "Linear",
           "4831ba1083": "Re-check",
           "01f6c7582e": "Learn more",
-          "1a62c295c6": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
-          "5a1f86225a": "only when Orca cannot derive the API URL from the remote.",
+          "1a62c295c6": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Janus Code if environment variables changed.",
+          "5a1f86225a": "only when Janus Code cannot derive the API URL from the remote.",
           "6193444689": "ORCA_GITEA_API_BASE_URL",
           "2c0330ec3e": "for private repositories, and set",
           "e678d89e8c": "ORCA_GITEA_TOKEN",
           "d9467ab026": "Public repositories are detected from their git remote. Set",
           "4ab9b96925": "Gitea",
-          "953b7bf6f7": "Azure DevOps credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
-          "6f317f5132": "only when Orca cannot derive the API base URL from the git remote.",
+          "953b7bf6f7": "Azure DevOps credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Janus Code if environment variables changed.",
+          "6f317f5132": "only when Janus Code cannot derive the API base URL from the git remote.",
           "ae6b7f5f40": "ORCA_AZURE_DEVOPS_API_BASE_URL",
           "67a9f26a80": ". Set",
           "8f960935c1": "ORCA_AZURE_DEVOPS_ACCESS_TOKEN",
@@ -4917,7 +4917,7 @@
           "5ee6ef6405": "ORCA_AZURE_DEVOPS_TOKEN",
           "4ee74d1470": "Set",
           "5efce6953d": "Azure DevOps",
-          "3c3cf05c63": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Orca if environment variables changed.",
+          "3c3cf05c63": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Janus Code if environment variables changed.",
           "6e0ff3403e": "ORCA_BITBUCKET_ACCESS_TOKEN",
           "44cde4aa01": "ORCA_BITBUCKET_API_TOKEN",
           "a6c2816115": "and",
@@ -4963,9 +4963,9 @@
           "a565377c38": "not-installed",
           "15cf990798": "Not authenticated",
           "f7eb5f0b24": "Not installed",
-          "3ba07f933b": "Connect issue trackers Orca can use to browse tasks and start workspaces with linked context.",
+          "3ba07f933b": "Connect issue trackers Janus Code can use to browse tasks and start workspaces with linked context.",
           "70e885705b": "Task providers",
-          "1683acbac4": "Connect the source hosts Orca can use for pull requests, merge requests, checks, and review status.",
+          "1683acbac4": "Connect the source hosts Janus Code can use for pull requests, merge requests, checks, and review status.",
           "298c65ecac": "Review providers"
         },
         "KagiSessionLinkForm": {
@@ -4985,10 +4985,10 @@
           "1637f64033": "Open in VS Code",
           "98f1a23e1c": "Open with Default App",
           "400397a10d": "Open keybindings file menu",
-          "1c2be2b2c6": "Edit File in Orca",
+          "1c2be2b2c6": "Edit File in Janus Code",
           "c5886a31cc": "Failed to open external editor.",
           "cdf794f46d": "Keybindings file is not available.",
-          "dd532a01ce": "Failed to open keybindings in Orca."
+          "dd532a01ce": "Failed to open keybindings in Janus Code."
         },
         "ManageSessionKillDialog": {
           "6bf4627168": "Cancel",
@@ -5068,7 +5068,7 @@
           "ae1612c58c": "Availability",
           "f9af91ea26": "Shows the New Mobile Emulator action and allows agents to attach to the active emulator.",
           "700ddbf9b1": "Enable Mobile Emulator",
-          "bc39d0f115": "Configure mobile emulator support for Orca and coding agents.",
+          "bc39d0f115": "Configure mobile emulator support for Janus Code and coding agents.",
           "6593c9ddd3": "Mobile Emulator",
           "a4f1c82d90": "Disabled",
           "b5e2d93e01": "Checking...",
@@ -5076,7 +5076,7 @@
           "d704fb5023": "Needs setup"
         },
         "MobileNetworkInterfaceSection": {
-          "63d5e4ae1e": "Regenerate the QR code and scan it from the Orca mobile app.",
+          "63d5e4ae1e": "Regenerate the QR code and scan it from the Janus Code mobile app.",
           "87985ba6f5": "In this Network Interface menu, choose the Tailscale address, usually a 100.x.y.z IP.",
           "1f7c26d36a": "Sign in to the same tailnet on both devices.",
           "668016be7a": "on your computer and phone.",
@@ -5093,13 +5093,13 @@
         },
         "MobilePane": {
           "dd3cd78d04": "Scan with Janus Mobile",
-          "35100bca5d": "While you're using a terminal on your phone, Orca shrinks it to fit your phone screen. When you close the app or switch away, this controls whether it stays at phone size (so interactive CLI tools don't reflow) or resizes back to your desktop. You can always click Restore on the terminal banner to resize it manually.",
+          "35100bca5d": "While you're using a terminal on your phone, Janus Code shrinks it to fit your phone screen. When you close the app or switch away, this controls whether it stays at phone size (so interactive CLI tools don't reflow) or resizes back to your desktop. You can always click Restore on the terminal banner to resize it manually.",
           "ee56f1c7e4": "When you leave the mobile app",
           "3939fd062c": "Revoking a device disconnects it immediately.",
           "254a6d09e4": "Paired",
           "d7ce676270": "Paired Devices",
           "e778ecb209": "Or paste this code in the mobile app:",
-          "310924ad2c": "Scan this code with the Orca mobile app. Each code creates a unique device token.",
+          "310924ad2c": "Scan this code with the Janus Code mobile app. Each code creates a unique device token.",
           "870e1b5ca5": "Failed to revoke device",
           "2e3dd0bc29": "Device revoked",
           "711231348f": "Failed to copy pairing code",
@@ -5112,13 +5112,13 @@
           "aa1263e881": "Keep at phone size (default)",
           "6436e56546": "QR Code for mobile pairing",
           "1b1b70279a": "No devices paired yet.",
-          "1592afcc7a": "No devices paired yet. Scan the QR code with the Orca mobile app."
+          "1592afcc7a": "No devices paired yet. Scan the QR code with the Janus Code mobile app."
         },
         "MobileSettingsPane": {
           "9a3c280e49": "GitHub Releases",
           "b0088412a1": "or the Android APK from",
           "b5a2ed83ff": "App Store",
-          "c8491c17ef": "Control Orca from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the",
+          "c8491c17ef": "Control Janus Code from your phone by scanning a QR code. Beta / early preview - expect bugs and breaking changes. Get the iOS app from the",
           "e7a3ae8c4e": "Mobile",
           "174f4a3c6d": "Control terminals and agents from your phone."
         },
@@ -5129,7 +5129,7 @@
           "2a42dd8d6f": "Notification sound volume",
           "4aa5085cd7": "Custom:",
           "c258cb96dc": "Choose notification sound",
-          "2a2033c388": "Choose the alert Orca plays when a desktop notification is delivered.",
+          "2a2033c388": "Choose the alert Janus Code plays when a desktop notification is delivered.",
           "88686e6ca8": "Notification Sound",
           "b6fc369244": "A background terminal emits a bell character.",
           "591fe605b9": "Terminal Bell",
@@ -5140,11 +5140,11 @@
           "0fadad17ce": "Notification sound could not be played",
           "406feb0aa6": "Test notification was not delivered",
           "6fc3781729": "Notifications are disabled",
-          "4676a95bc3": "Check your desktop notification settings for Orca.",
+          "4676a95bc3": "Check your desktop notification settings for Janus Code.",
           "0cb93240b8": "System did not show the notification",
           "145227ca2b": "Open Settings",
           "d3d54e0915": "Test notification sent",
-          "115437bc35": "If no macOS banner appeared, enable Allow notifications for Orca.",
+          "115437bc35": "If no macOS banner appeared, enable Allow notifications for Janus Code.",
           "7f45542625": "Test notification requested",
           "98d70fb261": "Custom notification sound could not be played",
           "c83b05a055": "Notifications are not supported on this system",
@@ -5252,7 +5252,7 @@
           "b85fe972cd": "Could not open trace folder",
           "1fb00a8995": "Disabled",
           "46ea3fb2d0": "Enabled",
-          "7c9d9820b6": "Set ORCA_OTLP_TRACES_URL to point Orca at your own OpenTelemetry collector."
+          "7c9d9820b6": "Set ORCA_OTLP_TRACES_URL to point Janus Code at your own OpenTelemetry collector."
         },
         "PrivacyPane": {
           "36e0e2e63b": "environment variable. Unset it and restart to re-enable.",
@@ -5260,7 +5260,7 @@
           "e3970bbbf5": "Telemetry is disabled because a CI environment variable is set. Unset it and restart.",
           "fe904ac984": "Share anonymous usage data",
           "77410e0566": "Privacy policy",
-          "8bfdd23a88": "Help us figure out what to build next. Orca sends anonymous counts of which features you use and where things break.",
+          "8bfdd23a88": "Help us figure out what to build next. Janus Code sends anonymous counts of which features you use and where things break.",
           "afec8b03be": "ci"
         },
         "QuickCommandsPane": {
@@ -5292,7 +5292,7 @@
           "a867a0889f": "Recent or tab strip."
         },
         "RepositoryHooksSection": {
-          "af49e2a19e": "The file is present, but Orca could not find valid `scripts` or `issueCommand` definitions.",
+          "af49e2a19e": "The file is present, but Janus Code could not find valid `scripts` or `issueCommand` definitions.",
           "3397879bee": "and local commands exist, choose which run.",
           "39da2ae12f": "orca.yaml",
           "ac9038d2cc": "When both",
@@ -5336,9 +5336,9 @@
           "787ca433ef": "Define only the supported keys: `scripts`, `setup`, `archive`, and `issueCommand`.",
           "ecc73d9125": "Compare your file against the working template below and copy that shape if needed.",
           "925f9e0dc4": "text-foreground",
-          "0cc712b823": "The core configuration file exists in the repo root, but Orca could not parse the supported hook definitions yet.",
+          "0cc712b823": "The core configuration file exists in the repo root, but Janus Code could not parse the supported hook definitions yet.",
           "c90b858573": "text-amber-700 dark:text-amber-300",
-          "aba825233f": "The file contains configuration keys that this version of Orca does not recognize. You may need to update Orca, or check the file for typos.",
+          "aba825233f": "The file contains configuration keys that this version of Janus Code does not recognize. You may need to update Janus Code, or check the file for typos.",
           "ca424ff135": "Shared hook and issue-automation defaults are defined in the repo and available to everyone who uses it.",
           "32f417fe17": "text-emerald-700 dark:text-emerald-300",
           "8bfe65fc60": "Use local commands",
@@ -5372,7 +5372,7 @@
           "c5a55a2d2e": "advanced",
           "b5e3e77e89": "action",
           "0ce113fd7b": "Local scripts are saved, but Script Source is set to orca.yaml only.",
-          "7f78e5eea6": "Local scripts are saved. Orca is still checking orca.yaml before it can recommend which script source to use.",
+          "7f78e5eea6": "Local scripts are saved. Janus Code is still checking orca.yaml before it can recommend which script source to use.",
           "2b6356e744": "Saved",
           "81057d5f71": "Saving...",
           "da37d6f10e": "Copy",
@@ -5411,7 +5411,7 @@
           "26fef02bf3": "Project Icon",
           "c7ef4415de": "Display Name",
           "b0a0c14a1c": "Project-specific display details for the sidebar and tabs.",
-          "170624bdfb": "Remove this project from Orca.",
+          "170624bdfb": "Remove this project from Janus Code.",
           "0909e5d650": "Remove Project",
           "ee5a290616": "Opened as folder. Git features are unavailable for this workspace.",
           "323debba71": "Type:",
@@ -5428,8 +5428,8 @@
           "setupPathPending": "Path pending",
           "openSetup": "Open",
           "removeSetup": "Remove",
-          "hostSetupBlockedVersion": "Orca server version is incompatible",
-          "hostSetupMissingCapability": "Update Orca on this host to set up projects",
+          "hostSetupBlockedVersion": "Janus Code server version is incompatible",
+          "hostSetupMissingCapability": "Update Janus Code on this host to set up projects",
           "setupProjectOnHost": "Set up on another host",
           "setupProjectOnHostHelp": "Choose a host, then import an existing checkout, clone the repository there, or track a setup that will be provisioned later.",
           "setupExistingFolder": "Import existing folder",
@@ -5536,8 +5536,8 @@
           "62ac182a27": "Update client",
           "c8791efc45": "Status unavailable",
           "5120beaac6": "Checking…",
-          "84b9b2be05": "Create a revocable access grant so a browser or another Orca client can connect.",
-          "6e1280ca55": "Share this Orca server",
+          "84b9b2be05": "Create a revocable access grant so a browser or another Janus Code client can connect.",
+          "6e1280ca55": "Share this Janus Code server",
           "9a3758d983": "No saved servers.",
           "9bee6bbeeb": "Add Server",
           "55fcc964cd": "on the server and paste the printed pairing URL.",
@@ -5561,9 +5561,9 @@
           "0c55a47480": "Name and pairing code are required.",
           "e6410d72c3": "Failed to load runtime environments.",
           "6ef71985da": "No endpoint",
-          "ed3e3f069d": "This removes the saved server from Orca. It does not change the active server.",
+          "ed3e3f069d": "This removes the saved server from Janus Code. It does not change the active server.",
           "b2fda48c39": "Removing the active server disconnects this browser from that host. Existing host sessions are left alone.",
-          "9f7665a01b": "Removing the active server first switches Orca back to Local desktop. Existing host sessions are left alone.",
+          "9f7665a01b": "Removing the active server first switches Janus Code back to Local desktop. Existing host sessions are left alone.",
           "3595fd1948": "New Link",
           "54dee18f5c": "Hide Form",
           "8cf8790697": "Saved servers route this browser through a paired Janus Code runtime.",
@@ -5590,16 +5590,16 @@
           "advanced": "Advanced",
           "serverDetails": "Server details",
           "advertiseThisApp": "Advertise this app as a server",
-          "advertiseThisAppHelp": "Create access links for browsers, mobile clients, or another Orca client to connect back to this running app.",
+          "advertiseThisAppHelp": "Create access links for browsers, mobile clients, or another Janus Code client to connect back to this running app.",
           "runtimeReachable": "{{value0}} is reachable."
         },
         "RuntimePairingGeneratedUrlRows": {
           "0495f68959": "Copy {{value0}}"
         },
         "RuntimePairingUrlGenerator": {
-          "849825e829": "Paste this pairing URL into another Orca client.",
-          "2e5c4e3c93": "Pair another Orca client",
-          "f7cafdc9f3": "Browser link unavailable in this build. The pairing URL still works for Orca clients.",
+          "849825e829": "Paste this pairing URL into another Janus Code client.",
+          "2e5c4e3c93": "Pair another Janus Code client",
+          "f7cafdc9f3": "Browser link unavailable in this build. The pairing URL still works for Janus Code clients.",
           "6b9ca3e69b": "Open in browser",
           "1ca2e5194d": "Use this URL from a browser that can reach the selected address.",
           "8de0f84fff": "Generate Access Link",
@@ -5610,7 +5610,7 @@
           "de6d5cff95": "This computer (",
           "de77eb1b65": "Connection address",
           "ff80904fc4": "Create a revocable access grant for browser or desktop clients.",
-          "f8500e134a": "Share this Orca server",
+          "f8500e134a": "Share this Janus Code server",
           "d6c081adf4": "Failed to copy URL.",
           "df0aa45a86": "Copied pairing URL.",
           "13704d635e": "Copied web client URL.",
@@ -5640,9 +5640,9 @@
           "c2ee313198": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
           "9b02492d1f": "SSH Hosts",
           "b5ee17826b": "Pair remote Janus Code runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
-          "7686cb5c36": "Connect this browser to a saved Orca server.",
-          "bd0181eeca": "Remote Orca Servers",
-          "8acf3f22e0": "Orca stats plus Claude, Codex, and OpenCode usage analytics.",
+          "7686cb5c36": "Connect this browser to a saved Janus Code server.",
+          "bd0181eeca": "Remote Janus Code Servers",
+          "8acf3f22e0": "Janus Code stats plus Claude, Codex, and OpenCode usage analytics.",
           "954a8f5aef": "Stats & Usage",
           "a737a4bb22": "Keyboard shortcuts for common actions.",
           "23bf7a1ad4": "Shortcuts",
@@ -5654,7 +5654,7 @@
           "2b4474780a": "Appearance",
           "3d9adfe6a5": "Global terminal, browser, and markdown tabs.",
           "3eb22a3ada": "Floating Workspace",
-          "01f9d36292": "Configure mobile emulator support for Orca and coding agents.",
+          "01f9d36292": "Configure mobile emulator support for Janus Code and coding agents.",
           "f75daf1002": "Mobile Emulator",
           "ad9788036f": "Home page, link routing, and session cookies.",
           "c46215ea03": "Browser",
@@ -5670,7 +5670,7 @@
           "c9ca101a3b": "Integrations",
           "f9b77539fd": "Workspace defaults, app setup, and maintenance.",
           "7807c11c4d": "General",
-          "6855b0f77d": "Finish the core workflows that make Orca useful for parallel agent work.",
+          "6855b0f77d": "Finish the core workflows that make Janus Code useful for parallel agent work.",
           "6d119427ef": "Onboarding checklist",
           "eb1176a14e": "Local speech-to-text dictation with on-device models.",
           "5063bb47a5": "Voice",
@@ -5678,7 +5678,7 @@
           "c9841721cb": "Computer Use",
           "475980f53d": "Coordinate multiple coding agents through Janus Code.",
           "00c3a7950d": "Orchestration",
-          "21f09426ea": "Optional. Orca works with your existing provider logins; add accounts only if you want Orca to help switch between them.",
+          "21f09426ea": "Optional. Janus Code works with your existing provider logins; add accounts only if you want Janus Code to help switch between them.",
           "ad6c529693": "AI Provider Accounts",
           "ec1ba547f7": "Manage AI agents, set a default, and customize commands.",
           "8afa676615": "Agents",
@@ -5753,10 +5753,10 @@
         },
         "ShortcutTerminalPolicyControl": {
           "0762983d13": "Terminal first",
-          "63308571d8": "Orca first",
+          "63308571d8": "Janus Code first",
           "c43c7ff5f9": "Decide who first intercepts shortcuts",
           "c3a554288e": "Shortcuts in Terminal",
-          "0f55c6f15c": "Choose whether Orca or the focused terminal wins when shortcuts overlap."
+          "0f55c6f15c": "Choose whether Janus Code or the focused terminal wins when shortcuts overlap."
         },
         "ShortcutsPane": {
           "4b7ae34062": "directly.",
@@ -5765,7 +5765,7 @@
           "f0b35b0b2e": "Disabled while a terminal or TUI has keyboard focus.",
           "5c65d5db9d": "Terminal first",
           "dfa8ff612f": "Also runs while a terminal or TUI has keyboard focus.",
-          "2a0e8aeccf": "Orca first",
+          "2a0e8aeccf": "Janus Code first",
           "3c0fac059a": "Still runs while a terminal has keyboard focus.",
           "25b0004fbf": "Terminal active",
           "781cb74d22": "Runs from terminal panes.",
@@ -5779,7 +5779,7 @@
           "2cb4bb7e5d": "CLI arguments",
           "0740d30915": "Custom command",
           "ee0e5c2a48": "Use default agent",
-          "bf84dea6af": "Use variables only when you want Orca to inject context. Leave the agent as default to follow your normal agent preference.",
+          "bf84dea6af": "Use variables only when you want Janus Code to inject context. Leave the agent as default to follow your normal agent preference.",
           "a79c567194": "Action recipes",
           "cf01d41bce": "Agent, CLI arguments, and command template used by each Source Control AI button.",
           "a9359c8aa9": "Unknown error",
@@ -5837,7 +5837,7 @@
           "c0f1c80166": "No SSH targets configured.",
           "639ceb3698": "Add Target",
           "51d7dba44d": "Import",
-          "a7d28dff81": "Add a remote host to connect to it in Orca.",
+          "a7d28dff81": "Add a remote host to connect to it in Janus Code.",
           "94c5284560": "Targets",
           "f495689b82": "Import failed",
           "f8050f6307": "Synced {{value0}} server{{value1}}",
@@ -5956,7 +5956,7 @@
           "52854a5608": "Block",
           "e070e8aeba": "Bar",
           "db270cc9a9": "Cursor Shape",
-          "d455f2ef4f": "Default cursor appearance for Orca terminal panes.",
+          "d455f2ef4f": "Default cursor appearance for Janus Code terminal panes.",
           "abcb4dd019": "Terminal Cursor",
           "70beb1bbc7": "Preview",
           "31f6e61085": "Ligatures are currently",
@@ -6085,7 +6085,7 @@
           "db210115c5": "Light Mode Preview",
           "5e0c24b5c8": "Controls the split divider line between panes in light mode.",
           "ec2e33ad80": "Light Divider Color",
-          "d56af60e6f": "Choose the theme used when Orca is in light mode.",
+          "d56af60e6f": "Choose the theme used when Janus Code is in light mode.",
           "8273bc75d7": "Light Theme",
           "74b15574c8": "Configure the optional light-mode terminal appearance.",
           "b584287e84": "When disabled, light mode reuses the dark terminal theme.",
@@ -6108,7 +6108,7 @@
           "1afcc1d973": "Vertical Padding",
           "25e2f8e8e1": "Horizontal padding around the terminal grid in pixels.",
           "36b8402015": "Horizontal Padding",
-          "53ce336e15": "Restart Orca to apply the window blur change.",
+          "53ce336e15": "Restart Janus Code to apply the window blur change.",
           "c65bb9ce63": "Restart required",
           "97950bb087": "Apply background blur to the terminal window. Requires restart.",
           "2b82242f43": "Window Blur",
@@ -6237,7 +6237,7 @@
           "4598b18464": "Removing...",
           "7c3bb36706": "remove",
           "7ee4e52b99": "Janus Code will register {{value0}} so the command works from WSL terminals.",
-          "d8216eb22e": "This removes the WSL shell command. Orca itself remains installed on Windows.",
+          "d8216eb22e": "This removes the WSL shell command. Janus Code itself remains installed on Windows.",
           "e49688f67f": "Register `{{value0}}` in WSL?",
           "61ac55278e": "Remove `{{value0}}` from WSL?",
           "e2b0ee267f": "stale",
@@ -6403,7 +6403,7 @@
             "51f957ce39": "name",
             "36e006efc1": "app",
             "bed343b03e": "titlebar",
-            "18b4c4c30b": "Show Orca in the titlebar.",
+            "18b4c4c30b": "Show Janus Code in the titlebar.",
             "fdd31b00d0": "Titlebar App Name",
             "c1bca1885a": "file explorer",
             "9f2df826ac": "ignored",
@@ -6417,7 +6417,7 @@
             "8b36fb3f64": "typography",
             "a0e09aed9c": "typeface",
             "24094af355": "font",
-            "07c7c38fac": "Choose the font used by the Orca interface.",
+            "07c7c38fac": "Choose the font used by the Janus Code interface.",
             "ddb991024d": "IDE Font",
             "0c83659f48": "shortcut",
             "0952091186": "scale",
@@ -6427,7 +6427,7 @@
             "3a9b69d734": "system",
             "44d873fd18": "light",
             "262fe1d24f": "dark",
-            "0709c794f7": "Choose how Orca looks in the app window.",
+            "0709c794f7": "Choose how Janus Code looks in the app window.",
             "71e06350b4": "Theme",
             "dc02c8759d": "workspace",
             "43cfba3b95": "server",
@@ -6535,7 +6535,7 @@
             "66dd641a47": "session",
             "29193a51d5": "cookies",
             "2d2d995c58": "browser",
-            "060ac1fcba": "Import cookies from Chrome, Edge, or other browsers to use existing logins inside Orca.",
+            "060ac1fcba": "Import cookies from Chrome, Edge, or other browsers to use existing logins inside Janus Code.",
             "96afedcb5c": "Session & Cookies",
             "a7a07d5415": "editor",
             "8dd4805991": "file",
@@ -6800,7 +6800,7 @@
             "06ea5a69a6": "github",
             "e4fb4516d0": "star",
             "e0b8c8bc25": "Support the project with a GitHub star via the gh CLI.",
-            "36a72f0d9e": "Star Orca on GitHub",
+            "36a72f0d9e": "Star Janus Code on GitHub",
             "c61b14be7c": "grok",
             "5d9ba08673": "copilot",
             "f472e97440": "aider",
@@ -6833,7 +6833,7 @@
             "6382fe9724": "npx",
             "baa263d6d8": "agents",
             "bda108e66c": "skill",
-            "244e3fb4c8": "Install the Orca skill so agents know to use the Janus CLI.",
+            "244e3fb4c8": "Install the Janus Code skill so agents know to use the Janus CLI.",
             "2d9f7b42df": "Agent skill",
             "0a00691c06": "shell command",
             "dbeb1f348e": "command",
@@ -6880,7 +6880,7 @@
             "b2799ba622": "milliseconds",
             "146728ac2c": "delay",
             "86f54575c7": "autosave",
-            "8ea61ad55c": "How long Orca waits after your last edit before saving automatically.",
+            "8ea61ad55c": "How long Janus Code waits after your last edit before saving automatically.",
             "14e46c745b": "Auto Save Delay",
             "4469b6fa4e": "save",
             "e9d948d3c3": "Save editor and editable diff changes automatically after a short pause.",
@@ -6896,7 +6896,7 @@
             "9da6c875e5": "dock",
             "b9096a44cf": "https_proxy",
             "8f03d44672": "http_proxy",
-            "e3b1d42f95": "Proxy URL for Orca network requests and local terminal children.",
+            "e3b1d42f95": "Proxy URL for Janus Code network requests and local terminal children.",
             "c29f23ab57": "HTTP Proxy",
             "6c2ce8457c": "file explorer",
             "c9d9636f24": "finder",
@@ -6940,8 +6940,8 @@
             "6bdea421bb": "pr",
             "16f53f7323": "gh",
             "d088806071": "github",
-            "118c23484b": "Add Orca attribution to commits, PRs, and issues.",
-            "bc7d9f69ce": "Orca Attribution",
+            "118c23484b": "Add Janus Code attribution to commits, PRs, and issues.",
+            "bc7d9f69ce": "Janus Code Attribution",
             "40f9b815fd": "api budget",
             "b7e52124c7": "rate limit",
             "ead733645f": "glab",
@@ -6963,7 +6963,7 @@
             "564942ffc5": "origin/main",
             "28192e3a63": "master",
             "e3e9adde59": "main",
-            "0e993bf00f": "When you create a workspace, Orca refreshes the remote base and safely fast-forwards your matching local branch, such as main or master. This keeps commands like git diff main...HEAD from comparing against stale history. Orca skips the update if that branch has uncommitted changes or local-only commits.",
+            "0e993bf00f": "When you create a workspace, Janus Code refreshes the remote base and safely fast-forwards your matching local branch, such as main or master. This keeps commands like git diff main...HEAD from comparing against stale history. Janus Code skips the update if that branch has uncommitted changes or local-only commits.",
             "f8bda25f29": "Keep Local Main Up to Date",
             "769ddd7f81": "custom",
             "1d2fae1fa2": "git username",
@@ -7062,7 +7062,7 @@
         "mobile": {
           "emulator": {
             "search": {
-              "2348045036": "Choose which emulator device Orca opens by default.",
+              "2348045036": "Choose which emulator device Janus Code opens by default.",
               "2bb2e09225": "mobile skill",
               "bbe4267416": "emulator type",
               "64494f03c3": "emulator attach",
@@ -7096,7 +7096,7 @@
               "2d67f708ce": "simulator",
               "c5eca29310": "ios simulator",
               "25159de808": "mobile emulator",
-              "9595354cff": "Configure mobile emulator support for Orca and coding agents.",
+              "9595354cff": "Configure mobile emulator support for Janus Code and coding agents.",
               "cdd3c31918": "Mobile Emulator"
             }
           },
@@ -7180,12 +7180,12 @@
             "57e34a31cd": "wav",
             "5362074f19": "mp3",
             "6e08f78315": "audio",
-            "c718793e95": "Choose the built-in, system, or local audio file Orca plays for desktop notifications.",
+            "c718793e95": "Choose the built-in, system, or local audio file Janus Code plays for desktop notifications.",
             "ea8cb8d9ce": "Notification Sound",
             "4ada6bfde9": "filtering",
             "fa60d8e4ab": "suppress",
             "a4c3b29a3c": "focused",
-            "7247b97a31": "Avoid notifying when Orca is focused on the active worktree.",
+            "7247b97a31": "Avoid notifying when Janus Code is focused on the active worktree.",
             "96562a72c6": "Suppress While Focused",
             "a2ab73b325": "attention",
             "ae0487f8fd": "bell",
@@ -7201,7 +7201,7 @@
             "adbc3a0fcf": "native",
             "72539aede4": "system",
             "51ae2183e1": "desktop",
-            "0534c76311": "Master switch for Orca desktop notifications.",
+            "0534c76311": "Master switch for Janus Code desktop notifications.",
             "4a210b2f72": "Enable Notifications"
           }
         },
@@ -7253,7 +7253,7 @@
             "b021b9cb81": "anonymous",
             "79c319948b": "usage",
             "77d3180def": "telemetry",
-            "b707cc3981": "Help improve Orca by sending anonymous feature-usage events.",
+            "b707cc3981": "Help improve Janus Code by sending anonymous feature-usage events.",
             "57b283461a": "Share Anonymous Usage Data",
             "2b5a5c312f": "posthog",
             "4104f6f0f3": "analytics",
@@ -7360,7 +7360,7 @@
             "cc876ca5f2": "repository",
             "6469de5368": "project",
             "3067595d82": "delete",
-            "c86478c3d8": "Remove this project from Orca.",
+            "c86478c3d8": "Remove this project from Janus Code.",
             "c5266c2c9d": "Remove Project",
             "4b9a18a56d": "monorepo",
             "4e2529722c": "directories",
@@ -7408,13 +7408,13 @@
               "09568ccc65": "server",
               "ebd5369acf": "environment",
               "d198440ce3": "runtime",
-              "baec27aa8f": "Connect this browser to a saved Orca server.",
+              "baec27aa8f": "Connect this browser to a saved Janus Code server.",
               "3517fb2ec0": "Active Server",
               "c6e5a03aa0": "dev box",
               "f1575f1e09": "web client",
               "81444c4102": "pairing url",
               "104f4d7dbd": "pairing",
-              "4575341c77": "Choose local desktop, add a saved remote Orca server, or generate a pairing URL."
+              "4575341c77": "Choose local desktop, add a saved remote Janus Code server, or generate a pairing URL."
             }
           }
         },
@@ -7429,7 +7429,7 @@
             "7f1b38f59a": "tui",
             "7e3fc707aa": "terminal",
             "0ecba9aa5f": "keyboard",
-            "ebd7d81e1d": "Choose whether Orca or the focused terminal wins when shortcuts overlap.",
+            "ebd7d81e1d": "Choose whether Janus Code or the focused terminal wins when shortcuts overlap.",
             "f052906167": "Shortcuts in Terminal"
           }
         },
@@ -7569,14 +7569,14 @@
             "a979df0083": "Import from Ghostty",
             "warp_import": {
               "title": "Import themes from Warp",
-              "description": "Import Warp themes as Orca terminal themes.",
+              "description": "Import Warp themes as Janus Code terminal themes.",
               "keyword_warp": "warp",
               "keyword_themes": "themes",
               "keyword_yaml": "yaml"
             },
             "yaml_import": {
               "title": "Import from YAML",
-              "description": "Import theme YAML files as Orca terminal themes.",
+              "description": "Import theme YAML files as Janus Code terminal themes.",
               "keyword_yaml": "yaml",
               "keyword_custom": "custom"
             },
@@ -7616,7 +7616,7 @@
             "77d9f9cd55": "Controls the split divider line between panes in light mode.",
             "595b97b446": "Light Divider Color",
             "7718d70356": "preview",
-            "1dee533bd9": "Choose the theme used when Orca is in light mode.",
+            "1dee533bd9": "Choose the theme used when Janus Code is in light mode.",
             "1d89457764": "Light Theme",
             "da864e6cec": "light mode",
             "f268092ee3": "When disabled, light mode reuses the dark terminal theme.",
@@ -7647,7 +7647,7 @@
             "eefd1d8332": "underline",
             "015c82349f": "block",
             "a6e9dcc829": "bar",
-            "275a9d6395": "Default cursor appearance for Orca terminal panes.",
+            "275a9d6395": "Default cursor appearance for Janus Code terminal panes.",
             "97bcfff662": "Cursor Shape",
             "1abcf4d7de": "linux",
             "7d924d870d": "graphics",
@@ -7755,7 +7755,7 @@
                 "options": {
                   "commitMessage": "Generate the commit message from staged changes.",
                   "pullRequest": "Generate the hosted review title and description.",
-                  "branchName": "Rename Orca-created branches from the initial agent task.",
+                  "branchName": "Rename Janus Code-created branches from the initial agent task.",
                   "fixCommitFailure": "Start an agent when a commit hook or git commit fails.",
                   "fixChecks": "Start an agent from failed hosted-review checks.",
                   "resolveConflicts": "Start an agent for local or hosted-review merge conflicts.",
@@ -7778,11 +7778,11 @@
         "agent-awake-copy": {
           "e5995ce268": "Keep computer awake while agents are working",
           "95d3031db2": "Keeps this computer and display awake while agents are working. Lid-close behavior follows this device's power settings.",
-          "a42f6fbdd8": "Keeps this computer and display awake while agents are working. Orca also asks this device to stay awake when the lid is closed, subject to its power policy."
+          "a42f6fbdd8": "Keeps this computer and display awake while agents are working. Janus Code also asks this device to stay awake when the lid is closed, subject to its power policy."
         },
         "agent-status-hooks-copy": {
           "7707c15abb": "Agent status hooks",
-          "a68a642835": "Shows working, waiting, and done states in Orca. Turn off to remove Orca-managed hooks and stop reinstalling them."
+          "a68a642835": "Shows working, waiting, and done states in Janus Code. Turn off to remove Janus Code-managed hooks and stop reinstalling them."
         },
         "agent-generated-tab-title-copy": {
           "19ad21615a": "Auto-generate tab titles",
@@ -7852,8 +7852,8 @@
                 "cards": {
                   "793a06e899": "Re-check",
                   "1a9475dace": "Learn more",
-                  "19fb419c12": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
-                  "60708f23da": "only when Orca cannot derive the API URL from the remote.",
+                  "19fb419c12": "Gitea credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Janus Code if environment variables changed.",
+                  "60708f23da": "only when Janus Code cannot derive the API URL from the remote.",
                   "709057ad91": "ORCA_GITEA_API_BASE_URL",
                   "6da9dfa5de": "for private repositories, and set",
                   "6d5c2a3005": "ORCA_GITEA_TOKEN",
@@ -7862,8 +7862,8 @@
                   "05863d2599": "Pull requests and commit statuses via the Gitea REST API.",
                   "52f75876be": "Pull requests and commit statuses for detected repositories",
                   "0b5242f8a2": "{{value0}} · Pull requests and commit statuses",
-                  "40f678df73": "Azure DevOps credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Orca if environment variables changed.",
-                  "7bd345e3f6": "only when Orca cannot derive the API base URL from the git remote.",
+                  "40f678df73": "Azure DevOps credentials are configured but could not authenticate. Check the token, API base URL, and repository permissions, then restart Janus Code if environment variables changed.",
+                  "7bd345e3f6": "only when Janus Code cannot derive the API base URL from the git remote.",
                   "186a6689df": "ORCA_AZURE_DEVOPS_API_BASE_URL",
                   "b8a10b07c1": ". Set",
                   "fbfd237f5e": "ORCA_AZURE_DEVOPS_ACCESS_TOKEN",
@@ -7874,7 +7874,7 @@
                   "0eb50d5593": "Pull requests and build statuses via Azure DevOps REST API tokens.",
                   "54636c65d4": "Pull requests and build statuses for detected Azure Repos",
                   "ea204f5e03": "{{value0}} · Pull requests and build statuses",
-                  "6154b02093": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Orca if environment variables changed.",
+                  "6154b02093": "Bitbucket credentials are configured but could not authenticate. Check the token and repository permissions, then restart Janus Code if environment variables changed.",
                   "e63fe8f627": "ORCA_BITBUCKET_ACCESS_TOKEN",
                   "19416c874c": "ORCA_BITBUCKET_API_TOKEN",
                   "fc71a0e7aa": "and",
@@ -7896,7 +7896,7 @@
         },
         "computerUseSummary": {
           "checkingTitle": "Checking Computer Use access.",
-          "checkingDescription": "Orca is checking macOS privacy permissions for the Computer Use helper.",
+          "checkingDescription": "Janus Code is checking macOS privacy permissions for the Computer Use helper.",
           "unavailableTitle": "Computer Use is unavailable.",
           "unavailableDescription": "Computer Use permissions are unavailable because {{value0}}.",
           "readyTitle": "Computer Use is ready.",
@@ -7906,11 +7906,11 @@
         },
         "providerAccountScope": {
           "remoteServer": "Remote server: {{value0}}",
-          "remoteServerCredentials": "Credentials and account checks for this provider are owned by this remote server. Use Settings > Remote Orca Servers > Advanced to edit another default runtime scope.",
+          "remoteServerCredentials": "Credentials and account checks for this provider are owned by this remote server. Use Settings > Remote Janus Code Servers > Advanced to edit another default runtime scope.",
           "localMac": "Local Mac",
-          "localCredentials": "Credentials and account checks for this provider are owned by this desktop client. Use Settings > Remote Orca Servers > Advanced to edit server-owned credentials.",
-          "remoteServerRateLimit": "{{value0}} API budget is fetched from the CLI on this remote server. Use Settings > Remote Orca Servers > Advanced to view another default runtime budget.",
-          "localRateLimit": "{{value0}} API budget is fetched from the CLI on this desktop client. Use Settings > Remote Orca Servers > Advanced to view server-owned budgets."
+          "localCredentials": "Credentials and account checks for this provider are owned by this desktop client. Use Settings > Remote Janus Code Servers > Advanced to edit server-owned credentials.",
+          "remoteServerRateLimit": "{{value0}} API budget is fetched from the CLI on this remote server. Use Settings > Remote Janus Code Servers > Advanced to view another default runtime budget.",
+          "localRateLimit": "{{value0}} API budget is fetched from the CLI on this desktop client. Use Settings > Remote Janus Code Servers > Advanced to view server-owned budgets."
         },
         "settingOwnership": {
           "clientDefault": "Client default",
@@ -8262,7 +8262,7 @@
             "fe5bd1a610": "Creating {{value0}}...",
             "812cb992ee": "Open on {{value0}}",
             "eef5446523": "{{value0}} #{{value1}} is already open",
-            "0453ca3a9a": "{{value0}} created, but Orca could not refresh it yet.",
+            "0453ca3a9a": "{{value0}} created, but Janus Code could not refresh it yet.",
             "f99560ab29": "Abort {{value0}} failed",
             "eae7a1da5f": "Failed to clear notes.",
             "657e0c90ad": "{{value0}} note{{value1}}",
@@ -8348,12 +8348,12 @@
           },
           "SourceControlAgentActionDialogForm": {
             "013c9ac04a": "Save for",
-            "1bb611240f": "Use {basePrompt} for Orca's default prompt.",
-            "23280cbab1": "This template does not include {basePrompt}, so the agent will not receive Orca's default prompt.",
+            "1bb611240f": "Use {basePrompt} for Janus Code's default prompt.",
+            "23280cbab1": "This template does not include {basePrompt}, so the agent will not receive Janus Code's default prompt.",
             "5421a96acb": "Save & start agent",
             "6cefcdfba1": "You can change it later in Source Control AI settings.",
             "c29f9cf266": "Save this prompt and don't show this review next time",
-            "d8f40128ee": "{basePrompt} is Orca's default prompt.",
+            "d8f40128ee": "{basePrompt} is Janus Code's default prompt.",
             "ea4788705e": "Cancel",
             "7ec6abbf2a": "Reset",
             "f4f3c9ca4a": "Prompt template",
@@ -8368,7 +8368,7 @@
             "c7ff8cef11": "Detecting agents...",
             "b0da3a4d3e": "Launch recipe already saved",
             "bff4795a6d": "Change the agent, arguments, or prompt template to update the saved recipe.",
-            "5c75b24735": "Customize what the agent receives before Orca starts it."
+            "5c75b24735": "Customize what the agent receives before Janus Code starts it."
           },
           "SourceControlTextGenerationDialog": {
             "c5b7fa7cb6": "Save as global default",
@@ -8880,11 +8880,11 @@
           "3bede04483": "Send Test Notification",
           "dc897423e1": "Choose notification sound",
           "53aaffe49a": "Notification Sound",
-          "0fe570690c": "Pick the alert Orca plays after a desktop notification is delivered.",
+          "0fe570690c": "Pick the alert Janus Code plays after a desktop notification is delivered.",
           "0af746e41f": "Choose a sound",
           "8124d085a6": "Open Mac Settings",
-          "aa36281b00": "Open System Settings and make sure Orca is allowed to send notifications.",
-          "d2dba86837": "Allow Orca in macOS",
+          "aa36281b00": "Open System Settings and make sure Janus Code is allowed to send notifications.",
+          "d2dba86837": "Allow Janus Code in macOS",
           "e52aacf380": "Loading notification settings…",
           "3cd5374e22": "Notification settings are still loading",
           "b6a994e36e": "Notification sound could not be played",
@@ -8892,18 +8892,18 @@
           "ac80d97e02": "Change Custom File"
         },
         "OnboardingFlow": {
-          "1b5e182e9f": "Welcome to Orca",
+          "1b5e182e9f": "Welcome to Janus Code",
           "4db04f2f57": "of",
           "adaa0aa627": "Go to onboarding step {{value0}}: {{value1}}",
-          "a249f81538": "Orca",
-          "277ba45540": "Orca onboarding",
+          "a249f81538": "Janus Code",
+          "277ba45540": "Janus Code onboarding",
           "97c42cda00": "Install the GitHub CLI to:",
           "ae3b00ca82": "Set up GitHub tasks",
           "ff92d15436": "Janus Code will notify you know when agents are done or need help.",
           "b054332836": "Set up notifications",
           "04ae28d8ca": "Pick the look you want to stare at for hours.",
           "f396db9f20": "Make it feel like home",
-          "322fc50a18": "Orca works with every CLI agent. Choose the one you'll reach for most. Switch any time.",
+          "322fc50a18": "Janus Code works with every CLI agent. Choose the one you'll reach for most. Switch any time.",
           "198b148b3c": "Pick your default agent",
           "a5e5da02f7": "integrations",
           "35bbaf5ae0": "notifications",
@@ -9069,7 +9069,7 @@
           "10d27b4cba": "Get started",
           "da1d5e5ed0": "Available on",
           "ec0607bf66": "Supported mobile platforms",
-          "b4ccce5cb7": "Control Orca from your phone. Check on agents, review changes, and kick off tasks while you're away from your desk.",
+          "b4ccce5cb7": "Control Janus Code from your phone. Check on agents, review changes, and kick off tasks while you're away from your desk.",
           "cd4e5e816f": "Your workspaces, in your pocket.",
           "a6cffbbb0b": "Generate code",
           "e59a252eca": "Regenerate code",
@@ -9132,7 +9132,7 @@
             "00a6903322": "Agents spawned",
             "c0e2e9dcd9": "Welcome back",
             "af761a0c0d": "Settings",
-            "5d94e8ddcc": "Orca"
+            "5d94e8ddcc": "Janus Code"
           },
           "TerminalSlide": {
             "0bb39f8fe6": "Send",
@@ -9188,7 +9188,7 @@
                 "ebc0e8ecf1": "Loading GitLab API budget...",
                 "a2d3d1fdde": "GitLab API budget is unavailable.",
                 "a2f68645ac": "Refresh GitLab API budget",
-                "2f9c16d6c3": "Orca uses REST through the GitLab CLI.",
+                "2f9c16d6c3": "Janus Code uses REST through the GitLab CLI.",
                 "14e144f7a7": "GitLab API Budget",
                 "3e2c982cfa": "left, resets in",
                 "ea8ad0bae8": "of",
@@ -9384,8 +9384,8 @@
             "25ec5356d6": "Setup"
           },
           "FeatureWallModal": {
-            "33dca8bbbe": "A short, workflow-by-workflow tour of Orca.",
-            "3567e147c8": "Get to know Orca"
+            "33dca8bbbe": "A short, workflow-by-workflow tour of Janus Code.",
+            "3567e147c8": "Get to know Janus Code"
           },
           "FeatureWallPreview": {
             "a666384798": "Also in this workflow"
@@ -9518,7 +9518,7 @@
                   "aae94eeb52": "Click Install CLI & Skills",
                   "aa8e143a2f": "Could not check install",
                   "9b33e7fb13": "Checking install",
-                  "4c8e1f92a7": "open Orca Desktop on this Mac",
+                  "4c8e1f92a7": "open Janus Code Desktop on this Mac",
                   "6d2b0a84e1": "Unavailable in this build"
                 }
               }
@@ -9633,7 +9633,7 @@
           },
           "ConnectIntegrationsList": {
             "3dddb2d565": "connected for tasks",
-            "33b650af52": "Connect where your team tracks work. Orca starts workspaces with the issue title, link, and context already attached.",
+            "33b650af52": "Connect where your team tracks work. Janus Code starts workspaces with the issue title, link, and context already attached.",
             "5b3577a492": "connected for review status",
             "3a1fcdddad": "Two quick steps: connect where your code is reviewed, then where your team plans work.",
             "list_end": ", and ",
@@ -9642,7 +9642,7 @@
             "code_host_tasks_summary": "issues available as tasks · add Linear or Jira if your team plans work there",
             "code_host_tasks_caption": "Your code host's issues also work as tasks.",
             "review_step_title": "See PR status while agents work",
-            "review_step_description": "Connect a review provider so Orca can show PR or MR status, checks, and reviews.",
+            "review_step_description": "Connect a review provider so Janus Code can show PR or MR status, checks, and reviews.",
             "task_step_title": "Start agents on your tasks without leaving Janus Code"
           },
           "connect": {
@@ -9715,7 +9715,7 @@
           "RecoverableRenderErrorBoundary": {
             "55001880db": "Retry",
             "34a189ae0f": "The rest of the app is still running. Retry this surface or switch away and come back.",
-            "ab855c11f4": "This part of Orca hit an error."
+            "ab855c11f4": "This part of Janus Code hit an error."
           }
         }
       },
@@ -10093,7 +10093,7 @@
         "RichMarkdownErrorBoundary": {
           "aad0998127": "Retry",
           "4a5de9f2f0": "Switch to source mode, or click retry to reload the rich view.",
-          "dfdf1cacd4": "The rich markdown editor hit an unexpected error and was reset to keep the rest of Orca responsive."
+          "dfdf1cacd4": "The rich markdown editor hit an unexpected error and was reset to keep the rest of Janus Code responsive."
         },
         "RichMarkdownLinkBubble": {
           "1c99b726e0": "Remove link",
@@ -10279,7 +10279,7 @@
           "7afff43472": "Dictation finished, but no text field was focused.",
           "55127a3706": "Dictation failed: {{value0}}",
           "bb7f599ee7": "Open Settings",
-          "2d5b9fabf9": "Microphone access denied. Grant access in system settings, then restart Orca.",
+          "2d5b9fabf9": "Microphone access denied. Grant access in system settings, then restart Janus Code.",
           "5d2c3e7ae3": "No speech detected."
         }
       },
@@ -10309,7 +10309,7 @@
             "88fea8e84e": "Don't Send",
             "50b00dc327": "Copy Details",
             "6d3ebe216a": "Diagnostic text",
-            "835037edc9": "· Orca",
+            "835037edc9": "· Janus Code",
             "56a3dfa283": "Failed to send crash report.",
             "8e24fe4f75": "Crash report sent.",
             "8b8473c544": "Crash report copied.",
@@ -10451,7 +10451,7 @@
             "40edfa75cb": "Back",
             "efb0e8f7f3": "Copy Link Address",
             "8ce4f6b12e": "Open Link In Default Browser",
-            "b5b87d6cbb": "Open Link In Orca Browser",
+            "b5b87d6cbb": "Open Link In Janus Code Browser",
             "87eb75f7d2": "Enter a valid http(s) or localhost URL.",
             "27d863542c": "Browser annotations",
             "e48569ac6d": "This site could not be reached.",
@@ -10567,7 +10567,7 @@
           "2f8baf5360": "Create from",
           "578ff46987": "Next run",
           "18763ded26": "Schedule",
-          "dbef8dc110": "This SSH automation runs only while Orca can reach the SSH host. If reconnect needs interactive credentials or the host is unavailable, the run is recorded as skipped.",
+          "dbef8dc110": "This SSH automation runs only while Janus Code can reach the SSH host. If reconnect needs interactive credentials or the host is unavailable, the run is recorded as skipped.",
           "1f6026358e": "Delete automation",
           "d79452fb30": "Resume automation",
           "91a4155e95": "Pause automation",
@@ -10603,7 +10603,7 @@
         "AutomationEditorDialogHeader": {
           "31f9253920": "Use template",
           "7e35393632": "Hermes",
-          "6f309eef8d": "Orca",
+          "6f309eef8d": "Janus Code",
           "58f56b73d9": "Automation name",
           "1d9826933e": "Weekday repo audit",
           "4133d33862": "Create automation",
@@ -10619,7 +10619,7 @@
           "521f77cd58": "1 hour",
           "e5ad263ae5": "30 minutes",
           "529dc6c0b7": "No grace",
-          "3d70c185c8": "If Orca or the execution host was unavailable at the scheduled time, Orca runs one missed occurrence when it becomes available within this window. Older missed runs are skipped.",
+          "3d70c185c8": "If Janus Code or the execution host was unavailable at the scheduled time, Janus Code runs one missed occurrence when it becomes available within this window. Older missed runs are skipped.",
           "3df53d554a": "Missed-run grace help",
           "fc089e5fde": "Grace"
         },
@@ -10662,7 +10662,7 @@
         "AutomationSessionField": {
           "f3c76dce51": "Reuse",
           "c90888ee94": "Fresh",
-          "b675112193": "Reuse sends future runs to the previous live automation session. If that session is gone, Orca starts a fresh one.",
+          "b675112193": "Reuse sends future runs to the previous live automation session. If that session is gone, Janus Code starts a fresh one.",
           "4bdce31f37": "Session reuse help",
           "5ad314118e": "Session"
         },
@@ -10939,7 +10939,7 @@
                 "title": "Keep terminal links in Janus Code's browser?",
                 "description": "Or use your system browser by default.",
                 "orca": {
-                  "button": "Keep Orca"
+                  "button": "Keep Janus Code"
                 }
               },
               "title": "Open terminal links in Janus Code's browser?",
@@ -10948,15 +10948,15 @@
                 "label": "Link"
               },
               "orca": {
-                "note": "Orca can use imported cookies for logged-in sites.",
-                "button": "Open in Orca"
+                "note": "Janus Code can use imported cookies for logged-in sites.",
+                "button": "Open in Janus Code"
               },
               "settings": {
                 "note": "Change this later in Settings → Browser."
               },
               "shortcut": {
                 "note": {
-                  "prefix": "When links open in Orca,",
+                  "prefix": "When links open in Janus Code,",
                   "suffix": "click opens system browser once."
                 }
               },
@@ -10983,7 +10983,7 @@
       },
       "taskPageEmptyState": {
         "noProjectSourcesTitle": "No project sources selected",
-        "noProjectSourcesDescription": "Select at least one project source so Orca knows which host/account to fetch tasks from.",
+        "noProjectSourcesDescription": "Select at least one project source so Janus Code knows which host/account to fetch tasks from.",
         "noMatchingGitHubWorkTitle": "No matching GitHub work",
         "changeQueryDescription": "Change the query or clear it.",
         "noGitLabIssuesTitle": "No GitLab issues",
@@ -11047,7 +11047,7 @@
           "noDiffSummaryYet": "No diff summary yet.",
           "sourceControlChanges": "Changes",
           "noSourceControlChangesYet": "No source-control changes yet.",
-          "sourceControlChangesWillAppear": "Git changes from Orca source control will appear here.",
+          "sourceControlChangesWillAppear": "Git changes from Janus Code source control will appear here.",
           "stackedDiff": "Stacked diff",
           "splitDiff": "Split diff",
           "hideWhitespaceChanges": "Hide whitespace changes",
@@ -11220,7 +11220,7 @@
           "checksNeutral": "checks neutral",
           "review": "Review",
           "noHostedReviewLinked": "No hosted review linked yet.",
-          "hostedReviewWillAppear": "Hosted review status will appear here after Orca detects a branch review.",
+          "hostedReviewWillAppear": "Hosted review status will appear here after Janus Code detects a branch review.",
           "openReview": "Open review"
         },
         "threadTabs": {

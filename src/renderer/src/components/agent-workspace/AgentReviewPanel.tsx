@@ -77,7 +77,7 @@ export function AgentReviewPanel({
         <p className="mt-1 text-sm text-muted-foreground">
           {translate(
             'auto.components.agentWorkspace.review.hostedReviewWillAppear',
-            'Hosted review status will appear here after Orca detects a branch review.'
+            'Hosted review status will appear here after Janus Code detects a branch review.'
           )}
         </p>
       </div>

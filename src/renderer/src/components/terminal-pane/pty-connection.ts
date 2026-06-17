@@ -126,7 +126,7 @@ const INACTIVE_FOREGROUND_IMMEDIATE_BUDGET_CHARS = 32 * 1024
 // Why: this is only shown if hidden renderer output was skipped and main-owned
 // terminal state is unavailable, so the user has an explicit loss signal.
 const HIDDEN_OUTPUT_RESTORE_UNAVAILABLE_WARNING =
-  '\x18\x1b[0m\r\n[Orca skipped hidden terminal output because main recovery was unavailable.]\r\n'
+  '\x18\x1b[0m\r\n[Janus Code skipped hidden terminal output because main recovery was unavailable.]\r\n'
 
 type E2eTerminalPtyDataInjectionApi = {
   inject: (paneKey: string, data: string, meta?: PtyDataMeta) => boolean

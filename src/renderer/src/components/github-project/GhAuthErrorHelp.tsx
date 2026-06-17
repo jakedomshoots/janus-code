@@ -134,7 +134,7 @@ function buildRemediation(
     return {
       summary: 'GitHub CLI (`gh`) is not installed or not on PATH.',
       detail:
-        'Orca uses `gh` to talk to GitHub Projects. Install it from cli.github.com, then sign in.',
+        'Janus Code uses `gh` to talk to GitHub Projects. Install it from cli.github.com, then sign in.',
       commands: [
         {
           label: translate(
