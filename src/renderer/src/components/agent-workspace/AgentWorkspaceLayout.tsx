@@ -155,7 +155,6 @@ function AgentWorkspaceCenter({
   timeline,
   terminalAvailable,
   onSelectThread,
-  onNewSession,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
@@ -165,7 +164,6 @@ function AgentWorkspaceCenter({
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
   onSelectThread: (threadId: string) => void
-  onNewSession: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
@@ -179,7 +177,6 @@ function AgentWorkspaceCenter({
         threads={threads}
         selectedThreadId={thread?.id ?? null}
         onSelectThread={onSelectThread}
-        onNewSession={onNewSession}
       />
       <AgentTimeline thread={thread} timeline={timeline} />
       <AgentComposer
@@ -306,7 +303,6 @@ export function AgentWorkspaceLayout({
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}
         onSelectThread={setSelectedThreadId}
-        onNewSession={() => setSelectedThreadId(null)}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </AgentWorkspaceChrome>

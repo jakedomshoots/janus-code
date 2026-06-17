@@ -1,4 +1,3 @@
-import { MessageSquareText } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
@@ -9,14 +8,16 @@ import type { AgentWorkspaceThread } from './agent-workspace-types'
 export function AgentWorkspaceThreadTabs({
   threads,
   selectedThreadId,
-  onSelectThread,
-  onNewSession
+  onSelectThread
 }: {
   threads: readonly AgentWorkspaceThread[]
   selectedThreadId: string | null
   onSelectThread: (threadId: string) => void
-  onNewSession: () => void
-}): React.JSX.Element {
+}): React.JSX.Element | null {
+  if (threads.length === 0) {
+    return null
+  }
+
   return (
     <div className="border-b border-border/60 bg-background px-3 py-2">
       <div className="flex min-w-0 items-center">
@@ -36,23 +37,6 @@ export function AgentWorkspaceThreadTabs({
               onSelect={() => onSelectThread(thread.id)}
             />
           ))}
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedThreadId === null}
-            className={cn(
-              'flex h-8 max-w-52 shrink-0 items-center gap-2 rounded-md border px-3 text-xs transition-colors',
-              selectedThreadId === null
-                ? 'border-border bg-muted/35 text-foreground shadow-xs'
-                : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
-            )}
-            onClick={onNewSession}
-          >
-            <MessageSquareText className="size-3.5 shrink-0" aria-hidden="true" />
-            <span className="truncate">
-              {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
-            </span>
-          </button>
         </div>
       </div>
     </div>

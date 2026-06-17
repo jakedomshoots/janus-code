@@ -13,6 +13,8 @@ export function AgentWorkspaceHeader({
   project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
 }): React.JSX.Element {
+  const branchName = thread?.branchName ?? null
+
   return (
     <header className="flex h-[52px] shrink-0 items-center border-b border-border/60 bg-background px-4">
       <div className="min-w-0">
@@ -29,16 +31,12 @@ export function AgentWorkspaceHeader({
           ) : null}
           <Badge variant="outline">{formatAgentWorkspacePhase(thread?.phase ?? null)}</Badge>
         </div>
-        <div className="mt-1 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-          <GitBranch className="size-3.5 shrink-0" aria-hidden="true" />
-          <span className="truncate">
-            {thread?.branchName ??
-              translate(
-                'auto.components.agentWorkspace.header.noBranchSelected',
-                'No branch selected'
-              )}
-          </span>
-        </div>
+        {branchName ? (
+          <div className="mt-1 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+            <GitBranch className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{branchName}</span>
+          </div>
+        ) : null}
       </div>
     </header>
   )
