@@ -14,7 +14,7 @@ const runningThread: AgentWorkspaceThread = {
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/janus-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const modifiedDiff: AgentWorkspaceDiffSummary = {
@@ -71,7 +71,7 @@ describe('agent workspace right panel state', () => {
           number: 7,
           title: 'Ship source control parity',
           state: 'open',
-          url: 'https://gitlab.com/acme/orca/-/merge_requests/7',
+          url: 'https://gitlab.com/acme/janus-code/-/merge_requests/7',
           status: 'success',
           updatedAt: '2026-06-16T12:00:00.000Z'
         }

@@ -5,8 +5,8 @@ import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 
 const project: AgentWorkspaceProject = {
   id: 'worktree-1',
-  label: 'orca',
-  path: '/Users/jakedom/orca',
+  label: 'janus-code',
+  path: '/Users/jakedom/janus-code',
   hostKind: 'local'
 }
 
@@ -18,7 +18,7 @@ const thread: AgentWorkspaceThread = {
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/provider-parity',
-  cwd: '/Users/jakedom/orca'
+  cwd: '/Users/jakedom/janus-code'
 }
 
 describe('AgentWorkspaceHeader', () => {

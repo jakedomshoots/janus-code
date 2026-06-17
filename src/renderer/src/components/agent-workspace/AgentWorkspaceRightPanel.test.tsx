@@ -27,7 +27,7 @@ const runningThread: AgentWorkspaceThread = {
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/janus-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  cwd: '/Users/jakedom/janus-code'
 }
 
 const diffSummary: AgentWorkspaceDiffSummary = {
@@ -139,7 +139,7 @@ describe('AgentWorkspaceRightPanel', () => {
           thread={{
             ...runningThread,
             phase: 'needs-approval',
-            cwd: '/Users/jakedom/orca'
+            cwd: '/Users/jakedom/janus-code'
           }}
           plan={null}
           approval={approvalRequest}

@@ -24,9 +24,9 @@ const emptySnapshot = {
 const runningPhase: AgentWorkspacePhase = 'running'
 
 const runningProject: AgentWorkspaceProject = {
-  id: 'project-local-orca',
-  label: 'Orca',
-  path: '/workspace/orca',
+  id: 'project-local-janus',
+  label: 'Janus Code',
+  path: '/workspace/janus-code',
   hostKind: 'local'
 }
 
@@ -38,7 +38,7 @@ const runningThread: AgentWorkspaceThread = {
   phase: runningPhase,
   updatedAt: '2026-06-15T14:30:00.000Z',
   branchName: 'feature/janus-gui-workspace',
-  cwd: '/workspace/orca'
+  cwd: '/workspace/janus-code'
 }
 
 const runningTimelineEntry: AgentWorkspaceTimelineEntry = {

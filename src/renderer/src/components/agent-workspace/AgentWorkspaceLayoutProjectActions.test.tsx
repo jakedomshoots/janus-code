@@ -74,9 +74,9 @@ vi.mock('@/store', () => ({
       settings: { activeRuntimeEnvironmentId: 'focused-runtime' },
       repos: [
         {
-          id: 'repo-orca',
-          path: '/Users/jakedom/orca',
-          displayName: 'Orca'
+          id: 'repo-janus',
+          path: '/Users/jakedom/janus-code',
+          displayName: 'Janus Code'
         }
       ],
       setGitStatus: storeMocks.setGitStatus,
@@ -129,19 +129,19 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
     projects: [
       {
         id: 'worktree-1',
-        label: 'orca one',
-        path: '/Users/jakedom/orca-one',
+        label: 'janus one',
+        path: '/Users/jakedom/janus-one',
         hostKind: 'local',
-        repoId: 'repo-orca',
+        repoId: 'repo-janus',
         canCreateWorktree: true,
         canDeleteWorktree: true
       },
       {
         id: 'worktree-2',
-        label: 'orca two',
-        path: '/Users/jakedom/orca-two',
+        label: 'janus two',
+        path: '/Users/jakedom/janus-two',
         hostKind: 'local',
-        repoId: 'repo-orca',
+        repoId: 'repo-janus',
         canCreateWorktree: true,
         canDeleteWorktree: true
       }
@@ -155,7 +155,7 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
         phase: 'running',
         updatedAt: '2026-06-15T12:00:00.000Z',
         branchName: 'feature/first',
-        cwd: '/Users/jakedom/orca-one'
+        cwd: '/Users/jakedom/janus-one'
       },
       {
         id: 'thread-2',
@@ -165,7 +165,7 @@ function makeSelectionSnapshot(activeWorktreeId: string): AgentWorkspaceSnapshot
         phase: 'waiting-for-user',
         updatedAt: '2026-06-15T12:05:00.000Z',
         branchName: 'feature/second',
-        cwd: '/Users/jakedom/orca-two'
+        cwd: '/Users/jakedom/janus-two'
       }
     ],
     plans: [],
@@ -249,10 +249,10 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-    expect(container.textContent).not.toContain('orca two')
+    expect(container.textContent).not.toContain('janus two')
     expect(
       Array.from(container.querySelectorAll('button')).some((button) =>
-        button.textContent?.includes('orca two')
+        button.textContent?.includes('janus two')
       )
     ).toBe(false)
     expect(
@@ -305,7 +305,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'src/app.ts'
@@ -321,7 +321,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'src/app.ts'
@@ -349,7 +349,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       {
         settings: { activeRuntimeEnvironmentId: null },
         worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/orca-one',
+        worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
       },
       'feat: wire gui source control'

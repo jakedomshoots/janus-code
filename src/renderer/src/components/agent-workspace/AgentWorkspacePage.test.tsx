@@ -105,8 +105,8 @@ describe('AgentWorkspacePage', () => {
       projects: [
         {
           id: 'worktree-1',
-          label: 'orca',
-          path: '/Users/jakedom/orca',
+          label: 'janus-code',
+          path: '/Users/jakedom/janus-code',
           hostKind: 'local'
         }
       ],
@@ -119,7 +119,7 @@ describe('AgentWorkspacePage', () => {
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
           branchName: 'feature/janus-gui-workspace',
-          cwd: '/Users/jakedom/orca'
+          cwd: '/Users/jakedom/janus-code'
         }
       ],
       plans: [],
@@ -147,7 +147,7 @@ describe('AgentWorkspacePage', () => {
       terminalAvailable: true
     })
 
-    expect(markup).toContain('orca')
+    expect(markup).toContain('janus-code')
     expect(markup).toContain('feature/janus-gui-workspace')
     expect(markup).toContain('Implement GUI workspace shell')
     expect(markup).toContain('running')
@@ -166,8 +166,8 @@ describe('AgentWorkspacePage', () => {
         {
           id: 'worktree-1',
           repoId: 'repo-1',
-          label: 'orca',
-          path: '/Users/jakedom/orca',
+          label: 'janus-code',
+          path: '/Users/jakedom/janus-code',
           hostKind: 'local',
           canCreateWorktree: true
         }
@@ -181,7 +181,7 @@ describe('AgentWorkspacePage', () => {
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
           branchName: 'feature/janus-gui-workspace',
-          cwd: '/Users/jakedom/orca'
+          cwd: '/Users/jakedom/janus-code'
         }
       ],
       plans: [],
@@ -191,7 +191,7 @@ describe('AgentWorkspacePage', () => {
       terminalAvailable: true
     })
 
-    expect(markup).toContain('orca')
+    expect(markup).toContain('janus-code')
     expect(markup).toContain('Blend the GUI into the app shell')
     expect(markup).not.toContain('Projects')
     expect(markup).not.toContain('Create worktree')
@@ -279,8 +279,8 @@ describe('AgentWorkspace phase labels', () => {
           projects: [
             {
               id: 'worktree-1',
-              label: 'orca',
-              path: '/Users/jakedom/orca',
+              label: 'janus-code',
+              path: '/Users/jakedom/janus-code',
               hostKind: 'local'
             }
           ],
@@ -293,7 +293,7 @@ describe('AgentWorkspace phase labels', () => {
               phase: 'waiting-for-user',
               updatedAt: null,
               branchName: null,
-              cwd: '/Users/jakedom/orca'
+              cwd: '/Users/jakedom/janus-code'
             }
           ],
           plans: [],
@@ -319,8 +319,8 @@ describe('AgentWorkspace phase labels', () => {
           projects: [
             {
               id: 'worktree-1',
-              label: 'orca',
-              path: '/Users/jakedom/orca',
+              label: 'janus-code',
+              path: '/Users/jakedom/janus-code',
               hostKind: 'local'
             }
           ],
@@ -333,7 +333,7 @@ describe('AgentWorkspace phase labels', () => {
               phase: 'completed',
               updatedAt: null,
               branchName: null,
-              cwd: '/Users/jakedom/orca'
+              cwd: '/Users/jakedom/janus-code'
             }
           ],
           plans: [],
@@ -386,8 +386,8 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -400,7 +400,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
                 phase: 'running',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/first',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               },
               {
                 id: 'thread-2',
@@ -410,7 +410,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
                 phase: 'waiting-for-user',
                 updatedAt: '2026-06-15T12:05:00.000Z',
                 branchName: 'feature/second',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],
@@ -466,14 +466,14 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       projects: [
         {
           id: 'worktree-1',
-          label: 'orca one',
-          path: '/Users/jakedom/orca-one',
+          label: 'janus one',
+          path: '/Users/jakedom/janus-one',
           hostKind: 'local'
         },
         {
           id: 'worktree-2',
-          label: 'orca two',
-          path: '/Users/jakedom/orca-two',
+          label: 'janus two',
+          path: '/Users/jakedom/janus-two',
           hostKind: 'local'
         }
       ],
@@ -486,7 +486,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
           branchName: 'feature/first',
-          cwd: '/Users/jakedom/orca-one'
+          cwd: '/Users/jakedom/janus-one'
         },
         {
           id: 'thread-2',
@@ -496,7 +496,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
           phase: 'running',
           updatedAt: '2026-06-15T12:05:00.000Z',
           branchName: 'feature/second',
-          cwd: '/Users/jakedom/orca-two'
+          cwd: '/Users/jakedom/janus-two'
         }
       ],
       plans: [],
@@ -564,14 +564,14 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       projects: [
         {
           id: 'worktree-1',
-          label: 'orca one',
-          path: '/Users/jakedom/orca-one',
+          label: 'janus one',
+          path: '/Users/jakedom/janus-one',
           hostKind: 'local'
         },
         {
           id: 'worktree-2',
-          label: 'orca two',
-          path: '/Users/jakedom/orca-two',
+          label: 'janus two',
+          path: '/Users/jakedom/janus-two',
           hostKind: 'local'
         }
       ],
@@ -584,7 +584,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
           phase: 'running',
           updatedAt: '2026-06-15T12:00:00.000Z',
           branchName: 'feature/first',
-          cwd: '/Users/jakedom/orca-one'
+          cwd: '/Users/jakedom/janus-one'
         },
         {
           id: 'thread-2',
@@ -594,7 +594,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
           phase: 'needs-approval',
           updatedAt: '2026-06-15T12:05:00.000Z',
           branchName: 'feature/approval',
-          cwd: '/Users/jakedom/orca-two'
+          cwd: '/Users/jakedom/janus-two'
         }
       ],
       plans: [],
@@ -648,8 +648,8 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -662,7 +662,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
                 phase: 'running',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/plan',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [
@@ -714,8 +714,8 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -728,7 +728,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
                 phase: 'needs-approval',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/approval',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],
@@ -773,8 +773,8 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
             projects: [
               {
                 id: 'worktree-1',
-                label: 'orca',
-                path: '/Users/jakedom/orca',
+                label: 'janus-code',
+                path: '/Users/jakedom/janus-code',
                 hostKind: 'local'
               }
             ],
@@ -787,7 +787,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
                 phase: 'failed',
                 updatedAt: '2026-06-15T12:00:00.000Z',
                 branchName: 'feature/failure',
-                cwd: '/Users/jakedom/orca'
+                cwd: '/Users/jakedom/janus-code'
               }
             ],
             plans: [],

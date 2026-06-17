@@ -69,7 +69,7 @@ describe('AgentDiffPanel', () => {
 
     expect(container.textContent).toContain('No source-control changes yet.')
     expect(container.textContent).toContain(
-      'Git changes from Orca source control will appear here.'
+      'Git changes from Janus Code source control will appear here.'
     )
   })
 

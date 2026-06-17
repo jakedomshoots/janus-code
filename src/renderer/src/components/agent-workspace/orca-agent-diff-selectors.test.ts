@@ -15,7 +15,7 @@ const thread: AgentWorkspaceThread = {
   phase: 'running',
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/janus-gui-workspace',
-  cwd: '/Users/jakedom/orca'
+  cwd: '/Users/jakedom/janus-code'
 }
 
 function sourceState(entries: readonly GitStatusEntry[]): AgentWorkspaceDiffSourceState {

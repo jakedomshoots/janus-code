@@ -57,8 +57,8 @@ function baseSnapshot(overrides: Partial<AgentWorkspaceSnapshot> = {}): AgentWor
     projects: [
       {
         id: 'worktree-1',
-        label: 'orca',
-        path: '/Users/jakedom/orca',
+        label: 'janus-code',
+        path: '/Users/jakedom/janus-code',
         hostKind: 'local'
       }
     ],
@@ -158,7 +158,7 @@ describe('AgentWorkspace pane workflow', () => {
             phase: 'running',
             updatedAt: '2026-06-15T12:00:00.000Z',
             branchName: 'feature/running',
-            cwd: '/Users/jakedom/orca'
+            cwd: '/Users/jakedom/janus-code'
           }
         ]
       })
@@ -179,7 +179,7 @@ describe('AgentWorkspace pane workflow', () => {
     expect(hasButton(container, 'Start new session')).toBe(false)
   })
 
-  it('opens the Orca browser workbench from the composer', async () => {
+  it('opens the Janus Code browser workbench from the composer', async () => {
     const onOpenTerminalDrawer = vi.fn()
     const container = await renderLayout(baseSnapshot(), { onOpenTerminalDrawer })
     const browserButton = buttons(container).find(

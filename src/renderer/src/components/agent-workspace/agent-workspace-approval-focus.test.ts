@@ -11,7 +11,7 @@ const threads: readonly AgentWorkspaceThread[] = [
     phase: 'running',
     updatedAt: '2026-06-16T12:00:00.000Z',
     branchName: 'feature/running',
-    cwd: '/Users/jakedom/orca'
+    cwd: '/Users/jakedom/janus-code'
   },
   {
     id: 'thread-approval',
@@ -21,7 +21,7 @@ const threads: readonly AgentWorkspaceThread[] = [
     phase: 'needs-approval',
     updatedAt: '2026-06-16T12:01:00.000Z',
     branchName: 'feature/approval',
-    cwd: '/Users/jakedom/orca'
+    cwd: '/Users/jakedom/janus-code'
   }
 ]
 
