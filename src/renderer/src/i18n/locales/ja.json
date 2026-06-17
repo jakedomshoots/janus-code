@@ -11094,7 +11094,8 @@
           "commitFailed": "Commit failed",
           "readyForJanusSession": "Ready for a Janus session",
           "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace.",
-          "janusCode": "Janus Code"
+          "janusCode": "Janus Code",
+          "paneLabel": "Pane {{index}}"
         },
         "composer": {
           "enterMessageBeforeSending": "送信前にメッセージを入力してください。",
@@ -11196,7 +11197,12 @@
         },
         "threadTabs": {
           "agentSessions": "Agent sessions",
-          "newAgentSession": "New agent session"
+          "newAgentSession": "New agent session",
+          "newSession": "New session",
+          "startNewSession": "Start new session",
+          "splitRight": "Split right",
+          "splitDown": "Split down",
+          "closePane": "Close pane"
         }
       }
     },

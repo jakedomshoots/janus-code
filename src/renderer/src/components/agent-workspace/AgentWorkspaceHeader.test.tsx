@@ -29,10 +29,10 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).not.toContain('Codex')
   })
 
-  it('keeps the panes control visible in the workspace header', () => {
+  it('does not render one-off pane chrome in the workspace header', () => {
     const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={null} />)
 
-    expect(markup).toContain('Panes')
-    expect(markup).toContain('Open panes')
+    expect(markup).not.toContain('Panes')
+    expect(markup).not.toContain('Open panes')
   })
 })

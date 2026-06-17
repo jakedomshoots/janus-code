@@ -200,6 +200,10 @@ describe('AgentWorkspacePage', () => {
     })
 
     expect(markup).toContain('Janus Code')
+    expect(markup).toContain('New session')
+    expect(markup).toContain('Start new session')
+    expect(markup).toContain('Split right')
+    expect(markup).toContain('Split down')
     expect(markup).not.toContain('Ready for a Janus session')
     expect(markup).not.toContain('Describe the coding task below.')
     expect(markup).not.toContain('Refresh')
@@ -431,6 +435,62 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
 
     expect(container.textContent).not.toContain('First timeline event')
     expect(container.textContent).toContain('Second timeline event')
+  })
+
+  it('splits and closes agent workspace panes from the tab strip', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={{
+            activeWorktreeId: 'worktree-1',
+            projects: [
+              {
+                id: 'worktree-1',
+                label: 'orca',
+                path: '/Users/jakedom/orca',
+                hostKind: 'local'
+              }
+            ],
+            threads: [],
+            plans: [],
+            timeline: [],
+            approvals: [],
+            diffs: [],
+            terminalAvailable: false
+          }}
+        />
+      )
+    })
+
+    expect(container.querySelectorAll('[role="tab"]').length).toBe(1)
+
+    const splitRight = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Split right'
+    )
+    expect(splitRight).toBeDefined()
+
+    await act(async () => {
+      splitRight?.click()
+    })
+
+    expect(container.querySelectorAll('[role="tab"]').length).toBe(2)
+
+    const closePane = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Close pane'
+    )
+    expect(closePane).toBeDefined()
+
+    await act(async () => {
+      closePane?.click()
+    })
+
+    expect(container.querySelectorAll('[role="tab"]').length).toBe(1)
   })
 
   it('updates right-panel content when the app shell changes the active worktree', async () => {
