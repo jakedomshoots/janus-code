@@ -151,7 +151,7 @@ function prepareMacDevElectronApp() {
   // electron-vite's direct binary launch path, even when Info.plist is patched.
   const appBundleName = `${sanitizeMacAppBundleName(title)}.app`
   const appPath = path.join(distDir, appBundleName)
-  const markerPath = path.join(distDir, 'orca-dev-electron-app.json')
+  const markerPath = path.join(distDir, 'janus-dev-electron-app.json')
   const bundleId = `com.stablyai.orca.dev.${sanitizeBundleIdPart(hash)}`
   process.env.ORCA_DEV_MACOS_BUNDLE_ID = bundleId
   const expectedMarker = JSON.stringify(
@@ -257,21 +257,24 @@ function restoreElectronFrameworkSymlinks(appPath) {
 }
 
 function getDevUserDataPath() {
+  if (process.env.JANUS_DEV_USER_DATA_PATH) {
+    return process.env.JANUS_DEV_USER_DATA_PATH
+  }
   if (process.env.ORCA_DEV_USER_DATA_PATH) {
     return process.env.ORCA_DEV_USER_DATA_PATH
   }
   if (process.platform === 'darwin') {
-    return path.join(process.env.HOME ?? '', 'Library', 'Application Support', 'orca-dev')
+    return path.join(process.env.HOME ?? '', 'Library', 'Application Support', 'janus-dev')
   }
   if (process.platform === 'win32') {
     return path.join(
       process.env.APPDATA ?? path.join(process.env.USERPROFILE ?? '', 'AppData', 'Roaming'),
-      'orca-dev'
+      'janus-dev'
     )
   }
   return path.join(
     process.env.XDG_CONFIG_HOME ?? path.join(process.env.HOME ?? '', '.config'),
-    'orca-dev'
+    'janus-dev'
   )
 }
 
@@ -285,29 +288,29 @@ function prepareDevCliWrapper() {
 
   if (process.platform === 'win32') {
     writeFileSync(
-      path.join(binDir, 'orca-dev.cmd'),
-      `@echo off\r\nset "ORCA_USER_DATA_PATH=${userDataPath}"\r\nset "ORCA_APP_EXECUTABLE=${electronBin}"\r\nset "ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1"\r\nnode "${cliPath}" %*\r\n`,
+      path.join(binDir, 'janus-dev.cmd'),
+      `@echo off\r\nset "JANUS_USER_DATA_PATH=${userDataPath}"\r\nset "ORCA_USER_DATA_PATH=${userDataPath}"\r\nset "JANUS_APP_EXECUTABLE=${electronBin}"\r\nset "ORCA_APP_EXECUTABLE=${electronBin}"\r\nset "JANUS_APP_EXECUTABLE_NEEDS_APP_ROOT=1"\r\nset "ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1"\r\nnode "${cliPath}" %*\r\n`,
       'utf8'
     )
   } else {
-    const wrapperContent = `#!/usr/bin/env bash\nexport ORCA_USER_DATA_PATH=${JSON.stringify(userDataPath)}\nexport ORCA_APP_EXECUTABLE=${JSON.stringify(electronBin)}\nexport ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1\nexec node ${JSON.stringify(cliPath)} "$@"\n`
-    const wrapperPath = path.join(binDir, 'orca-dev')
+    const wrapperContent = `#!/usr/bin/env bash\nexport JANUS_USER_DATA_PATH=${JSON.stringify(userDataPath)}\nexport ORCA_USER_DATA_PATH=${JSON.stringify(userDataPath)}\nexport JANUS_APP_EXECUTABLE=${JSON.stringify(electronBin)}\nexport ORCA_APP_EXECUTABLE=${JSON.stringify(electronBin)}\nexport JANUS_APP_EXECUTABLE_NEEDS_APP_ROOT=1\nexport ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT=1\nexec node ${JSON.stringify(cliPath)} "$@"\n`
+    const wrapperPath = path.join(binDir, 'janus-dev')
     writeFileSync(wrapperPath, wrapperContent, 'utf8')
     chmodSync(wrapperPath, 0o755)
 
     mkdirSync(userDataBinDir, { recursive: true })
-    for (const commandName of ['orca-dev', 'orca']) {
+    for (const commandName of ['janus-dev', 'janus', 'orca']) {
       const userDataWrapperPath = path.join(userDataBinDir, commandName)
-      // Why: dev Orca terminals prepend this directory to PATH; refreshing the
-      // `orca` alias prevents stale global/userData wrappers from hijacking
-      // Orca-owned commands such as `orca claude-teams`.
+      // Why: dev Janus terminals prepend this directory to PATH; refreshing the
+      // aliases prevents stale global/userData wrappers from hijacking
+      // Janus-owned commands such as `janus claude-teams`.
       writeFileSync(userDataWrapperPath, wrapperContent, 'utf8')
       chmodSync(userDataWrapperPath, 0o755)
     }
   }
 
   process.env.PATH = `${binDir}${path.delimiter}${process.env.PATH ?? ''}`
-  console.log(`[orca-dev] Prepared wrapper in ${binDir}`)
+  console.log(`[janus-dev] Prepared wrapper in ${binDir}`)
 }
 
 function getElectronExecutable() {
@@ -386,21 +389,29 @@ function isDevWebClientFresh() {
 }
 
 function prepareDevWebClient() {
-  if (process.env.ORCA_SKIP_DEV_WEB_PREPARE === '1' || isHelpOrVersion) {
+  if (
+    process.env.JANUS_SKIP_DEV_WEB_PREPARE === '1' ||
+    process.env.ORCA_SKIP_DEV_WEB_PREPARE === '1' ||
+    isHelpOrVersion
+  ) {
     return
   }
   // Why: fresh worktrees should start Electron immediately; pairing already
   // falls back to non-browser URLs when the optional web bundle is unavailable.
-  if (!existsSync(getDevWebClientIndexPath()) && process.env.ORCA_DEV_WEB_PREPARE !== '1') {
+  if (
+    !existsSync(getDevWebClientIndexPath()) &&
+    process.env.JANUS_DEV_WEB_PREPARE !== '1' &&
+    process.env.ORCA_DEV_WEB_PREPARE !== '1'
+  ) {
     console.error(
-      '[orca-dev] Web client bundle missing; skipping pairing web build. Run `pnpm run build:web` or set ORCA_DEV_WEB_PREPARE=1 when you need browser pairing.'
+      '[janus-dev] Web client bundle missing; skipping pairing web build. Run `pnpm run build:web` or set JANUS_DEV_WEB_PREPARE=1 when you need browser pairing.'
     )
     return
   }
   if (isDevWebClientFresh()) {
     return
   }
-  console.error('[orca-dev] Building web client for pairing...')
+  console.error('[janus-dev] Building web client for pairing...')
   execFileSync(
     process.execPath,
     [viteCli, 'build', '--config', path.join(repoRoot, 'vite.web.config.ts')],
@@ -464,8 +475,9 @@ const userPassedPort = forwardedRaw.some(
 // Why: --help/--version exit immediately; binding a probe socket and printing
 // a debug-port line would be noise.
 const isHelpOrVersion = forwardedRaw.some((a) => a === '--help' || a === '-h' || a === '--version')
-if (!isHelpOrVersion && process.env.ORCA_DEV_INSTANCE_LABEL) {
-  console.error(`[orca-dev] Instance: ${process.env.ORCA_DEV_INSTANCE_LABEL}`)
+const devInstanceLabel = process.env.JANUS_DEV_INSTANCE_LABEL ?? process.env.ORCA_DEV_INSTANCE_LABEL
+if (!isHelpOrVersion && devInstanceLabel) {
+  console.error(`[janus-dev] Instance: ${devInstanceLabel}`)
 }
 let forwardedExtras = []
 if (!userPassedPort && !isHelpOrVersion) {
@@ -475,7 +487,7 @@ if (!userPassedPort && !isHelpOrVersion) {
     port = parseDebugPortEnv(envPortRaw)
     if (port === null) {
       console.error(
-        `[orca-dev] Ignoring invalid REMOTE_DEBUGGING_PORT=${JSON.stringify(envPortRaw)}; falling back to probe.`
+        `[janus-dev] Ignoring invalid REMOTE_DEBUGGING_PORT=${JSON.stringify(envPortRaw)}; falling back to probe.`
       )
     }
   }
@@ -487,10 +499,10 @@ if (!userPassedPort && !isHelpOrVersion) {
     // Why: stderr keeps stdout clean for downstream parsing; log uses
     // 127.0.0.1 to match the interface we actually probed (localhost may
     // resolve to ::1 on IPv6-first hosts).
-    console.error(`[orca-dev] Remote debugging on http://127.0.0.1:${port}`)
+    console.error(`[janus-dev] Remote debugging on http://127.0.0.1:${port}`)
   } else {
     console.error(
-      '[orca-dev] No free debug port found in sweep; starting without --remote-debugging-port.'
+      '[janus-dev] No free debug port found in sweep; starting without --remote-debugging-port.'
     )
   }
 }

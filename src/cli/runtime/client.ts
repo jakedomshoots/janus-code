@@ -34,8 +34,11 @@ export class RuntimeClient {
   constructor(
     userDataPath = getDefaultUserDataPath(),
     requestTimeoutMs = 60_000,
-    remotePairingCode = process.env.ORCA_PAIRING_CODE ?? process.env.ORCA_REMOTE_PAIRING ?? null,
-    environmentSelector = process.env.ORCA_ENVIRONMENT ?? null
+    remotePairingCode = process.env.JANUS_PAIRING_CODE ??
+      process.env.ORCA_PAIRING_CODE ??
+      process.env.ORCA_REMOTE_PAIRING ??
+      null,
+    environmentSelector = process.env.JANUS_ENVIRONMENT ?? process.env.ORCA_ENVIRONMENT ?? null
   ) {
     this.userDataPath = userDataPath
     this.requestTimeoutMs = requestTimeoutMs
@@ -211,7 +214,7 @@ function resolveRemotePairing(
   if (!pairing) {
     throw new RuntimeClientError(
       'invalid_argument',
-      'Invalid remote pairing code. Expected an orca://pair?... URL or bare pairing payload.'
+      'Invalid remote pairing code. Expected a janus://pair?... URL or bare pairing payload.'
     )
   }
   return pairing

@@ -147,8 +147,14 @@ function runCli(cliArgs, options = {}) {
     encoding: 'utf8',
     env: {
       ...process.env,
+      JANUS_USER_DATA_PATH:
+        process.env.JANUS_COMPUTER_SMOKE_USER_DATA_PATH ??
+        process.env.ORCA_COMPUTER_SMOKE_USER_DATA_PATH ??
+        defaultDevUserDataPath(),
       ORCA_USER_DATA_PATH:
-        process.env.ORCA_COMPUTER_SMOKE_USER_DATA_PATH ?? defaultDevUserDataPath()
+        process.env.JANUS_COMPUTER_SMOKE_USER_DATA_PATH ??
+        process.env.ORCA_COMPUTER_SMOKE_USER_DATA_PATH ??
+        defaultDevUserDataPath()
     }
   })
   if (child.status !== 0) {
@@ -170,12 +176,12 @@ function runCli(cliArgs, options = {}) {
 
 function defaultDevUserDataPath() {
   if (process.platform === 'darwin') {
-    return resolve(homedir(), 'Library', 'Application Support', 'orca-dev')
+    return resolve(homedir(), 'Library', 'Application Support', 'janus-dev')
   }
   if (process.platform === 'win32') {
-    return resolve(process.env.APPDATA ?? resolve(homedir(), 'AppData', 'Roaming'), 'orca-dev')
+    return resolve(process.env.APPDATA ?? resolve(homedir(), 'AppData', 'Roaming'), 'janus-dev')
   }
-  return resolve(process.env.XDG_CONFIG_HOME ?? resolve(homedir(), '.config'), 'orca-dev')
+  return resolve(process.env.XDG_CONFIG_HOME ?? resolve(homedir(), '.config'), 'janus-dev')
 }
 
 function unwrapResult(value) {

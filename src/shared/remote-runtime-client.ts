@@ -86,7 +86,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
       socket.off('error', onError)
       socket.off('close', onClose)
       socket.off('message', onMessage)
-      // Why: the settled one-shot no longer needs Orca callbacks, but a ws
+      // Why: the settled one-shot no longer needs Janus Code callbacks, but a ws
       // can still report a late transport error after close is requested.
       if (socket.readyState !== WebSocket.CLOSED) {
         socket.on('error', ignoreSettledRemoteRuntimeSocketError)
@@ -98,7 +98,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
         ok: false,
         error: new RemoteRuntimeClientError(
           'runtime_timeout',
-          'Timed out waiting for the remote Orca runtime to respond.'
+          'Timed out waiting for the remote Janus Code runtime to respond.'
         )
       })
     }, timeoutMs)
@@ -152,7 +152,7 @@ export async function sendRemoteRuntimeRequest<TResult>(
         ok: false,
         error: new RemoteRuntimeClientError(
           'remote_runtime_unavailable',
-          'Could not connect to the remote Orca runtime.'
+          'Could not connect to the remote Janus Code runtime.'
         )
       })
     }
@@ -365,7 +365,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
       socket.off('close', onClose)
       socket.off('message', onMessage)
       ws = null
-      // Why: startup failures detach Orca callbacks before closing the ws,
+      // Why: startup failures detach Janus Code callbacks before closing the ws,
       // but ws can still emit a late transport error while close is in flight.
       if (socket.readyState !== WebSocket.CLOSED) {
         socket.on('error', ignoreSettledRemoteRuntimeSocketError)
@@ -386,7 +386,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
       fail(
         new RemoteRuntimeClientError(
           'runtime_timeout',
-          'Timed out waiting for the remote Orca runtime subscription to start.'
+          'Timed out waiting for the remote Janus Code runtime subscription to start.'
         )
       )
     }, timeoutMs)
@@ -453,7 +453,7 @@ export async function subscribeRemoteRuntimeRequest<TResult>(
       fail(
         new RemoteRuntimeClientError(
           'remote_runtime_unavailable',
-          'Could not connect to the remote Orca runtime.'
+          'Could not connect to the remote Janus Code runtime.'
         )
       )
     }

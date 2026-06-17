@@ -171,7 +171,7 @@ describe('orca root help', () => {
     await main(['linear', '--help'], '/tmp/repo')
 
     const groupHelp = String(logSpy.mock.calls[0][0])
-    expect(groupHelp).toContain('orca linear')
+    expect(groupHelp).toContain('janus linear')
     expect(groupHelp).toContain('issue')
     expect(groupHelp).toContain('search')
     expect(groupHelp).not.toContain('--comments')
@@ -181,7 +181,7 @@ describe('orca root help', () => {
     await main(['linear', 'issue', '--help'], '/tmp/repo')
 
     const issueHelp = String(logSpy.mock.calls[0][0])
-    expect(issueHelp).toContain('orca linear issue [<id>]')
+    expect(issueHelp).toContain('janus linear issue [<id>]')
     expect(issueHelp).toContain('--comments             Include threaded Linear comments')
     expect(issueHelp).toContain('--attachments          Include attachment metadata and URLs')
     expect(issueHelp).toContain('--workspace <id>      Connected Linear workspace id')
@@ -191,7 +191,7 @@ describe('orca root help', () => {
     await main(['linear', 'search', '--help'], '/tmp/repo')
 
     const searchHelp = String(logSpy.mock.calls[0][0])
-    expect(searchHelp).toContain('orca linear search <query>')
+    expect(searchHelp).toContain('janus linear search <query>')
     expect(searchHelp).toContain('--workspace <id|all>  Connected Linear workspace id, or all')
     expect(searchHelp).toContain('--query <text>        Text to search across Linear issues')
     expect(callMock).not.toHaveBeenCalled()
@@ -221,6 +221,7 @@ describe('orca cli worktree awareness', () => {
   const originalPairingCode = process.env.ORCA_PAIRING_CODE
   const originalRemotePairing = process.env.ORCA_REMOTE_PAIRING
   const originalEnvironment = process.env.ORCA_ENVIRONMENT
+  const originalJanusEnvironment = process.env.JANUS_ENVIRONMENT
   const originalWorkspaceId = process.env.ORCA_WORKSPACE_ID
   const originalWorktreeId = process.env.ORCA_WORKTREE_ID
 
@@ -230,6 +231,7 @@ describe('orca cli worktree awareness', () => {
     delete process.env.ORCA_USER_DATA_PATH
     delete process.env.ORCA_WORKSPACE_ID
     delete process.env.ORCA_WORKTREE_ID
+    delete process.env.JANUS_ENVIRONMENT
     serveOrcaAppMock.mockReset()
     getDefaultUserDataPathMock.mockClear()
     addEnvironmentFromPairingCodeMock.mockReset()
@@ -283,6 +285,11 @@ describe('orca cli worktree awareness', () => {
       delete process.env.ORCA_ENVIRONMENT
     } else {
       process.env.ORCA_ENVIRONMENT = originalEnvironment
+    }
+    if (originalJanusEnvironment === undefined) {
+      delete process.env.JANUS_ENVIRONMENT
+    } else {
+      process.env.JANUS_ENVIRONMENT = originalJanusEnvironment
     }
     if (originalWorkspaceId === undefined) {
       delete process.env.ORCA_WORKSPACE_ID
@@ -1622,18 +1629,18 @@ describe('orca cli worktree awareness', () => {
     expect(logSpy.mock.calls[0]?.[0]).not.toContain('publicKeyB64')
   })
 
-  it('adds saved environments even when ORCA_ENVIRONMENT is set', async () => {
-    process.env.ORCA_ENVIRONMENT = 'stale-env'
+  it('adds saved environments even when JANUS_ENVIRONMENT is set', async () => {
+    process.env.JANUS_ENVIRONMENT = 'stale-env'
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     await main(
-      ['environment', 'add', '--name', 'desk', '--pairing-code', 'orca://pair#abc', '--json'],
+      ['environment', 'add', '--name', 'desk', '--pairing-code', 'janus://pair#abc', '--json'],
       '/tmp/repo'
     )
 
     expect(addEnvironmentFromPairingCodeMock).toHaveBeenCalledWith('/tmp/orca-user-data', {
       name: 'desk',
-      pairingCode: 'orca://pair#abc'
+      pairingCode: 'janus://pair#abc'
     })
     expect(callMock).not.toHaveBeenCalled()
     expect(logSpy.mock.calls[0]?.[0]).not.toContain('token')

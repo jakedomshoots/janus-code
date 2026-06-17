@@ -5602,7 +5602,7 @@
           "c40dadaac8": "Móvil",
           "c2ee313198": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
           "9b02492d1f": "Anfitriones SSH",
-          "b5ee17826b": "Pair remote Orca runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
+          "b5ee17826b": "Pair remote Janus Code runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
           "7686cb5c36": "Conecte este navegador a un servidor Orca guardado.",
           "bd0181eeca": "Servidores remotos de Orca",
           "8acf3f22e0": "Estadísticas de Orca más análisis de uso de Claude, Codex y OpenCode.",

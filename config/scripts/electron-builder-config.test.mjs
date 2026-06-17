@@ -272,10 +272,10 @@ describe('electron-builder config', () => {
   it.skipIf(process.platform === 'win32')(
     'marks packaged Unix CLI launchers executable',
     async () => {
-      const root = await mkdtemp(join(tmpdir(), 'orca-electron-builder-config-'))
+      const root = await mkdtemp(join(tmpdir(), 'janus-electron-builder-config-'))
       try {
         const resourcesDir = join(root, 'linux-unpacked', 'resources')
-        const launcherPath = join(resourcesDir, 'bin', 'orca-ide')
+        const launcherPath = join(resourcesDir, 'bin', 'janus')
         await mkdir(join(resourcesDir, 'bin'), { recursive: true })
         await mkdir(join(resourcesDir, 'node_modules', 'zod', 'src'), { recursive: true })
         await writeFile(launcherPath, '#!/usr/bin/env bash\n', { encoding: 'utf8', mode: 0o644 })

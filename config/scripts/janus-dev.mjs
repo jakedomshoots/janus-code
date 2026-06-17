@@ -9,18 +9,36 @@ const scriptPath = realpathSync(fileURLToPath(import.meta.url))
 const scriptDir = path.dirname(scriptPath)
 const repoRoot = path.resolve(scriptDir, '..', '..')
 const cliEntry =
-  process.env.ORCA_DEV_CLI_ENTRY_PATH ?? path.join(repoRoot, 'out', 'cli', 'index.js')
+  process.env.JANUS_DEV_CLI_ENTRY_PATH ??
+  process.env.ORCA_DEV_CLI_ENTRY_PATH ??
+  path.join(repoRoot, 'out', 'cli', 'index.js')
 
 if (!existsSync(cliEntry)) {
-  console.error("orca-dev: CLI not built yet. Run 'pnpm run build:cli' first.")
+  console.error("janus-dev: CLI not built yet. Run 'pnpm run build:cli' first.")
   process.exit(1)
 }
 
-process.env.ORCA_USER_DATA_PATH = process.env.ORCA_DEV_USER_DATA_PATH ?? getDefaultDevUserDataPath()
+process.env.JANUS_USER_DATA_PATH =
+  process.env.JANUS_DEV_USER_DATA_PATH ??
+  process.env.ORCA_DEV_USER_DATA_PATH ??
+  getDefaultDevUserDataPath()
+process.env.ORCA_USER_DATA_PATH ??= process.env.JANUS_USER_DATA_PATH
+if (process.env.JANUS_APP_EXECUTABLE) {
+  process.env.ORCA_APP_EXECUTABLE ??= process.env.JANUS_APP_EXECUTABLE
+}
+if (process.env.JANUS_APP_EXECUTABLE_NEEDS_APP_ROOT) {
+  process.env.ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT ??= process.env.JANUS_APP_EXECUTABLE_NEEDS_APP_ROOT
+}
 
 const electronExecutable = getElectronExecutable()
-if (!process.env.ORCA_APP_EXECUTABLE && isRunnableFile(electronExecutable)) {
+if (
+  !process.env.JANUS_APP_EXECUTABLE &&
+  !process.env.ORCA_APP_EXECUTABLE &&
+  isRunnableFile(electronExecutable)
+) {
+  process.env.JANUS_APP_EXECUTABLE = electronExecutable
   process.env.ORCA_APP_EXECUTABLE = electronExecutable
+  process.env.JANUS_APP_EXECUTABLE_NEEDS_APP_ROOT = '1'
   process.env.ORCA_APP_EXECUTABLE_NEEDS_APP_ROOT = '1'
 }
 
@@ -36,17 +54,17 @@ process.exit(result.status ?? (result.error ? 1 : 0))
 
 function getDefaultDevUserDataPath() {
   if (process.platform === 'darwin') {
-    return path.join(process.env.HOME ?? '', 'Library', 'Application Support', 'orca-dev')
+    return path.join(process.env.HOME ?? '', 'Library', 'Application Support', 'janus-dev')
   }
   if (process.platform === 'win32') {
     return path.join(
       process.env.APPDATA ?? path.join(process.env.USERPROFILE ?? '', 'AppData', 'Roaming'),
-      'orca-dev'
+      'janus-dev'
     )
   }
   return path.join(
     process.env.XDG_CONFIG_HOME ?? path.join(process.env.HOME ?? '', '.config'),
-    'orca-dev'
+    'janus-dev'
   )
 }
 

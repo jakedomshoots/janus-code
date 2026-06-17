@@ -8,7 +8,7 @@ const {
   verifyPackagedMainRuntimeDeps
 } = require('./packaged-runtime-node-modules.cjs')
 
-const isMacRelease = process.env.ORCA_MAC_RELEASE === '1'
+const isMacRelease = process.env.JANUS_MAC_RELEASE === '1' || process.env.ORCA_MAC_RELEASE === '1'
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -146,7 +146,7 @@ module.exports = {
       ...commonExtraResources,
       winSpeechNativeResource,
       {
-        from: 'resources/win32/bin/agent-hub.cmd',
+        from: 'resources/win32/bin/janus.cmd',
         to: 'bin/janus.cmd'
       },
       {
@@ -154,7 +154,7 @@ module.exports = {
         to: 'bin/agent-hub.cmd'
       },
       {
-        from: 'resources/win32/bin/orca.cmd',
+        from: 'resources/win32/bin/janus.cmd',
         to: 'bin/orca.cmd'
       },
       {
@@ -210,7 +210,7 @@ module.exports = {
       ...commonExtraResources,
       macSpeechNativeResource,
       {
-        from: 'resources/darwin/bin/agent-hub',
+        from: 'resources/darwin/bin/janus',
         to: 'bin/janus'
       },
       {
@@ -218,7 +218,7 @@ module.exports = {
         to: 'bin/agent-hub'
       },
       {
-        from: 'resources/darwin/bin/orca',
+        from: 'resources/darwin/bin/janus',
         to: 'bin/orca'
       },
       {
@@ -270,7 +270,7 @@ module.exports = {
       ...commonExtraResources,
       linuxSpeechNativeResource,
       {
-        from: 'resources/linux/bin/agent-hub',
+        from: 'resources/linux/bin/janus',
         to: 'bin/janus'
       },
       {
@@ -278,7 +278,7 @@ module.exports = {
         to: 'bin/agent-hub'
       },
       {
-        from: 'resources/linux/bin/orca-ide',
+        from: 'resources/linux/bin/janus',
         to: 'bin/orca-ide'
       },
       {
@@ -313,7 +313,7 @@ module.exports = {
   // (node-pty) for each target architecture when producing dual-arch macOS
   // builds (x64 + arm64). With npmRebuild disabled, CI on an arm64 runner
   // packages arm64 binaries into the x64 DMG, causing "posix_spawnp failed"
-  // on Intel Macs. The beforeBuild hook performs Orca's targeted rebuild and
+  // on Intel Macs. The beforeBuild hook performs Janus's targeted rebuild and
   // returns false so electron-builder does not rebuild optional cpu-features.
   npmRebuild: true,
   publish: {
@@ -376,7 +376,7 @@ async function signMacComputerUseHelper(helperAppPath, packager) {
     throw new Error('Missing signing identity for Janus Computer Use helper app')
   }
   // Why: TCC grants attach to this nested app's code identity. Sign it before
-  // the outer Orca.app is sealed so production builds preserve that identity.
+  // the outer Janus Code.app is sealed so production builds preserve that identity.
   execFileSync('codesign', codesignArgs(identity, helperAppPath), { stdio: 'inherit' })
   execFileSync('codesign', ['--verify', '--deep', '--strict', helperAppPath], {
     stdio: 'inherit'

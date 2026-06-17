@@ -201,7 +201,7 @@ export default function FeatureTipsModal(): JSX.Element | null {
             toast.success(
               translate(
                 'auto.components.feature.tips.FeatureTipsModal.ce13a742d0',
-                'Registered `orca` in PATH.'
+                'Registered `janus` in PATH.'
               )
             )
             setSkillTerminalOpen(true)

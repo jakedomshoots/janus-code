@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 const projectDir = path.resolve(import.meta.dirname, '../..')
 const packageJson = JSON.parse(readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
-const wrapperPath = path.join(projectDir, 'config', 'scripts', 'orca-dev.mjs')
+const wrapperPath = path.join(projectDir, 'config', 'scripts', 'janus-dev.mjs')
 
 describe('janus package bin', () => {
   it('exposes only the requested public and dev package bins', () => {
@@ -14,14 +14,14 @@ describe('janus package bin', () => {
       janus: './out/cli/index.js',
       'agent-hub': './out/cli/index.js',
       orca: './out/cli/index.js',
-      'janus-code-dev': './config/scripts/orca-dev.mjs',
-      'janus-dev': './config/scripts/orca-dev.mjs'
+      'janus-code-dev': './config/scripts/janus-dev.mjs',
+      'janus-dev': './config/scripts/janus-dev.mjs'
     })
     expect(readFileSync(wrapperPath, 'utf8').startsWith('#!/usr/bin/env node\n')).toBe(true)
   })
 
   it('runs the dev CLI through Node without requiring Bash', () => {
-    const root = mkdtempSync(path.join(tmpdir(), 'orca-dev-bin-'))
+    const root = mkdtempSync(path.join(tmpdir(), 'janus-dev-bin-'))
     const cliEntry = path.join(root, 'cli-entry.cjs')
     const outputPath = path.join(root, 'output.json')
     writeFileSync(
@@ -30,7 +30,9 @@ describe('janus package bin', () => {
         'const fs = require("node:fs");',
         `fs.writeFileSync(${JSON.stringify(outputPath)}, JSON.stringify({`,
         '  argv: process.argv.slice(2),',
+        '  janusUserDataPath: process.env.JANUS_USER_DATA_PATH,',
         '  userDataPath: process.env.ORCA_USER_DATA_PATH,',
+        '  janusAppExecutable: process.env.JANUS_APP_EXECUTABLE,',
         '  appExecutable: process.env.ORCA_APP_EXECUTABLE',
         '}));'
       ].join('\n'),
@@ -43,16 +45,18 @@ describe('janus package bin', () => {
     execFileSync(process.execPath, [wrapperPath, '--help'], {
       env: {
         ...process.env,
-        ORCA_DEV_CLI_ENTRY_PATH: cliEntry,
-        ORCA_DEV_USER_DATA_PATH: path.join(root, 'user-data'),
-        ORCA_APP_EXECUTABLE: path.join(root, 'Electron')
+        JANUS_DEV_CLI_ENTRY_PATH: cliEntry,
+        JANUS_DEV_USER_DATA_PATH: path.join(root, 'user-data'),
+        JANUS_APP_EXECUTABLE: path.join(root, 'Electron')
       },
       stdio: 'ignore'
     })
 
     expect(JSON.parse(readFileSync(outputPath, 'utf8'))).toEqual({
       argv: ['--help'],
+      janusUserDataPath: path.join(root, 'user-data'),
       userDataPath: path.join(root, 'user-data'),
+      janusAppExecutable: path.join(root, 'Electron'),
       appExecutable: path.join(root, 'Electron')
     })
   })

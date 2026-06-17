@@ -20,11 +20,10 @@ fi
 
 CONTENTS="$APP_PATH/Contents"
 ELECTRON="$CONTENTS/MacOS/Janus Code"
-# Why: this legacy `orca` launcher remains as a compatibility alias for Agent
-# Hub installs. It must target the current packaged executable name, not the old
-# Orca binary name.
 CLI="$CONTENTS/Resources/app.asar.unpacked/out/cli/index.js"
 
+export JANUS_NODE_OPTIONS="${NODE_OPTIONS-}"
+export JANUS_NODE_REPL_EXTERNAL_MODULE="${NODE_REPL_EXTERNAL_MODULE-}"
 export ORCA_NODE_OPTIONS="${NODE_OPTIONS-}"
 export ORCA_NODE_REPL_EXTERNAL_MODULE="${NODE_REPL_EXTERNAL_MODULE-}"
 unset NODE_OPTIONS

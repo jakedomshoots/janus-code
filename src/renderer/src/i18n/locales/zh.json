@@ -5587,7 +5587,7 @@
           "c40dadaac8": "手机端",
           "c2ee313198": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
           "9b02492d1f": "SSH 主机",
-          "b5ee17826b": "Pair remote Orca runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
+          "b5ee17826b": "Pair remote Janus Code runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
           "7686cb5c36": "将此浏览器连接到已保存的 Orca 服务器。",
           "bd0181eeca": "远程 Orca 服务器",
           "8acf3f22e0": "Orca 统计数据以及 Claude、Codex 和 OpenCode 使用情况分析。",

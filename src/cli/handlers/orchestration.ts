@@ -141,7 +141,8 @@ async function resolveOrchestrationTerminalHandle(
 }
 
 function isDevCliInvocation(): boolean {
-  return process.env.ORCA_USER_DATA_PATH?.includes('orca-dev') ?? false
+  const userDataPath = process.env.JANUS_USER_DATA_PATH ?? process.env.ORCA_USER_DATA_PATH ?? ''
+  return userDataPath.includes('janus-dev') || userDataPath.includes('orca-dev')
 }
 
 function getOptionalPositiveIntegerValueFlag(

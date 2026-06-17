@@ -14,10 +14,10 @@ if not exist "%ELECTRON%" (
   exit /b 1
 )
 
-REM Why: this legacy orca.cmd launcher remains as a compatibility alias for
-REM Janus Code installs, so it targets the current packaged executable name.
 set "CLI=%RESOURCES_DIR%\app.asar.unpacked\out\cli\index.js"
 
+set "JANUS_NODE_OPTIONS=%NODE_OPTIONS%"
+set "JANUS_NODE_REPL_EXTERNAL_MODULE=%NODE_REPL_EXTERNAL_MODULE%"
 set "ORCA_NODE_OPTIONS=%NODE_OPTIONS%"
 set "ORCA_NODE_REPL_EXTERNAL_MODULE=%NODE_REPL_EXTERNAL_MODULE%"
 set NODE_OPTIONS=

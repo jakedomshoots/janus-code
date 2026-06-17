@@ -9,19 +9,19 @@ import { pathToFileURL } from 'node:url'
 const REQUIRED_PACKAGED_LAUNCHERS = [
   {
     platform: 'mac',
-    from: 'resources/darwin/bin/agent-hub',
+    from: 'resources/darwin/bin/janus',
     to: 'bin/janus',
     executable: true
   },
   {
     platform: 'linux',
-    from: 'resources/linux/bin/agent-hub',
+    from: 'resources/linux/bin/janus',
     to: 'bin/janus',
     executable: true
   },
   {
     platform: 'win',
-    from: 'resources/win32/bin/agent-hub.cmd',
+    from: 'resources/win32/bin/janus.cmd',
     to: 'bin/janus.cmd',
     executable: false
   }

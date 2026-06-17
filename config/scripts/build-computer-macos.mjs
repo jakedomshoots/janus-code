@@ -22,6 +22,7 @@ const bundleId =
 const displayName = 'Janus Computer Use'
 const signingIdentity = resolveSigningIdentity()
 const universalTriples = ['arm64-apple-macosx', 'x86_64-apple-macosx']
+const isMacRelease = process.env.JANUS_MAC_RELEASE === '1' || process.env.ORCA_MAC_RELEASE === '1'
 
 if (process.platform !== 'darwin') {
   process.exit(0)
@@ -59,7 +60,7 @@ function createHelperApp() {
 
 function codesignArgs(identity, targetPath) {
   const args = ['--force', '--deep', '--sign', identity]
-  if (process.env.ORCA_MAC_RELEASE === '1' && identity !== '-') {
+  if (isMacRelease && identity !== '-') {
     args.push('--options', 'runtime', '--timestamp', '--entitlements', entitlementsPath)
   }
   args.push(targetPath)
@@ -67,7 +68,10 @@ function codesignArgs(identity, targetPath) {
 }
 
 function resolveSigningIdentity() {
-  const explicitIdentity = process.env.ORCA_COMPUTER_MACOS_SIGN_IDENTITY ?? process.env.CSC_NAME
+  const explicitIdentity =
+    process.env.JANUS_COMPUTER_MACOS_SIGN_IDENTITY ??
+    process.env.ORCA_COMPUTER_MACOS_SIGN_IDENTITY ??
+    process.env.CSC_NAME
   if (explicitIdentity) {
     return explicitIdentity
   }
@@ -78,7 +82,7 @@ function resolveSigningIdentity() {
     return '-'
   }
   const developmentMatch = identities.stdout.match(/"([^"]*Apple Development:[^"]+)"/)
-  if (process.env.ORCA_MAC_RELEASE !== '1' && developmentMatch) {
+  if (!isMacRelease && developmentMatch) {
     return developmentMatch[1]
   }
   const releaseMatch =

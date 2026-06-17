@@ -5587,7 +5587,7 @@
           "c40dadaac8": "모바일",
           "c2ee313198": "Use existing machines over SSH for files, terminals, Git, and workspaces.",
           "9b02492d1f": "SSH 호스트",
-          "b5ee17826b": "Pair remote Orca runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
+          "b5ee17826b": "Pair remote Janus Code runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
           "7686cb5c36": "이 브라우저를 저장된 Orca 서버에 연결하세요.",
           "bd0181eeca": "원격 Orca 서버",
           "8acf3f22e0": "Orca 통계와 Claude, Codex 및 OpenCode 사용 분석.",

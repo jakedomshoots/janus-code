@@ -1,4 +1,4 @@
 provider: github
-owner: stablyai
-repo: orca
-updaterCacheDirName: orca-updater
+owner: jakedomshoots
+repo: janus-code
+updaterCacheDirName: janus-code-updater
