@@ -11188,6 +11188,10 @@
           "noHostedReviewLinked": "No hosted review linked yet.",
           "hostedReviewWillAppear": "Hosted review status will appear here after Orca detects a branch review.",
           "openReview": "Open review"
+        },
+        "threadTabs": {
+          "agentSessions": "Agent sessions",
+          "newAgentSession": "New agent session"
         }
       }
     },

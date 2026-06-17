@@ -351,7 +351,7 @@ describe('AgentWorkspace phase labels', () => {
 })
 
 describe('AgentWorkspaceLayout active worktree selection', () => {
-  it('uses the active worktree thread without rendering an internal thread switcher', async () => {
+  it('uses the active worktree thread and switches agent tabs inside the workbench', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -420,11 +420,18 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-    expect(
-      Array.from(container.querySelectorAll('button')).some((button) =>
-        button.textContent?.includes('Second thread')
-      )
-    ).toBe(false)
+
+    const secondThreadTab = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((button) => button.textContent?.includes('Second thread'))
+    expect(secondThreadTab).toBeDefined()
+
+    await act(async () => {
+      secondThreadTab?.click()
+    })
+
+    expect(container.textContent).not.toContain('First timeline event')
+    expect(container.textContent).toContain('Second timeline event')
   })
 
   it('updates right-panel content when the app shell changes the active worktree', async () => {

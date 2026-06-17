@@ -19,6 +19,7 @@ import { AgentComposer } from './AgentComposer'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
+import { AgentWorkspaceThreadTabs } from './AgentWorkspaceThreadTabs'
 import { AgentTimeline } from './AgentTimeline'
 import {
   getDefaultAgentWorkspaceRightPanelState,
@@ -38,14 +39,13 @@ function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspacePro
   )
 }
 
-function getSelectedThread(
+function getProjectThreads(
   snapshot: AgentWorkspaceSnapshot,
   project: AgentWorkspaceProject | null
-): AgentWorkspaceThread | null {
-  const projectThreads = project
+): readonly AgentWorkspaceThread[] {
+  return project
     ? snapshot.threads.filter((thread) => thread.worktreeId === project.id)
     : snapshot.threads
-  return projectThreads[0] ?? null
 }
 
 function getThreadTimeline(
@@ -150,16 +150,22 @@ function AgentFailureTerminalBanner({
 function AgentWorkspaceCenter({
   activeWorktreeId,
   project,
+  threads,
   thread,
   timeline,
   terminalAvailable,
+  onSelectThread,
+  onNewSession,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   project: AgentWorkspaceProject | null
+  threads: readonly AgentWorkspaceThread[]
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
+  onSelectThread: (threadId: string) => void
+  onNewSession: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
@@ -168,6 +174,12 @@ function AgentWorkspaceCenter({
         thread={thread}
         terminalAvailable={terminalAvailable}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
+      />
+      <AgentWorkspaceThreadTabs
+        threads={threads}
+        selectedThreadId={thread?.id ?? null}
+        onSelectThread={onSelectThread}
+        onNewSession={onNewSession}
       />
       <AgentTimeline thread={thread} timeline={timeline} />
       <AgentComposer
@@ -190,7 +202,11 @@ export function AgentWorkspaceLayout({
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
-  const defaultThread = getSelectedThread(snapshot, selectedProject)
+  const projectThreads = getProjectThreads(snapshot, selectedProject)
+  const defaultThread = projectThreads[0] ?? null
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
+    () => defaultThread?.id ?? null
+  )
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
       getRightPanelStateInput(
@@ -201,7 +217,10 @@ export function AgentWorkspaceLayout({
       )
     )
   )
-  const selectedThread = getSelectedThread(snapshot, selectedProject)
+  const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
+  const selectedThread = selectedThreadId
+    ? (projectThreads.find((thread) => thread.id === selectedThreadId) ?? null)
+    : null
   const openDiff = useAppStore((state) => state.openDiff)
   const timeline = getThreadTimeline(snapshot, selectedThread)
   const diffs = getThreadDiffs(snapshot, selectedThread)
@@ -216,6 +235,15 @@ export function AgentWorkspaceLayout({
   )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
+
+  useEffect(() => {
+    if (!selectedThreadId) {
+      return
+    }
+    if (!projectThreads.some((thread) => thread.id === selectedThreadId)) {
+      setSelectedThreadId(defaultThread?.id ?? null)
+    }
+  }, [defaultThread?.id, projectThreadIdsKey, projectThreads, selectedThreadId])
 
   useEffect(() => {
     if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
@@ -273,9 +301,12 @@ export function AgentWorkspaceLayout({
       <AgentWorkspaceCenter
         activeWorktreeId={snapshot.activeWorktreeId}
         project={selectedProject}
+        threads={projectThreads}
         thread={selectedThread}
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}
+        onSelectThread={setSelectedThreadId}
+        onNewSession={() => setSelectedThreadId(null)}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </AgentWorkspaceChrome>

@@ -186,11 +186,14 @@ export function AgentComposer({
   }
 
   return (
-    <form className="border-t border-border p-3" onSubmit={(event) => void handleSubmit(event)}>
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-md border border-border bg-card shadow-xs transition-colors focus-within:border-ring/45">
+    <form
+      className="border-t border-border/70 bg-background/95 px-4 py-4"
+      onSubmit={(event) => void handleSubmit(event)}
+    >
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="rounded-[26px] border border-border bg-card shadow-sm transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <textarea
-            className="block min-h-20 w-full resize-none bg-transparent px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/60 disabled:cursor-not-allowed disabled:opacity-60"
+            className="block min-h-24 w-full resize-none bg-transparent px-6 pb-3 pt-5 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
             value={prompt}
             placeholder={getPlaceholder(selectedThread, activeWorktreeId)}
             disabled={composerDisabled}

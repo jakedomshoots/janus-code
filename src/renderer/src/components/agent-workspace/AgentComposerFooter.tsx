@@ -1,4 +1,4 @@
-import { Brain, Loader2, PanelBottom, SendHorizontal, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Brain, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -47,57 +47,65 @@ export function AgentComposerFooter({
   canSubmit: boolean
 }): React.JSX.Element {
   return (
-    <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border/65 px-2.5 py-2">
+    <div className="px-4 pb-3">
       <p
         id="agent-workspace-composer-status"
         className={cn(
-          'min-w-44 flex-1 text-xs',
+          'min-h-4 pb-2 text-xs',
           statusTone === 'error' ? 'text-destructive' : 'text-muted-foreground'
         )}
         aria-live="polite"
       >
         {statusMessage ?? ''}
       </p>
-      <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-        <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
-        <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canOpenTerminalDrawer}
-          aria-label={translate(
-            'auto.components.agentWorkspace.composer.openTerminalDrawer',
-            'Open terminal drawer'
-          )}
-          onClick={() => onOpenTerminalDrawer?.('debug-button')}
-        >
-          <PanelBottom className="size-4" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
-        </Button>
-        {canSendToSelectedThread ? (
-          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground">
-            {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
-            <span className="font-medium text-foreground">
-              {formatAgentTypeLabel(selectedThread?.agentKind)}
-            </span>
-          </div>
-        ) : (
-          <AgentProviderSelect
-            agents={availableAgents}
-            value={selectedAgent}
-            detecting={detectingAgents}
-            onChange={onSelectedAgentChange}
-          />
-        )}
-        <Button type="submit" size="sm" disabled={!canSubmit}>
-          {submitting ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
+          <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
+        </div>
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={!canOpenTerminalDrawer}
+            aria-label={translate(
+              'auto.components.agentWorkspace.composer.openTerminalDrawer',
+              'Open terminal drawer'
+            )}
+            onClick={() => onOpenTerminalDrawer?.('debug-button')}
+          >
+            <PanelBottom className="size-4" aria-hidden="true" />
+          </Button>
+          {canSendToSelectedThread ? (
+            <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
+              {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
+              <span className="font-medium text-foreground">
+                {formatAgentTypeLabel(selectedThread?.agentKind)}
+              </span>
+            </div>
           ) : (
-            <SendHorizontal className="size-4" aria-hidden="true" />
+            <AgentProviderSelect
+              agents={availableAgents}
+              value={selectedAgent}
+              detecting={detectingAgents}
+              onChange={onSelectedAgentChange}
+            />
           )}
-          {translate('auto.components.agentWorkspace.layout.send', 'Send')}
-        </Button>
+          <Button
+            type="submit"
+            size="icon"
+            className="rounded-full"
+            disabled={!canSubmit}
+            aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
+          >
+            {submitting ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <ArrowUp className="size-5" aria-hidden="true" />
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -127,7 +135,7 @@ function PermissionModeSelect({
         },
         {
           value: 'yolo',
-          label: translate('auto.components.agentWorkspace.composer.permissionYolo', 'Auto approve')
+          label: translate('auto.components.agentWorkspace.composer.permissionYolo', 'Full access')
         },
         {
           value: 'mixed',
@@ -190,8 +198,8 @@ function ComposerToolbarSelect({
   onChange: (value: string) => void
 }): React.JSX.Element {
   return (
-    <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1 text-muted-foreground">
+    <label className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1 text-muted-foreground/90">
         {icon}
         {label}
       </span>
@@ -199,7 +207,7 @@ function ComposerToolbarSelect({
         aria-label={ariaLabel}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 min-w-28 rounded-md border border-input bg-background px-2 text-xs text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-7 min-w-24 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={option.disabled}>
@@ -224,7 +232,7 @@ function AgentProviderSelect({
 }): React.JSX.Element {
   const disabled = detecting || agents.length === 0
   return (
-    <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+    <label className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
       <span>{translate('auto.components.agentWorkspace.composer.provider', 'Provider')}</span>
       <select
         aria-label={translate(
@@ -234,7 +242,7 @@ function AgentProviderSelect({
         value={value ?? ''}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value ? (event.target.value as TuiAgent) : null)}
-        className="h-8 max-w-44 rounded-md border border-input bg-background px-2 text-xs text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-7 max-w-44 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {disabled ? (
           <option value="">
