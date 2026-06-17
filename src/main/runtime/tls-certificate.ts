@@ -38,7 +38,7 @@ export function loadOrCreateTlsCertificate(userDataPath: string): TlsCertificate
   // Using it avoids hand-rolling ASN.1 DER encoding which is error-prone.
   execSync(
     `openssl req -new -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 ` +
-      `-nodes -days 3650 -subj "/CN=Orca Runtime" ` +
+      `-nodes -days 3650 -subj "/CN=Janus Code Runtime" ` +
       `-keyout "${keyPath_}" -out "${certPath_}" 2>/dev/null`
   )
 

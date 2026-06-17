@@ -1030,7 +1030,7 @@ async function printServeReady(options: ServeOptions): Promise<void> {
     )
     return
   }
-  console.log(`Orca server ready: ${endpoint ?? 'websocket unavailable'}`)
+  console.log(`Janus Code server ready: ${endpoint ?? 'websocket unavailable'}`)
   if (pairing.available) {
     if (pairing.webClientUrl) {
       console.log(`Web client URL: ${pairing.webClientUrl}`)

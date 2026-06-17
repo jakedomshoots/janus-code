@@ -92,7 +92,7 @@ async function resolveRemoteWindowsNodePath(conn: SshConnection): Promise<string
 
 function throwNodeNotFound(): never {
   throw new Error(
-    'Node.js not found on remote host. Orca relay requires Node.js 18+. ' +
+    'Node.js not found on remote host. Janus Code relay requires Node.js 18+. ' +
       'Install Node.js on the remote and try again.'
   )
 }
