@@ -75,6 +75,7 @@ describe('electron-builder config', () => {
   it('uses Janus Code artifact names for public release packages', () => {
     expect(electronBuilderConfig.win.executableName).toBe('Janus Code')
     expect(electronBuilderConfig.nsis.artifactName).toBe('janus-code-windows-setup.${ext}')
+    expect(electronBuilderConfig.mac.artifactName).toBe('Janus-Code-${version}-${arch}-mac.${ext}')
     expect(electronBuilderConfig.dmg.artifactName).toBe('janus-code-macos-${arch}.${ext}')
     expect(electronBuilderConfig.linux.target).toEqual(['AppImage', 'deb', 'rpm'])
     expect(electronBuilderConfig.linux.maintainer).toBe('Jake Dominick')

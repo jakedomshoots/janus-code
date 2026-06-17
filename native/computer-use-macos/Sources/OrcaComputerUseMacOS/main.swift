@@ -2663,7 +2663,7 @@ private final class PermissionView: NSView {
 
         let title = label(ready ? "Computer Use is Ready" : "Enable Janus Computer Use", size: 22, weight: .bold)
         let subtitle = label(
-            ready ? "Orca can use local apps when you ask." : "Grant permissions so Orca can use apps when you ask.",
+            ready ? "Janus Code can use local apps when you ask." : "Grant permissions so Janus Code can use apps when you ask.",
             size: 12,
             weight: .regular
         )
@@ -3454,8 +3454,11 @@ private func isTrustedOrcaApplication(_ pid: pid_t) -> Bool {
         return false
     }
     // Why: dev validation runs from per-worktree wrapper apps with stable
-    // Orca-owned bundle ids; the sidecar peer check must still authorize them.
-    return bundleId == "com.stablyai.orca" ||
+    // Janus Code bundle ids plus legacy Orca-owned ids; the sidecar peer check
+    // must still authorize existing development and installed compatibility paths.
+    return bundleId == "com.jakedom.januscode" ||
+        bundleId.hasPrefix("com.jakedom.januscode.dev.") ||
+        bundleId == "com.stablyai.orca" ||
         bundleId.hasPrefix("com.stablyai.orca.dev.") ||
         bundleId == "com.github.Electron"
 }

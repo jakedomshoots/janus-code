@@ -6,8 +6,8 @@ import { app, ipcMain, net } from 'electron'
 // endpoint rejects. Electron's net module runs in the main process and is not
 // subject to CORS, so we proxy the submission through IPC. This mirrors the
 // same pattern used by updater-changelog.ts and updater-nudge.ts.
-const FEEDBACK_API_URL = 'https://api.onorca.dev/v1/feedback'
-const FEEDBACK_API_FALLBACK_URL = 'https://www.onorca.dev/v1/feedback'
+const FEEDBACK_ENDPOINT_NOT_CONFIGURED =
+  'Feedback submission is not configured for this Janus Code build.'
 const FEEDBACK_REQUEST_TIMEOUT_MS = 10_000
 
 export type FeedbackSubmissionType = 'feedback' | 'crash'
@@ -38,11 +38,20 @@ type InternalFeedbackSubmitArgs = FeedbackSubmitArgs & {
   submissionType?: FeedbackSubmissionType
 }
 
-// Why: the Slack notification and any follow-up investigation need to know
-// which Orca build and which OS the feedback came from. The main process is
-// the only place with trusted access to these values (app.getVersion and the
-// node os module), so we enrich the payload here rather than trusting the
-// renderer.
+function getFeedbackApiUrl(): string | null {
+  const value = process.env.JANUS_FEEDBACK_API_URL?.trim()
+  return value ? value : null
+}
+
+function getFeedbackApiFallbackUrl(): string | null {
+  const value = process.env.JANUS_FEEDBACK_API_FALLBACK_URL?.trim()
+  return value ? value : null
+}
+
+// Why: follow-up investigation needs to know which Janus Code build and which
+// OS the feedback came from. The main process is the only place with trusted
+// access to these values, so we enrich the payload here rather than trusting
+// the renderer.
 function buildSubmitBody(args: InternalFeedbackSubmitArgs): FeedbackSubmitBody {
   const identity = args.submitAnonymously
     ? { githubLogin: null, githubEmail: null }
@@ -86,8 +95,23 @@ async function submitFallbackFeedback(
   body: FeedbackSubmitBody,
   primaryError?: unknown
 ): Promise<FeedbackSubmitResult> {
+  const fallbackUrl = getFeedbackApiFallbackUrl()
+  if (!fallbackUrl) {
+    if (primaryError === undefined) {
+      return {
+        ok: false,
+        status: null,
+        error: FEEDBACK_ENDPOINT_NOT_CONFIGURED
+      }
+    }
+    return {
+      ok: false,
+      status: null,
+      error: messageFromError(primaryError)
+    }
+  }
   try {
-    const fallback = await postFeedback(FEEDBACK_API_FALLBACK_URL, body)
+    const fallback = await postFeedback(fallbackUrl, body)
     if (fallback.ok) {
       return { ok: true }
     }
@@ -108,23 +132,30 @@ async function submitFallbackFeedback(
 export async function submitFeedback(
   args: InternalFeedbackSubmitArgs
 ): Promise<FeedbackSubmitResult> {
+  const feedbackUrl = getFeedbackApiUrl()
+  if (!feedbackUrl) {
+    return {
+      ok: false,
+      status: null,
+      error: FEEDBACK_ENDPOINT_NOT_CONFIGURED
+    }
+  }
   const body = buildSubmitBody(args)
   try {
-    const res = await postFeedback(FEEDBACK_API_URL, body)
+    const res = await postFeedback(feedbackUrl, body)
     if (res.ok) {
       return { ok: true }
     }
-    // Why: DNS for api.onorca.dev can lag behind a deploy. Only fall back on
-    // 404/5xx-style results and network errors — don't mask real 4xx responses
-    // from a healthy host.
+    // Why: only fall back on 404/5xx-style results and network errors — don't
+    // mask real 4xx responses from a healthy Janus feedback host.
     if (res.status === 404 || res.status >= 500) {
       return submitFallbackFeedback(body)
     }
     return { ok: false, status: res.status, error: `status ${res.status}` }
   } catch (error) {
-    // Why: falling back on any network-level failure preserves the prior
-    // behavior where DNS/connect failures on the primary host transparently
-    // try the website-hosted versioned endpoint.
+    // Why: when a Janus fallback endpoint is configured, network-level
+    // failures on the primary host should still give the user one more chance
+    // to submit without hiding real 4xx validation errors from a healthy host.
     return submitFallbackFeedback(body, error)
   }
 }

@@ -20,9 +20,9 @@ const bundleId =
   process.env.ORCA_COMPUTER_MACOS_BUNDLE_ID ??
   'com.jakedom.januscode.computer-use'
 const displayName = 'Janus Computer Use'
-const signingIdentity = resolveSigningIdentity()
 const universalTriples = ['arm64-apple-macosx', 'x86_64-apple-macosx']
 const isMacRelease = process.env.JANUS_MAC_RELEASE === '1' || process.env.ORCA_MAC_RELEASE === '1'
+const signingIdentity = resolveSigningIdentity()
 
 if (process.platform !== 'darwin') {
   process.exit(0)

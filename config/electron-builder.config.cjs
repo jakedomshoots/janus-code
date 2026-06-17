@@ -172,6 +172,7 @@ module.exports = {
   },
   mac: {
     icon: 'resources/build/icon.icns',
+    artifactName: 'Janus-Code-${version}-${arch}-mac.${ext}',
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
     extendInfo: {

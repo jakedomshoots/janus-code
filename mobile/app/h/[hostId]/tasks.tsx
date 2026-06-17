@@ -3023,7 +3023,7 @@ export default function MobileTasksScreen() {
         setMergeMethodTaskItem(null)
         setMergeMethodProjectRow(null)
         resetWorkspaceCreateState()
-        setError('Update Orca desktop to use Tasks on mobile.')
+        setError('Update Janus Code desktop to use Tasks on mobile.')
         setTaskStateHydrated(false)
         return
       }
@@ -9202,7 +9202,7 @@ export default function MobileTasksScreen() {
       {!tasksSupported ? (
         tasksUnsupported ? (
           <View style={styles.centered}>
-            <Text style={styles.emptyText}>Update Orca desktop</Text>
+            <Text style={styles.emptyText}>Update Janus Code desktop</Text>
             <Text style={styles.centeredHint}>
               This mobile Tasks view needs a newer desktop runtime.
             </Text>

@@ -302,7 +302,7 @@ export default function PairScanScreen() {
       </Pressable>
 
       <View style={styles.steps}>
-        <Step number={1} text="Open Orca on your computer" />
+        <Step number={1} text="Open Janus Code on your computer" />
         <Step number={2} text="Go to Settings → Mobile" />
         <Step number={3} text="Scan the QR code" />
       </View>
