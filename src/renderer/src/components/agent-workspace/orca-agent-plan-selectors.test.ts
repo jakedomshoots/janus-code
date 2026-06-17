@@ -130,7 +130,7 @@ describe('orca agent plan selectors', () => {
     expect(hasStructuredAgentWorkspacePlan(unstructuredSnapshot, thread)).toBe(false)
   })
 
-  it('derives titles and displayed markdown with T3-compatible heading rules', () => {
+  it('derives titles and displayed markdown with Janus heading rules', () => {
     const markdown = '# Build GUI Workspace\n\n## Summary\n\n1. Add the plan panel.\n2. Wire it.'
     const markdownOnlyPlan = {
       ...newerPlan,

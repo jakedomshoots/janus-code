@@ -103,9 +103,9 @@ const runningSnapshot = {
 const completedPhase: AgentWorkspacePhase = 'completed'
 
 const completedProject: AgentWorkspaceProject = {
-  id: 'project-remote-orca',
-  label: 'Orca Remote',
-  path: '/srv/orca',
+  id: 'project-remote-janus',
+  label: 'Janus Remote',
+  path: '/srv/janus',
   hostKind: 'runtime'
 }
 
@@ -113,7 +113,7 @@ const completedThread: AgentWorkspaceThread = {
   id: 'thread-completed',
   worktreeId: 'worktree-completed',
   title: 'Review completed workspace',
-  agentKind: 't3-code',
+  agentKind: 'codex',
   phase: completedPhase,
   updatedAt: null,
   branchName: null,
