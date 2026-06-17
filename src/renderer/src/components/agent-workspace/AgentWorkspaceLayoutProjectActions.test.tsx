@@ -55,6 +55,7 @@ vi.mock('@/store', () => ({
       setUpstreamStatus: (worktreeId: string, status: unknown) => void
       fetchUpstreamStatus: () => Promise<void>
       browserTabsByWorktree: Record<string, unknown[]>
+      browserAnnotationsByPageId: Record<string, unknown[]>
       activeBrowserTabIdByWorktree: Record<string, string | null>
       createBrowserTab: typeof storeMocks.createBrowserTab
       focusBrowserTabInWorktree: typeof storeMocks.focusBrowserTabInWorktree
@@ -77,6 +78,7 @@ vi.mock('@/store', () => ({
       setUpstreamStatus: storeMocks.setUpstreamStatus,
       fetchUpstreamStatus: storeMocks.fetchUpstreamStatus,
       browserTabsByWorktree: {},
+      browserAnnotationsByPageId: {},
       activeBrowserTabIdByWorktree: {},
       createBrowserTab: storeMocks.createBrowserTab,
       focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree

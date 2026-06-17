@@ -11098,7 +11098,9 @@
           "paneLabel": "Pane {{index}}",
           "browserWorkbenchReady": "Browser, grab, and annotations are available here.",
           "browserWorkbench": "Browser workbench",
-          "closeBrowserWorkbench": "Close browser workbench"
+          "closeBrowserWorkbench": "Close browser workbench",
+          "newSession": "New session",
+          "browser": "Browser"
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
@@ -11145,7 +11147,11 @@
           "model": "Model",
           "agentModel": "Agent model",
           "newBrowserTab": "New Browser Tab",
-          "openBrowserWorkbench": "Open browser workbench"
+          "openBrowserWorkbench": "Open browser workbench",
+          "browserContextAttached": "Browser context attached.",
+          "tools": "Tools",
+          "attachBrowserContext": "Attach browser context",
+          "attachBrowserContextWithCount": "Attach browser context ({{count}} annotations)"
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"
@@ -11209,7 +11215,8 @@
           "startNewSession": "Start new session",
           "splitRight": "Split right",
           "splitDown": "Split down",
-          "closePane": "Close pane"
+          "closePane": "Close pane",
+          "browser": "Browser"
         }
       }
     },

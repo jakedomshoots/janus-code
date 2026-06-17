@@ -16,21 +16,20 @@ import {
   resolveTuiAgentSelectedModel,
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
 } from '../../../../shared/tui-agent-models'
-import { ORCA_BROWSER_BLANK_URL } from '../../../../shared/constants'
-import type { BrowserWorkspace, TuiAgent } from '../../../../shared/types'
+import type { TuiAgent } from '../../../../shared/types'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import { AgentComposerFooter } from './AgentComposerFooter'
 import { launchSelectedAgent } from './agent-composer-launch'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
+import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 
 type AgentComposerFeedback = Pick<AgentComposerSubmitResult, 'message' | 'status'> & {
   reason?: string
 }
 
 const EMPTY_DISABLED_TUI_AGENTS: readonly TuiAgent[] = []
-const EMPTY_BROWSER_TABS: readonly BrowserWorkspace[] = []
 
 export function AgentComposer({
   activeWorktreeId,
@@ -55,16 +54,10 @@ export function AgentComposer({
   >({})
   const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
-  const browserTabs = useAppStore((state) =>
-    activeWorktreeId
-      ? (state.browserTabsByWorktree[activeWorktreeId] ?? EMPTY_BROWSER_TABS)
-      : EMPTY_BROWSER_TABS
-  )
-  const activeBrowserTabId = useAppStore((state) =>
-    activeWorktreeId ? (state.activeBrowserTabIdByWorktree[activeWorktreeId] ?? null) : null
-  )
-  const createBrowserTab = useAppStore((state) => state.createBrowserTab)
-  const focusBrowserTabInWorktree = useAppStore((state) => state.focusBrowserTabInWorktree)
+  const browserWorkbench = useAgentBrowserWorkbench({
+    activeWorktreeId,
+    onOpenTerminalDrawer
+  })
   const settingsModelSelectionsKey = encodeAgentModelSelections(settings?.agentModelSelections)
   const defaultTuiAgent = settings?.defaultTuiAgent ?? null
   const disabledTuiAgents = settings?.disabledTuiAgents ?? EMPTY_DISABLED_TUI_AGENTS
@@ -137,7 +130,6 @@ export function AgentComposer({
   const statusTone = submitResult?.status ?? (readinessMessage ? 'blocked' : null)
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
   const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
-  const canOpenBrowserWorkbench = Boolean(activeWorktreeId && onOpenTerminalDrawer)
 
   useEffect(() => {
     setSelectedAgent((current) => {
@@ -231,27 +223,23 @@ export function AgentComposer({
     )
   }
 
-  function handleOpenBrowserWorkbench(): void {
-    if (!activeWorktreeId || typeof onOpenTerminalDrawer !== 'function') {
+  function handleAttachBrowserContext(): void {
+    if (!browserWorkbench.browserAnnotationMarkdown) {
       return
     }
-    const activeBrowserTab = activeBrowserTabId
-      ? (browserTabs.find((tab) => tab.id === activeBrowserTabId) ?? null)
-      : null
-    const browserTab =
-      activeBrowserTab ??
-      browserTabs[0] ??
-      createBrowserTab(activeWorktreeId, ORCA_BROWSER_BLANK_URL, {
-        title: translate(
-          'auto.components.agentWorkspace.composer.newBrowserTab',
-          'New Browser Tab'
-        ),
-        focusAddressBar: true,
-        activate: true
-      })
-    const activePageId = browserTab.activePageId ?? browserTab.pageIds?.[0] ?? browserTab.id
-    focusBrowserTabInWorktree(activeWorktreeId, activePageId, { surfacePane: true })
-    onOpenTerminalDrawer('browser')
+    setPrompt((currentPrompt) => {
+      const trimmedCurrent = currentPrompt.trimEnd()
+      return trimmedCurrent
+        ? `${trimmedCurrent}\n\n${browserWorkbench.browserAnnotationMarkdown}`
+        : browserWorkbench.browserAnnotationMarkdown
+    })
+    setSubmitResult({
+      status: 'sent',
+      message: translate(
+        'auto.components.agentWorkspace.composer.browserContextAttached',
+        'Browser context attached.'
+      )
+    })
   }
 
   return (
@@ -289,8 +277,11 @@ export function AgentComposer({
             onThinkingModeChange={setThinkingMode}
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
-            canOpenBrowserWorkbench={canOpenBrowserWorkbench}
-            onOpenBrowserWorkbench={handleOpenBrowserWorkbench}
+            canOpenBrowserWorkbench={browserWorkbench.browserAvailable}
+            onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
+            canAttachBrowserContext={browserWorkbench.canAttachBrowserContext}
+            browserAnnotationCount={browserWorkbench.browserAnnotationCount}
+            onAttachBrowserContext={handleAttachBrowserContext}
             canSendToSelectedThread={canSendToSelectedThread}
             selectedThread={selectedThread}
             availableAgents={availableAgents}

@@ -1,191 +1,140 @@
-# Janus GUI Polish Handoff
+# Janus GUI Polish Status
 
-This handoff captures the remaining Janus Code GUI polish work after the browser
-workbench integration landed. It is written for a follow-up coding agent that
-should continue from the current `feature/t3code-gui-workspace` branch without
-rebuilding the browser or agent orchestration stacks from scratch.
+This note captures the current Janus Code GUI state on
+`feature/t3code-gui-workspace`. The six polish items below are implemented in
+the source tree and are intended to preserve Orca's native browser,
+annotation, terminal, and workspace orchestration plumbing while presenting them
+through the Janus chat-first GUI.
 
 ## Current State
 
-- The chat composer has a browser workbench button next to the terminal button.
-- The button creates or reuses an existing Orca browser tab for the active
-  worktree, focuses the active browser page through `focusBrowserTabInWorktree`,
-  and opens the preserved workbench drawer with a browser-specific title.
-- This intentionally reuses Orca's existing browser implementation instead of
-  mounting a second `BrowserPane`. Do not add another independent `BrowserPane`
-  tree for the same tab; the terminal/worktree surface already documents that
-  duplicate webview trees can race over the same Electron webview.
-- The installed local app was refreshed at `/Applications/Janus Code.app` from
-  `dist/mac-arm64/Janus Code.app`.
+- Browser workbench access is centralized in
+  `src/renderer/src/components/agent-workspace/useAgentBrowserWorkbench.ts`.
+- The composer, empty state, and workspace tab strip all use the same browser
+  workbench path instead of each creating separate browser behavior.
+- Browser tabs are still owned by Orca's existing browser store and worktree
+  surface. Do not mount a second independent `BrowserPane` for the same page.
+- Browser annotations can be attached into the composer draft through the tool
+  cluster before the user sends a prompt.
+- Terminal and browser controls are grouped into one compact composer tool
+  cluster.
+- Empty workspace panes show only `Janus Code` plus direct actions.
 
 Important files:
 
+- `src/renderer/src/components/agent-workspace/useAgentBrowserWorkbench.ts`
 - `src/renderer/src/components/agent-workspace/AgentComposer.tsx`
 - `src/renderer/src/components/agent-workspace/AgentComposerFooter.tsx`
-- `src/renderer/src/components/agent-workspace/AgentTerminalDrawer.tsx`
-- `src/renderer/src/components/agent-workspace/agent-terminal-visibility.ts`
+- `src/renderer/src/components/agent-workspace/AgentComposerToolCluster.tsx`
+- `src/renderer/src/components/agent-workspace/AgentTimeline.tsx`
+- `src/renderer/src/components/agent-workspace/AgentWorkspacePane.tsx`
+- `src/renderer/src/components/agent-workspace/AgentWorkspaceThreadTabs.tsx`
 - `src/renderer/src/components/browser-pane/BrowserPane.tsx`
 - `src/renderer/src/components/browser-pane/useGrabMode.ts`
+- `src/renderer/src/components/browser-pane/browser-annotation-output.ts`
 - `src/renderer/src/store/slices/browser.ts`
-- `src/renderer/src/components/Terminal.tsx`
-- `src/renderer/src/components/browser-pane/BrowserPaneOverlayLayer.tsx`
 
-## 1. Make Browser A First-Class Workspace Tab
+## 1. Browser As A First-Class Workspace Tab
 
-Problem:
+Implemented:
 
-The browser workbench is correctly wired, but it still feels like a drawer
-opened from chat. The next polish target is making Browser feel like a native
-Janus workspace tab alongside agent sessions.
+- `AgentWorkspaceThreadTabs` now includes a Browser tab affordance when the
+  selected worktree can open the browser workbench.
+- The tab displays the existing browser tab count from
+  `browserTabsByWorktree`.
+- Clicking Browser focuses the current pane, creates a browser tab only if one
+  does not exist, focuses the active browser page with
+  `focusBrowserTabInWorktree`, and opens the existing browser drawer.
 
-Suggested direction:
+Design note:
 
-- Add a browser tab affordance into the agent workspace tab strip or a sibling
-  workbench tab strip.
-- Reuse the existing browser tab state from `browserTabsByWorktree`,
-  `activeBrowserTabIdByWorktree`, and `focusBrowserTabInWorktree`.
-- Keep the actual rendering in the existing Orca worktree/browser surface unless
-  a single-owner webview mount point is designed. Avoid duplicate `BrowserPane`
-  mounting.
-- If a new visual tab is introduced, it should activate the existing browser
-  workbench and not create another browser page unless no browser tab exists.
+- The Browser tab is an activation affordance for the preserved Orca browser
+  surface. It intentionally does not create a second webview mount point.
 
-Acceptance:
+## 2. Visible Annotation Handoff To Agent Sessions
 
-- Opening Browser from Janus shows the same browser tab if one already exists.
-- Creating a browser from Janus creates exactly one browser workspace/page.
-- Browser tab label, close behavior, and active state are obvious.
-- Switching between agent sessions and Browser does not reload the webview.
-- Grab and annotation controls still work in the browser toolbar.
+Implemented:
 
-## 2. Add Visible Annotation Handoff To Agent Sessions
+- The composer tool cluster includes an Attach browser context button.
+- The action is disabled until the active browser page has annotations.
+- When used, it appends the current annotations to the composer draft using
+  `formatBrowserAnnotationsAsMarkdown`.
+- The composer shows `Browser context attached.` after the handoff.
 
-Problem:
+Acceptance covered:
 
-Orca can grab and annotate browser elements, but Janus does not yet make the
-agent handoff visible from the GUI. Users need to understand how annotations
-become agent context.
+- Browser context is visible in the draft before sending.
+- Attached context includes the existing annotation markdown shape from Orca's
+  browser annotation helpers.
+- Empty annotation state is disabled instead of acting like a dead control.
 
-Suggested direction:
+## 3. Compact Terminal And Browser Tool Cluster
 
-- Add a visible "Attach browser context" or "Send annotations" affordance in the
-  browser workbench or composer context row.
-- Reuse existing browser annotation output helpers:
-  `formatGrabPayloadAsText` and `formatBrowserAnnotationsAsMarkdown`.
-- Preserve the existing browser annotation data shape from
-  `shared/browser-grab-types`.
-- Prefer adding annotations to the composer draft or active agent send payload
-  over creating a parallel annotation store.
+Implemented:
 
-Acceptance:
+- `AgentComposerFooter` now renders a `ComposerToolCluster`.
+- The cluster contains Browser, Attach browser context, and Terminal controls.
+- Each control has accessible labels and titles.
+- Annotation count is shown as a compact badge on the attach button.
 
-- User can annotate one or more elements and see a clear way to attach them to
-  the current agent session.
-- Attached browser context is visible before sending.
-- Sent context includes page URL/title and element annotation text.
-- Empty annotation state has a disabled or explanatory action, not a dead button.
+Future candidate:
 
-## 3. Turn Terminal And Browser Into A Compact Tool Cluster
+- Files, Diff, Preview, and Context controls should join this same cluster if
+  they are added later.
 
-Problem:
+## 4. Multi-Pane Agent Orchestration Polish
 
-Terminal and Browser are currently icon buttons in the composer footer. That is
-functional, but it will scale poorly as Files, Diff, Context, Preview, or other
-tools are added.
+Implemented:
 
-Suggested direction:
+- Workspace thread tabs now mix agent session tabs and the Browser workbench tab
+  in the same horizontal strip.
+- Split and close controls remain in the existing pane chrome.
+- Empty panes route through the same `onNewSession`, browser, and terminal
+  callbacks used elsewhere, so there are no duplicate placeholder buttons.
 
-- Create a small tool cluster component for composer-adjacent workspace tools.
-- Keep controls compact and icon-led, with accessible labels and tooltips.
-- Candidate tools: Browser, Terminal, Files/Diff, Context.
-- Do not add explanatory in-app copy around the cluster; make the buttons work
-  and keep the composer focused on prompting.
+Still worth checking manually:
 
-Acceptance:
+- Multi-pane keyboard behavior.
+- Pane close selection after several split/close cycles.
+- Whether Browser should show active styling after the drawer is open.
 
-- Terminal and Browser buttons remain available and correctly wired.
-- Button layout does not wrap awkwardly on narrow windows.
-- Every icon button has `aria-label` and a tooltip/title.
-- The composer footer still fits model, provider, permissions, thinking, and
-  send controls without visual crowding.
+## 5. Empty States And First-Run Actions
 
-## 4. Polish Multi-Pane Agent Orchestration
+Implemented:
 
-Problem:
+- Empty timeline state now shows only `Janus Code`.
+- The action row contains New session, Browser, and Terminal when available.
+- Browser and Terminal actions call the same workbench/drawer plumbing used by
+  the composer.
 
-The GUI pane/session tabs are functional, but they still do not feel as natural
-as a browser tab system or Orca's original multi-pane orchestration.
+Acceptance covered:
 
-Suggested direction:
+- No old Orca branding appears in this empty state.
+- No long tutorial copy is shown.
+- Unavailable Browser or Terminal actions are hidden instead of shown as broken
+  placeholders.
 
-- Improve tab naming for draft sessions, running sessions, and browser tabs.
-- Make active pane state clearer without adding heavy outlines everywhere.
-- Review split-right, split-down, close-pane, and new-session behavior for
-  duplicates and awkward placeholder tabs.
-- Consider drag/reorder later, but first make keyboard and click behavior
-  predictable.
-- Keep implementation in the existing `AgentWorkspaceLayout` and
-  `AgentWorkspaceThreadTabs` flow unless a clear abstraction reduces complexity.
+## 6. Unified Settings, Permission, And Context Entry Points
 
-Acceptance:
+Implemented:
 
-- New session appears once, not duplicated as both placeholder and button.
-- Split panes inherit the expected selected session.
-- Closing a pane selects a neighboring pane predictably.
-- The active pane is visually clear but not noisy.
-- Empty panes still provide a direct way to start work.
+- Provider, model, permission, and thinking controls remain in the composer
+  footer where the agent launch plumbing already reads them.
+- Browser context handoff now lives beside terminal/browser tools rather than in
+  a separate panel.
+- The model picker remains wired through the existing selected agent/provider
+  flow and persists via `settings.agentModelSelections`.
 
-## 5. Tighten Empty States And First-Run Actions
+Still worth checking manually:
 
-Problem:
-
-The old scaffold text was removed, but the empty Janus screen can still be more
-useful. It should present direct actions, not tutorial text.
-
-Suggested direction:
-
-- Keep the main empty screen centered around "Janus Code".
-- Add one action row: New session, Open browser, Open terminal.
-- Avoid long descriptive copy or feature explanations.
-- Wire the actions to the same code paths used by the composer/workbench.
-
-Acceptance:
-
-- Empty state contains no old Orca branding.
-- Empty state action buttons work.
-- Browser action creates/reuses a browser tab for the selected worktree.
-- Terminal action opens the terminal drawer when a terminal is available.
-- No disabled placeholder controls are shown without a clear reason.
-
-## 6. Unify Settings And Permission Entry Points
-
-Problem:
-
-Permissions, thinking mode, provider, model picker, browser access, and
-agent/browser context controls are spread across the composer and workbench.
-They should feel like one coherent control system.
-
-Suggested direction:
-
-- Keep the current permission, thinking, provider, and model selects in the
-  composer for now.
-- Add browser context permission/state near the browser handoff affordance.
-- Consider a single compact "Context" or "Permissions" popover only if it
-  reduces clutter without hiding critical state.
-- Make sure each provider/model change is still wired through the provider CLI
-  launch path in `agent-composer-launch.ts`.
-
-Acceptance:
-
-- Model picker still persists per provider through `settings.agentModelSelections`.
-- Permission mode still maps to provider CLI args/env through
-  `tui-agent-permissions`.
-- Browser context attachment has clear user intent before it is sent.
-- No duplicate or conflicting permission controls appear.
+- Launch each provider CLI once from the GUI and verify the chosen model is
+  passed through the provider-specific launch path.
+- Confirm permission mode still maps correctly for Codex, Claude, and any other
+  enabled CLI agents.
 
 ## Verification Baseline
 
-The current implementation passed:
+This implementation passed:
 
 ```bash
 pnpm exec vitest run --config config/vitest.config.ts \
@@ -197,21 +146,21 @@ pnpm exec vitest run --config config/vitest.config.ts \
   src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx
 
 pnpm run typecheck
+pnpm run sync:localization-catalog
 pnpm run verify:localization-catalog
 pnpm run verify:localization-coverage
+pnpm run lint:react-doctor:changed
 pnpm run lint:switch-exhaustiveness
 pnpm run build:electron-vite
-pnpm run build:unpack
-git diff --check
 ```
 
 Known caveats:
 
-- `pnpm run build:cli` may print a nonfatal `/usr/local/bin/orca-dev:
-  Permission denied` symlink warning on this machine.
-- Desktop UI smoke through `orca computer` is blocked until macOS grants
-  Accessibility and Screenshots permissions to
+- `pnpm run lint:react-doctor:changed` reports an existing
+  `no-derived-state-effect` warning in `AgentComposer.tsx`; the command exits
+  successfully.
+- `pnpm run build:cli` or packaging may print a nonfatal
+  `/usr/local/bin/orca-dev: Permission denied` symlink warning on this machine.
+- Desktop UI smoke through `orca computer` still depends on macOS Accessibility
+  and Screenshots permissions for
   `/Applications/Janus Code.app/Contents/Resources/Orca Computer Use.app`.
-- The local branch was ahead of `release/feature/t3code-gui-workspace` before
-  this handoff commit; confirm branch/remotes before pushing.
-

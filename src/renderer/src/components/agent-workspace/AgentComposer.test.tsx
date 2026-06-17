@@ -6,6 +6,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setRendererUiLanguage } from '@/i18n/i18n'
 import type { ActiveAgentNotesSendResult } from '@/lib/active-agent-note-send'
+import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import { AgentComposer } from './AgentComposer'
 
@@ -15,7 +16,16 @@ const mocks = vi.hoisted(() => ({
   useDetectedAgents: vi.fn(),
   updateSettings: vi.fn(),
   createBrowserTab: vi.fn(),
-  focusBrowserTabInWorktree: vi.fn()
+  focusBrowserTabInWorktree: vi.fn(),
+  browserState: {
+    browserTabsByWorktree: {},
+    browserAnnotationsByPageId: {},
+    activeBrowserTabIdByWorktree: {}
+  } as {
+    browserTabsByWorktree: Record<string, unknown[]>
+    browserAnnotationsByPageId: Record<string, unknown[]>
+    activeBrowserTabIdByWorktree: Record<string, string | null>
+  }
 }))
 
 vi.mock('@/lib/active-agent-note-send', () => ({
@@ -42,8 +52,9 @@ vi.mock('@/store', () => ({
           agentModelSelections: Record<string, string>
         }
         updateSettings: typeof mocks.updateSettings
-        browserTabsByWorktree: Record<string, unknown[]>
-        activeBrowserTabIdByWorktree: Record<string, string | null>
+        browserTabsByWorktree: typeof mocks.browserState.browserTabsByWorktree
+        browserAnnotationsByPageId: typeof mocks.browserState.browserAnnotationsByPageId
+        activeBrowserTabIdByWorktree: typeof mocks.browserState.activeBrowserTabIdByWorktree
         createBrowserTab: typeof mocks.createBrowserTab
         focusBrowserTabInWorktree: typeof mocks.focusBrowserTabInWorktree
       }) => unknown
@@ -56,8 +67,9 @@ vi.mock('@/store', () => ({
           agentModelSelections: {}
         },
         updateSettings: mocks.updateSettings,
-        browserTabsByWorktree: {},
-        activeBrowserTabIdByWorktree: {},
+        browserTabsByWorktree: mocks.browserState.browserTabsByWorktree,
+        browserAnnotationsByPageId: mocks.browserState.browserAnnotationsByPageId,
+        activeBrowserTabIdByWorktree: mocks.browserState.activeBrowserTabIdByWorktree,
         createBrowserTab: mocks.createBrowserTab,
         focusBrowserTabInWorktree: mocks.focusBrowserTabInWorktree
       }),
@@ -85,6 +97,73 @@ const runningThread: AgentWorkspaceThread = {
 
 function makeThread(overrides: Partial<AgentWorkspaceThread>): AgentWorkspaceThread {
   return { ...runningThread, ...overrides }
+}
+
+function makeAnnotation(): BrowserPageAnnotation {
+  return {
+    id: 'annotation-1',
+    browserPageId: 'browser-page-1',
+    comment: 'Make the primary action clearer.',
+    intent: 'change',
+    priority: 'important',
+    createdAt: '2026-06-16T12:00:00.000Z',
+    payload: {
+      page: {
+        sanitizedUrl: 'https://example.com/pricing',
+        title: 'Pricing',
+        viewportWidth: 1280,
+        viewportHeight: 720,
+        scrollX: 0,
+        scrollY: 0,
+        devicePixelRatio: 2,
+        capturedAt: '2026-06-16T12:00:00.000Z'
+      },
+      target: {
+        tagName: 'button',
+        selector: 'main button.primary',
+        elementPath: 'main > button.primary',
+        fullPath: 'html > body > main > button.primary',
+        cssClasses: 'primary',
+        nearbyElements: ['span "$29/month"'],
+        selectedText: null,
+        isFixed: false,
+        reactComponents: '<PricingCta>',
+        sourceFile: 'src/components/PricingCta.tsx:42:8',
+        textSnippet: 'Start free trial',
+        htmlSnippet: '<button class="primary">Start free trial</button>',
+        attributes: { class: 'primary', type: 'button' },
+        accessibility: {
+          role: 'button',
+          accessibleName: 'Start free trial',
+          ariaLabel: null,
+          ariaLabelledBy: null
+        },
+        rectViewport: { x: 400, y: 300, width: 148, height: 44 },
+        rectPage: { x: 400, y: 300, width: 148, height: 44 },
+        computedStyles: {
+          display: 'inline-flex',
+          position: 'relative',
+          width: '148px',
+          height: '44px',
+          margin: '0px',
+          padding: '12px 24px',
+          color: 'rgb(255, 255, 255)',
+          backgroundColor: 'rgb(99, 102, 241)',
+          border: '0px none',
+          borderRadius: '8px',
+          fontFamily: 'Geist, sans-serif',
+          fontSize: '16px',
+          fontWeight: '600',
+          lineHeight: '20px',
+          textAlign: 'center',
+          zIndex: 'auto'
+        }
+      },
+      nearbyText: ['Pro', '$29/month'],
+      ancestorPath: ['section', 'main', 'body'],
+      screenshot: null
+    }
+  }
 }
 
 function deferred<T>(): {
@@ -119,6 +198,9 @@ describe('AgentComposer', () => {
     mocks.updateSettings.mockReset()
     mocks.createBrowserTab.mockReset()
     mocks.focusBrowserTabInWorktree.mockReset()
+    mocks.browserState.browserTabsByWorktree = {}
+    mocks.browserState.browserAnnotationsByPageId = {}
+    mocks.browserState.activeBrowserTabIdByWorktree = {}
     mocks.useDetectedAgents.mockReturnValue({
       detectedIds: ['claude', 'opencode'],
       isLoading: false,
@@ -187,6 +269,53 @@ describe('AgentComposer', () => {
       prompt: 'Status?'
     })
     expect(container.textContent).toContain('The agent is not ready for input yet.')
+  })
+
+  it('attaches current browser annotations to the composer draft', async () => {
+    mocks.browserState.browserTabsByWorktree = {
+      'worktree-1': [
+        {
+          id: 'browser-tab-1',
+          worktreeId: 'worktree-1',
+          activePageId: 'browser-page-1',
+          pageIds: ['browser-page-1'],
+          url: 'https://example.com/pricing',
+          title: 'Pricing',
+          loading: false,
+          faviconUrl: null,
+          canGoBack: false,
+          canGoForward: false,
+          loadError: null,
+          createdAt: 1
+        }
+      ]
+    }
+    mocks.browserState.activeBrowserTabIdByWorktree = { 'worktree-1': 'browser-tab-1' }
+    mocks.browserState.browserAnnotationsByPageId = { 'browser-page-1': [makeAnnotation()] }
+
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const attachButton = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Attach browser context"]'
+    )
+    expect(textarea).not.toBeNull()
+    expect(attachButton).not.toBeNull()
+    expect(attachButton?.disabled).toBe(false)
+
+    await act(async () => {
+      setTextareaValue(textarea!, 'Use this page context.')
+    })
+    await act(async () => {
+      attachButton?.click()
+    })
+
+    expect(textarea?.value).toContain('Use this page context.')
+    expect(textarea?.value).toContain('## Design Feedback: /pricing')
+    expect(textarea?.value).toContain('**Feedback:** Make the primary action clearer.')
+    expect(container.textContent).toContain('Browser context attached.')
   })
 
   it('ignores a stale submit result after the selected thread changes', async () => {

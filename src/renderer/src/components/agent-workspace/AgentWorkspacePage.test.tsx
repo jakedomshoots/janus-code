@@ -41,6 +41,7 @@ const storeMocks = vi.hoisted(() => {
     openDiff: vi.fn(),
     openModal: vi.fn(),
     browserTabsByWorktree: {},
+    browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
     createBrowserTab: vi.fn(),
     focusBrowserTabInWorktree: vi.fn()

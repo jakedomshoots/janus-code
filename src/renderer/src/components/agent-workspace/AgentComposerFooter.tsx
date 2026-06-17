@@ -1,4 +1,4 @@
-import { ArrowUp, Brain, Cpu, Globe, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Brain, Cpu, Loader2, ShieldCheck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -11,6 +11,7 @@ import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import { AgentComposerToolCluster } from './AgentComposerToolCluster'
 
 export function AgentComposerFooter({
   statusMessage,
@@ -23,6 +24,9 @@ export function AgentComposerFooter({
   onOpenTerminalDrawer,
   canOpenBrowserWorkbench,
   onOpenBrowserWorkbench,
+  canAttachBrowserContext,
+  browserAnnotationCount,
+  onAttachBrowserContext,
   canSendToSelectedThread,
   selectedThread,
   availableAgents,
@@ -45,6 +49,9 @@ export function AgentComposerFooter({
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
   canOpenBrowserWorkbench: boolean
   onOpenBrowserWorkbench?: () => void
+  canAttachBrowserContext: boolean
+  browserAnnotationCount: number
+  onAttachBrowserContext?: () => void
   canSendToSelectedThread: boolean
   selectedThread: AgentWorkspaceThread | null
   availableAgents: readonly { id: TuiAgent; label: string }[]
@@ -75,36 +82,15 @@ export function AgentComposerFooter({
           <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
         </div>
         <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            disabled={!canOpenTerminalDrawer}
-            aria-label={translate(
-              'auto.components.agentWorkspace.composer.openTerminalDrawer',
-              'Open terminal drawer'
-            )}
-            onClick={() => onOpenTerminalDrawer?.('debug-button')}
-          >
-            <PanelBottom className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            disabled={!canOpenBrowserWorkbench}
-            aria-label={translate(
-              'auto.components.agentWorkspace.composer.openBrowserWorkbench',
-              'Open browser workbench'
-            )}
-            title={translate(
-              'auto.components.agentWorkspace.composer.openBrowserWorkbench',
-              'Open browser workbench'
-            )}
-            onClick={onOpenBrowserWorkbench}
-          >
-            <Globe className="size-4" aria-hidden="true" />
-          </Button>
+          <AgentComposerToolCluster
+            canOpenTerminalDrawer={canOpenTerminalDrawer}
+            onOpenTerminalDrawer={onOpenTerminalDrawer}
+            canOpenBrowserWorkbench={canOpenBrowserWorkbench}
+            onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+            canAttachBrowserContext={canAttachBrowserContext}
+            browserAnnotationCount={browserAnnotationCount}
+            onAttachBrowserContext={onAttachBrowserContext}
+          />
           {canSendToSelectedThread ? (
             <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
               {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}

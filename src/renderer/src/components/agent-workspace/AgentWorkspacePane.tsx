@@ -10,6 +10,7 @@ import type {
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 
 function AgentFailureTerminalBanner({
   thread,
@@ -84,6 +85,11 @@ export function AgentWorkspacePane({
   onClosePane: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
+  const browserWorkbench = useAgentBrowserWorkbench({
+    activeWorktreeId,
+    onOpenTerminalDrawer
+  })
+
   return (
     <main
       className={`flex min-w-0 flex-1 flex-col bg-background ${
@@ -104,11 +110,24 @@ export function AgentWorkspacePane({
         onFocusPane={onFocusPane}
         onSelectThread={onSelectThread}
         onNewSession={onNewSession}
+        browserAvailable={browserWorkbench.browserAvailable}
+        browserTabCount={browserWorkbench.browserTabCount}
+        onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
         onSplitRight={onSplitRight}
         onSplitDown={onSplitDown}
         onClosePane={onClosePane}
       />
-      <AgentTimeline thread={thread} timeline={timeline} />
+      <AgentTimeline
+        thread={thread}
+        timeline={timeline}
+        terminalAvailable={terminalAvailable}
+        browserAvailable={browserWorkbench.browserAvailable}
+        onNewSession={onNewSession}
+        onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
+        onOpenTerminalDrawer={
+          onOpenTerminalDrawer ? () => onOpenTerminalDrawer('debug-button') : undefined
+        }
+      />
       <AgentComposer
         activeWorktreeId={activeWorktreeId}
         selectedProject={project}

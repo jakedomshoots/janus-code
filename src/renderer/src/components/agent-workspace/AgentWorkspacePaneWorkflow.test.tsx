@@ -29,6 +29,7 @@ const storeMocks = vi.hoisted(() => {
     openDiff: vi.fn(),
     openModal: vi.fn(),
     browserTabsByWorktree: {},
+    browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
     createBrowserTab,
     focusBrowserTabInWorktree
@@ -107,6 +108,7 @@ afterEach(() => {
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
   storeMocks.state.browserTabsByWorktree = {}
+  storeMocks.state.browserAnnotationsByPageId = {}
   storeMocks.state.activeBrowserTabIdByWorktree = {}
   document.body.replaceChildren()
 })

@@ -1,4 +1,4 @@
-import { Columns2, Plus, Rows2, X } from 'lucide-react'
+import { Columns2, Globe, Plus, Rows2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
@@ -15,6 +15,9 @@ export function AgentWorkspaceThreadTabs({
   onFocusPane,
   onSelectThread,
   onNewSession,
+  browserAvailable,
+  browserTabCount,
+  onOpenBrowserWorkbench,
   onSplitRight,
   onSplitDown,
   onClosePane
@@ -26,6 +29,9 @@ export function AgentWorkspaceThreadTabs({
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
   onNewSession: () => void
+  browserAvailable: boolean
+  browserTabCount: number
+  onOpenBrowserWorkbench: () => void
   onSplitRight: () => void
   onSplitDown: () => void
   onClosePane: () => void
@@ -59,6 +65,15 @@ export function AgentWorkspaceThreadTabs({
               onSelect={() => {
                 onFocusPane()
                 onNewSession()
+              }}
+            />
+          ) : null}
+          {browserAvailable ? (
+            <BrowserWorkbenchTab
+              browserTabCount={browserTabCount}
+              onSelect={() => {
+                onFocusPane()
+                onOpenBrowserWorkbench()
               }}
             />
           ) : null}
@@ -132,6 +147,34 @@ export function AgentWorkspaceThreadTabs({
         </div>
       </div>
     </div>
+  )
+}
+
+function BrowserWorkbenchTab({
+  browserTabCount,
+  onSelect
+}: {
+  browserTabCount: number
+  onSelect: () => void
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected="false"
+      className="flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border border-transparent bg-muted/25 px-3 text-xs text-muted-foreground transition-colors hover:bg-muted/45 hover:text-foreground"
+      onClick={onSelect}
+    >
+      <Globe className="size-3.5" aria-hidden="true" />
+      <span className="truncate font-medium">
+        {translate('auto.components.agentWorkspace.threadTabs.browser', 'Browser')}
+      </span>
+      {browserTabCount > 0 ? (
+        <span className="rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          {browserTabCount}
+        </span>
+      ) : null}
+    </button>
   )
 }
 

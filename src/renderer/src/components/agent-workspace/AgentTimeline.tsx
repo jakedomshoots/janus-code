@@ -1,14 +1,25 @@
-import { Clock3, GitBranch, MessageSquareText } from 'lucide-react'
+import { Clock3, Globe, GitBranch, MessageSquareText, PanelBottom, Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { AgentTimelineEntry } from './AgentTimelineEntry'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 
 export function AgentTimeline({
   thread,
-  timeline
+  timeline,
+  terminalAvailable,
+  browserAvailable,
+  onNewSession,
+  onOpenBrowserWorkbench,
+  onOpenTerminalDrawer
 }: {
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
+  terminalAvailable: boolean
+  browserAvailable: boolean
+  onNewSession: () => void
+  onOpenBrowserWorkbench: () => void
+  onOpenTerminalDrawer?: () => void
 }): React.JSX.Element {
   return (
     <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-4 py-4">
@@ -32,19 +43,55 @@ export function AgentTimeline({
             )}
           </>
         ) : (
-          <WorkbenchEmptyState />
+          <WorkbenchEmptyState
+            terminalAvailable={terminalAvailable}
+            browserAvailable={browserAvailable}
+            onNewSession={onNewSession}
+            onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+            onOpenTerminalDrawer={onOpenTerminalDrawer}
+          />
         )}
       </div>
     </div>
   )
 }
 
-function WorkbenchEmptyState(): React.JSX.Element {
+function WorkbenchEmptyState({
+  terminalAvailable,
+  browserAvailable,
+  onNewSession,
+  onOpenBrowserWorkbench,
+  onOpenTerminalDrawer
+}: {
+  terminalAvailable: boolean
+  browserAvailable: boolean
+  onNewSession: () => void
+  onOpenBrowserWorkbench: () => void
+  onOpenTerminalDrawer?: () => void
+}): React.JSX.Element {
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
+    <div className="flex min-h-[360px] flex-col items-center justify-center gap-5 text-center">
       <h2 className="text-xl font-semibold text-foreground">
         {translate('auto.components.agentWorkspace.layout.janusCode', 'Janus Code')}
       </h2>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Button type="button" variant="default" size="sm" onClick={onNewSession}>
+          <Plus className="size-4" aria-hidden="true" />
+          {translate('auto.components.agentWorkspace.layout.newSession', 'New session')}
+        </Button>
+        {browserAvailable ? (
+          <Button type="button" variant="outline" size="sm" onClick={onOpenBrowserWorkbench}>
+            <Globe className="size-4" aria-hidden="true" />
+            {translate('auto.components.agentWorkspace.layout.browser', 'Browser')}
+          </Button>
+        ) : null}
+        {terminalAvailable ? (
+          <Button type="button" variant="outline" size="sm" onClick={onOpenTerminalDrawer}>
+            <PanelBottom className="size-4" aria-hidden="true" />
+            {translate('auto.components.agentWorkspace.layout.terminal', 'Terminal')}
+          </Button>
+        ) : null}
+      </div>
     </div>
   )
 }

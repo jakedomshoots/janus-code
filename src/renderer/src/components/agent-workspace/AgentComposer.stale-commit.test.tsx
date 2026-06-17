@@ -43,6 +43,7 @@ vi.mock('@/store', () => ({
       settings: { defaultTuiAgent: 'claude'; disabledTuiAgents: [] }
       updateSettings: typeof mocks.updateSettings
       browserTabsByWorktree: Record<string, unknown[]>
+      browserAnnotationsByPageId: Record<string, unknown[]>
       activeBrowserTabIdByWorktree: Record<string, string | null>
       createBrowserTab: typeof mocks.createBrowserTab
       focusBrowserTabInWorktree: typeof mocks.focusBrowserTabInWorktree
@@ -52,6 +53,7 @@ vi.mock('@/store', () => ({
       settings: { defaultTuiAgent: 'claude', disabledTuiAgents: [] },
       updateSettings: mocks.updateSettings,
       browserTabsByWorktree: {},
+      browserAnnotationsByPageId: {},
       activeBrowserTabIdByWorktree: {},
       createBrowserTab: mocks.createBrowserTab,
       focusBrowserTabInWorktree: mocks.focusBrowserTabInWorktree
