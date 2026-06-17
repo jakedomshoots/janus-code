@@ -1,4 +1,4 @@
-import { ArrowUp, Brain, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Brain, Loader2, PanelBottom, PanelRightOpen, ShieldCheck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -18,6 +18,7 @@ export function AgentComposerFooter({
   onPermissionModeChange,
   thinkingMode,
   onThinkingModeChange,
+  onOpenRightPanel,
   canOpenTerminalDrawer,
   onOpenTerminalDrawer,
   canSendToSelectedThread,
@@ -35,6 +36,7 @@ export function AgentComposerFooter({
   onPermissionModeChange: (mode: AgentPermissionMode) => void
   thinkingMode: TuiAgentThinkingMode
   onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
+  onOpenRightPanel?: () => void
   canOpenTerminalDrawer: boolean
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
   canSendToSelectedThread: boolean
@@ -64,6 +66,20 @@ export function AgentComposerFooter({
           <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
         </div>
         <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={typeof onOpenRightPanel !== 'function'}
+            aria-label={translate(
+              'auto.components.agentWorkspace.composer.openPanes',
+              'Open panes'
+            )}
+            onClick={() => onOpenRightPanel?.()}
+          >
+            <PanelRightOpen className="size-4" aria-hidden="true" />
+            {translate('auto.components.agentWorkspace.composer.panes', 'Panes')}
+          </Button>
           <Button
             type="button"
             variant="outline"

@@ -155,6 +155,7 @@ function AgentWorkspaceCenter({
   timeline,
   terminalAvailable,
   onSelectThread,
+  onOpenRightPanel,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
@@ -164,6 +165,7 @@ function AgentWorkspaceCenter({
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
   onSelectThread: (threadId: string) => void
+  onOpenRightPanel: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   return (
@@ -184,6 +186,7 @@ function AgentWorkspaceCenter({
         selectedProject={project}
         selectedThread={thread}
         terminalAvailable={terminalAvailable}
+        onOpenRightPanel={onOpenRightPanel}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </main>
@@ -256,6 +259,13 @@ export function AgentWorkspaceLayout({
     } satisfies AgentWorkspaceRightPanelState)
   }
 
+  function handleOpenRightPanel(): void {
+    setSelectedRightPanelState((current) => ({
+      selectedTab: current.selectedTab,
+      collapsed: false
+    }))
+  }
+
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
     if (!selectedThread?.cwd || typeof openDiff !== 'function') {
       return
@@ -303,6 +313,7 @@ export function AgentWorkspaceLayout({
         timeline={timeline}
         terminalAvailable={snapshot.terminalAvailable}
         onSelectThread={setSelectedThreadId}
+        onOpenRightPanel={handleOpenRightPanel}
         onOpenTerminalDrawer={onOpenTerminalDrawer}
       />
     </AgentWorkspaceChrome>

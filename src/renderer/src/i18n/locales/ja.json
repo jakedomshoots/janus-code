@@ -11133,7 +11133,9 @@
           "thinkingQuick": "Quick",
           "thinkingStandard": "Standard",
           "thinkingDeep": "Deep",
-          "openTerminalDrawer": "Open terminal drawer"
+          "openTerminalDrawer": "Open terminal drawer",
+          "openPanes": "Open panes",
+          "panes": "Panes"
         },
         "page": {
           "agentWorkspace": "エージェントワークスペース"

@@ -34,12 +34,14 @@ export function AgentComposer({
   selectedThread,
   selectedProject = null,
   terminalAvailable = false,
+  onOpenRightPanel,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
   selectedProject?: AgentWorkspaceProject | null
   terminalAvailable?: boolean
+  onOpenRightPanel?: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
@@ -218,6 +220,7 @@ export function AgentComposer({
             onPermissionModeChange={handlePermissionModeChange}
             thinkingMode={thinkingMode}
             onThinkingModeChange={setThinkingMode}
+            onOpenRightPanel={onOpenRightPanel}
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
             canSendToSelectedThread={canSendToSelectedThread}

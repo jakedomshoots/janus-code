@@ -367,4 +367,32 @@ describe('AgentComposer', () => {
 
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
   })
+
+  it('opens the workbench panes from the composer toolbar', async () => {
+    const onOpenRightPanel = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={null}
+          terminalAvailable={true}
+          onOpenRightPanel={onOpenRightPanel}
+        />
+      )
+    })
+
+    const button = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.getAttribute('aria-label') === 'Open panes'
+    )
+
+    expect(button).not.toBeNull()
+    expect(button?.disabled).toBe(false)
+
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(onOpenRightPanel).toHaveBeenCalledOnce()
+  })
 })
