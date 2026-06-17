@@ -1,5 +1,4 @@
-import { MessageSquareText, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { MessageSquareText } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
@@ -19,10 +18,10 @@ export function AgentWorkspaceThreadTabs({
   onNewSession: () => void
 }): React.JSX.Element {
   return (
-    <div className="border-b border-border/70 bg-background px-3 pt-2">
-      <div className="flex min-w-0 items-end gap-1">
+    <div className="border-b border-border/60 bg-background px-3 py-2">
+      <div className="flex min-w-0 items-center">
         <div
-          className="scrollbar-sleek flex min-w-0 flex-1 items-end gap-1 overflow-x-auto"
+          className="scrollbar-sleek flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
           role="tablist"
           aria-label={translate(
             'auto.components.agentWorkspace.threadTabs.agentSessions',
@@ -42,9 +41,9 @@ export function AgentWorkspaceThreadTabs({
             role="tab"
             aria-selected={selectedThreadId === null}
             className={cn(
-              'flex h-9 max-w-52 shrink-0 items-center gap-2 rounded-t-md border px-3 text-xs transition-colors',
+              'flex h-8 max-w-52 shrink-0 items-center gap-2 rounded-md border px-3 text-xs transition-colors',
               selectedThreadId === null
-                ? 'border-border border-b-background bg-background text-foreground'
+                ? 'border-border bg-muted/35 text-foreground shadow-xs'
                 : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
             )}
             onClick={onNewSession}
@@ -55,19 +54,6 @@ export function AgentWorkspaceThreadTabs({
             </span>
           </button>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="mb-1 shrink-0"
-          aria-label={translate(
-            'auto.components.agentWorkspace.threadTabs.newAgentSession',
-            'New agent session'
-          )}
-          onClick={onNewSession}
-        >
-          <Plus className="size-4" aria-hidden="true" />
-        </Button>
       </div>
     </div>
   )
@@ -88,9 +74,9 @@ function ThreadTab({
       role="tab"
       aria-selected={selected}
       className={cn(
-        'group flex h-9 max-w-64 shrink-0 items-center gap-2 rounded-t-md border px-3 text-xs transition-colors',
+        'group flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-md border px-3 text-xs transition-colors',
         selected
-          ? 'border-border border-b-background bg-background text-foreground'
+          ? 'border-border bg-muted/35 text-foreground shadow-xs'
           : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
       )}
       onClick={onSelect}

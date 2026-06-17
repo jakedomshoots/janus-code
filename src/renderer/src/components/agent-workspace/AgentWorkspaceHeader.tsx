@@ -1,4 +1,4 @@
-import { GitBranch, MessageSquareText } from 'lucide-react'
+import { GitBranch } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
@@ -14,7 +14,7 @@ export function AgentWorkspaceHeader({
   thread: AgentWorkspaceThread | null
 }): React.JSX.Element {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-4">
+    <header className="flex h-[52px] shrink-0 items-center border-b border-border/60 bg-background px-4">
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           <h1 className="truncate text-sm font-semibold text-foreground">
@@ -39,18 +39,6 @@ export function AgentWorkspaceHeader({
               )}
           </span>
         </div>
-      </div>
-      <div className="hidden min-w-0 shrink-0 items-center gap-2 sm:flex">
-        {thread ? (
-          <Badge variant="dot" className="max-w-64">
-            <MessageSquareText className="size-3" aria-hidden="true" />
-            <span className="truncate">{thread.title}</span>
-          </Badge>
-        ) : (
-          <Badge variant="dot">
-            {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
-          </Badge>
-        )}
       </div>
     </header>
   )
