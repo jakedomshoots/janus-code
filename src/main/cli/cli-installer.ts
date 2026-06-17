@@ -127,7 +127,7 @@ export class CliInstaller {
         this.isLinuxAppImage() && this.appImagePath
           ? `The AppImage file at ${this.appImagePath} is missing. Move it back or re-run CLI registration from the current AppImage location.`
           : this.isPackaged
-            ? 'The bundled CLI launcher is missing from this Orca build.'
+            ? 'The bundled CLI launcher is missing from this Janus Code build.'
             : 'Development mode uses a generated launcher for validation only.'
       return {
         platform: this.platform,
@@ -162,7 +162,7 @@ export class CliInstaller {
       throw new Error(status.detail ?? 'CLI registration is unavailable on this build.')
     }
     if (status.state === 'conflict') {
-      throw new Error(`Refusing to replace non-Orca command at ${status.commandPath}.`)
+      throw new Error(`Refusing to replace non-Janus Code command at ${status.commandPath}.`)
     }
 
     // eslint-disable-next-line unicorn/prefer-ternary -- Why: the install path performs async side effects and is easier to audit as an explicit branch than as an awaited ternary.
@@ -208,10 +208,12 @@ export class CliInstaller {
       return status
     }
     if (status.state === 'conflict') {
-      throw new Error(`Refusing to remove non-Orca command at ${status.commandPath}.`)
+      throw new Error(`Refusing to remove non-Janus Code command at ${status.commandPath}.`)
     }
     if (status.state === 'stale') {
-      throw new Error(`Refusing to remove a command not owned by Orca at ${status.commandPath}.`)
+      throw new Error(
+        `Refusing to remove a command not owned by Janus Code at ${status.commandPath}.`
+      )
     }
 
     if (status.installMethod === 'symlink') {
@@ -384,7 +386,7 @@ export class CliInstaller {
         return
       }
 
-      // Why: after the Linux command rename, the old Orca-owned `orca` symlink
+      // Why: after the Linux command rename, the old Janus-owned `orca` symlink
       // would keep shadowing GNOME Orca even though the new command is installed.
       await unlink(legacyCommandPath)
     } catch (error) {
@@ -444,7 +446,7 @@ export class CliInstaller {
           supported: true,
           state: 'conflict',
           currentTarget: null,
-          detail: `${commandPath} exists but is not an Orca launcher script.`
+          detail: `${commandPath} exists but is not a Janus Code launcher script.`
         })
       }
 
@@ -471,7 +473,7 @@ export class CliInstaller {
           supported: true,
           state: 'not_installed',
           currentTarget: null,
-          detail: `Register ${commandPath} to use Orca from the terminal.`
+          detail: `Register ${commandPath} to use Janus Code from the terminal.`
         })
       }
       throw error
@@ -496,7 +498,7 @@ export class CliInstaller {
               supported: true,
               state: 'stale',
               currentTarget: managedTarget,
-              detail: `${commandPath} contains an older Orca launcher.`
+              detail: `${commandPath} contains an older Janus Code launcher.`
             })
           }
         }
@@ -508,7 +510,7 @@ export class CliInstaller {
           supported: true,
           state: 'conflict',
           currentTarget: null,
-          detail: `${commandPath} exists but is not an Orca symlink.`
+          detail: `${commandPath} exists but is not a Janus Code symlink.`
         })
       }
 
@@ -528,8 +530,8 @@ export class CliInstaller {
         detail: isInstalled
           ? `Registered at ${commandPath}.`
           : isManagedStaleTarget
-            ? `${commandPath} points to an older Orca launcher.`
-            : `${commandPath} points to a non-Orca launcher.`
+            ? `${commandPath} points to an older Janus Code launcher.`
+            : `${commandPath} points to a non-Janus Code launcher.`
       })
     } catch (error) {
       if (isMissingError(error)) {
@@ -540,7 +542,7 @@ export class CliInstaller {
           supported: true,
           state: 'not_installed',
           currentTarget: null,
-          detail: `Register ${commandPath} to use Orca from the terminal.`
+          detail: `Register ${commandPath} to use Janus Code from the terminal.`
         })
       }
       throw error
@@ -590,7 +592,7 @@ export class CliInstaller {
     const siblingDevLauncherDir = resolve(siblingDevUserDataPath, ...DEV_LAUNCHER_DIR)
 
     // Why: development builds generate launchers under the sibling `*-dev`
-    // profile; packaged Orca must be able to reclaim that public command.
+    // profile; packaged Janus Code must be able to reclaim that public command.
     return (
       basename(siblingDevUserDataPath) === `${basename(packagedUserDataPath)}-dev` &&
       isPathInsideOrEqual(siblingDevLauncherDir, resolvedTarget)
@@ -628,7 +630,7 @@ export class CliInstaller {
           supported: true,
           state: 'conflict',
           currentTarget: null,
-          detail: `${commandPath} exists but is not an Orca launcher script.`
+          detail: `${commandPath} exists but is not a Janus Code launcher script.`
         })
       }
 
@@ -667,7 +669,7 @@ export class CliInstaller {
           supported: true,
           state: 'not_installed',
           currentTarget: null,
-          detail: `Register ${commandPath} to use Orca from Command Prompt or PowerShell.`
+          detail: `Register ${commandPath} to use Janus Code from Command Prompt or PowerShell.`
         })
       }
       throw error
@@ -723,7 +725,7 @@ export class CliInstaller {
         pathConfigured,
         state: 'not_installed',
         currentTarget: null,
-        detail: `Register ${status.commandPath} to use Orca from Command Prompt or PowerShell.`
+        detail: `Register ${status.commandPath} to use Janus Code from Command Prompt or PowerShell.`
       }
     }
 
@@ -798,7 +800,7 @@ async function ensureDevLauncher(args: {
   )
   await mkdir(dirname(launcherPath), { recursive: true })
 
-  // Why: packaged Orca ships real platform launchers under resources/bin, but
+  // Why: packaged Janus Code ships real platform launchers under resources/bin, but
   // development builds do not have that stable asset layout. Generating a
   // launcher in userData lets us validate the shell-command flow without
   // changing the packaged registration contract.
@@ -984,7 +986,7 @@ async function writeWindowsUserPath(value: string): Promise<void> {
   await runWindowsPathCommand([
     '-NoProfile',
     '-Command',
-    // Why: PATH registration must stay user-scoped on Windows so the Orca
+    // Why: PATH registration must stay user-scoped on Windows so the Janus Code
     // desktop app can manage the public shell command without requiring
     // elevation or mutating machine-wide environment state.
     `[Environment]::SetEnvironmentVariable('Path', ${quotePowerShell(value)}, 'User')`

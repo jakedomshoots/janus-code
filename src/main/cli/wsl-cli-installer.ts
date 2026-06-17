@@ -19,7 +19,8 @@ import {
 
 const MANAGED_MARKER = getWslLauncherMarker()
 const BRIDGE_MANAGED_MARKER = getWslBridgeMarker()
-const WSL_COMMAND_NAME = 'agent-hub'
+const WSL_COMMAND_NAME = 'janus'
+const LEGACY_AGENT_HUB_WSL_COMMAND_NAME = 'agent-hub'
 const LEGACY_WSL_COMMAND_NAME = 'orca'
 const WSL_COMMAND_TIMEOUT_MS = 10_000
 
@@ -152,6 +153,9 @@ export class WslCliInstaller {
         `legacy_command_path=${quoteShell(
           `${getPosixDirname(status.commandPath)}/${LEGACY_WSL_COMMAND_NAME}`
         )}`,
+        `legacy_agent_hub_command_path=${quoteShell(
+          `${getPosixDirname(status.commandPath)}/${LEGACY_AGENT_HUB_WSL_COMMAND_NAME}`
+        )}`,
         'bridge_tmp="${bridge_path}.tmp.$$"',
         'cleanup() { rm -f "$command_tmp" "$bridge_tmp"; }',
         'trap cleanup EXIT',
@@ -174,8 +178,9 @@ export class WslCliInstaller {
           BRIDGE_MANAGED_MARKER
         ),
         // Why: the command was renamed to avoid GNOME Orca; remove only the
-        // old Orca-managed WSL wrapper so unmanaged `orca` commands survive.
+        // old Janus-managed WSL wrapper so unmanaged `orca` commands survive.
         `if [ -f "$legacy_command_path" ] && grep -Fq ${quoteShell(MANAGED_MARKER)} "$legacy_command_path"; then rm -f "$legacy_command_path"; fi`,
+        `if [ -f "$legacy_agent_hub_command_path" ] && grep -Fq ${quoteShell(MANAGED_MARKER)} "$legacy_agent_hub_command_path"; then rm -f "$legacy_agent_hub_command_path"; fi`,
         `mv -f "$bridge_tmp" ${quoteShell(getBridgePathFromCommandPath(status.commandPath))}`,
         `mv -f "$command_tmp" ${quoteShell(status.commandPath)}`,
         'trap - EXIT'

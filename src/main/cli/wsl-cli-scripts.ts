@@ -55,7 +55,7 @@ export function getBridgePathFromCommandPath(commandPath: string): string {
   // Why: the current Janus command and legacy pre-rename commands share one
   // WSL bridge location so old managed wrappers can be retired safely.
   const bridgeBasePath = commandPath.replace(
-    /\/\.local\/bin\/(?:agent-hub|orca|orca-ide)$/,
+    /\/\.local\/bin\/(?:janus|agent-hub|orca|orca-ide)$/,
     '/.local/share/orca'
   )
   return `${bridgeBasePath}/orca-wsl-bridge.ps1`
