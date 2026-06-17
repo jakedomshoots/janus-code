@@ -28,4 +28,11 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).toContain('OpenCode')
     expect(markup).not.toContain('Codex')
   })
+
+  it('keeps the panes control visible in the workspace header', () => {
+    const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={null} />)
+
+    expect(markup).toContain('Panes')
+    expect(markup).toContain('Open panes')
+  })
 })

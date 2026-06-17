@@ -11011,7 +11011,9 @@
           "refresh": "새로 고침",
           "panels": "패널",
           "run": "실행",
-          "newSession": "New session"
+          "newSession": "New session",
+          "openPanes": "Open panes",
+          "panes": "Panes"
         },
         "layout": {
           "projects": "프로젝트",

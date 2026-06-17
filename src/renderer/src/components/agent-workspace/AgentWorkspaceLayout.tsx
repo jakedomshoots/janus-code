@@ -281,7 +281,13 @@ export function AgentWorkspaceLayout({
 
   return (
     <AgentWorkspaceChrome
-      header={<AgentWorkspaceHeader project={selectedProject} thread={selectedThread} />}
+      header={
+        <AgentWorkspaceHeader
+          project={selectedProject}
+          thread={selectedThread}
+          onOpenRightPanel={handleOpenRightPanel}
+        />
+      }
       rightPanel={
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel

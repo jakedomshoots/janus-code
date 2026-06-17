@@ -11011,7 +11011,9 @@
           "refresh": "Actualizar",
           "panels": "Paneles",
           "run": "Ejecutar",
-          "newSession": "New session"
+          "newSession": "New session",
+          "openPanes": "Open panes",
+          "panes": "Panes"
         },
         "layout": {
           "projects": "Proyectos",

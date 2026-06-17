@@ -11011,7 +11011,9 @@
           "refresh": "刷新",
           "panels": "面板",
           "run": "运行",
-          "newSession": "New session"
+          "newSession": "New session",
+          "openPanes": "Open panes",
+          "panes": "Panes"
         },
         "layout": {
           "projects": "项目",
