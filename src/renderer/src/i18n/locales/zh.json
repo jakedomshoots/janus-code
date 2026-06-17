@@ -11138,7 +11138,9 @@
           "thinkingDeep": "Deep",
           "openTerminalDrawer": "Open terminal drawer",
           "openPanes": "Open panes",
-          "panes": "Panes"
+          "panes": "Panes",
+          "model": "Model",
+          "agentModel": "Agent model"
         },
         "page": {
           "agentWorkspace": "Agent 工作区"

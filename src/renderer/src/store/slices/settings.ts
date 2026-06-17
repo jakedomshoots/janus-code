@@ -19,6 +19,7 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../../../../shared/tui-agent-launch-defaults'
+import { normalizeTuiAgentModelSelections } from '../../../../shared/tui-agent-models'
 import { bumpProviderRuntimeSessionGeneration } from '@/lib/provider-runtime-context'
 import { normalizeUiLanguage } from '../../../../shared/ui-language'
 import { translate } from '@/i18n/i18n'
@@ -119,6 +120,11 @@ export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> 
       if ('agentDefaultEnv' in updates) {
         sanitizedUpdates.agentDefaultEnv = normalizeTuiAgentEnvRecord(updates.agentDefaultEnv)
         sanitizedUpdates.agentYoloDefaultsMigrated = true
+      }
+      if ('agentModelSelections' in updates) {
+        sanitizedUpdates.agentModelSelections = normalizeTuiAgentModelSelections(
+          updates.agentModelSelections
+        )
       }
       if ('uiLanguage' in updates) {
         sanitizedUpdates.uiLanguage = normalizeUiLanguage(updates.uiLanguage)

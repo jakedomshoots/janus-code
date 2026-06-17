@@ -1,4 +1,4 @@
-import { ArrowUp, Brain, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Brain, Cpu, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -7,6 +7,7 @@ import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { cn } from '@/lib/utils'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
+import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
@@ -24,8 +25,11 @@ export function AgentComposerFooter({
   selectedThread,
   availableAgents,
   selectedAgent,
+  modelOptions,
+  selectedModel,
   detectingAgents,
   onSelectedAgentChange,
+  onSelectedModelChange,
   submitting,
   canSubmit
 }: {
@@ -41,8 +45,11 @@ export function AgentComposerFooter({
   selectedThread: AgentWorkspaceThread | null
   availableAgents: readonly { id: TuiAgent; label: string }[]
   selectedAgent: TuiAgent | null
+  modelOptions: readonly TuiAgentModelOption[]
+  selectedModel: string
   detectingAgents: boolean
   onSelectedAgentChange: (agent: TuiAgent | null) => void
+  onSelectedModelChange: (modelId: string) => void
   submitting: boolean
   canSubmit: boolean
 }): React.JSX.Element {
@@ -85,12 +92,20 @@ export function AgentComposerFooter({
               </span>
             </div>
           ) : (
-            <AgentProviderSelect
-              agents={availableAgents}
-              value={selectedAgent}
-              detecting={detectingAgents}
-              onChange={onSelectedAgentChange}
-            />
+            <>
+              <AgentProviderSelect
+                agents={availableAgents}
+                value={selectedAgent}
+                detecting={detectingAgents}
+                onChange={onSelectedAgentChange}
+              />
+              <AgentModelSelect
+                options={modelOptions}
+                value={selectedModel}
+                disabled={!selectedAgent || modelOptions.length <= 1}
+                onChange={onSelectedModelChange}
+              />
+            </>
           )}
           <Button
             type="submit"
@@ -188,6 +203,8 @@ function ComposerToolbarSelect({
   icon,
   value,
   options,
+  disabled = false,
+  selectClassName,
   onChange
 }: {
   label: string
@@ -195,6 +212,8 @@ function ComposerToolbarSelect({
   icon: ReactNode
   value: string
   options: readonly { value: string; label: string; disabled?: boolean }[]
+  disabled?: boolean
+  selectClassName?: string
   onChange: (value: string) => void
 }): React.JSX.Element {
   return (
@@ -206,8 +225,12 @@ function ComposerToolbarSelect({
       <select
         aria-label={ariaLabel}
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className="h-7 min-w-24 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(
+          'h-7 min-w-24 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
+          selectClassName
+        )}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={option.disabled}>
@@ -216,6 +239,34 @@ function ComposerToolbarSelect({
         ))}
       </select>
     </label>
+  )
+}
+
+function AgentModelSelect({
+  options,
+  value,
+  disabled,
+  onChange
+}: {
+  options: readonly TuiAgentModelOption[]
+  value: string
+  disabled: boolean
+  onChange: (modelId: string) => void
+}): React.JSX.Element {
+  return (
+    <ComposerToolbarSelect
+      label={translate('auto.components.agentWorkspace.composer.model', 'Model')}
+      ariaLabel={translate('auto.components.agentWorkspace.composer.agentModel', 'Agent model')}
+      icon={<Cpu className="size-3.5" aria-hidden="true" />}
+      value={value}
+      disabled={disabled}
+      selectClassName="max-w-44 truncate"
+      onChange={onChange}
+      options={options.map((option) => ({
+        value: option.id,
+        label: option.label
+      }))}
+    />
   )
 }
 

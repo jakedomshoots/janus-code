@@ -2,23 +2,24 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { translate } from '@/i18n/i18n'
 import { getAgentCatalog } from '@/lib/agent-catalog'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { useAppStore } from '@/store'
-import { resolveTuiAgentLaunchArgs } from '../../../../shared/tui-agent-launch-defaults'
 import { filterEnabledTuiAgents, pickTuiAgent } from '../../../../shared/tui-agent-selection'
 import {
   applyAgentPermissionMode,
   resolveAgentPermissionModeSummary,
   type AgentPermissionMode
 } from '../../../../shared/tui-agent-permissions'
+import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import {
-  mergeTuiAgentLaunchArgs,
-  resolveTuiAgentThinkingArgs,
-  type TuiAgentThinkingMode
-} from '../../../../shared/tui-agent-thinking'
+  getTuiAgentModelOptions,
+  isTuiAgentModelSelection,
+  resolveTuiAgentSelectedModel,
+  TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
+} from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import { AgentComposerFooter } from './AgentComposerFooter'
+import { launchSelectedAgent } from './agent-composer-launch'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
@@ -47,8 +48,12 @@ export function AgentComposer({
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
   const [thinkingMode, setThinkingMode] = useState<TuiAgentThinkingMode>('standard')
+  const [composerModelSelections, setComposerModelSelections] = useState<
+    Partial<Record<TuiAgent, string>>
+  >({})
   const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
+  const settingsModelSelectionsKey = encodeAgentModelSelections(settings?.agentModelSelections)
   const defaultTuiAgent = settings?.defaultTuiAgent ?? null
   const disabledTuiAgents = settings?.disabledTuiAgents ?? EMPTY_DISABLED_TUI_AGENTS
   const permissionMode = useMemo(
@@ -85,6 +90,14 @@ export function AgentComposer({
         : pickTuiAgent(defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents),
     [defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents]
   )
+  const modelOptions = useMemo(() => getTuiAgentModelOptions(selectedAgent), [selectedAgent])
+  const selectedModel = useMemo(
+    () =>
+      selectedAgent
+        ? resolveTuiAgentSelectedModel(selectedAgent, composerModelSelections)
+        : TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
+    [composerModelSelections, selectedAgent]
+  )
   const trimmedPrompt = prompt.trim()
   const readinessMessage = useMemo(
     () =>
@@ -101,7 +114,8 @@ export function AgentComposer({
     selectedThread?.id,
     selectedThread?.worktreeId,
     selectedThread?.phase,
-    selectedAgent
+    selectedAgent,
+    selectedModel
   ].join(':')
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
@@ -120,6 +134,10 @@ export function AgentComposer({
       return preferredAgent ?? availableAgents[0]?.id ?? null
     })
   }, [availableAgents, preferredAgent])
+
+  useEffect(() => {
+    setComposerModelSelections(decodeAgentModelSelectionsKey(settingsModelSelectionsKey))
+  }, [settingsModelSelectionsKey])
 
   useLayoutEffect(() => {
     submitContextKeyRef.current = submitContextKey
@@ -146,6 +164,7 @@ export function AgentComposer({
       : launchSelectedAgent({
           activeWorktreeId,
           selectedAgent,
+          selectedModel,
           thinkingMode,
           prompt: trimmedPrompt
         })
@@ -170,6 +189,20 @@ export function AgentComposer({
     if (canSubmit) {
       void handleSubmit()
     }
+  }
+
+  function handleSelectedModelChange(modelId: string): void {
+    if (!selectedAgent || !isTuiAgentModelSelection(selectedAgent, modelId)) {
+      return
+    }
+    const nextSelections = { ...composerModelSelections }
+    if (modelId === TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID) {
+      delete nextSelections[selectedAgent]
+    } else {
+      nextSelections[selectedAgent] = modelId
+    }
+    setComposerModelSelections(nextSelections)
+    void updateSettings({ agentModelSelections: nextSelections })
   }
 
   function handlePermissionModeChange(mode: AgentPermissionMode): void {
@@ -224,8 +257,11 @@ export function AgentComposer({
             selectedThread={selectedThread}
             availableAgents={availableAgents}
             selectedAgent={selectedAgent}
+            modelOptions={modelOptions}
+            selectedModel={selectedModel}
             detectingAgents={detectedAgents.isLoading}
             onSelectedAgentChange={setSelectedAgent}
+            onSelectedModelChange={handleSelectedModelChange}
             submitting={submitting}
             canSubmit={canSubmit}
           />
@@ -312,64 +348,18 @@ function getPlaceholder(
   )
 }
 
-function launchSelectedAgent({
-  activeWorktreeId,
-  selectedAgent,
-  thinkingMode,
-  prompt
-}: {
-  activeWorktreeId: string | null
-  selectedAgent: TuiAgent | null
-  thinkingMode: TuiAgentThinkingMode
-  prompt: string
-}): AgentComposerFeedback {
-  if (!activeWorktreeId || !selectedAgent) {
-    return {
-      status: 'blocked',
-      reason: 'no-launch-target',
-      message: translate(
-        'auto.components.agentWorkspace.composer.selectProviderBeforeLaunching',
-        'Select an available agent before sending.'
-      )
-    }
-  }
-  const store = useAppStore.getState()
-  const baseAgentArgs = resolveTuiAgentLaunchArgs(selectedAgent, store.settings?.agentDefaultArgs)
-  const agentArgs = mergeTuiAgentLaunchArgs(
-    baseAgentArgs,
-    resolveTuiAgentThinkingArgs(selectedAgent, thinkingMode)
+function encodeAgentModelSelections(
+  selections: Partial<Record<TuiAgent, string>> | null | undefined
+): string {
+  return JSON.stringify(
+    Object.entries(selections ?? {}).sort(([left], [right]) => left.localeCompare(right))
   )
-  const result = launchAgentInNewTab({
-    agent: selectedAgent,
-    worktreeId: activeWorktreeId,
-    prompt,
-    ...(agentArgs ? { agentArgs } : {}),
-    launchSource: 'sidebar'
-  })
-  const agentLabel = getAgentLabel(selectedAgent)
-  if (!result) {
-    return {
-      status: 'error',
-      reason: 'launch-failed',
-      message: translate(
-        'auto.components.agentWorkspace.composer.launchFailed',
-        'Could not start {{agent}}.',
-        { agent: agentLabel }
-      )
-    }
-  }
-  return {
-    status: 'sent',
-    message: translate(
-      'auto.components.agentWorkspace.composer.agentStarted',
-      'Started {{agent}}.',
-      {
-        agent: agentLabel
-      }
-    )
-  }
 }
 
-function getAgentLabel(agent: TuiAgent): string {
-  return getAgentCatalog().find((candidate) => candidate.id === agent)?.label ?? agent
+function decodeAgentModelSelectionsKey(key: string): Partial<Record<TuiAgent, string>> {
+  try {
+    return Object.fromEntries(JSON.parse(key) as [TuiAgent, string][])
+  } catch {
+    return {}
+  }
 }

@@ -6,6 +6,7 @@ import {
   buildShellCommandFromArgv
 } from './tui-agent-startup'
 import { normalizeTuiAgentArgsRecord, resolveTuiAgentLaunchArgs } from './tui-agent-launch-defaults'
+import { resolveTuiAgentModelLaunchArgs } from './tui-agent-models'
 
 describe('tui agent startup plans', () => {
   it('uses POSIX quoting when the target shell is Linux', () => {
@@ -171,6 +172,20 @@ describe('tui agent startup plans', () => {
     })
 
     expect(plan?.launchCommand).toBe("claude '--model' 'sonnet' '--name' 'Bob''s' 'fix it'")
+  })
+
+  it('shell-quotes selected model args before prompt delivery flags', () => {
+    const plan = buildAgentStartupPlan({
+      agent: 'antigravity',
+      prompt: 'fix it',
+      cmdOverrides: {},
+      agentArgs: resolveTuiAgentModelLaunchArgs('antigravity', 'Gemini 3.5 Flash (Medium)'),
+      platform: 'linux'
+    })
+
+    expect(plan?.launchCommand).toBe(
+      "agy '--model' 'Gemini 3.5 Flash (Medium)' --prompt-interactive 'fix it'"
+    )
   })
 
   it('carries agent launch environment defaults into startup plans', () => {

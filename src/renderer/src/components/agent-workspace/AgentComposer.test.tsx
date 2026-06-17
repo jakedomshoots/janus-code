@@ -37,6 +37,7 @@ vi.mock('@/store', () => ({
           defaultTuiAgent: 'claude'
           disabledTuiAgents: []
           agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+          agentModelSelections: Record<string, string>
         }
         updateSettings: typeof mocks.updateSettings
       }) => unknown
@@ -45,14 +46,16 @@ vi.mock('@/store', () => ({
         settings: {
           defaultTuiAgent: 'claude',
           disabledTuiAgents: [],
-          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' },
+          agentModelSelections: {}
         },
         updateSettings: mocks.updateSettings
       }),
     {
       getState: () => ({
         settings: {
-          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+          agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' },
+          agentModelSelections: {}
         }
       })
     }
@@ -158,6 +161,7 @@ describe('AgentComposer', () => {
     const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
     expect(textarea).not.toBeNull()
     expect(button).not.toBeNull()
+    expect(container.querySelector('select[aria-label="Agent model"]')).toBeNull()
 
     await act(async () => {
       setTextareaValue(textarea!, 'Status?')
@@ -336,6 +340,62 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use deep reasoning for this.',
       agentArgs: '--dangerously-bypass-approvals-and-sandbox -c model_reasoning_effort=high',
+      launchSource: 'sidebar'
+    })
+  })
+
+  it('passes the selected model into new Codex agent launches', async () => {
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['codex'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-codex',
+      startupPlan: {
+        agent: 'codex',
+        launchCommand: 'codex',
+        expectedProcess: 'codex',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const modelSelect = container.querySelector<HTMLSelectElement>(
+      'select[aria-label="Agent model"]'
+    )
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(modelSelect).not.toBeNull()
+    expect(modelSelect?.textContent).toContain('GPT-5.4 Mini')
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      modelSelect!.value = 'gpt-5.4-mini'
+      modelSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    await act(async () => {
+      setTextareaValue(textarea!, 'Use the selected model.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.updateSettings).toHaveBeenCalledWith({
+      agentModelSelections: { codex: 'gpt-5.4-mini' }
+    })
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'codex',
+      worktreeId: 'worktree-1',
+      prompt: 'Use the selected model.',
+      agentArgs:
+        '--dangerously-bypass-approvals-and-sandbox --model gpt-5.4-mini -c model_reasoning_effort=medium',
       launchSource: 'sidebar'
     })
   })

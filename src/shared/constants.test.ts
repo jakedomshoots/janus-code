@@ -77,6 +77,7 @@ describe('getDefaultSettings', () => {
     expect(settings.agentDefaultEnv).toMatchObject({
       goose: { GOOSE_MODE: 'auto' }
     })
+    expect(settings.agentModelSelections).toEqual({})
     expect(settings.agentYoloDefaultsMigrated).toBe(true)
   })
 })

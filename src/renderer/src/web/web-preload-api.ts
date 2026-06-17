@@ -44,6 +44,7 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../../../shared/tui-agent-launch-defaults'
+import { normalizeTuiAgentModelSelections } from '../../../shared/tui-agent-models'
 import { normalizeAutoRenameBranchFromWorkDefaultOn } from '../../../shared/auto-rename-branch-from-work-settings'
 import { normalizeTerminalCursorStyleDefault } from '../../../shared/terminal-cursor-style-settings'
 import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-themes'
@@ -2747,6 +2748,9 @@ function mergeSettings(
       updates.agentDefaultArgs ?? base.agentDefaultArgs
     ),
     agentDefaultEnv: normalizeTuiAgentEnvRecord(updates.agentDefaultEnv ?? base.agentDefaultEnv),
+    agentModelSelections: normalizeTuiAgentModelSelections(
+      updates.agentModelSelections ?? base.agentModelSelections
+    ),
     voice: {
       ...(base.voice ?? defaults.voice),
       ...updates.voice

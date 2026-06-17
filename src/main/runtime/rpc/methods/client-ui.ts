@@ -8,6 +8,7 @@ import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
 } from '../../../../shared/tui-agent-launch-defaults'
+import { normalizeTuiAgentModelSelections } from '../../../../shared/tui-agent-models'
 import { isTuiAgent } from '../../../../shared/tui-agent-config'
 import { isTaskProvider } from '../../../../shared/task-providers'
 import { normalizeDisabledTuiAgents } from '../../../../shared/tui-agent-selection'
@@ -125,6 +126,10 @@ const SettingsUpdate = z
     agentDefaultEnv: z
       .unknown()
       .transform((value) => normalizeTuiAgentEnvRecord(value))
+      .optional(),
+    agentModelSelections: z
+      .unknown()
+      .transform((value) => normalizeTuiAgentModelSelections(value))
       .optional(),
     defaultTaskSource: TaskProviderParam.optional(),
     visibleTaskProviders: z.array(TaskProviderParam).optional(),
