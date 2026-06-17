@@ -54,7 +54,7 @@ export function AgentWorkspacePane({
   project,
   paneLabel,
   active,
-  canClosePane,
+  hasSplitPanes,
   threads,
   thread,
   timeline,
@@ -71,7 +71,7 @@ export function AgentWorkspacePane({
   project: AgentWorkspaceProject | null
   paneLabel: string
   active: boolean
-  canClosePane: boolean
+  hasSplitPanes: boolean
   threads: readonly AgentWorkspaceThread[]
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
@@ -100,7 +100,7 @@ export function AgentWorkspacePane({
         paneLabel={paneLabel}
         threads={threads}
         selectedThreadId={thread?.id ?? null}
-        canClosePane={canClosePane}
+        hasSplitPanes={hasSplitPanes}
         onFocusPane={onFocusPane}
         onSelectThread={onSelectThread}
         onNewSession={onNewSession}

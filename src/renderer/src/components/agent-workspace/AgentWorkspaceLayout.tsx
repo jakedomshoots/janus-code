@@ -156,6 +156,7 @@ export function AgentWorkspaceLayout({
   )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
+  const nextPaneSequenceRef = useRef(2)
 
   useEffect(() => {
     setPanes((currentPanes) => {
@@ -212,7 +213,8 @@ export function AgentWorkspaceLayout({
 
   function handleSplitPane(paneId: string, direction: AgentWorkspaceSplitDirection): void {
     setSplitDirection(direction)
-    const nextPaneId = `pane-${Date.now().toString(36)}`
+    const nextPaneId = `pane-${nextPaneSequenceRef.current}`
+    nextPaneSequenceRef.current += 1
     const sourcePane = panes.find((pane) => pane.id === paneId)
     setPanes((currentPanes) => {
       const insertIndex = currentPanes.findIndex((pane) => pane.id === paneId)
@@ -318,7 +320,7 @@ export function AgentWorkspaceLayout({
                   }
                 )}
                 active={pane.id === activePaneId}
-                canClosePane={panes.length > 1}
+                hasSplitPanes={panes.length > 1}
                 threads={projectThreads}
                 thread={paneThread}
                 timeline={paneTimeline}

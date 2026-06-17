@@ -11,7 +11,7 @@ export function AgentWorkspaceThreadTabs({
   paneLabel,
   threads,
   selectedThreadId,
-  canClosePane,
+  hasSplitPanes,
   onFocusPane,
   onSelectThread,
   onNewSession,
@@ -22,7 +22,7 @@ export function AgentWorkspaceThreadTabs({
   paneLabel: string
   threads: readonly AgentWorkspaceThread[]
   selectedThreadId: string | null
-  canClosePane: boolean
+  hasSplitPanes: boolean
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
   onNewSession: () => void
@@ -30,6 +30,8 @@ export function AgentWorkspaceThreadTabs({
   onSplitDown: () => void
   onClosePane: () => void
 }): React.JSX.Element {
+  const hasDraftSession = selectedThreadId === null
+
   return (
     <div className="h-9 shrink-0 border-b border-border/60 bg-card">
       <div className="flex h-full min-w-0 items-stretch">
@@ -41,57 +43,51 @@ export function AgentWorkspaceThreadTabs({
             'Agent sessions'
           )}
         >
-          {threads.length > 0 ? (
-            threads.map((thread) => (
-              <ThreadTab
-                key={thread.id}
-                thread={thread}
-                selected={thread.id === selectedThreadId}
-                onSelect={() => {
-                  onFocusPane()
-                  onSelectThread(thread.id)
-                }}
-              />
-            ))
-          ) : (
-            <button
+          {threads.map((thread) => (
+            <ThreadTab
+              key={thread.id}
+              thread={thread}
+              selected={thread.id === selectedThreadId}
+              onSelect={() => {
+                onFocusPane()
+                onSelectThread(thread.id)
+              }}
+            />
+          ))}
+          {hasDraftSession ? (
+            <NewSessionTab
+              onSelect={() => {
+                onFocusPane()
+                onNewSession()
+              }}
+            />
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-0.5 px-2">
+          {hasSplitPanes ? (
+            <span className="hidden text-[11px] text-muted-foreground lg:inline">{paneLabel}</span>
+          ) : null}
+          {!hasDraftSession ? (
+            <Button
               type="button"
-              role="tab"
-              aria-selected="true"
-              className="flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border border-b-background bg-background px-3 text-xs text-foreground"
+              variant="ghost"
+              size="icon-xs"
+              aria-label={translate(
+                'auto.components.agentWorkspace.threadTabs.startNewSession',
+                'Start new session'
+              )}
+              title={translate(
+                'auto.components.agentWorkspace.threadTabs.startNewSession',
+                'Start new session'
+              )}
               onClick={() => {
                 onFocusPane()
                 onNewSession()
               }}
             >
-              <Plus className="size-3.5" aria-hidden="true" />
-              <span className="truncate font-medium">
-                {translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')}
-              </span>
-            </button>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-0.5 px-2">
-          <span className="hidden text-[11px] text-muted-foreground lg:inline">{paneLabel}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            aria-label={translate(
-              'auto.components.agentWorkspace.threadTabs.startNewSession',
-              'Start new session'
-            )}
-            title={translate(
-              'auto.components.agentWorkspace.threadTabs.startNewSession',
-              'Start new session'
-            )}
-            onClick={() => {
-              onFocusPane()
-              onNewSession()
-            }}
-          >
-            <Plus className="size-4" aria-hidden="true" />
-          </Button>
+              <Plus className="size-4" aria-hidden="true" />
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="ghost"
@@ -118,7 +114,7 @@ export function AgentWorkspaceThreadTabs({
           >
             <Rows2 className="size-4" aria-hidden="true" />
           </Button>
-          {canClosePane ? (
+          {hasSplitPanes ? (
             <Button
               type="button"
               variant="ghost"
@@ -136,6 +132,23 @@ export function AgentWorkspaceThreadTabs({
         </div>
       </div>
     </div>
+  )
+}
+
+function NewSessionTab({ onSelect }: { onSelect: () => void }): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected="true"
+      className="flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border border-b-background bg-background px-3 text-xs text-foreground"
+      onClick={onSelect}
+    >
+      <Plus className="size-3.5" aria-hidden="true" />
+      <span className="truncate font-medium">
+        {translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')}
+      </span>
+    </button>
   )
 }
 
