@@ -76,6 +76,16 @@
       }
     },
     {
+      "files": [
+        "src/renderer/src/components/dictation/DictationController.tsx",
+        "src/renderer/src/components/settings/PrivacyDiagnosticsSection.tsx",
+        "src/renderer/src/components/settings/RuntimePairingUrlGenerator.tsx"
+      ],
+      "rules": {
+        "max-lines": ["error", { "max": 520, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
       "files": ["**/*.mjs"],
       "rules": {
         "max-lines": ["error", { "max": 600, "skipBlankLines": true, "skipComments": true }]

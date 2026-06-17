@@ -32,11 +32,15 @@ jobs:
         with:
           run_install: false
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      - name: Install mobile dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Test
         run: pnpm test

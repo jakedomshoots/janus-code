@@ -4,7 +4,7 @@ import { computerProviderUnavailableMessage } from './computer-provider-unavaila
 describe('computerProviderUnavailableMessage', () => {
   it('gives macOS developers the helper build and restart step', () => {
     expect(computerProviderUnavailableMessage('darwin')).toContain(
-      'run pnpm build:computer-macos and restart Orca from this worktree'
+      'run pnpm build:computer-macos and restart Janus Code from this worktree'
     )
     expect(computerProviderUnavailableMessage('darwin')).toContain(
       'Janus Computer Use.app was not found or this macOS version is unsupported'
