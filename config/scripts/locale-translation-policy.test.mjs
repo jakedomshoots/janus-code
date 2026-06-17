@@ -52,7 +52,7 @@ describe('locale-translation-policy', () => {
       repairTranslatedValue({
         key: 'auto.web.WebConnect.27393856e4',
         enValue: 'janus://pair?code=...',
-        localeValue: '虎鲸://pair?code=...',
+        localeValue: 'janus://pair?code=...',
         locale: 'zh'
       })
     ).toBe('janus://pair?code=...')
