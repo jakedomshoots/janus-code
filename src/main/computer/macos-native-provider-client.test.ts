@@ -474,7 +474,7 @@ describe('MacOSNativeProviderClient', () => {
 function macOSProviderCapabilities(actions: Partial<Record<string, boolean>> = {}) {
   return {
     platform: 'darwin',
-    provider: 'orca-computer-use-macos',
+    provider: 'janus-computer-use-macos',
     providerVersion: '1.0.0',
     protocolVersion: 1,
     supports: {

@@ -7,7 +7,7 @@ import ImageIO
 import OrcaComputerUseMacOSCore
 import ScreenCaptureKit
 
-private let providerName = "orca-computer-use-macos"
+private let providerName = "janus-computer-use-macos"
 private let providerVersion = "1.0.0"
 private let providerProtocolVersion = 1
 

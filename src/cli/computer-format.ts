@@ -213,7 +213,7 @@ function formatComputerFollowUpCommand(
   target: ComputerActionFollowUpTarget
 ): string {
   const args = [
-    'orca',
+    'janus',
     'computer',
     'get-app-state',
     '--app',

@@ -70,10 +70,10 @@ describe('formatCliError', () => {
         message: 'app not found: Gmail',
         data: {
           nextSteps: [
-            'Run `orca computer list-apps --json` and retry with the exact app name or bundle ID.',
-            'If the target is a website or web app such as Gmail, choose the desktop browser app/window that contains it; `orca computer` app selectors refer to desktop apps, not website names.',
-            'Do not retry the same `orca computer ... --app <web app>` command unchanged.',
-            'If the desired browser is not listed, open or focus that browser first, then retry `orca computer list-apps --json` and `orca computer list-windows --app <browser> --json`.'
+            'Run `janus computer list-apps --json` and retry with the exact app name or bundle ID.',
+            'If the target is a website or web app such as Gmail, choose the desktop browser app/window that contains it; `janus computer` app selectors refer to desktop apps, not website names.',
+            'Do not retry the same `janus computer ... --app <web app>` command unchanged.',
+            'If the desired browser is not listed, open or focus that browser first, then retry `janus computer list-apps --json` and `janus computer list-windows --app <browser> --json`.'
           ]
         }
       },
@@ -83,7 +83,7 @@ describe('formatCliError', () => {
     const output = formatCliError(error)
 
     expect(output).toContain('app not found: Gmail')
-    expect(output).toContain('Next step: Run `orca computer list-apps --json`')
+    expect(output).toContain('Next step: Run `janus computer list-apps --json`')
     expect(output).toContain('desktop browser app/window')
     expect(output).toContain('--app <web app>')
     expect(output).not.toContain('orca goto')
@@ -306,7 +306,7 @@ describe('formatComputerAction', () => {
     })
 
     expect(output).toContain(
-      `Use \`orca computer get-app-state --app ${quoteCliCommandArgument('Text Editor')} --worktree id:repo::/tmp/repo --window-id 99\``
+      `Use \`janus computer get-app-state --app ${quoteCliCommandArgument('Text Editor')} --worktree id:repo::/tmp/repo --window-id 99\``
     )
     expect(output).toContain('5 visible elements in current window')
     expect(output).toContain(
@@ -335,7 +335,7 @@ describe('formatComputerAction', () => {
     })
 
     expect(output).toContain(
-      'Use `orca computer get-app-state --app com.apple.finder --session manual --window-index 1`'
+      'Use `janus computer get-app-state --app com.apple.finder --session manual --window-index 1`'
     )
   })
 
@@ -369,7 +369,7 @@ describe('formatComputerAction', () => {
     expect(output).toContain('Screenshot failed (screenshot_failed)')
     expect(output).toContain('payload cap')
     expect(output).toContain(
-      'Use `orca computer get-app-state --app com.apple.finder --window-id 42`'
+      'Use `janus computer get-app-state --app com.apple.finder --window-id 42`'
     )
     expect(output).not.toContain('Click completed')
   })
@@ -460,7 +460,7 @@ describe('formatComputerAction', () => {
     })
 
     expect(output).toContain(
-      'Use `orca computer get-app-state --app com.apple.finder --session manual --window-id 42`'
+      'Use `janus computer get-app-state --app com.apple.finder --session manual --window-id 42`'
     )
     expect(output).toContain('Click attempted via synthetic, unverified (window changed)')
     expect(output).toContain(
@@ -492,7 +492,7 @@ describe('formatComputerAction', () => {
     const output = formatComputerAction('click', result)
 
     expect(output).toContain(
-      `Use \`orca computer get-app-state --app ${quoteCliCommandArgument('Linux Browser')} --window-index 2\``
+      `Use \`janus computer get-app-state --app ${quoteCliCommandArgument('Linux Browser')} --window-index 2\``
     )
     expect(output).not.toContain('--window-id')
   })
@@ -520,7 +520,7 @@ describe('formatComputerAction', () => {
     const output = formatComputerAction('click', result)
 
     expect(output).toContain(
-      `Use \`orca computer get-app-state --app ${quoteCliCommandArgument('Linux Browser')} --window-index 2\``
+      `Use \`janus computer get-app-state --app ${quoteCliCommandArgument('Linux Browser')} --window-index 2\``
     )
     expect(output).not.toContain('--window-index 4')
     expect(output).not.toContain('--window-id')

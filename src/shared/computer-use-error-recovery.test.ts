@@ -50,5 +50,6 @@ describe('computerUseErrorRecoveryData', () => {
       expect.stringContaining('list-windows --app <browser>')
     ])
     expect(recovery?.nextSteps.join('\n')).not.toContain('orca goto')
+    expect(recovery?.nextSteps.join('\n')).not.toContain('orca computer')
   })
 })

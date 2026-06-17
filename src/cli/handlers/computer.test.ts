@@ -114,7 +114,7 @@ describe('orca computer observation CLI handlers', () => {
       callMock,
       okFixture('req_capabilities', {
         platform: 'darwin',
-        provider: 'orca-computer-use-macos',
+        provider: 'janus-computer-use-macos',
         providerVersion: '1.0.0',
         protocolVersion: 1,
         supports: {
@@ -131,7 +131,7 @@ describe('orca computer observation CLI handlers', () => {
 
     expect(callMock).toHaveBeenCalledTimes(1)
     expect(callMock).toHaveBeenCalledWith('computer.capabilities', {})
-    expect(vi.mocked(console.log).mock.calls[0][0]).toContain('orca-computer-use-macos')
+    expect(vi.mocked(console.log).mock.calls[0][0]).toContain('janus-computer-use-macos')
   })
 
   it('opens computer permission setup without resolving a worktree', async () => {
