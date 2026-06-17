@@ -1,4 +1,4 @@
-import { ArrowUp, Brain, Cpu, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
+import { ArrowUp, Brain, Cpu, Globe, Loader2, PanelBottom, ShieldCheck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -21,6 +21,8 @@ export function AgentComposerFooter({
   onThinkingModeChange,
   canOpenTerminalDrawer,
   onOpenTerminalDrawer,
+  canOpenBrowserWorkbench,
+  onOpenBrowserWorkbench,
   canSendToSelectedThread,
   selectedThread,
   availableAgents,
@@ -41,6 +43,8 @@ export function AgentComposerFooter({
   onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
   canOpenTerminalDrawer: boolean
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  canOpenBrowserWorkbench: boolean
+  onOpenBrowserWorkbench?: () => void
   canSendToSelectedThread: boolean
   selectedThread: AgentWorkspaceThread | null
   availableAgents: readonly { id: TuiAgent; label: string }[]
@@ -83,6 +87,23 @@ export function AgentComposerFooter({
             onClick={() => onOpenTerminalDrawer?.('debug-button')}
           >
             <PanelBottom className="size-4" aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={!canOpenBrowserWorkbench}
+            aria-label={translate(
+              'auto.components.agentWorkspace.composer.openBrowserWorkbench',
+              'Open browser workbench'
+            )}
+            title={translate(
+              'auto.components.agentWorkspace.composer.openBrowserWorkbench',
+              'Open browser workbench'
+            )}
+            onClick={onOpenBrowserWorkbench}
+          >
+            <Globe className="size-4" aria-hidden="true" />
           </Button>
           {canSendToSelectedThread ? (
             <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">

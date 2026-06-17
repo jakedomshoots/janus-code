@@ -13,7 +13,9 @@ const mocks = vi.hoisted(() => ({
   sendNotesToActiveAgentSession: vi.fn(),
   launchAgentInNewTab: vi.fn(),
   useDetectedAgents: vi.fn(),
-  updateSettings: vi.fn()
+  updateSettings: vi.fn(),
+  createBrowserTab: vi.fn(),
+  focusBrowserTabInWorktree: vi.fn()
 }))
 
 vi.mock('@/lib/active-agent-note-send', () => ({
@@ -40,6 +42,10 @@ vi.mock('@/store', () => ({
           agentModelSelections: Record<string, string>
         }
         updateSettings: typeof mocks.updateSettings
+        browserTabsByWorktree: Record<string, unknown[]>
+        activeBrowserTabIdByWorktree: Record<string, string | null>
+        createBrowserTab: typeof mocks.createBrowserTab
+        focusBrowserTabInWorktree: typeof mocks.focusBrowserTabInWorktree
       }) => unknown
     ) =>
       selector({
@@ -49,7 +55,11 @@ vi.mock('@/store', () => ({
           agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' },
           agentModelSelections: {}
         },
-        updateSettings: mocks.updateSettings
+        updateSettings: mocks.updateSettings,
+        browserTabsByWorktree: {},
+        activeBrowserTabIdByWorktree: {},
+        createBrowserTab: mocks.createBrowserTab,
+        focusBrowserTabInWorktree: mocks.focusBrowserTabInWorktree
       }),
     {
       getState: () => ({
@@ -107,6 +117,8 @@ describe('AgentComposer', () => {
     mocks.launchAgentInNewTab.mockReset()
     mocks.useDetectedAgents.mockReset()
     mocks.updateSettings.mockReset()
+    mocks.createBrowserTab.mockReset()
+    mocks.focusBrowserTabInWorktree.mockReset()
     mocks.useDetectedAgents.mockReturnValue({
       detectedIds: ['claude', 'opencode'],
       isLoading: false,

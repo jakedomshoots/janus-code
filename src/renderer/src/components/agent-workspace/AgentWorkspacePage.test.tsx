@@ -24,28 +24,41 @@ const emptySnapshot: AgentWorkspaceSnapshot = {
 
 let currentSnapshot: AgentWorkspaceSnapshot = emptySnapshot
 const roots: Root[] = []
-const storeMocks = vi.hoisted(() => ({
-  setActiveWorktree: vi.fn(),
-  openDiff: vi.fn(),
-  openModal: vi.fn()
-}))
+const storeMocks = vi.hoisted(() => {
+  const state = {
+    agentWorkspaceTestSnapshot: {
+      activeWorktreeId: null,
+      projects: [],
+      threads: [],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: false
+    } as AgentWorkspaceSnapshot,
+    settings: { guiAgentWorkspaceEnabled: false },
+    setActiveWorktree: vi.fn(),
+    openDiff: vi.fn(),
+    openModal: vi.fn(),
+    browserTabsByWorktree: {},
+    activeBrowserTabIdByWorktree: {},
+    createBrowserTab: vi.fn(),
+    focusBrowserTabInWorktree: vi.fn()
+  }
+
+  return {
+    state,
+    setActiveWorktree: state.setActiveWorktree,
+    openDiff: state.openDiff,
+    openModal: state.openModal
+  }
+})
 
 vi.mock('@/store', () => ({
-  useAppStore: (
-    selector: (state: {
-      agentWorkspaceTestSnapshot: AgentWorkspaceSnapshot
-      settings: { guiAgentWorkspaceEnabled: boolean }
-      setActiveWorktree: typeof storeMocks.setActiveWorktree
-      openDiff: typeof storeMocks.openDiff
-      openModal: typeof storeMocks.openModal
-    }) => unknown
-  ) =>
+  useAppStore: (selector: (state: typeof storeMocks.state) => unknown) =>
     selector({
-      agentWorkspaceTestSnapshot: currentSnapshot,
-      settings: { guiAgentWorkspaceEnabled: false },
-      setActiveWorktree: storeMocks.setActiveWorktree,
-      openDiff: storeMocks.openDiff,
-      openModal: storeMocks.openModal
+      ...storeMocks.state,
+      agentWorkspaceTestSnapshot: currentSnapshot
     })
 }))
 

@@ -2,7 +2,8 @@ export const AGENT_TERMINAL_REVEAL_REASONS = [
   'right-panel',
   'debug-button',
   'failure',
-  'keyboard-shortcut'
+  'keyboard-shortcut',
+  'browser'
 ] as const
 
 export type AgentTerminalRevealReason = (typeof AGENT_TERMINAL_REVEAL_REASONS)[number]

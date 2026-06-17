@@ -4,27 +4,47 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
 
 const roots: Root[] = []
-const storeMocks = vi.hoisted(() => ({
-  openDiff: vi.fn(),
-  openModal: vi.fn()
-}))
+const storeMocks = vi.hoisted(() => {
+  const createBrowserTab = vi.fn(() => ({
+    id: 'browser-tab-1',
+    worktreeId: 'worktree-1',
+    activePageId: 'browser-page-1',
+    pageIds: ['browser-page-1'],
+    url: 'data:text/html,',
+    title: 'New Browser Tab',
+    loading: false,
+    faviconUrl: null,
+    canGoBack: false,
+    canGoForward: false,
+    loadError: null,
+    createdAt: 1
+  }))
+  const focusBrowserTabInWorktree = vi.fn()
+  const state = {
+    settings: { guiAgentWorkspaceEnabled: false },
+    openDiff: vi.fn(),
+    openModal: vi.fn(),
+    browserTabsByWorktree: {},
+    activeBrowserTabIdByWorktree: {},
+    createBrowserTab,
+    focusBrowserTabInWorktree
+  }
+
+  return {
+    state,
+    openDiff: state.openDiff,
+    openModal: state.openModal,
+    createBrowserTab,
+    focusBrowserTabInWorktree
+  }
+})
 
 vi.mock('@/store', () => ({
-  useAppStore: (
-    selector: (state: {
-      settings: { guiAgentWorkspaceEnabled: boolean }
-      openDiff: typeof storeMocks.openDiff
-      openModal: typeof storeMocks.openModal
-    }) => unknown
-  ) =>
-    selector({
-      settings: { guiAgentWorkspaceEnabled: false },
-      openDiff: storeMocks.openDiff,
-      openModal: storeMocks.openModal
-    })
+  useAppStore: (selector: (state: typeof storeMocks.state) => unknown) => selector(storeMocks.state)
 }))
 
 function baseSnapshot(overrides: Partial<AgentWorkspaceSnapshot> = {}): AgentWorkspaceSnapshot {
@@ -56,7 +76,10 @@ function hasButton(container: HTMLElement, label: string): boolean {
   return buttons(container).some((button) => button.getAttribute('aria-label') === label)
 }
 
-async function renderLayout(snapshot: AgentWorkspaceSnapshot): Promise<HTMLElement> {
+async function renderLayout(
+  snapshot: AgentWorkspaceSnapshot,
+  options: { onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void } = {}
+): Promise<HTMLElement> {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -64,7 +87,12 @@ async function renderLayout(snapshot: AgentWorkspaceSnapshot): Promise<HTMLEleme
   roots.push(root)
 
   await act(async () => {
-    root.render(<AgentWorkspaceLayout snapshot={snapshot} />)
+    root.render(
+      <AgentWorkspaceLayout
+        snapshot={snapshot}
+        onOpenTerminalDrawer={options.onOpenTerminalDrawer}
+      />
+    )
   })
 
   return container
@@ -76,6 +104,10 @@ afterEach(() => {
   })
   storeMocks.openDiff.mockClear()
   storeMocks.openModal.mockClear()
+  storeMocks.createBrowserTab.mockClear()
+  storeMocks.focusBrowserTabInWorktree.mockClear()
+  storeMocks.state.browserTabsByWorktree = {}
+  storeMocks.state.activeBrowserTabIdByWorktree = {}
   document.body.replaceChildren()
 })
 
@@ -140,5 +172,33 @@ describe('AgentWorkspace pane workflow', () => {
 
     expect(container.textContent).toContain('New session')
     expect(hasButton(container, 'Start new session')).toBe(false)
+  })
+
+  it('opens the Orca browser workbench from the composer', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+    const container = await renderLayout(baseSnapshot(), { onOpenTerminalDrawer })
+    const browserButton = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Open browser workbench'
+    )
+
+    await act(async () => {
+      browserButton?.click()
+    })
+
+    expect(storeMocks.createBrowserTab).toHaveBeenCalledWith(
+      'worktree-1',
+      'data:text/html,',
+      expect.objectContaining({
+        activate: true,
+        focusAddressBar: true,
+        title: 'New Browser Tab'
+      })
+    )
+    expect(storeMocks.focusBrowserTabInWorktree).toHaveBeenCalledWith(
+      'worktree-1',
+      'browser-page-1',
+      { surfacePane: true }
+    )
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('browser')
   })
 })

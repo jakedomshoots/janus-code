@@ -11095,7 +11095,10 @@
           "readyForJanusSession": "Ready for a Janus session",
           "newSessionHint": "Describe the coding task below. Janus will start the selected agent in this workspace.",
           "janusCode": "Janus Code",
-          "paneLabel": "Pane {{index}}"
+          "paneLabel": "Pane {{index}}",
+          "browserWorkbenchReady": "Browser, grab, and annotations are available here.",
+          "browserWorkbench": "Browser workbench",
+          "closeBrowserWorkbench": "Close browser workbench"
         },
         "composer": {
           "enterMessageBeforeSending": "보내기 전에 메시지를 입력하세요.",
@@ -11140,7 +11143,9 @@
           "openPanes": "Open panes",
           "panes": "Panes",
           "model": "Model",
-          "agentModel": "Agent model"
+          "agentModel": "Agent model",
+          "newBrowserTab": "New Browser Tab",
+          "openBrowserWorkbench": "Open browser workbench"
         },
         "page": {
           "agentWorkspace": "에이전트 작업 공간"

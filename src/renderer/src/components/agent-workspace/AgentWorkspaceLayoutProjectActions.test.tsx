@@ -13,7 +13,9 @@ const storeMocks = vi.hoisted(() => ({
   setGitStatus: vi.fn(),
   updateWorktreeGitIdentity: vi.fn(),
   setUpstreamStatus: vi.fn(),
-  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined)
+  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined),
+  createBrowserTab: vi.fn(),
+  focusBrowserTabInWorktree: vi.fn()
 }))
 const deleteFlowMocks = vi.hoisted(() => ({
   runWorktreeDelete: vi.fn()
@@ -52,6 +54,10 @@ vi.mock('@/store', () => ({
       ) => void
       setUpstreamStatus: (worktreeId: string, status: unknown) => void
       fetchUpstreamStatus: () => Promise<void>
+      browserTabsByWorktree: Record<string, unknown[]>
+      activeBrowserTabIdByWorktree: Record<string, string | null>
+      createBrowserTab: typeof storeMocks.createBrowserTab
+      focusBrowserTabInWorktree: typeof storeMocks.focusBrowserTabInWorktree
     }) => unknown
   ) =>
     selector({
@@ -69,7 +75,11 @@ vi.mock('@/store', () => ({
       setGitStatus: storeMocks.setGitStatus,
       updateWorktreeGitIdentity: storeMocks.updateWorktreeGitIdentity,
       setUpstreamStatus: storeMocks.setUpstreamStatus,
-      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus
+      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus,
+      browserTabsByWorktree: {},
+      activeBrowserTabIdByWorktree: {},
+      createBrowserTab: storeMocks.createBrowserTab,
+      focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree
     })
 }))
 
@@ -92,6 +102,8 @@ afterEach(() => {
   storeMocks.updateWorktreeGitIdentity.mockClear()
   storeMocks.setUpstreamStatus.mockClear()
   storeMocks.fetchUpstreamStatus.mockClear()
+  storeMocks.createBrowserTab.mockClear()
+  storeMocks.focusBrowserTabInWorktree.mockClear()
   deleteFlowMocks.runWorktreeDelete.mockClear()
   runtimeGitMocks.stageRuntimeGitPath.mockClear()
   runtimeGitMocks.discardRuntimeGitPath.mockClear()
