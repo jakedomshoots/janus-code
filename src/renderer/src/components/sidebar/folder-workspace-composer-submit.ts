@@ -4,7 +4,7 @@ import {
   type LinkedWorkItemSummary
 } from '@/lib/new-workspace'
 import { getLinkedWorkItemPromptContext } from '@/lib/linked-work-item-context'
-import { isOrcaCliAvailableForLaunch } from '@/lib/orca-cli-launch-availability'
+import { isJanusCliAvailableForLaunch } from '@/lib/janus-cli-launch-availability'
 import { buildAgentStartupPlan } from '@/lib/tui-agent-startup'
 import { tuiAgentToAgentKind } from '@/lib/telemetry'
 import { activateAndRevealFolderWorkspace } from '@/lib/worktree-activation'
@@ -59,7 +59,7 @@ export async function submitFolderWorkspaceCreate({
   // Why: only suggest `orca linear` when the launched terminal can actually
   // resolve the CLI; SSH launches get the relay shim, local launches may not.
   const linearCliAvailable = linkedWorkItem?.linearIdentifier
-    ? await isOrcaCliAvailableForLaunch({ remote: isRemote ?? projectGroup.connectionId != null })
+    ? await isJanusCliAvailableForLaunch({ remote: isRemote ?? projectGroup.connectionId != null })
     : false
   const linkedPromptContext = getLinkedWorkItemPromptContext(linkedWorkItem, {
     cliAvailable: linearCliAvailable

@@ -67,7 +67,7 @@ import {
   getLinkedWorkItemPromptContext,
   resolveQuickCreateLinkedWorkItemPrompt
 } from '@/lib/linked-work-item-context'
-import { isOrcaCliAvailableForLaunch } from '@/lib/orca-cli-launch-availability'
+import { isJanusCliAvailableForLaunch } from '@/lib/janus-cli-launch-availability'
 import {
   buildLinearIssueLinkedWorkItem,
   isLinearLinkedWorkItem
@@ -2283,7 +2283,7 @@ export function useComposerState(options: UseComposerStateOptions): UseComposerS
       // SSH worktrees always have the relay shim, local launches need the
       // installed CLI on PATH.
       const linearCliAvailable = submitLinkedWorkItem?.linearIdentifier
-        ? await isOrcaCliAvailableForLaunch({ remote: isRemote })
+        ? await isJanusCliAvailableForLaunch({ remote: isRemote })
         : false
       const linkedPromptContext = getLinkedWorkItemPromptContext(submitLinkedWorkItem, {
         cliAvailable: linearCliAvailable
@@ -2637,7 +2637,7 @@ export function useComposerState(options: UseComposerStateOptions): UseComposerS
         // self-contained. Agents that need post-ready paste/follow-up stay on
         // the renderer path so prompt delivery is not skipped.
         const quickLinearCliAvailable = submitLinkedWorkItem?.linearIdentifier
-          ? await isOrcaCliAvailableForLaunch({ remote: isRemote })
+          ? await isJanusCliAvailableForLaunch({ remote: isRemote })
           : false
         const { prompt: quickPrompt, draftPrompt: quickDraftPrompt } =
           resolveQuickCreateLinkedWorkItemPrompt(submitLinkedWorkItem, trimmedNote, {

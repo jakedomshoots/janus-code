@@ -341,7 +341,7 @@ export function AppearancePane({
               'auto.components.settings.AppearancePane.2df8f79aa5',
               'Show Janus Code in the titlebar.'
             )}
-            keywords={getTitlebarEntries()[0]?.keywords ?? ['titlebar', 'orca', 'app', 'name']}
+            keywords={getTitlebarEntries()[0]?.keywords ?? ['titlebar', 'janus', 'app', 'name']}
           >
             <SettingsSwitchRow
               label={translate(

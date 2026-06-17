@@ -3,8 +3,8 @@ import type { CliInstallStatus } from '../../../../shared/cli-install-types'
 import type { SkillDiscoveryTarget } from '../../../../shared/skills'
 import type { GlobalSettings } from '../../../../shared/types'
 import {
-  ORCA_CLI_SKILL_INSTALL_COMMAND,
-  ORCA_CLI_SKILL_NAME
+  JANUS_CLI_SKILL_INSTALL_COMMAND,
+  JANUS_CLI_SKILL_NAME
 } from '@/lib/agent-feature-install-commands'
 import {
   AGENT_SKILL_CLI_PREREQUISITE_NOTICE,
@@ -63,12 +63,12 @@ export function CliAgentSkillSetup({
     loading: cliSkillLoading,
     error: cliSkillError,
     refresh: refreshCliSkill
-  } = useInstalledAgentSkill(ORCA_CLI_SKILL_NAME, {
+  } = useInstalledAgentSkill(JANUS_CLI_SKILL_NAME, {
     discoveryTarget: cliSkillDiscoveryTarget,
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
   })
   const cliSkillInstallCommand = buildSkillInstallCommandForRuntime(
-    ORCA_CLI_SKILL_INSTALL_COMMAND,
+    JANUS_CLI_SKILL_INSTALL_COMMAND,
     agentRuntime
   )
   const cliSkillTerminalShellOverride = getAgentSkillTerminalShellOverride(
@@ -91,7 +91,7 @@ export function CliAgentSkillSetup({
         <p className="text-xs text-muted-foreground">
           {translate(
             'auto.components.settings.CliSection.36a6f919ba',
-            'Give agents Orca-aware workspace, terminal, and progress workflows.'
+            'Give agents Janus Code-aware workspace, terminal, and progress workflows.'
           )}
         </p>
       </div>
@@ -110,7 +110,7 @@ export function CliAgentSkillSetup({
         title={translate('auto.components.settings.CliSection.6053cf736c', 'CLI skill')}
         description={translate(
           'auto.components.settings.CliSection.e8012c03a1',
-          'Enables agents to use Orca workspace, terminal, and progress commands.'
+          'Enables agents to use Janus Code workspace, terminal, and progress commands.'
         )}
         command={cliSkillInstallCommand}
         terminalTitle={translate(

@@ -6,7 +6,7 @@ import type {
 import {
   COMPUTER_USE_SKILL_NAME,
   LINEAR_TICKETS_SKILL_NAME,
-  ORCA_CLI_SKILL_NAME,
+  JANUS_CLI_SKILL_NAME,
   ORCHESTRATION_SKILL_NAME,
   buildAgentFeatureSkillInstallCommand
 } from '@/lib/agent-feature-install-commands'
@@ -49,7 +49,7 @@ const ONBOARDING_PROGRESS_FEATURE_SETUP_IDS: readonly OnboardingFeatureSetupId[]
 ]
 
 const FEATURE_SKILL_NAMES: Record<OnboardingFeatureSetupId, string> = {
-  browserUse: ORCA_CLI_SKILL_NAME,
+  browserUse: JANUS_CLI_SKILL_NAME,
   computerUse: COMPUTER_USE_SKILL_NAME,
   orchestration: ORCHESTRATION_SKILL_NAME,
   linearTickets: LINEAR_TICKETS_SKILL_NAME

@@ -4,7 +4,7 @@ import {
   type FeatureInteractionState
 } from './feature-interactions'
 
-export type FeatureTipId = 'voice-dictation' | 'orca-cli' | 'cmd-j-palette'
+export type FeatureTipId = 'voice-dictation' | 'janus-cli' | 'cmd-j-palette'
 
 export type FeatureTipPriority = 'new' | 'unseen'
 
@@ -30,7 +30,7 @@ export type CompletedFeatureTipState = {
 
 export const FEATURE_TIPS = [
   {
-    id: 'orca-cli',
+    id: 'janus-cli',
     priority: 'new',
     eyebrow: 'Tip',
     title: 'Let agents drive Janus Code with the Janus CLI',
@@ -66,6 +66,9 @@ export const FEATURE_TIPS = [
 ] as const satisfies readonly FeatureTip[]
 
 export const FEATURE_TIP_IDS = FEATURE_TIPS.map((tip) => tip.id)
+const LEGACY_FEATURE_TIP_ID_MIGRATIONS: Record<string, FeatureTipId> = {
+  'orca-cli': 'janus-cli'
+}
 
 export function isFeatureTipId(value: unknown): value is FeatureTipId {
   return typeof value === 'string' && FEATURE_TIP_IDS.includes(value as FeatureTipId)
@@ -80,6 +83,10 @@ export function normalizeFeatureTipIds(value: unknown): FeatureTipId[] {
   for (const item of value) {
     if (isFeatureTipId(item)) {
       seen.add(item)
+      continue
+    }
+    if (typeof item === 'string' && item in LEGACY_FEATURE_TIP_ID_MIGRATIONS) {
+      seen.add(LEGACY_FEATURE_TIP_ID_MIGRATIONS[item])
     }
   }
   return [...seen]
@@ -88,7 +95,7 @@ export function normalizeFeatureTipIds(value: unknown): FeatureTipId[] {
 export function getCompletedFeatureTipIds(state: CompletedFeatureTipState): Set<FeatureTipId> {
   const completedIds = new Set<FeatureTipId>()
   if (state.cliInstalled) {
-    completedIds.add('orca-cli')
+    completedIds.add('janus-cli')
   }
   if (state.voiceDictationEnabled) {
     completedIds.add('voice-dictation')

@@ -307,7 +307,7 @@ function getYamlStateCopy(yamlState: string): { heading: string; description: st
         ),
         description: translate(
           'auto.components.settings.RepositoryHooksSection.aba825233f',
-          'The file contains configuration keys that this version of Orca does not recognize. You may need to update Orca, or check the file for typos.'
+          'The file contains configuration keys that this version of Janus Code does not recognize. You may need to update Janus Code, or check the file for typos.'
         )
       }
     case 'invalid':
@@ -318,7 +318,7 @@ function getYamlStateCopy(yamlState: string): { heading: string; description: st
         ),
         description: translate(
           'auto.components.settings.RepositoryHooksSection.0cc712b823',
-          'The core configuration file exists in the repo root, but Orca could not parse the supported hook definitions yet.'
+          'The core configuration file exists in the repo root, but Janus Code could not parse the supported hook definitions yet.'
         )
       }
     default:
@@ -553,7 +553,7 @@ function LocalCommandSourceNotice({
             {isChecking
               ? translate(
                   'auto.components.settings.RepositoryHooksSection.7f78e5eea6',
-                  'Local scripts are saved. Orca is still checking orca.yaml before it can recommend which script source to use.'
+                  'Local scripts are saved. Janus Code is still checking orca.yaml before it can recommend which script source to use.'
                 )
               : translate(
                   'auto.components.settings.RepositoryHooksSection.0ce113fd7b',
@@ -1296,7 +1296,7 @@ export function RepositoryHooksSection({
                       <p>
                         {translate(
                           'auto.components.settings.RepositoryHooksSection.af49e2a19e',
-                          'The file is present, but Orca could not find valid `scripts` or `issueCommand` definitions.'
+                          'The file is present, but Janus Code could not find valid `scripts` or `issueCommand` definitions.'
                         )}
                       </p>
                       <ol className="space-y-1.5 pl-4 text-[11.5px]">

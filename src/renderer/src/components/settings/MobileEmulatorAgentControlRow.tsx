@@ -3,8 +3,8 @@ import { Import, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { CliInstallStatus } from '../../../../shared/cli-install-types'
 import {
-  ORCA_CLI_SKILL_INSTALL_COMMAND,
-  ORCA_CLI_SKILL_NAME
+  JANUS_CLI_SKILL_INSTALL_COMMAND,
+  JANUS_CLI_SKILL_NAME
 } from '@/lib/agent-feature-install-commands'
 import {
   AGENT_SKILL_CLI_PREREQUISITE_NOTICE,
@@ -25,10 +25,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { translate } from '@/i18n/i18n'
 
 const EMULATOR_CLI_COMMANDS = [
-  'orca emulator list --json',
-  'orca emulator attach "iPhone 16 Pro" --json',
-  'orca emulator tap 0.5 0.7 --json',
-  'orca emulator type "hello" --json'
+  'janus emulator list --json',
+  'janus emulator attach "iPhone 16 Pro" --json',
+  'janus emulator tap 0.5 0.7 --json',
+  'janus emulator type "hello" --json'
 ] as const
 
 function getCliActionLabel(status: CliInstallStatus | null, busy: boolean): string {
@@ -54,7 +54,7 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
     loading: cliSkillLoading,
     error: cliSkillError,
     refresh: refreshCliSkill
-  } = useInstalledAgentSkill(ORCA_CLI_SKILL_NAME, {
+  } = useInstalledAgentSkill(JANUS_CLI_SKILL_NAME, {
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
   })
 
@@ -204,10 +204,10 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
               'auto.components.settings.MobileEmulatorAgentControlRow.d94ca6a623',
               'Enables agents to use Janus CLI commands, including mobile emulator control.'
             )}
-            command={ORCA_CLI_SKILL_INSTALL_COMMAND}
+            command={JANUS_CLI_SKILL_INSTALL_COMMAND}
             terminalTitle="Janus CLI skill setup"
             terminalAriaLabel="Janus CLI skill install terminal"
-            terminalWorktreeId="settings-mobile-emulator-orca-cli-skill-terminal"
+            terminalWorktreeId="settings-mobile-emulator-janus-cli-skill-terminal"
             installed={cliSkillInstalled}
             loading={cliSkillLoading}
             error={cliSkillError}

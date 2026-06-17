@@ -191,7 +191,7 @@ export function GeneralNetworkSettingsSection({
         )}
         description={translate(
           'auto.components.settings.GeneralNetworkSettingsSection.823e0f15b1',
-          'Proxy URL for Orca network requests and local terminal children.'
+          'Proxy URL for Janus Code network requests and local terminal children.'
         )}
         keywords={['proxy', 'http_proxy', 'https_proxy', 'network', 'dock', 'launchpad']}
         className="space-y-3"

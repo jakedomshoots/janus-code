@@ -5,7 +5,7 @@ import type {
 } from '../onboarding/onboarding-feature-setup'
 import {
   COMPUTER_USE_SKILL_NAME,
-  ORCA_CLI_SKILL_NAME,
+  JANUS_CLI_SKILL_NAME,
   ORCHESTRATION_SKILL_NAME
 } from '@/lib/agent-feature-install-commands'
 import {
@@ -40,7 +40,7 @@ export type AgentCapabilitySetupStatus = {
 }
 
 export function useAgentCapabilitySetupStatus(): AgentCapabilitySetupStatus {
-  const browserUseSkill = useInstalledAgentSkill(ORCA_CLI_SKILL_NAME, {
+  const browserUseSkill = useInstalledAgentSkill(JANUS_CLI_SKILL_NAME, {
     sourceKinds: GLOBAL_AGENT_SKILL_SOURCE_KINDS
   })
   const computerUseSkill = useInstalledAgentSkill(COMPUTER_USE_SKILL_NAME, {
@@ -207,7 +207,7 @@ function getComputerUseInstallStatus(
         permissions.unavailableReason === 'web_client'
           ? translate(
               'auto.components.feature.wall.agent.capability.setup.status.4c8e1f92a7',
-              'open Orca Desktop on this Mac'
+              'open Janus Code Desktop on this Mac'
             )
           : translate(
               'auto.components.feature.wall.agent.capability.setup.status.6d2b0a84e1',

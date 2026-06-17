@@ -17,7 +17,7 @@ export function getBrowserLinkRoutingShortcutLabel(platform: BrowserShortcutPlat
 }
 
 export function getBrowserLinkRoutingDescription(platform: BrowserShortcutPlatform): string {
-  return `Open http(s) links in Orca's built-in browser — from the terminal, markdown, and the editor. ${getBrowserLinkRoutingShortcutLabel(platform)} always uses your system browser.`
+  return `Open http(s) links in Janus Code's built-in browser — from the terminal, markdown, and the editor. ${getBrowserLinkRoutingShortcutLabel(platform)} always uses your system browser.`
 }
 
 export function getBrowserPaneSearchEntries(
@@ -113,7 +113,7 @@ export function getBrowserPaneSearchEntries(
       title: translate('auto.components.settings.browser.search.96afedcb5c', 'Session & Cookies'),
       description: translate(
         'auto.components.settings.browser.search.060ac1fcba',
-        'Import cookies from Chrome, Edge, or other browsers to use existing logins inside Orca.'
+        'Import cookies from Chrome, Edge, or other browsers to use existing logins inside Janus Code.'
       ),
       keywords: [
         ...translateSearchKeyword('auto.components.settings.browser.search.2d2d995c58', 'browser'),

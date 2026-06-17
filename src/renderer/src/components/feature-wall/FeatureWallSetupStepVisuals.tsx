@@ -16,7 +16,7 @@ function CheckLine(props: { className?: string }): JSX.Element {
   )
 }
 
-// Mac-style terminal traffic-light dots — the signature of an Orca terminal pane.
+// Mac-style terminal traffic-light dots — the signature of a Janus Code terminal pane.
 function TerminalDots(): JSX.Element {
   return (
     <span className="flex gap-[3px]">
@@ -84,7 +84,7 @@ function WorktreeGlyphPanel(props: { className?: string }): JSX.Element {
   )
 }
 
-// Use Orca's browser: a browser pane with a cursor grabbing one highlighted
+// Use Janus Code's browser: a browser pane with a cursor grabbing one highlighted
 // element — the point-and-send-to-agent idea compressed into a single mark.
 export function SetupBrowserVisual(): JSX.Element {
   return (

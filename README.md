@@ -136,7 +136,7 @@ Agents can drive Janus Code too. Script workflows with the primary `janus` CLI f
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/orca-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/orca-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/janus-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/janus-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
 </td>
 </tr>
 </table>

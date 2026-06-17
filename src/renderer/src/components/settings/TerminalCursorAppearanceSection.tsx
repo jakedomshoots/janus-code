@@ -28,7 +28,7 @@ export function TerminalCursorAppearanceSection({
         )}
         description={translate(
           'auto.components.settings.TerminalAppearanceSection.d455f2ef4f',
-          'Default cursor appearance for Orca terminal panes.'
+          'Default cursor appearance for Janus Code terminal panes.'
         )}
       />
 
@@ -40,7 +40,7 @@ export function TerminalCursorAppearanceSection({
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.d455f2ef4f',
-            'Default cursor appearance for Orca terminal panes.'
+            'Default cursor appearance for Janus Code terminal panes.'
           )}
           keywords={['terminal', 'cursor', 'bar', 'block', 'underline']}
         >
@@ -51,7 +51,7 @@ export function TerminalCursorAppearanceSection({
             )}
             description={translate(
               'auto.components.settings.TerminalAppearanceSection.d455f2ef4f',
-              'Default cursor appearance for Orca terminal panes.'
+              'Default cursor appearance for Janus Code terminal panes.'
             )}
             control={
               <SettingsSegmentedControl

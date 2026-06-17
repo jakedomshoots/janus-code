@@ -246,7 +246,7 @@ export function ExperimentalPane({
               )}
               description={translate(
                 'auto.components.settings.ExperimentalPane.agentHibernation.idleMinutesDescription',
-                'How many idle minutes a completed background agent must wait before Orca can hibernate it.'
+                'How many idle minutes a completed background agent must wait before Janus Code can hibernate it.'
               )}
               value={agentHibernationIdleMinutes}
               min={MIN_AGENT_HIBERNATION_IDLE_MS / MS_PER_MINUTE}

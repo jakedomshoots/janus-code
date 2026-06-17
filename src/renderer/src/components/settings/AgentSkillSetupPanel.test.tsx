@@ -7,8 +7,8 @@ function renderPanel(overrides: Partial<ComponentProps<typeof AgentSkillSetupPan
   return renderToStaticMarkup(
     <AgentSkillSetupPanel
       title="CLI skill"
-      description="Enables agents to use Orca workflows."
-      command="npx skills add https://github.com/stablyai/orca --skill orca-cli --global"
+      description="Enables agents to use Janus Code workflows."
+      command="npx skills add https://github.com/jakedomshoots/janus-code --skill janus-cli --global"
       terminalTitle="CLI skill setup"
       terminalAriaLabel="CLI skill install terminal"
       terminalWorktreeId="settings-cli-skill-terminal"
@@ -57,7 +57,7 @@ describe('AgentSkillSetupPanel', () => {
     const html = renderPanel({
       installed: true,
       installLabel: 'Install CLI & Skill',
-      preInstallNotice: 'Install the Orca CLI before running agent skill setup.'
+      preInstallNotice: 'Install the Janus Code CLI before running agent skill setup.'
     })
 
     expect(html).toContain('Installed')

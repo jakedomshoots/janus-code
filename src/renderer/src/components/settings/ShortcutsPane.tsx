@@ -109,7 +109,7 @@ function getShortcutTerminalStatus(
   })
   return activeInTerminal
     ? {
-        label: translate('auto.components.settings.ShortcutsPane.2a0e8aeccf', 'Orca first'),
+        label: translate('auto.components.settings.ShortcutsPane.2a0e8aeccf', 'Janus Code first'),
         description: translate(
           'auto.components.settings.ShortcutsPane.dfa8ff612f',
           'Also runs while a terminal or TUI has keyboard focus.'
@@ -358,7 +358,7 @@ export function ShortcutsPane(): React.JSX.Element {
                 {keybindingSnapshot?.path ??
                   translate(
                     'auto.components.settings.ShortcutsPane.d8c988dab4',
-                    '~/.orca/keybindings.json'
+                    '~/.janus/keybindings.json'
                   )}
               </span>{' '}
               {translate('auto.components.settings.ShortcutsPane.4b7ae34062', 'directly.')}
