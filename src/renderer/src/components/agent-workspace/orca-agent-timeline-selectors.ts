@@ -4,13 +4,14 @@ import type {
   AgentStatusToolEventStatus
 } from '../../../../shared/agent-status-types'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import { compareAgentTimelineEntries } from './agent-timeline-order'
 
 function getIsoTimestamp(value: number): string | null {
   return Number.isFinite(value) ? new Date(value).toISOString() : null
 }
 
-function getSortTimestamp(value: string | null): number {
-  return value ? Date.parse(value) : Number.NEGATIVE_INFINITY
+function getPromptTimestamp(entry: AgentStatusEntry): number {
+  return Math.min(entry.stateStartedAt, entry.updatedAt, entry.failure?.occurredAt ?? Infinity)
 }
 
 function toTimelineStatus(
@@ -23,6 +24,24 @@ function toTimelineStatus(
       return 'done'
     case 'failed':
       return 'failed'
+  }
+}
+
+function toUserPromptTimelineEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  const prompt = entry.prompt.trim()
+  if (!prompt) {
+    return null
+  }
+  return {
+    id: `${thread.id}:prompt:${entry.stateStartedAt}`,
+    threadId: thread.id,
+    kind: 'user',
+    text: prompt,
+    createdAt: getIsoTimestamp(getPromptTimestamp(entry)),
+    status: 'done'
   }
 }
 
@@ -122,6 +141,10 @@ function appendTimelineEntries(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
 ): void {
+  const userPromptEntry = toUserPromptTimelineEntry(thread, entry)
+  if (userPromptEntry) {
+    timeline.push(userPromptEntry)
+  }
   const toolEntry = toToolTimelineEntry(thread, entry)
   if (toolEntry) {
     timeline.push(toolEntry)
@@ -170,8 +193,5 @@ export function selectAgentWorkspaceTimeline(
     appendTimelineEntries(timeline, thread, retained.entry)
   }
 
-  return timeline.sort((a, b) => {
-    const updatedDiff = getSortTimestamp(b.createdAt) - getSortTimestamp(a.createdAt)
-    return updatedDiff === 0 ? a.id.localeCompare(b.id) : updatedDiff
-  })
+  return timeline.sort(compareAgentTimelineEntries)
 }

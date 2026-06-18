@@ -342,6 +342,67 @@ describe('active agent note send', () => {
     )
   })
 
+  it('sends notes to a freshly completed agent without waiting for tui-idle', async () => {
+    const paneKey = makePaneKey('tab-1', LEAF_ID)
+    testState.appState.agentStatusByPaneKey[paneKey] = agentStatusEntry(paneKey, {
+      state: 'done',
+      updatedAt: Date.now(),
+      stateStartedAt: Date.now()
+    })
+    testState.callRuntimeRpc.mockImplementation(async (_target, method, params) => {
+      if (method === 'terminal.list') {
+        return {
+          terminals: [
+            {
+              handle: 'term-1',
+              worktreeId: 'wt-1',
+              worktreePath: '/repo',
+              branch: 'main',
+              tabId: 'tab-1',
+              leafId: LEAF_ID,
+              title: 'Codex',
+              connected: true,
+              writable: true,
+              lastOutputAt: 1,
+              preview: ''
+            }
+          ],
+          totalCount: 1,
+          truncated: false
+        }
+      }
+      if (method === 'terminal.isRunningAgent') {
+        return { isRunningAgent: true }
+      }
+      if (method === 'terminal.send') {
+        return { send: { handle: 'term-1', accepted: true, bytesWritten: params.text.length } }
+      }
+      throw new Error(`unexpected method ${method}`)
+    })
+
+    await expect(
+      sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: 'follow up' })
+    ).resolves.toEqual({ status: 'sent' })
+
+    expect(testState.callRuntimeRpc).not.toHaveBeenCalledWith(
+      expect.anything(),
+      'terminal.wait',
+      expect.anything(),
+      expect.anything()
+    )
+    expect(testState.callRuntimeRpc).toHaveBeenCalledWith(
+      { kind: 'local' },
+      'terminal.send',
+      {
+        terminal: 'term-1',
+        text: 'follow up',
+        enter: true,
+        client: { id: 'orca-desktop', type: 'desktop' }
+      },
+      { timeoutMs: 15000 }
+    )
+  })
+
   it('does not write notes when the active terminal is not an agent', async () => {
     testState.callRuntimeRpc.mockImplementation(async (_target, method) => {
       if (method === 'terminal.list') {

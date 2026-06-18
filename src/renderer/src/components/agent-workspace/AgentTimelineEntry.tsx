@@ -28,19 +28,23 @@ export function AgentTimelineEntry({
 
   return (
     <article
-      className={cn('group flex min-w-0', isUser ? 'justify-end' : 'justify-start')}
+      className="group flex min-w-0 border-b border-border/70 last:border-b-0"
       data-agent-timeline-entry-kind={entry.kind}
       data-agent-timeline-entry-status={entry.status}
     >
       <div
         className={cn(
-          'flex min-w-0 max-w-[82%] gap-2',
-          isUser ? 'flex-row-reverse items-start' : 'items-start'
+          'flex min-w-0 flex-1 gap-3 px-4 py-3',
+          isUser ? 'bg-accent/35' : 'bg-card/80',
+          entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
+            ? 'bg-muted/40'
+            : null,
+          entry.kind === 'error' ? 'bg-destructive/10' : null
         )}
       >
         <span
           className={cn(
-            'mt-1 flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground',
+            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground',
             entry.kind === 'error' ? 'text-destructive' : null
           )}
           aria-hidden="true"
@@ -49,16 +53,8 @@ export function AgentTimelineEntry({
         </span>
         <div
           className={cn(
-            'min-w-0 rounded-2xl border px-4 py-3 shadow-xs',
-            entry.kind === 'user'
-              ? 'border-border bg-card text-card-foreground'
-              : 'border-border bg-background',
-            entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
-              ? 'bg-card/70'
-              : null,
-            entry.kind === 'error'
-              ? 'border-destructive/35 bg-destructive/10 text-destructive'
-              : null
+            'min-w-0 flex-1 text-card-foreground',
+            entry.kind === 'error' ? 'text-destructive' : null
           )}
         >
           <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">

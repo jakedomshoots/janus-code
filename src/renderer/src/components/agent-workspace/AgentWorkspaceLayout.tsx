@@ -33,6 +33,7 @@ import { getActiveAgentWorkspaceDraftSession } from './agent-workspace-draft-ses
 import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
+import { compareAgentTimelineEntries } from './agent-timeline-order'
 import {
   getProjectThreads,
   getSelectedProject,
@@ -327,13 +328,23 @@ export function AgentWorkspaceLayout({
             : null
           const activeDraftSession = getActiveAgentWorkspaceDraftSession(pane)
           const paneApproval = getThreadApproval(snapshot, paneThread)
+          const backendTimeline = getThreadTimeline(snapshot, paneThread)
+          const backendUserPromptKeys = new Set(
+            backendTimeline
+              .filter((entry) => entry.kind === 'user')
+              .map((entry) => `${entry.threadId}:${entry.text}`)
+          )
           const paneTimeline = [
-            ...getThreadTimeline(snapshot, paneThread),
-            ...localUserTimeline.filter((entry) => entry.threadId === paneThread?.id)
+            ...backendTimeline,
+            ...localUserTimeline.filter(
+              (entry) =>
+                entry.threadId === paneThread?.id &&
+                !backendUserPromptKeys.has(`${entry.threadId}:${entry.text}`)
+            )
           ].sort((a, b) => {
-            const left = a.createdAt ? Date.parse(a.createdAt) : Number.NEGATIVE_INFINITY
-            const right = b.createdAt ? Date.parse(b.createdAt) : Number.NEGATIVE_INFINITY
-            return right - left
+            // Why: chat transcripts read oldest-to-newest; backend and local
+            // optimistic entries arrive from different sources and need one order.
+            return compareAgentTimelineEntries(a, b)
           })
           return (
             <div

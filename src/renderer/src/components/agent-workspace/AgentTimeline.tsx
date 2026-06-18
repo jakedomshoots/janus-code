@@ -22,8 +22,8 @@ export function AgentTimeline({
   terminalAvailable?: boolean
 }): React.JSX.Element {
   return (
-    <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-10">
-      <div className="mx-auto flex w-full max-w-[860px] flex-col gap-6">
+    <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-8">
+      <div className="mx-auto flex w-full max-w-[980px] flex-col gap-5">
         {thread ? (
           <>
             <ThreadSummary thread={thread} />
@@ -35,7 +35,7 @@ export function AgentTimeline({
                 )}
               </div>
             ) : (
-              <div className="flex flex-col gap-6">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card/80 shadow-xs">
                 {timeline.map((entry) => (
                   <AgentTimelineEntry key={entry.id} entry={entry} />
                 ))}

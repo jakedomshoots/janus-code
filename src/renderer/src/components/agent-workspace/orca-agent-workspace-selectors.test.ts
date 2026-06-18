@@ -412,6 +412,14 @@ describe('orca agent workspace selectors', () => {
 
     expect(snapshot.timeline).toEqual([
       {
+        id: `${paneKey}:prompt:1781534400000`,
+        threadId: paneKey,
+        kind: 'user',
+        text: 'Implement Task 1.2 from the Janus Code GUI plan',
+        createdAt: '2026-06-15T14:40:00.000Z',
+        status: 'done'
+      },
+      {
         id: `${paneKey}:tool:tool-1`,
         threadId: paneKey,
         kind: 'tool',
@@ -457,6 +465,14 @@ describe('orca agent workspace selectors', () => {
     })
     expect(snapshot.timeline).toEqual([
       {
+        id: `${paneKey}:prompt:1781534700000`,
+        threadId: paneKey,
+        kind: 'user',
+        text: 'Implement Task 1.2 from the Janus Code GUI plan',
+        createdAt: '2026-06-15T14:44:00.000Z',
+        status: 'done'
+      },
+      {
         id: `${paneKey}:failure:failure-1`,
         threadId: paneKey,
         kind: 'error',
@@ -489,6 +505,14 @@ describe('orca agent workspace selectors', () => {
     )
 
     expect(snapshot.timeline).toEqual([
+      {
+        id: `${paneKey}:prompt:1781535000000`,
+        threadId: paneKey,
+        kind: 'user',
+        text: 'Implement Task 1.2 from the Janus Code GUI plan',
+        createdAt: '2026-06-15T14:50:00.000Z',
+        status: 'done'
+      },
       {
         id: `${paneKey}:completion:1781535000000`,
         threadId: paneKey,
