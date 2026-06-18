@@ -73,12 +73,12 @@ describe('submitAgentComposerMessage', () => {
     })
   })
 
-  it('blocks selected threads that are not running', async () => {
+  it('blocks selected threads that cannot receive messages', async () => {
     const sendNotes: AgentComposerSendFunction = vi.fn()
 
     const result = await submitAgentComposerMessage({
       activeWorktreeId: 'worktree-1',
-      selectedThread: makeThread({ phase: 'waiting-for-user' }),
+      selectedThread: makeThread({ phase: 'completed' }),
       prompt: 'Continue after the prompt.',
       sendNotes
     })
@@ -87,7 +87,7 @@ describe('submitAgentComposerMessage', () => {
     expect(result).toEqual({
       status: 'blocked',
       reason: 'thread-not-running',
-      message: 'This thread is waiting for user and cannot receive messages yet.',
+      message: 'This thread is completed and cannot receive messages yet.',
       prompt: 'Continue after the prompt.',
       context: {
         activeWorktreeId: 'worktree-1',
@@ -96,6 +96,23 @@ describe('submitAgentComposerMessage', () => {
         agentKind: 'codex'
       }
     })
+  })
+
+  it('sends to a thread that is waiting for user input', async () => {
+    const sendNotes = vi.fn<AgentComposerSendFunction>().mockResolvedValue({ status: 'sent' })
+
+    const result = await submitAgentComposerMessage({
+      activeWorktreeId: 'worktree-1',
+      selectedThread: makeThread({ phase: 'waiting-for-user' }),
+      prompt: 'Here is the answer.',
+      sendNotes
+    })
+
+    expect(sendNotes).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'Here is the answer.'
+    })
+    expect(result.status).toBe('sent')
   })
 
   it('sends a trimmed prompt to the selected running thread worktree', async () => {

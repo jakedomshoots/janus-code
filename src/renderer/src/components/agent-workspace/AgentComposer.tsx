@@ -31,21 +31,22 @@ import { launchSelectedAgent } from './agent-composer-launch'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
 import { handleAgentComposerPaste } from './agent-composer-paste'
 import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
-import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
+import { submitAgentComposerMessage } from './agent-composer-submit'
+import {
+  notifyAgentComposerMessageSent,
+  type AgentComposerMessageSentHandler
+} from './agent-composer-message-sent'
+import {
+  EMPTY_DISABLED_TUI_AGENTS,
+  getAgentComposerDetectionTarget,
+  type AgentComposerFeedback
+} from './agent-composer-state'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
 import {
   useAgentBrowserWorkbench,
   type AgentBrowserWorkbenchState
 } from './useAgentBrowserWorkbench'
-
-type AgentComposerFeedback = {
-  message: string
-  status: AgentComposerSubmitResult['status'] | 'launching'
-  reason?: string
-}
-
-const EMPTY_DISABLED_TUI_AGENTS: readonly TuiAgent[] = []
 
 export function AgentComposer({
   activeWorktreeId,
@@ -58,6 +59,7 @@ export function AgentComposer({
   onPendingDraftAgentConsumed,
   onDraftSessionAgentChange,
   onPendingAgentLaunch,
+  onMessageSent,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
@@ -70,6 +72,7 @@ export function AgentComposer({
   onPendingDraftAgentConsumed?: () => void
   onDraftSessionAgentChange?: (agent: TuiAgent) => void
   onPendingAgentLaunch?: () => void
+  onMessageSent?: AgentComposerMessageSentHandler
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
@@ -100,9 +103,7 @@ export function AgentComposer({
       }),
     [settings?.agentDefaultArgs, settings?.agentDefaultEnv]
   )
-  const detectionTarget =
-    selectedProject?.agentDetectionTarget ??
-    (activeWorktreeId ? { kind: 'local' as const } : undefined)
+  const detectionTarget = getAgentComposerDetectionTarget(selectedProject, activeWorktreeId)
   const detectedAgents = useDetectedAgents(detectionTarget)
   const { availableAgents, preferredAgent } = useMemo(
     () =>
@@ -266,6 +267,9 @@ export function AgentComposer({
       if (launchingNewAgent && result.status === 'launching') {
         onPendingAgentLaunch?.()
       }
+      if (canSendToSelectedThread && result.status === 'sent') {
+        notifyAgentComposerMessageSent(onMessageSent, result)
+      }
       if ((canSendToSelectedThread && result.status === 'sent') || result.status === 'launching') {
         setPrompt('')
       }
@@ -277,6 +281,7 @@ export function AgentComposer({
       selectedAgent,
       selectedModel,
       selectedThread,
+      onMessageSent,
       onPendingAgentLaunch,
       submitContextKey,
       submitting,
@@ -366,15 +371,12 @@ export function AgentComposer({
     })
   }, [browserWorkbench.browserAnnotationMarkdown])
 
-  const handleSelectedAgentChange = useCallback(
-    (agent: TuiAgent | null): void => {
-      setSelectedAgent(agent)
-      if (!selectedThread && draftSessionId && agent) {
-        onDraftSessionAgentChangeRef.current?.(agent)
-      }
-    },
-    [draftSessionId, selectedThread]
-  )
+  function handleSelectedAgentChange(agent: TuiAgent | null): void {
+    setSelectedAgent(agent)
+    if (!selectedThread && draftSessionId && agent) {
+      onDraftSessionAgentChangeRef.current?.(agent)
+    }
+  }
 
   return (
     <AgentComposerForm

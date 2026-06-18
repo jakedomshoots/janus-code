@@ -7,7 +7,11 @@ export function isSelectedThreadReady(
   thread: AgentWorkspaceThread | null,
   activeWorktreeId: string | null
 ): boolean {
-  return Boolean(thread && thread.phase === 'running' && activeWorktreeId === thread.worktreeId)
+  return Boolean(
+    thread &&
+    (thread.phase === 'running' || thread.phase === 'waiting-for-user') &&
+    activeWorktreeId === thread.worktreeId
+  )
 }
 
 export function getAgentComposerReadinessMessage({
@@ -61,7 +65,7 @@ export function getAgentComposerPlaceholder(
       'Start a new agent session'
     )
   }
-  if (thread.phase !== 'running') {
+  if (thread.phase !== 'running' && thread.phase !== 'waiting-for-user') {
     return translate(
       'auto.components.agentWorkspace.composer.startAfterThreadPlaceholder',
       'Start a new agent; selected thread is {{phase}}',

@@ -8,7 +8,8 @@ import type {
   AgentWorkspacePlan,
   AgentWorkspaceReviewSummary,
   AgentWorkspaceSnapshot,
-  AgentWorkspaceThread
+  AgentWorkspaceThread,
+  AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
@@ -31,6 +32,7 @@ import { isWebRuntimeSessionActive } from '@/runtime/web-runtime-session'
 import { getActiveAgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
 import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
+import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import {
   getProjectThreads,
   getSelectedProject,
@@ -79,6 +81,8 @@ export function AgentWorkspaceLayout({
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
+  const [localUserTimeline, setLocalUserTimeline] = useState<AgentWorkspaceTimelineEntry[]>([])
+  const localUserTimelineSequenceRef = useRef(0)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const projectThreads = getProjectThreads(snapshot, selectedProject)
   const defaultThread = projectThreads[0] ?? null
@@ -255,6 +259,19 @@ export function AgentWorkspaceLayout({
     )
   }
 
+  const handleMessageSent: AgentComposerMessageSentHandler = (message) => {
+    localUserTimelineSequenceRef.current += 1
+    const entry: AgentWorkspaceTimelineEntry = {
+      id: `${message.threadId}:local-user:${Date.now()}:${localUserTimelineSequenceRef.current}`,
+      threadId: message.threadId,
+      kind: 'user',
+      text: message.prompt,
+      createdAt: message.sentAt,
+      status: 'done'
+    }
+    setLocalUserTimeline((current) => [entry, ...current].slice(0, 100))
+  }
+
   return (
     <AgentWorkspaceChrome
       header={
@@ -310,7 +327,14 @@ export function AgentWorkspaceLayout({
             : null
           const activeDraftSession = getActiveAgentWorkspaceDraftSession(pane)
           const paneApproval = getThreadApproval(snapshot, paneThread)
-          const paneTimeline = getThreadTimeline(snapshot, paneThread)
+          const paneTimeline = [
+            ...getThreadTimeline(snapshot, paneThread),
+            ...localUserTimeline.filter((entry) => entry.threadId === paneThread?.id)
+          ].sort((a, b) => {
+            const left = a.createdAt ? Date.parse(a.createdAt) : Number.NEGATIVE_INFINITY
+            const right = b.createdAt ? Date.parse(b.createdAt) : Number.NEGATIVE_INFINITY
+            return right - left
+          })
           return (
             <div
               key={pane.id}
@@ -359,6 +383,7 @@ export function AgentWorkspaceLayout({
                 }
                 onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
                 onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
+                onMessageSent={handleMessageSent}
                 onSplitPane={(direction) => {
                   const splitDirection =
                     direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'

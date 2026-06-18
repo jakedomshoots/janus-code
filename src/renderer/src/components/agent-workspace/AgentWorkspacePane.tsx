@@ -8,6 +8,7 @@ import { AgentComposer } from './AgentComposer'
 import { AgentTimeline } from './AgentTimeline'
 import { AgentWorkspaceThreadTabs } from './AgentWorkspaceThreadTabs'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import type {
   AgentWorkspaceApproval,
   AgentWorkspaceProject,
@@ -82,6 +83,7 @@ export function AgentWorkspacePane({
   onUpdateDraftSessionAgent,
   onBeginDraftAgentSession,
   onPendingAgentLaunch,
+  onMessageSent,
   onSplitPane,
   onClosePane,
   onOpenTerminalDrawer
@@ -110,6 +112,7 @@ export function AgentWorkspacePane({
   onUpdateDraftSessionAgent: (draftSessionId: string, agent: TuiAgent) => void
   onBeginDraftAgentSession: (agent: TuiAgent) => void
   onPendingAgentLaunch: () => void
+  onMessageSent: AgentComposerMessageSentHandler
   onSplitPane: (direction: 'right' | 'down' | 'left' | 'up') => void
   onClosePane: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
@@ -212,6 +215,7 @@ export function AgentWorkspacePane({
               pendingDraftAgent={activeDraftSession?.preferredAgent ?? null}
               onDraftSessionAgentChange={thread ? undefined : handleDraftSessionAgentChange}
               onPendingAgentLaunch={onPendingAgentLaunch}
+              onMessageSent={onMessageSent}
               onOpenTerminalDrawer={onOpenTerminalDrawer}
             />
           </>
