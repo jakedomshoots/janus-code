@@ -3,10 +3,12 @@ import TabGroupPanel from '../tab-group/TabGroupPanel'
 import TabDragPreview from '../tab-bar/TabDragPreview'
 import { useTabDragSplit } from '../tab-group/useTabDragSplit'
 import { useAppStore } from '@/store'
+import BrowserPaneOverlayLayer from '../browser-pane/BrowserPaneOverlayLayer'
 
-// Why: browser tabs render via worktree-level BrowserPaneOverlayLayer, which
-// anchors to TabGroupPanel body elements. In GUI agent mode the body must live
-// over the chat pane instead of the bottom terminal drawer.
+// Why: browser tabs need both pieces in the agent GUI: TabGroupPanel provides
+// the browser body's anchor, and BrowserPaneOverlayLayer paints the persistent
+// webview over that anchor. Keeping both inside this surface prevents the
+// browser workbench from depending on a hidden terminal/worktree surface.
 export function AgentBrowserWorkbenchSurface({
   worktreeId
 }: {
@@ -24,7 +26,7 @@ export function AgentBrowserWorkbenchSurface({
 
   return (
     <div
-      className="pointer-events-auto flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
+      className="pointer-events-auto relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
       data-agent-browser-workbench-surface="true"
     >
       <DndContext
@@ -63,6 +65,7 @@ export function AgentBrowserWorkbenchSurface({
           {dragSplit.activeDrag ? <TabDragPreview drag={dragSplit.activeDrag} /> : null}
         </DragOverlay>
       </DndContext>
+      <BrowserPaneOverlayLayer worktreeId={worktreeId} isWorktreeActive={true} />
     </div>
   )
 }

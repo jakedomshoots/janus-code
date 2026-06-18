@@ -7,18 +7,22 @@ export type TabGroupBodyOverlayRect = {
   height: number
 }
 
-const HAS_CSS_ANCHOR_POSITIONING =
-  typeof CSS !== 'undefined' &&
-  CSS.supports('position-anchor', '--orca-tab-group-overlay-probe') &&
-  CSS.supports('top', 'anchor(--orca-tab-group-overlay-probe top)') &&
-  CSS.supports('width', 'anchor-size(--orca-tab-group-overlay-probe width)')
+function browserSupportsCssAnchorPositioning(): boolean {
+  return (
+    typeof CSS !== 'undefined' &&
+    CSS.supports('position-anchor', '--orca-tab-group-overlay-probe') &&
+    CSS.supports('top', 'anchor(--orca-tab-group-overlay-probe top)') &&
+    CSS.supports('width', 'anchor-size(--orca-tab-group-overlay-probe width)')
+  )
+}
 
 // Why: paired web clients disable CSS anchor positioning and measure tab-group
 // bodies instead — same fallback TerminalPaneOverlayLayer already uses.
 export function shouldUseCssAnchorPositioning(): boolean {
   return (
-    HAS_CSS_ANCHOR_POSITIONING &&
-    (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ !== true
+    browserSupportsCssAnchorPositioning() &&
+    (globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ !== true &&
+    findAgentWorkbenchSurface() === null
   )
 }
 
@@ -30,17 +34,17 @@ function findAgentWorkbenchSurface(): HTMLElement | null {
 }
 
 function findTabGroupBody(groupId: string): HTMLElement | null {
-  for (const candidate of document.querySelectorAll<HTMLElement>('[data-tab-group-body-id]')) {
-    if (candidate.dataset.tabGroupBodyId === groupId) {
-      return candidate
-    }
-  }
   const agentWorkbenchSurface = findAgentWorkbenchSurface()
   if (agentWorkbenchSurface) {
     return (
       agentWorkbenchSurface.querySelector<HTMLElement>(`[data-tab-group-body-id="${groupId}"]`) ??
       agentWorkbenchSurface
     )
+  }
+  for (const candidate of document.querySelectorAll<HTMLElement>('[data-tab-group-body-id]')) {
+    if (candidate.dataset.tabGroupBodyId === groupId) {
+      return candidate
+    }
   }
   return null
 }
