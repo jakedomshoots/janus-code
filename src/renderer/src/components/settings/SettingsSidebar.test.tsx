@@ -158,7 +158,7 @@ describe('SettingsSidebar', () => {
     expect(markup).toContain('Onboarding checklist')
   })
 
-  it('collapses settings groups while keeping the active group open', async () => {
+  it('collapses settings groups including the active group', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root: Root = createRoot(container)
@@ -197,6 +197,16 @@ describe('SettingsSidebar', () => {
 
     expect(container.textContent).toContain('AI Provider Accounts')
 
+    const activeTrigger = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('AI Capabilities')
+    )
+    expect(activeTrigger).toBeDefined()
+    await act(async () => {
+      activeTrigger?.click()
+    })
+
+    expect(container.textContent).not.toContain('Orchestration')
+
     const setupTrigger = Array.from(container.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Set Up')
     )
@@ -205,7 +215,6 @@ describe('SettingsSidebar', () => {
       setupTrigger?.click()
     })
 
-    expect(container.textContent).toContain('Orchestration')
     expect(container.textContent).not.toContain('AI Provider Accounts')
 
     act(() => root.unmount())

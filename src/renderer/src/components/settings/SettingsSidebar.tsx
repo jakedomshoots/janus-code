@@ -171,10 +171,8 @@ export function SettingsSidebar({
     )
   const groupTriggerClassName =
     'flex w-full items-center gap-1.5 rounded-md px-3 py-1 text-left text-[11px] font-medium uppercase tracking-[0.16em] text-worktree-sidebar-foreground/55 outline-none transition-colors hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50'
-  const isGroupOpen = (groupId: string, sections: readonly NavSection[]): boolean =>
-    searchQuery.trim().length > 0 ||
-    sections.some((section) => section.id === activeSectionId) ||
-    collapsedGroups[groupId] !== true
+  const isGroupOpen = (groupId: string): boolean =>
+    searchQuery.trim().length > 0 || collapsedGroups[groupId] !== true
   const toggleGroupOpen = (groupId: string, open: boolean): void => {
     setCollapsedGroups((current) => ({ ...current, [groupId]: !open }))
   }
@@ -231,7 +229,7 @@ export function SettingsSidebar({
         <div className="space-y-2">
           {generalGroups.map((group) => {
             const sections = group.sections.filter((section) => section.id !== 'setup-guide')
-            const open = isGroupOpen(group.id, sections)
+            const open = isGroupOpen(group.id)
             const GroupChevron = open ? ChevronDown : ChevronRight
             return (
               <Collapsible
@@ -286,19 +284,13 @@ export function SettingsSidebar({
           })}
 
           <Collapsible
-            open={
-              searchQuery.trim().length > 0 ||
-              repoSections.some((section) => section.id === activeSectionId) ||
-              collapsedGroups.projects !== true
-            }
+            open={searchQuery.trim().length > 0 || collapsedGroups.projects !== true}
             onOpenChange={(nextOpen) => toggleGroupOpen('projects', nextOpen)}
             className="space-y-1"
           >
             <CollapsibleTrigger asChild>
               <button type="button" className={groupTriggerClassName}>
-                {searchQuery.trim().length > 0 ||
-                repoSections.some((section) => section.id === activeSectionId) ||
-                collapsedGroups.projects !== true ? (
+                {searchQuery.trim().length > 0 || collapsedGroups.projects !== true ? (
                   <ChevronDown className="size-3.5 shrink-0" />
                 ) : (
                   <ChevronRight className="size-3.5 shrink-0" />
