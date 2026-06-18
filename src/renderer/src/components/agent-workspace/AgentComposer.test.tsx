@@ -265,9 +265,11 @@ describe('AgentComposer', () => {
     )?.nextElementSibling
 
     expect(form?.className).toContain('bg-transparent')
-    expect(form?.className).toContain('pb-8')
+    expect(form?.className).toContain('pb-6')
+    expect(textarea?.className).toContain('min-h-20')
+    expect(textarea?.getAttribute('rows')).toBe('2')
     expect(panel?.className).toContain('rounded-none')
-    expect(footerLayout?.className).toContain('flex min-h-12 flex-wrap items-center gap-3')
+    expect(footerLayout?.className).toContain('flex min-h-10 flex-wrap items-center gap-2')
     expect(footerLayout?.className).not.toContain('justify-between')
     expect(container.querySelector('select[aria-label="Thinking mode"]')).toBeNull()
     expect(container.querySelector('select[aria-label="Agent model"]')).toBeNull()

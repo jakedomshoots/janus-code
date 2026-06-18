@@ -665,7 +665,7 @@
 }
 
 .theme-retro95 .agent-composer-textarea {
-  min-height: 132px;
+  min-height: 84px;
   margin: 3px;
   width: calc(100% - 6px);
   background: var(--win-input-bg) !important;
@@ -676,7 +676,7 @@
   font-family: var(--win-font);
   font-size: 13px;
   line-height: 18px;
-  padding: 18px 22px 12px;
+  padding: 14px 18px 10px;
 }
 
 .theme-retro95 .agent-composer-textarea::placeholder {

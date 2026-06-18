@@ -23,7 +23,7 @@ export function AgentComposerTextarea({
 }): React.JSX.Element {
   return (
     <textarea
-      className="agent-composer-textarea block min-h-32 w-full resize-none bg-transparent px-7 pb-3 pt-6 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+      className="agent-composer-textarea block min-h-20 w-full resize-none bg-transparent px-5 pb-2.5 pt-4 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
       value={value}
       placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}
       disabled={disabled}
@@ -32,7 +32,7 @@ export function AgentComposerTextarea({
         'Message agent'
       )}
       aria-describedby={statusMessage ? 'agent-workspace-composer-status' : undefined}
-      rows={3}
+      rows={2}
       onChange={(event) => onChange(event.target.value)}
       onPaste={onPaste}
       onKeyDown={onKeyDown}

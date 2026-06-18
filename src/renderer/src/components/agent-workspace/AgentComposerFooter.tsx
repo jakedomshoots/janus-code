@@ -77,18 +77,18 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
   canSubmit
 }: AgentComposerFooterProps): React.JSX.Element {
   return (
-    <div className="px-5 pb-5">
+    <div className="px-4 pb-4">
       <p
         id="agent-workspace-composer-status"
         className={cn(
-          'min-h-4 pb-2 text-xs',
+          'min-h-3.5 pb-1.5 text-[11px]',
           statusTone === 'error' ? 'text-destructive' : 'text-muted-foreground'
         )}
         aria-live="polite"
       >
         {statusMessage ?? ''}
       </p>
-      <div className="flex min-h-12 flex-wrap items-center gap-3">
+      <div className="flex min-h-10 flex-wrap items-center gap-2">
         <div className="min-w-0 shrink-0">
           <AgentComposerToolCluster
             canOpenTerminalDrawer={canOpenTerminalDrawer}
@@ -131,14 +131,14 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         <Button
           type="submit"
           size="icon"
-          className="size-11 shrink-0 rounded-none transition-transform active:scale-[0.96]"
+          className="size-9 shrink-0 rounded-none transition-transform active:scale-[0.96]"
           disabled={!canSubmit}
           aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
         >
           {submitting ? (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <ArrowUp className="size-5" aria-hidden="true" />
+            <ArrowUp className="size-4" aria-hidden="true" />
           )}
         </Button>
       </div>
@@ -180,7 +180,7 @@ function PermissionModeSelect({
         <Button
           type="button"
           variant="outline"
-          className="h-10 justify-start gap-2 rounded-none px-4 text-xs"
+          className="h-9 justify-start gap-2 rounded-none px-3 text-xs"
           aria-label={translate(
             'auto.components.agentWorkspace.composer.permissionMode',
             'Permission mode'

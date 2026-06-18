@@ -26,7 +26,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
   return (
     <div
       role="group"
-      className="flex h-10 shrink-0 items-center gap-0.5 rounded-none border border-border bg-background p-1"
+      className="flex h-9 shrink-0 items-center gap-0.5 rounded-none border border-border bg-background p-0.5"
       aria-label={translate('auto.components.agentWorkspace.composer.tools', 'Tools')}
     >
       <Button

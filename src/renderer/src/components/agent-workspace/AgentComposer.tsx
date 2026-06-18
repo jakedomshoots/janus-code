@@ -368,8 +368,8 @@ export function AgentComposer({
   )
 
   return (
-    <form className="bg-transparent px-6 pb-8 pt-4" onSubmit={(event) => void handleSubmit(event)}>
-      <div className="mx-auto w-full max-w-[1040px]">
+    <form className="bg-transparent px-6 pb-6 pt-3" onSubmit={(event) => void handleSubmit(event)}>
+      <div className="mx-auto w-full max-w-[860px]">
         <div className="agent-composer-shell rounded-none border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <AgentComposerTextarea
             value={prompt}

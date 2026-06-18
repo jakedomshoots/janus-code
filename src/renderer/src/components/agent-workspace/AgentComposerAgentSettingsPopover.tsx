@@ -76,7 +76,7 @@ export function AgentComposerAgentSettingsPopover({
         <Button
           type="button"
           variant="outline"
-          className="h-10 max-w-64 justify-start gap-2 rounded-none px-4 text-xs"
+          className="h-9 max-w-56 justify-start gap-2 rounded-none px-3 text-xs"
           aria-label={translate(
             'auto.components.agentWorkspace.composer.agentSettings',
             'Agent settings'
