@@ -21,7 +21,7 @@
 <h3 align="center"><a href="https://github.com/jakedomshoots/janus-code/releases/latest"><ins>Download Janus Code</ins></a></h3>
 
 <p align="center">
-  <img src="docs/assets/readme-hero.jpg" alt="Janus Code desktop workspace for browser-style agent orchestration" width="960" />
+  <img src="docs/assets/readme/janus-retro-workspace.png" alt="Janus Code Retro 95 desktop workspace with project sidebar, agent tabs, and composer controls" width="960" />
 </p>
 
 ## The Janus Code Interface
@@ -91,7 +91,7 @@ thread state tracked in the desktop UI.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/parallel-worktrees.gif" type="image/gif"><img src="docs/assets/feature-wall/parallel-worktrees.jpg" alt="Parallel worktree orchestration" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-retro-workspace.png" alt="Janus Code multi-agent workspace in the Retro 95 interface" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -107,7 +107,7 @@ terminal the primary interface.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/terminal-splits.gif" type="image/gif"><img src="docs/assets/feature-wall/terminal-splits.jpg" alt="Terminal splits" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-pane-tabs.png" alt="Janus Code browser-style session tabs and workspace controls" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -123,7 +123,7 @@ message.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/design-mode.gif" type="image/gif"><img src="docs/assets/feature-wall/design-mode.jpg" alt="Embedded browser and Design Mode" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-composer-controls.png" alt="Janus Code composer tool cluster for browser context and terminal controls" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -138,7 +138,7 @@ surface so the GUI launch path and the underlying CLI agent stay in sync.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/cli-agents.gif" type="image/gif"><img src="docs/assets/feature-wall/cli-agents.jpg" alt="Provider and model controls for CLI agents" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-composer-controls.png" alt="Janus Code composer provider and permission controls" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -153,7 +153,7 @@ and task context in-app before handing work to an agent.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/github-linear.gif" type="image/gif"><img src="docs/assets/feature-wall/github-linear.jpg" alt="GitHub, Linear, and repo context workflows in Janus Code" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-project-sidebar.png" alt="Janus Code project sidebar and workspace context" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -167,7 +167,7 @@ Drop comments on any diff line and ship them back to the agent — review, edit,
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/annotate-diff.gif" type="image/gif"><img src="docs/assets/feature-wall/annotate-diff.jpg" alt="Annotate AI-generated diffs" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-retro-workspace.png" alt="Janus Code review workflow inside the Retro 95 workspace" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -182,7 +182,7 @@ into an agent prompt when the task needs local context.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/file-drag.gif" type="image/gif"><img src="docs/assets/feature-wall/file-drag.jpg" alt="Drag files and images into an agent prompt" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-composer-controls.png" alt="Janus Code composer ready for files, images, and local context" width="100%" /></a>
 </td>
 </tr>
 <tr>
@@ -196,7 +196,7 @@ Agents can drive Janus Code too. Script workflows with the primary `janus` CLI f
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/janus-cli.gif" type="image/gif"><img src="docs/assets/feature-wall/janus-cli.jpg" alt="Script Janus Code from the CLI" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><img src="docs/assets/readme/janus-pane-tabs.png" alt="Janus Code workspace controls scriptable from the CLI" width="100%" /></a>
 </td>
 </tr>
 </table>
@@ -273,10 +273,6 @@ Download the latest Janus Code desktop builds directly from GitHub Releases:
 ## Developing
 
 Want to contribute or run locally? See our [CONTRIBUTING.md](.github/CONTRIBUTING.md) guide.
-
-<a href="https://github.com/jakedomshoots/janus-code/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jakedomshoots/janus-code" alt="Janus Code contributors" />
-</a>
 
 ## License
 
