@@ -400,6 +400,17 @@
   line-height: 20px;
 }
 
+.theme-retro95 [class*='rounded-'] {
+  border-radius: 0 !important;
+}
+
+.theme-retro95 .agent-workspace,
+.theme-retro95 [class*='agent-workspace'],
+.theme-retro95 form,
+.theme-retro95 fieldset {
+  border-radius: 0 !important;
+}
+
 .theme-retro95 [data-slot='button'],
 .theme-retro95 button.win95-button {
   border-radius: 0 !important;
@@ -453,13 +464,19 @@
 .theme-retro95 [data-slot='popover-content'],
 .theme-retro95 [data-slot='sheet-content'],
 .theme-retro95 [data-slot='dropdown-menu-content'],
+.theme-retro95 [data-slot='select-content'],
+.theme-retro95 [data-slot='tooltip-content'],
+.theme-retro95 [role='menu'],
+.theme-retro95 [role='listbox'],
 .theme-retro95 [data-slot='command'],
 .theme-retro95 [data-slot='card'],
 .theme-retro95 aside > div,
+.theme-retro95 article,
 .theme-retro95 section.rounded-2xl,
 .theme-retro95 div.rounded-2xl,
 .theme-retro95 div.rounded-xl,
-.theme-retro95 div.rounded-lg {
+.theme-retro95 div.rounded-lg,
+.theme-retro95 div.rounded-md {
   border-radius: 0 !important;
   background-color: var(--win-surface);
 }
@@ -468,9 +485,40 @@
 .theme-retro95 [data-slot='popover-content'],
 .theme-retro95 [data-slot='sheet-content'],
 .theme-retro95 [data-slot='dropdown-menu-content'],
+.theme-retro95 [data-slot='select-content'],
+.theme-retro95 [data-slot='tooltip-content'],
+.theme-retro95 [role='menu'],
+.theme-retro95 [role='listbox'],
 .theme-retro95 [data-slot='card'],
 .theme-retro95 aside > div {
   border: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset 2px 2px 0 var(--win-surface-light),
+    inset -1px -1px 0 var(--win-border-black),
+    inset -2px -2px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 [data-slot='dropdown-menu-item'],
+.theme-retro95 [data-slot='select-item'],
+.theme-retro95 [data-slot='context-menu-item'],
+.theme-retro95 [role='menuitem'],
+.theme-retro95 [role='option'] {
+  border-radius: 0 !important;
+}
+
+.theme-retro95 [data-state='checked'],
+.theme-retro95 [data-state='on'],
+.theme-retro95 [data-state='active'],
+.theme-retro95 [aria-selected='true'] {
+  background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 [data-sonner-toast][data-styled='true'] {
+  border-radius: 0 !important;
+  background: var(--win-surface) !important;
+  color: var(--win-text) !important;
   box-shadow:
     inset 1px 1px 0 var(--win-border-light),
     inset 2px 2px 0 var(--win-surface-light),

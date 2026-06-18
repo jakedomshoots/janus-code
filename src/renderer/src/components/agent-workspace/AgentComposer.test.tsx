@@ -252,7 +252,7 @@ describe('AgentComposer', () => {
     await setRendererUiLanguage('en')
   })
 
-  it('renders the floating chat composer skin without hiding core controls', async () => {
+  it('renders the square desktop composer skin without hiding core controls', async () => {
     await act(async () => {
       root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
     })
@@ -266,7 +266,7 @@ describe('AgentComposer', () => {
 
     expect(form?.className).toContain('bg-transparent')
     expect(form?.className).toContain('pb-8')
-    expect(panel?.className).toContain('rounded-[34px]')
+    expect(panel?.className).toContain('rounded-none')
     expect(footerLayout?.className).toContain('flex min-h-12 flex-wrap items-center gap-3')
     expect(footerLayout?.className).not.toContain('justify-between')
     expect(container.querySelector('select[aria-label="Thinking mode"]')).toBeNull()

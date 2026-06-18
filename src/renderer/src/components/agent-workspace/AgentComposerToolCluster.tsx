@@ -26,7 +26,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
   return (
     <div
       role="group"
-      className="flex h-10 shrink-0 items-center gap-0.5 rounded-full border border-border bg-background p-1"
+      className="flex h-10 shrink-0 items-center gap-0.5 rounded-none border border-border bg-background p-1"
       aria-label={translate('auto.components.agentWorkspace.composer.tools', 'Tools')}
     >
       <Button
@@ -67,7 +67,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
         <span className="relative inline-flex">
           <MessageSquarePlus className="size-4" aria-hidden="true" />
           {browserAnnotationCount > 0 ? (
-            <span className="absolute -right-1.5 -top-1.5 flex min-w-3.5 justify-center rounded-full bg-accent px-1 text-[9px] font-medium leading-3 text-accent-foreground">
+            <span className="absolute -right-1.5 -top-1.5 flex min-w-3.5 justify-center rounded-none bg-accent px-1 text-[9px] font-medium leading-3 text-accent-foreground">
               {browserAnnotationCount}
             </span>
           ) : null}

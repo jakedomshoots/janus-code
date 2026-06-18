@@ -22,7 +22,7 @@ export function ChatDropdownContent({
       side={side}
       sideOffset={sideOffset}
       className={cn(
-        'w-72 rounded-[16px] border border-border bg-card p-1.5 text-card-foreground shadow-[0_20px_44px_rgba(0,0,0,0.42)]',
+        'w-72 rounded-none border border-border bg-card p-1.5 text-card-foreground shadow-[0_20px_44px_rgba(0,0,0,0.42)]',
         className
       )}
     >
@@ -75,7 +75,7 @@ export function ChatDropdownOption({
       aria-label={ariaLabel}
       disabled={disabled}
       className={cn(
-        'flex min-h-[34px] w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm leading-5 text-foreground transition-colors',
+        'flex min-h-[34px] w-full items-center gap-2 rounded-none px-2.5 py-1.5 text-left text-sm leading-5 text-foreground transition-colors',
         selected
           ? 'bg-accent text-accent-foreground'
           : 'hover:bg-accent hover:text-accent-foreground',
@@ -112,7 +112,7 @@ export function ChatDropdownBranch({
     <button
       type="button"
       aria-label={ariaLabel}
-      className="flex h-[34px] w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm leading-5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      className="flex h-[34px] w-full items-center gap-2 rounded-none px-2.5 text-left text-sm leading-5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
       onClick={onOpen}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>

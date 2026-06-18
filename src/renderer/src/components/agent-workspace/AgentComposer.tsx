@@ -370,7 +370,7 @@ export function AgentComposer({
   return (
     <form className="bg-transparent px-6 pb-8 pt-4" onSubmit={(event) => void handleSubmit(event)}>
       <div className="mx-auto w-full max-w-[1040px]">
-        <div className="rounded-[34px] border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
+        <div className="rounded-none border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <AgentComposerTextarea
             value={prompt}
             activeWorktreeId={activeWorktreeId}
