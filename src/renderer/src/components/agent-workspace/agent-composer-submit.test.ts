@@ -78,7 +78,7 @@ describe('submitAgentComposerMessage', () => {
 
     const result = await submitAgentComposerMessage({
       activeWorktreeId: 'worktree-1',
-      selectedThread: makeThread({ phase: 'completed' }),
+      selectedThread: makeThread({ phase: 'failed' }),
       prompt: 'Continue after the prompt.',
       sendNotes
     })
@@ -87,7 +87,7 @@ describe('submitAgentComposerMessage', () => {
     expect(result).toEqual({
       status: 'blocked',
       reason: 'thread-not-running',
-      message: 'This thread is completed and cannot receive messages yet.',
+      message: 'This thread is failed and cannot receive messages yet.',
       prompt: 'Continue after the prompt.',
       context: {
         activeWorktreeId: 'worktree-1',
@@ -111,6 +111,23 @@ describe('submitAgentComposerMessage', () => {
     expect(sendNotes).toHaveBeenCalledWith({
       worktreeId: 'worktree-1',
       prompt: 'Here is the answer.'
+    })
+    expect(result.status).toBe('sent')
+  })
+
+  it('sends to a completed thread as the next conversation turn', async () => {
+    const sendNotes = vi.fn<AgentComposerSendFunction>().mockResolvedValue({ status: 'sent' })
+
+    const result = await submitAgentComposerMessage({
+      activeWorktreeId: 'worktree-1',
+      selectedThread: makeThread({ phase: 'completed' }),
+      prompt: 'Follow up in the same thread.',
+      sendNotes
+    })
+
+    expect(sendNotes).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'Follow up in the same thread.'
     })
     expect(result.status).toBe('sent')
   })

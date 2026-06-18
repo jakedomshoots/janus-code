@@ -78,7 +78,11 @@ export async function submitAgentComposerMessage({
     }
   }
 
-  if (selectedThread.phase !== 'running' && selectedThread.phase !== 'waiting-for-user') {
+  if (
+    selectedThread.phase !== 'running' &&
+    selectedThread.phase !== 'waiting-for-user' &&
+    selectedThread.phase !== 'completed'
+  ) {
     return {
       status: 'blocked',
       reason: 'thread-not-running',

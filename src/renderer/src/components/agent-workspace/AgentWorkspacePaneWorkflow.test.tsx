@@ -71,6 +71,9 @@ const launchMocks = vi.hoisted(() => ({
     pasteDraftAfterLaunch: false
   }))
 }))
+const sendMocks = vi.hoisted(() => ({
+  sendNotesToActiveAgentSession: vi.fn()
+}))
 
 vi.mock('@/store', () => ({
   useAppStore: Object.assign(
@@ -81,6 +84,11 @@ vi.mock('@/store', () => ({
 
 vi.mock('@/lib/launch-agent-in-new-tab', () => ({
   launchAgentInNewTab: launchMocks.launchAgentInNewTab
+}))
+
+vi.mock('@/lib/active-agent-note-send', () => ({
+  sendNotesToActiveAgentSession: sendMocks.sendNotesToActiveAgentSession,
+  activeAgentNotesSendFailureMessage: (status: string) => `Legacy send failure: ${status}`
 }))
 
 vi.mock('@/hooks/useDetectedAgents', () => ({
@@ -253,6 +261,7 @@ afterEach(() => {
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
   launchMocks.launchAgentInNewTab.mockClear()
+  sendMocks.sendNotesToActiveAgentSession.mockReset()
   storeMocks.state.browserTabsByWorktree = {}
   storeMocks.state.browserAnnotationsByPageId = {}
   storeMocks.state.activeBrowserTabIdByWorktree = {}
@@ -309,7 +318,7 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
   })
 
-  it('selects a new running thread launched from a completed thread composer', async () => {
+  it('keeps completed threads selected when sending follow-up messages', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -325,6 +334,9 @@ describe('AgentWorkspace pane workflow', () => {
       branchName: null,
       cwd: '/Users/jakedom/janus-code'
     }
+    sendMocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    })
 
     await act(async () => {
       root.render(
@@ -359,48 +371,14 @@ describe('AgentWorkspace pane workflow', () => {
       button?.click()
     })
 
-    await act(async () => {
-      root.render(
-        <AgentWorkspaceLayout
-          snapshot={baseSnapshot({
-            threads: [
-              completedThread,
-              {
-                id: 'thread-new',
-                worktreeId: 'worktree-1',
-                title: 'hello',
-                agentKind: 'codex',
-                phase: 'running',
-                updatedAt: '2026-06-18T17:22:00.000Z',
-                branchName: null,
-                cwd: '/Users/jakedom/janus-code'
-              }
-            ],
-            timeline: [
-              {
-                id: 'timeline-old',
-                threadId: completedThread.id,
-                kind: 'agent',
-                text: 'Old completed output',
-                createdAt: '2026-06-18T17:21:00.000Z',
-                status: 'done'
-              },
-              {
-                id: 'timeline-new',
-                threadId: 'thread-new',
-                kind: 'user',
-                text: 'hello',
-                createdAt: '2026-06-18T17:22:00.000Z',
-                status: 'done'
-              }
-            ]
-          })}
-        />
-      )
+    expect(launchMocks.launchAgentInNewTab).not.toHaveBeenCalled()
+    expect(sendMocks.sendNotesToActiveAgentSession).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'hello'
     })
 
     expect(container.textContent).toContain('hello')
-    expect(container.textContent).not.toContain('Old completed output')
+    expect(container.textContent).toContain('Old completed output')
     expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
   })
 

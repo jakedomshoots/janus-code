@@ -542,14 +542,19 @@ describe('AgentComposer', () => {
     expect(textarea?.value).toBe('')
   })
 
-  it('marks the pane as waiting for the newly launched agent thread', async () => {
+  it('sends follow-up prompts to completed selected threads', async () => {
     const onPendingAgentLaunch = vi.fn()
+    const onMessageSent = vi.fn()
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    } satisfies ActiveAgentNotesSendResult)
     await act(async () => {
       root.render(
         <AgentComposer
           activeWorktreeId="worktree-1"
           selectedThread={makeThread({ phase: 'completed' })}
           onPendingAgentLaunch={onPendingAgentLaunch}
+          onMessageSent={onMessageSent}
         />
       )
     })
@@ -566,16 +571,13 @@ describe('AgentComposer', () => {
       button?.click()
     })
 
-    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
-      agent: 'claude',
+    expect(mocks.launchAgentInNewTab).not.toHaveBeenCalled()
+    expect(mocks.sendNotesToActiveAgentSession).toHaveBeenCalledWith({
       worktreeId: 'worktree-1',
-      prompt: 'Start a follow-up agent.',
-      agentArgs: '--dangerously-skip-permissions',
-      promptDelivery: 'auto-submit',
-      launchSource: 'new_workspace_composer',
-      onPromptDelivered: expect.any(Function)
+      prompt: 'Start a follow-up agent.'
     })
-    expect(onPendingAgentLaunch).toHaveBeenCalledTimes(1)
+    expect(onPendingAgentLaunch).not.toHaveBeenCalled()
+    expect(onMessageSent).toHaveBeenCalledTimes(1)
     expect(textarea?.value).toBe('')
   })
 
