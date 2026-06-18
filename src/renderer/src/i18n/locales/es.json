@@ -497,6 +497,12 @@
             "unavailable": "Janus Code no puede verificar esta carpeta ahora mismo. Revisa el runtime o la conexión SSH e inténtalo de nuevo."
           }
         }
+      },
+      "projectlessPlanningAgent": {
+        "createGroupFailed": "Could not create a planning project.",
+        "startFailed": "Could not start a planning agent.",
+        "createProjectFailed": "Could not create Janus Ideas.",
+        "openProjectFailed": "Could not open Janus Ideas."
       }
     },
     "hooks": {
@@ -3519,7 +3525,8 @@
           "196c1b5362": "Abrir tareas de GitLab",
           "0ccba862b8": "Abrir tareas de GitHub",
           "fee535205b": "Tareas",
-          "d599269755": "Ocultar de la barra lateral"
+          "d599269755": "Ocultar de la barra lateral",
+          "newAgent": "New Agent"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "Claro",

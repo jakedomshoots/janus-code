@@ -497,6 +497,12 @@
             "unavailable": "Janus Code가 지금 이 폴더를 확인할 수 없습니다. 런타임 또는 SSH 연결을 확인한 후 다시 시도하세요."
           }
         }
+      },
+      "projectlessPlanningAgent": {
+        "createGroupFailed": "Could not create a planning project.",
+        "startFailed": "Could not start a planning agent.",
+        "createProjectFailed": "Could not create Janus Ideas.",
+        "openProjectFailed": "Could not open Janus Ideas."
       }
     },
     "hooks": {
@@ -3500,7 +3506,8 @@
           "196c1b5362": "GitLab 작업 열기",
           "0ccba862b8": "GitHub 작업 열기",
           "fee535205b": "작업",
-          "d599269755": "사이드바에서 숨기기"
+          "d599269755": "사이드바에서 숨기기",
+          "newAgent": "New Agent"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "지우기",

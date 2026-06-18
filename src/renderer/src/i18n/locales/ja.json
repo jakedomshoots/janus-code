@@ -497,6 +497,12 @@
             "unavailable": "Janus Code は現在このフォルダーを確認できません。ランタイムまたは SSH 接続を確認して再試行してください。"
           }
         }
+      },
+      "projectlessPlanningAgent": {
+        "createGroupFailed": "Could not create a planning project.",
+        "startFailed": "Could not start a planning agent.",
+        "createProjectFailed": "Could not create Janus Ideas.",
+        "openProjectFailed": "Could not open Janus Ideas."
       }
     },
     "hooks": {
@@ -3500,7 +3506,8 @@
           "196c1b5362": "GitLab タスクを開く",
           "0ccba862b8": "GitHub タスクを開く",
           "fee535205b": "タスク",
-          "d599269755": "サイドバーから隠す"
+          "d599269755": "サイドバーから隠す",
+          "newAgent": "New Agent"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "クリア",

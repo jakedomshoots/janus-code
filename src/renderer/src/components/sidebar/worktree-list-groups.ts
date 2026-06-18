@@ -1042,7 +1042,10 @@ export function buildRows(
     })
   }
 
-  const projectGroupsById = new Map(projectGroups.map((group) => [group.id, group]))
+  const validProjectGroups = projectGroups.filter((group): group is ProjectGroup =>
+    Boolean(group?.id)
+  )
+  const projectGroupsById = new Map(validProjectGroups.map((group) => [group.id, group]))
   const folderWorkspacesByProjectGroupId = new Map<string, FolderWorkspace[]>()
   for (const workspace of folderWorkspaces) {
     const group = projectGroupsById.get(workspace.projectGroupId)
@@ -1061,7 +1064,7 @@ export function buildRows(
     })
   }
   const childGroupsByParentId = new Map<string | null, ProjectGroup[]>()
-  for (const group of projectGroups) {
+  for (const group of validProjectGroups) {
     const parentId =
       group.parentGroupId && projectGroupsById.has(group.parentGroupId) ? group.parentGroupId : null
     const children = childGroupsByParentId.get(parentId) ?? []

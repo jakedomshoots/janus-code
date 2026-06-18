@@ -17,7 +17,8 @@ const mocks = vi.hoisted(() => ({
   refreshPreflightStatus: vi.fn(),
   checkLinearConnection: vi.fn(),
   dismissMobileOnboardingBadge: vi.fn(),
-  setSetupGuideSidebarDismissed: vi.fn()
+  setSetupGuideSidebarDismissed: vi.fn(),
+  startProjectlessPlanningAgent: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -44,6 +45,10 @@ vi.mock('./mobile-sidebar-onboarding-badge', () => ({
     visible: false,
     dismiss: mocks.dismissMobileOnboardingBadge
   })
+}))
+
+vi.mock('@/lib/projectless-planning-agent', () => ({
+  startProjectlessPlanningAgent: mocks.startProjectlessPlanningAgent
 }))
 
 vi.mock('../setup-guide/use-setup-guide-progress', () => ({
@@ -282,6 +287,18 @@ describe('SidebarNav', () => {
     expect(shortcuts?.className).toContain('hidden')
     expect(shortcuts?.className).toContain('group-hover:flex')
     expect(shortcuts?.className).toContain('group-focus-within:flex')
+  })
+
+  it('starts a planning agent from the sidebar without requiring projects', async () => {
+    setSidebarState({ repos: [] })
+    const container = await renderSidebarNav()
+
+    await clickButton(getButtonByText(container, 'New Agent'))
+
+    expect(mocks.startProjectlessPlanningAgent).toHaveBeenCalledTimes(1)
+    expect(mocks.openModal).not.toHaveBeenCalledWith('new-workspace-composer', {
+      telemetrySource: 'sidebar'
+    })
   })
 
   it('hides available Tasks from its sidebar context menu', async () => {

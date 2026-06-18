@@ -497,6 +497,12 @@
             "unavailable": "Janus Code 现在无法验证此文件夹。请检查运行时或 SSH 连接，然后重试。"
           }
         }
+      },
+      "projectlessPlanningAgent": {
+        "createGroupFailed": "Could not create a planning project.",
+        "startFailed": "Could not start a planning agent.",
+        "createProjectFailed": "Could not create Janus Ideas.",
+        "openProjectFailed": "Could not open Janus Ideas."
       }
     },
     "hooks": {
@@ -3500,7 +3506,8 @@
           "196c1b5362": "打开 GitLab 任务",
           "0ccba862b8": "打开 GitHub 任务",
           "fee535205b": "任务",
-          "d599269755": "从侧边栏隐藏"
+          "d599269755": "从侧边栏隐藏",
+          "newAgent": "New Agent"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "清除",
