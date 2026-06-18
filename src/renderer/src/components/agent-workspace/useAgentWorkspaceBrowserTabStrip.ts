@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { getBrowserTabLabel } from '@/components/tab-bar/BrowserTab'
-import { useTabGroupWorkspaceModel } from '@/components/tab-group/useTabGroupWorkspaceModel'
+import {
+  useTabGroupWorkspaceModel,
+  type GroupBrowserItem
+} from '@/components/tab-group/useTabGroupWorkspaceModel'
 import { useAppStore } from '@/store'
-import type { BrowserWorkspace } from '../../../../shared/types'
 import {
   getAgentWorkspaceBrowserTabSessionRevision,
   isAgentWorkspaceBrowserTabTracked,
@@ -15,7 +17,7 @@ import { sortUnifiedTabsByGroupOrder } from './agent-workspace-group-tab-order'
 export type AgentWorkspaceBrowserTabEntry = {
   id: string
   label: string
-  tab: BrowserWorkspace
+  tab: GroupBrowserItem
 }
 
 export function useAgentWorkspaceBrowserTabStrip({

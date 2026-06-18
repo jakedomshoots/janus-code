@@ -5,11 +5,7 @@ import { useAppStore } from '@/store'
 import { ORCA_BROWSER_BLANK_URL } from '../../../../shared/constants'
 import type { BrowserWorkspace } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
-import {
-  isViableAgentBrowserTab,
-  pruneStaleAgentBrowserTabs,
-  selectAgentBrowserTab
-} from './agent-browser-workbench-tabs'
+import { isViableAgentBrowserTab, pruneStaleAgentBrowserTabs } from './agent-browser-workbench-tabs'
 import {
   listTrackedAgentWorkspaceBrowserTabIds,
   trackAgentWorkspaceBrowserTab
@@ -131,17 +127,11 @@ async function openAgentBrowserWorkbenchAsync({
   let state = useAppStore.getState()
   const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(state, worktreeId)
   const webRuntimeActive = isWebRuntimeSessionActive(runtimeEnvironmentId)
-  const trackedBrowserTab = selectTrackedAgentBrowserTab(state, worktreeId, webRuntimeActive)
-  const existingBrowserTab = selectAgentBrowserTab(state, worktreeId, webRuntimeActive)
-  const canEarlyOpenBrowserWorkbench =
-    trackedBrowserTab ?? (!webRuntimeActive ? existingBrowserTab : null)
-
-  if (
-    !createNewTab &&
-    !keepAgentSessionVisible &&
-    !browserWorkbenchActive &&
-    canEarlyOpenBrowserWorkbench
-  ) {
+  if (webRuntimeActive && !runtimeEnvironmentId) {
+    return
+  }
+  const resolvedRuntimeEnvironmentId = runtimeEnvironmentId ?? ''
+  if (!createNewTab && !keepAgentSessionVisible && !browserWorkbenchActive) {
     onOpenTerminalDrawer('browser')
   }
   const targetGroupId = resolveTargetGroupId(worktreeId)
@@ -164,7 +154,7 @@ async function openAgentBrowserWorkbenchAsync({
       state,
       worktreeId,
       targetGroupId,
-      runtimeEnvironmentId,
+      runtimeEnvironmentId: resolvedRuntimeEnvironmentId,
       webRuntimeActive,
       defaultUrl,
       newBrowserTabTitle,
@@ -186,7 +176,7 @@ async function openAgentBrowserWorkbenchAsync({
     state,
     worktreeId,
     targetGroupId,
-    runtimeEnvironmentId,
+    runtimeEnvironmentId: resolvedRuntimeEnvironmentId,
     webRuntimeActive,
     defaultUrl,
     newBrowserTabTitle,

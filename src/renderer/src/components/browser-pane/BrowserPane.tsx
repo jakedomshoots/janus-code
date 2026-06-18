@@ -266,6 +266,8 @@ type RemoteBrowserContextMenu = {
 type RemoteBrowserViewportSize = {
   width: number
   height: number
+  deviceScaleFactor?: number
+  mobile?: boolean
 }
 
 function getBrowserPageRuntimeEnvironmentId(

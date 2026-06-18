@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { BrowserScreencastFrameMetadata } from '../../../../shared/runtime-types'
+import type { BrowserScreencastFrameMetadata } from '../../../../shared/browser-screencast-protocol'
 import type {
   BrowserAnnotationIntent,
   BrowserAnnotationPayload,

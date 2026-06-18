@@ -81,9 +81,19 @@ export function useAgentWorkspacePanes({
       return pane
     }
     const trackedAgent = draftAgentBySessionIdRef.current[currentDraftSessionId]
-    return trackedAgent
-      ? updateAgentWorkspaceDraftSessionAgent(pane, currentDraftSessionId, trackedAgent)
-      : pane
+    if (!trackedAgent) {
+      return pane
+    }
+    const nextDraftState = updateAgentWorkspaceDraftSessionAgent(
+      pane,
+      currentDraftSessionId,
+      trackedAgent
+    )
+    return {
+      ...pane,
+      draftSessions: nextDraftState.draftSessions,
+      selectedDraftSessionId: nextDraftState.selectedDraftSessionId
+    }
   }
 
   function handlePaneThreadSelect(paneId: string, threadId: string): void {

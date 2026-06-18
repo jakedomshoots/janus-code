@@ -60,12 +60,12 @@ export async function openExistingAgentBrowserTab({
     onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
   }): Promise<void> {
   let nextState = state
+  const requestedBrowserTab = browserTabId
+    ? ((nextState.browserTabsByWorktree[worktreeId] ?? []).find((tab) => tab.id === browserTabId) ??
+      null)
+    : null
   let browserTab =
-    (browserTabId
-      ? ((nextState.browserTabsByWorktree[worktreeId] ?? []).find(
-          (tab) => tab.id === browserTabId
-        ) ?? null)
-      : null) ??
+    requestedBrowserTab ??
     selectTrackedAgentBrowserTab(nextState, worktreeId, webRuntimeActive) ??
     selectAgentBrowserTab(nextState, worktreeId, webRuntimeActive)
 

@@ -1,4 +1,5 @@
 import { ArrowUp, ChevronDown, Loader2, ShieldCheck } from 'lucide-react'
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { translate } from '@/i18n/i18n'
@@ -18,7 +19,36 @@ import {
 import { AgentComposerAgentSettingsPopover } from './AgentComposerAgentSettingsPopover'
 import { AgentComposerToolCluster } from './AgentComposerToolCluster'
 
-export function AgentComposerFooter({
+type AgentComposerFooterProps = {
+  statusMessage: string | null
+  statusTone: string | null
+  permissionMode: AgentPermissionMode
+  onPermissionModeChange: (mode: AgentPermissionMode) => void
+  thinkingMode: TuiAgentThinkingMode
+  onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
+  canOpenTerminalDrawer: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
+  canOpenBrowserWorkbench: boolean
+  onOpenBrowserWorkbench?: () => void
+  canAttachBrowserContext: boolean
+  browserAnnotationCount: number
+  onAttachBrowserContext?: () => void
+  canSendToSelectedThread: boolean
+  selectedThread: AgentWorkspaceThread | null
+  availableAgents: readonly { id: TuiAgent; label: string }[]
+  selectedAgent: TuiAgent | null
+  modelOptions: readonly TuiAgentModelOption[]
+  selectedModel: string
+  modelDiscoveryLoading: boolean
+  modelDiscoveryError: string | null
+  detectingAgents: boolean
+  onSelectedAgentChange: (agent: TuiAgent | null) => void
+  onSelectedModelChange: (modelId: string) => void
+  submitting: boolean
+  canSubmit: boolean
+}
+
+export const AgentComposerFooter = memo(function AgentComposerFooter({
   statusMessage,
   statusTone,
   permissionMode,
@@ -45,34 +75,7 @@ export function AgentComposerFooter({
   onSelectedModelChange,
   submitting,
   canSubmit
-}: {
-  statusMessage: string | null
-  statusTone: string | null
-  permissionMode: AgentPermissionMode
-  onPermissionModeChange: (mode: AgentPermissionMode) => void
-  thinkingMode: TuiAgentThinkingMode
-  onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
-  canOpenTerminalDrawer: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-  canOpenBrowserWorkbench: boolean
-  onOpenBrowserWorkbench?: () => void
-  canAttachBrowserContext: boolean
-  browserAnnotationCount: number
-  onAttachBrowserContext?: () => void
-  canSendToSelectedThread: boolean
-  selectedThread: AgentWorkspaceThread | null
-  availableAgents: readonly { id: TuiAgent; label: string }[]
-  selectedAgent: TuiAgent | null
-  modelOptions: readonly TuiAgentModelOption[]
-  selectedModel: string
-  modelDiscoveryLoading: boolean
-  modelDiscoveryError: string | null
-  detectingAgents: boolean
-  onSelectedAgentChange: (agent: TuiAgent | null) => void
-  onSelectedModelChange: (modelId: string) => void
-  submitting: boolean
-  canSubmit: boolean
-}): React.JSX.Element {
+}: AgentComposerFooterProps): React.JSX.Element {
   return (
     <div className="px-5 pb-5">
       <p
@@ -142,7 +145,7 @@ export function AgentComposerFooter({
       </div>
     </div>
   )
-}
+})
 
 function PermissionModeSelect({
   value,
@@ -151,7 +154,11 @@ function PermissionModeSelect({
   value: AgentPermissionMode
   onChange: (mode: AgentPermissionMode) => void
 }): React.JSX.Element {
-  const options = [
+  const options: readonly {
+    value: AgentPermissionMode
+    label: string
+    disabled?: boolean
+  }[] = [
     {
       value: 'manual',
       label: translate('auto.components.agentWorkspace.composer.permissionManual', 'Ask first')

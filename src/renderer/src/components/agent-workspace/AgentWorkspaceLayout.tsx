@@ -7,7 +7,8 @@ import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
   AgentWorkspaceReviewSummary,
-  AgentWorkspaceSnapshot
+  AgentWorkspaceSnapshot,
+  AgentWorkspaceThread
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'

@@ -13,7 +13,7 @@ function createMockResponse(): ServerResponse & { statusCode: number; body: stri
       }
     })
   }
-  return response as ServerResponse & { statusCode: number; body: string }
+  return response as unknown as ServerResponse & { statusCode: number; body: string }
 }
 
 function createLoopbackRequest(method: string, url: string): IncomingMessage {

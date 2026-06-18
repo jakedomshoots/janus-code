@@ -1,9 +1,20 @@
 import { Globe, MessageSquarePlus, PanelBottom } from 'lucide-react'
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 
-export function AgentComposerToolCluster({
+type AgentComposerToolClusterProps = {
+  canOpenTerminalDrawer: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
+  canOpenBrowserWorkbench: boolean
+  onOpenBrowserWorkbench?: () => void
+  canAttachBrowserContext: boolean
+  browserAnnotationCount: number
+  onAttachBrowserContext?: () => void
+}
+
+export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
   canOpenTerminalDrawer,
   onOpenTerminalDrawer,
   canOpenBrowserWorkbench,
@@ -11,15 +22,7 @@ export function AgentComposerToolCluster({
   canAttachBrowserContext,
   browserAnnotationCount,
   onAttachBrowserContext
-}: {
-  canOpenTerminalDrawer: boolean
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-  canOpenBrowserWorkbench: boolean
-  onOpenBrowserWorkbench?: () => void
-  canAttachBrowserContext: boolean
-  browserAnnotationCount: number
-  onAttachBrowserContext?: () => void
-}): React.JSX.Element {
+}: AgentComposerToolClusterProps): React.JSX.Element {
   return (
     <div
       role="group"
@@ -87,4 +90,4 @@ export function AgentComposerToolCluster({
       </Button>
     </div>
   )
-}
+})

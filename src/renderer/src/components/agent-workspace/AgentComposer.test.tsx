@@ -681,6 +681,60 @@ describe('AgentComposer', () => {
     })
   })
 
+  it('opens the model picker immediately while dynamic model discovery is pending', async () => {
+    const pendingDiscovery =
+      deferred<Awaited<ReturnType<typeof mocks.discoverCommitMessageModels>>>()
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['opencode'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.discoverCommitMessageModels.mockReturnValue(pendingDiscovery.promise)
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={null}
+          selectedProject={{
+            id: 'worktree-1',
+            label: 'Janus',
+            path: '/Users/jakedom/Documents/janus-code',
+            hostKind: 'local',
+            agentDetectionTarget: { kind: 'local' }
+          }}
+        />
+      )
+      await Promise.resolve()
+    })
+
+    await openAgentSettings(container)
+    await act(async () => {
+      getDocumentButton('Open model menu')?.click()
+    })
+
+    expect(mocks.discoverCommitMessageModels).toHaveBeenCalled()
+    expect(document.body.textContent).toContain('Loading models...')
+    expect(getDocumentButton('Set model: Provider default')).not.toBeNull()
+
+    await act(async () => {
+      pendingDiscovery.resolve({
+        success: true,
+        capability: {
+          id: 'opencode',
+          label: 'OpenCode',
+          modelSource: 'dynamic',
+          defaultModelId: 'opencode/deepseek-v4-flash-free',
+          models: []
+        },
+        defaultModelId: 'opencode/deepseek-v4-flash-free',
+        models: [{ id: 'opencode/gpt-5.5', label: 'GPT-5.5' }]
+      })
+      await pendingDiscovery.promise
+    })
+  })
+
   it('loads searchable discovered models for the selected chat agent', async () => {
     mocks.useDetectedAgents.mockReturnValue({
       detectedIds: ['opencode'],

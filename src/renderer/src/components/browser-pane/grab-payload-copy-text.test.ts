@@ -12,13 +12,24 @@ function makePayload(): BrowserGrabPayload {
       sanitizedUrl: 'http://127.0.0.1:5175/web-index.html',
       title: 'Janus',
       viewportWidth: 1280,
-      viewportHeight: 720
+      viewportHeight: 720,
+      scrollX: 0,
+      scrollY: 0,
+      devicePixelRatio: 1,
+      capturedAt: '2026-06-18T00:00:00.000Z'
     },
     target: {
       tagName: 'div',
       selector: 'header > div',
       rectViewport: { x: 0, y: 0, width: 100, height: 22 },
-      accessibility: { role: 'div', accessibleName: null },
+      rectPage: { x: 0, y: 0, width: 100, height: 22 },
+      attributes: {},
+      accessibility: {
+        role: 'div',
+        accessibleName: null,
+        ariaLabel: null,
+        ariaLabelledBy: null
+      },
       computedStyles: {
         display: 'flex',
         position: 'static',
@@ -42,7 +53,8 @@ function makePayload(): BrowserGrabPayload {
       fullPath: 'body > div#root > header'
     },
     nearbyText: [],
-    ancestorPath: ['div', 'header']
+    ancestorPath: ['div', 'header'],
+    screenshot: null
   }
 }
 

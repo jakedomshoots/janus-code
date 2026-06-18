@@ -3,6 +3,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 
 const createWebRuntimeSessionBrowserTabMock = vi.hoisted(() => vi.fn())
@@ -83,7 +84,7 @@ vi.mock('@/store', () => ({
 function BrowserWorkbenchButton({
   onOpenTerminalDrawer
 }: {
-  onOpenTerminalDrawer: ReturnType<typeof vi.fn>
+  onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const workbench = useAgentBrowserWorkbench({
     activeWorktreeId: 'worktree-1',
@@ -94,6 +95,20 @@ function BrowserWorkbenchButton({
       Open browser workbench
     </button>
   )
+}
+
+function deferred<T>(): {
+  promise: Promise<T>
+  resolve: (value: T | PromiseLike<T>) => void
+  reject: (reason?: unknown) => void
+} {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  let reject!: (reason?: unknown) => void
+  const promise = new Promise<T>((innerResolve, innerReject) => {
+    resolve = innerResolve
+    reject = innerReject
+  })
+  return { promise, resolve, reject }
 }
 
 describe('useAgentBrowserWorkbench', () => {
@@ -183,7 +198,33 @@ describe('useAgentBrowserWorkbench', () => {
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('browser')
   })
 
-  it('does not open the drawer when host creation fails on paired web runtimes', async () => {
+  it('opens the browser workbench immediately while paired host tab creation is pending', async () => {
+    const pendingHostCreation = deferred<boolean>()
+    createWebRuntimeSessionBrowserTabMock.mockReturnValue(pendingHostCreation.promise)
+    const onOpenTerminalDrawer = vi.fn()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    await act(async () => {
+      root?.render(<BrowserWorkbenchButton onOpenTerminalDrawer={onOpenTerminalDrawer} />)
+    })
+
+    await act(async () => {
+      container.querySelector('button')?.click()
+      await Promise.resolve()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('browser')
+    expect(storeMocks.focusBrowserTabInWorktree).not.toHaveBeenCalled()
+
+    pendingHostCreation.resolve(false)
+    await act(async () => {
+      await pendingHostCreation.promise
+    })
+  })
+
+  it('keeps the drawer open when host creation fails on paired web runtimes', async () => {
     createWebRuntimeSessionBrowserTabMock.mockResolvedValue(false)
     const onOpenTerminalDrawer = vi.fn()
     const container = document.createElement('div')
@@ -201,7 +242,7 @@ describe('useAgentBrowserWorkbench', () => {
 
     expect(createWebRuntimeSessionBrowserTabMock).toHaveBeenCalled()
     expect(storeMocks.createBrowserTab).not.toHaveBeenCalled()
-    expect(onOpenTerminalDrawer).not.toHaveBeenCalled()
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('browser')
   })
 
   it('reprovisions stale local-only browser tabs before opening the workbench', async () => {

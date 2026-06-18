@@ -1,9 +1,7 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { translate } from '@/i18n/i18n'
-import { getAgentCatalog } from '@/lib/agent-catalog'
 import { useAppStore } from '@/store'
-import { filterEnabledTuiAgents, pickTuiAgent } from '../../../../shared/tui-agent-selection'
 import {
   applyAgentPermissionMode,
   resolveAgentPermissionModeSummary,
@@ -24,10 +22,11 @@ import {
   stripInjectedBrowserGrabDump
 } from '../browser-pane/strip-browser-grab-dump'
 import { AgentComposerFooter } from './AgentComposerFooter'
+import { AgentComposerTextarea } from './AgentComposerTextarea'
+import { resolveAgentComposerSelection } from './agent-composer-agent-selection'
 import {
   decodeAgentModelSelectionsKey,
   encodeAgentModelSelections,
-  getAgentComposerPlaceholder,
   getAgentComposerReadinessMessage,
   isSelectedThreadReady
 } from './agent-composer-readiness'
@@ -68,7 +67,7 @@ export function AgentComposer({
   pendingDraftAgent?: TuiAgent | null
   onPendingDraftAgentConsumed?: () => void
   onDraftSessionAgentChange?: (agent: TuiAgent) => void
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
@@ -102,26 +101,13 @@ export function AgentComposer({
     selectedProject?.agentDetectionTarget ??
     (activeWorktreeId ? { kind: 'local' as const } : undefined)
   const detectedAgents = useDetectedAgents(detectionTarget)
-  const availableAgents = useMemo(() => {
-    if (detectedAgents.detectedIds === null) {
-      return []
-    }
-    const enabledIds = new Set(
-      filterEnabledTuiAgents(
-        getAgentCatalog().map((agent) => agent.id),
-        disabledTuiAgents
-      )
-    )
-    const detectedIds = new Set(detectedAgents.detectedIds)
-    return getAgentCatalog().filter(
-      (agent) => enabledIds.has(agent.id) && detectedIds.has(agent.id)
-    )
-  }, [detectedAgents.detectedIds, disabledTuiAgents])
-  const preferredAgent = useMemo(
+  const { availableAgents, preferredAgent } = useMemo(
     () =>
-      detectedAgents.detectedIds === null
-        ? null
-        : pickTuiAgent(defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents),
+      resolveAgentComposerSelection({
+        detectedIds: detectedAgents.detectedIds,
+        defaultTuiAgent,
+        disabledTuiAgents
+      }),
     [defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents]
   )
   const modelDiscovery = useAgentComposerModelDiscovery(selectedAgent, selectedProject)
@@ -212,10 +198,13 @@ export function AgentComposer({
     }
   }, [settings?.agentThinkingMode])
 
-  function handleThinkingModeChange(mode: TuiAgentThinkingMode): void {
-    setThinkingMode(mode)
-    void updateSettings({ agentThinkingMode: mode })
-  }
+  const handleThinkingModeChange = useCallback(
+    (mode: TuiAgentThinkingMode): void => {
+      setThinkingMode(mode)
+      void updateSettings({ agentThinkingMode: mode })
+    },
+    [updateSettings]
+  )
 
   useLayoutEffect(() => {
     submitContextKeyRef.current = submitContextKey
@@ -224,97 +213,133 @@ export function AgentComposer({
     setSubmitting(false)
   }, [submitContextKey])
 
-  async function handleSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
-    event?.preventDefault()
-    if (submitting || !trimmedPrompt) {
-      return
-    }
-    const submitSequence = submitSequenceRef.current + 1
-    submitSequenceRef.current = submitSequence
-    const requestContextKey = submitContextKey
-    setSubmitting(true)
-    const result = canSendToSelectedThread
-      ? await submitAgentComposerMessage({
-          activeWorktreeId,
-          selectedThread,
-          prompt
+  const handleSubmit = useCallback(
+    async (event?: React.FormEvent<HTMLFormElement>): Promise<void> => {
+      event?.preventDefault()
+      if (submitting || !trimmedPrompt) {
+        return
+      }
+      const submitSequence = submitSequenceRef.current + 1
+      submitSequenceRef.current = submitSequence
+      const requestContextKey = submitContextKey
+      setSubmitting(true)
+      const result = canSendToSelectedThread
+        ? await submitAgentComposerMessage({
+            activeWorktreeId,
+            selectedThread,
+            prompt
+          })
+        : launchSelectedAgent({
+            activeWorktreeId,
+            selectedAgent,
+            selectedModel,
+            thinkingMode,
+            prompt: trimmedPrompt
+          })
+      if (
+        submitSequenceRef.current !== submitSequence ||
+        submitContextKeyRef.current !== requestContextKey
+      ) {
+        return
+      }
+      setSubmitResult(result)
+      setSubmitting(false)
+      if (result.status === 'sent') {
+        setPrompt('')
+      }
+    },
+    [
+      activeWorktreeId,
+      canSendToSelectedThread,
+      prompt,
+      selectedAgent,
+      selectedModel,
+      selectedThread,
+      submitContextKey,
+      submitting,
+      thinkingMode,
+      trimmedPrompt
+    ]
+  )
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+      if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
+        return
+      }
+      event.preventDefault()
+      if (canSubmit) {
+        void handleSubmit()
+      }
+    },
+    [canSubmit, handleSubmit]
+  )
+
+  const handlePaste = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>): void => {
+      const pastedText = event.clipboardData.getData('text/plain')
+      if (!containsLegacyBrowserGrabDump(pastedText)) {
+        return
+      }
+      event.preventDefault()
+      const stripped = stripInjectedBrowserGrabDump(pastedText)
+      if (!stripped) {
+        return
+      }
+      const textarea = event.currentTarget
+      const start = textarea.selectionStart ?? prompt.length
+      const end = textarea.selectionEnd ?? prompt.length
+      setPrompt(
+        stripInjectedBrowserGrabDump(`${prompt.slice(0, start)}${stripped}${prompt.slice(end)}`)
+      )
+    },
+    [prompt]
+  )
+
+  const handlePromptChange = useCallback(
+    (value: string): void => {
+      setPrompt(stripInjectedBrowserGrabDump(value))
+      if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
+        setSubmitResult(null)
+      }
+    },
+    [submitResult?.reason, submitResult?.status]
+  )
+
+  const handleSelectedModelChange = useCallback(
+    (modelId: string): void => {
+      if (!selectedAgent || !isTuiAgentModelSelection(selectedAgent, modelId)) {
+        return
+      }
+      const nextSelections = { ...composerModelSelections }
+      if (modelId === TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID) {
+        delete nextSelections[selectedAgent]
+      } else {
+        nextSelections[selectedAgent] = modelId
+      }
+      setComposerModelSelections(nextSelections)
+      void updateSettings({ agentModelSelections: nextSelections })
+    },
+    [composerModelSelections, selectedAgent, updateSettings]
+  )
+
+  const handlePermissionModeChange = useCallback(
+    (mode: AgentPermissionMode): void => {
+      if (mode === 'mixed') {
+        return
+      }
+      void updateSettings(
+        applyAgentPermissionMode({
+          mode,
+          agentDefaultArgs: settings?.agentDefaultArgs,
+          agentDefaultEnv: settings?.agentDefaultEnv
         })
-      : launchSelectedAgent({
-          activeWorktreeId,
-          selectedAgent,
-          selectedModel,
-          thinkingMode,
-          prompt: trimmedPrompt
-        })
-    if (
-      submitSequenceRef.current !== submitSequence ||
-      submitContextKeyRef.current !== requestContextKey
-    ) {
-      return
-    }
-    setSubmitResult(result)
-    setSubmitting(false)
-    if (result.status === 'sent') {
-      setPrompt('')
-    }
-  }
+      )
+    },
+    [settings?.agentDefaultArgs, settings?.agentDefaultEnv, updateSettings]
+  )
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>): void {
-    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
-      return
-    }
-    event.preventDefault()
-    if (canSubmit) {
-      void handleSubmit()
-    }
-  }
-
-  function handlePaste(event: React.ClipboardEvent<HTMLTextAreaElement>): void {
-    const pastedText = event.clipboardData.getData('text/plain')
-    if (!containsLegacyBrowserGrabDump(pastedText)) {
-      return
-    }
-    event.preventDefault()
-    const stripped = stripInjectedBrowserGrabDump(pastedText)
-    if (!stripped) {
-      return
-    }
-    const textarea = event.currentTarget
-    const start = textarea.selectionStart ?? prompt.length
-    const end = textarea.selectionEnd ?? prompt.length
-    setPrompt(
-      stripInjectedBrowserGrabDump(`${prompt.slice(0, start)}${stripped}${prompt.slice(end)}`)
-    )
-  }
-
-  function handleSelectedModelChange(modelId: string): void {
-    if (!selectedAgent || !isTuiAgentModelSelection(selectedAgent, modelId)) {
-      return
-    }
-    const nextSelections = { ...composerModelSelections }
-    if (modelId === TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID) {
-      delete nextSelections[selectedAgent]
-    } else {
-      nextSelections[selectedAgent] = modelId
-    }
-    setComposerModelSelections(nextSelections)
-    void updateSettings({ agentModelSelections: nextSelections })
-  }
-
-  function handlePermissionModeChange(mode: AgentPermissionMode): void {
-    if (mode === 'mixed') {
-      return
-    }
-    void updateSettings(
-      applyAgentPermissionMode({
-        mode,
-        agentDefaultArgs: settings?.agentDefaultArgs,
-        agentDefaultEnv: settings?.agentDefaultEnv
-      })
-    )
-  }
-
-  function handleAttachBrowserContext(): void {
+  const handleAttachBrowserContext = useCallback((): void => {
     if (!browserWorkbench.browserAnnotationMarkdown) {
       return
     }
@@ -330,29 +355,29 @@ export function AgentComposer({
         'Browser context attached.'
       )
     })
-  }
+  }, [browserWorkbench.browserAnnotationMarkdown])
+
+  const handleSelectedAgentChange = useCallback(
+    (agent: TuiAgent | null): void => {
+      setSelectedAgent(agent)
+      if (!selectedThread && draftSessionId && agent) {
+        onDraftSessionAgentChangeRef.current?.(agent)
+      }
+    },
+    [draftSessionId, selectedThread]
+  )
 
   return (
     <form className="bg-transparent px-6 pb-8 pt-4" onSubmit={(event) => void handleSubmit(event)}>
       <div className="mx-auto w-full max-w-[1040px]">
         <div className="rounded-[34px] border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
-          <textarea
-            className="block min-h-32 w-full resize-none bg-transparent px-7 pb-3 pt-6 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+          <AgentComposerTextarea
             value={prompt}
-            placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}
+            activeWorktreeId={activeWorktreeId}
+            selectedThread={selectedThread}
             disabled={composerDisabled}
-            aria-label={translate(
-              'auto.components.agentWorkspace.composer.messageAgent',
-              'Message agent'
-            )}
-            aria-describedby={statusMessage ? 'agent-workspace-composer-status' : undefined}
-            rows={3}
-            onChange={(event) => {
-              setPrompt(stripInjectedBrowserGrabDump(event.target.value))
-              if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
-                setSubmitResult(null)
-              }
-            }}
+            statusMessage={statusMessage}
+            onChange={handlePromptChange}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
           />
@@ -379,12 +404,7 @@ export function AgentComposer({
             modelDiscoveryLoading={modelDiscovery.loading}
             modelDiscoveryError={modelDiscovery.error}
             detectingAgents={detectedAgents.isLoading}
-            onSelectedAgentChange={(agent) => {
-              setSelectedAgent(agent)
-              if (!selectedThread && draftSessionId && agent) {
-                onDraftSessionAgentChangeRef.current?.(agent)
-              }
-            }}
+            onSelectedAgentChange={handleSelectedAgentChange}
             onSelectedModelChange={handleSelectedModelChange}
             submitting={submitting}
             canSubmit={canSubmit}

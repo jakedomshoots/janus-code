@@ -4,7 +4,11 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 export type AgentWorkspaceActionBridge = {
   readonly isActive: () => boolean
   readonly getBrowserWorkbenchActive: () => boolean
-  readonly openBrowserWorkbench: (options?: { createNewTab?: boolean }) => void
+  readonly openBrowserWorkbench: (options?: {
+    createNewTab?: boolean
+    browserTabId?: string
+    keepAgentSessionVisible?: boolean
+  }) => void
   readonly beginDraftAgentSession: (agent: TuiAgent) => void
   readonly newTerminalTab: () => void
   readonly newBrowserTab: () => void

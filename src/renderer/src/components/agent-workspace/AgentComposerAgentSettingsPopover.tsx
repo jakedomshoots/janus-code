@@ -10,7 +10,10 @@ import {
   getTuiAgentModelProviderCategory,
   type TuiAgentModelProviderCategory
 } from '../../../../shared/tui-agent-model-provider-categories'
-import { type TuiAgentModelOption } from '../../../../shared/tui-agent-models'
+import {
+  TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
+  type TuiAgentModelOption
+} from '../../../../shared/tui-agent-models'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
 import {
@@ -115,7 +118,7 @@ export function AgentComposerAgentSettingsPopover({
             <AgentModelOptions
               options={modelOptions}
               value={selectedModel}
-              disabled={!selectedAgent || modelOptions.length <= 1}
+              disabled={!selectedAgent}
               loading={modelDiscoveryLoading}
               error={modelDiscoveryError}
               onChange={(model) => {
@@ -216,10 +219,25 @@ function AgentModelOptions({
 }): React.JSX.Element {
   const [query, setQuery] = useState('')
   const normalizedQuery = query.trim().toLowerCase()
+  const visibleOptions = useMemo<readonly TuiAgentModelOption[]>(
+    () =>
+      options.length > 0
+        ? options
+        : [
+            {
+              id: TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
+              label: translate(
+                'auto.components.agentWorkspace.composer.providerDefault',
+                'Provider default'
+              )
+            }
+          ],
+    [options]
+  )
   const filteredOptions = useMemo(
     () =>
       normalizedQuery
-        ? options.filter((option) => {
+        ? visibleOptions.filter((option) => {
             const category = getTuiAgentModelProviderCategory(option)
             return (
               option.label.toLowerCase().includes(normalizedQuery) ||
@@ -227,8 +245,8 @@ function AgentModelOptions({
               category.label.toLowerCase().includes(normalizedQuery)
             )
           })
-        : options,
-    [normalizedQuery, options]
+        : visibleOptions,
+    [normalizedQuery, visibleOptions]
   )
   const groupedOptions = useMemo(
     () => groupModelOptionsByProvider(filteredOptions),

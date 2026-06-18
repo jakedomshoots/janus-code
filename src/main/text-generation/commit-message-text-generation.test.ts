@@ -380,6 +380,10 @@ describe('discoverCommitMessageModelsLocal', () => {
       success: true,
       defaultModelId: 'kimi-coding/kimi-for-coding'
     })
+    expect(result.success).toBe(true)
+    if (!result.success) {
+      throw new Error(result.error)
+    }
     expect(result.models[0]?.id).toBe('kimi-coding/kimi-for-coding')
   })
 

@@ -30,7 +30,7 @@ export async function openMarkdownFileInActiveWorkspace(groupId: string): Promis
       },
       { preview: false, targetGroupId: groupId }
     )
-    state.recordFeatureInteraction?.('markdown-file-opened')
+    state.recordFeatureInteraction?.('markdown-file-created')
   } catch (err) {
     toast.error(
       extractIpcErrorMessage(

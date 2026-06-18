@@ -1,5 +1,6 @@
-import type { TuiAgent } from '../../../../shared/types'
+import type { TabContentType, TuiAgent } from '../../../../shared/types'
 import { Copy, FileText, Globe, Plus, Smartphone, X } from 'lucide-react'
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -15,20 +16,23 @@ import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
 
-export function WorkbenchTabPill({
+type WorkbenchTabPillProps = {
+  label: string
+  contentType: TabContentType
+  selected: boolean
+  onSelect: () => void
+  onClose: () => void
+}
+
+export const WorkbenchTabPill = memo(function WorkbenchTabPill({
   label,
   contentType,
   selected,
   onSelect,
   onClose
-}: {
-  label: string
-  contentType: 'simulator' | 'editor' | 'diff' | 'conflict-review'
-  selected: boolean
-  onSelect: () => void
-  onClose: () => void
-}): React.JSX.Element {
-  const Icon = contentType === 'simulator' ? Smartphone : FileText
+}: WorkbenchTabPillProps): React.JSX.Element {
+  const Icon =
+    contentType === 'simulator' ? Smartphone : contentType === 'browser' ? Globe : FileText
 
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
@@ -49,21 +53,23 @@ export function WorkbenchTabPill({
       />
     </div>
   )
-}
+})
 
-export function BrowserTabPill({
-  label,
-  selected,
-  onSelect,
-  onClose,
-  onDuplicate
-}: {
+type BrowserTabPillProps = {
   label: string
   selected: boolean
   onSelect: () => void
   onClose: () => void
   onDuplicate: () => void
-}): React.JSX.Element {
+}
+
+export const BrowserTabPill = memo(function BrowserTabPill({
+  label,
+  selected,
+  onSelect,
+  onClose,
+  onDuplicate
+}: BrowserTabPillProps): React.JSX.Element {
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
@@ -115,19 +121,21 @@ export function BrowserTabPill({
       />
     </div>
   )
-}
+})
 
-export function DraftSessionTab({
-  draftSession,
-  selected,
-  onSelect,
-  onClose
-}: {
+type DraftSessionTabProps = {
   draftSession: AgentWorkspaceDraftSession
   selected: boolean
   onSelect: () => void
   onClose: () => void
-}): React.JSX.Element {
+}
+
+export const DraftSessionTab = memo(function DraftSessionTab({
+  draftSession,
+  selected,
+  onSelect,
+  onClose
+}: DraftSessionTabProps): React.JSX.Element {
   const label = draftSession.preferredAgent
     ? formatAgentTypeLabel(draftSession.preferredAgent)
     : translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')
@@ -151,19 +159,21 @@ export function DraftSessionTab({
       />
     </div>
   )
-}
+})
 
-export function ThreadTab({
-  thread,
-  selected,
-  onSelect,
-  onClose
-}: {
+type ThreadTabProps = {
   thread: AgentWorkspaceThread
   selected: boolean
   onSelect: () => void
   onClose: () => void
-}): React.JSX.Element {
+}
+
+export const ThreadTab = memo(function ThreadTab({
+  thread,
+  selected,
+  onSelect,
+  onClose
+}: ThreadTabProps): React.JSX.Element {
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
@@ -186,7 +196,7 @@ export function ThreadTab({
       />
     </div>
   )
-}
+})
 
 function DraftSessionIcon({ agent }: { agent: TuiAgent | null }): React.JSX.Element {
   return agent ? (
@@ -223,9 +233,9 @@ function CloseTabButton({
 
 function getTabPillClassName(selected: boolean): string {
   return cn(
-    'group flex h-9 max-w-72 shrink-0 items-center gap-1 rounded-xl border pl-3 pr-1.5 text-xs transition-colors',
+    'group flex h-9 max-w-72 shrink-0 items-center gap-1 rounded-xl border pl-3 pr-1.5 text-xs transition-colors active:scale-[0.99]',
     selected
-      ? 'border-border bg-card text-foreground'
+      ? 'border-border bg-card text-foreground shadow-xs'
       : 'border-transparent bg-card/45 text-muted-foreground hover:bg-accent hover:text-foreground'
   )
 }

@@ -10,6 +10,8 @@ function makeTab(id: string): Tab {
     worktreeId: 'worktree-1',
     contentType: 'browser',
     label: id,
+    customLabel: null,
+    color: null,
     sortOrder: 0,
     createdAt: 1
   }

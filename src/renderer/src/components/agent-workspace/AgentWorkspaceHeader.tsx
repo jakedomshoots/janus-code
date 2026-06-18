@@ -14,7 +14,7 @@ export function AgentWorkspaceHeader({
   rightPanelCollapsed?: boolean
   onExpandRightPanel?: () => void
   onOpenProjectFiles?: () => void
-}): React.JSX.Element {
+}): React.JSX.Element | null {
   const hasThread = thread !== null
   const canExpandRightPanel =
     hasThread && rightPanelCollapsed && typeof onExpandRightPanel === 'function'

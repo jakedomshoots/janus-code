@@ -80,7 +80,7 @@ function WorkbenchEmptyState({
             type="button"
             variant="outline"
             size="lg"
-            className="rounded-xl"
+            className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
             onClick={onNewSession}
           >
             <Plus className="size-4" aria-hidden="true" />
@@ -92,7 +92,7 @@ function WorkbenchEmptyState({
             type="button"
             variant="outline"
             size="lg"
-            className="rounded-xl"
+            className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
             onClick={onOpenBrowserWorkbench}
           >
             <Globe className="size-4" aria-hidden="true" />
@@ -104,7 +104,7 @@ function WorkbenchEmptyState({
             type="button"
             variant="outline"
             size="lg"
-            className="rounded-xl"
+            className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
             onClick={onOpenTerminalDrawer}
           >
             <PanelBottom className="size-4" aria-hidden="true" />

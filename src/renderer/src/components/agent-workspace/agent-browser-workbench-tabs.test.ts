@@ -30,10 +30,12 @@ function makeState(
       'worktree-1': overrides.unifiedTabs ?? []
     },
     groupsByWorktree: {
-      'worktree-1': overrides.groups ?? [{ id: 'group-1', activeTabId: null, tabOrder: [] }]
+      'worktree-1': overrides.groups ?? [
+        { id: 'group-1', worktreeId: 'worktree-1', activeTabId: null, tabOrder: [] }
+      ]
     },
     remoteBrowserPageHandlesByPageId: overrides.remoteHandles ?? {}
-  } as AppState
+  } as unknown as AppState
 }
 
 describe('agent-browser-workbench-tabs', () => {
@@ -140,6 +142,7 @@ describe('agent-browser-workbench-tabs', () => {
       groups: [
         {
           id: 'group-1',
+          worktreeId: 'worktree-1',
           activeTabId: 'browser-unified-a',
           tabOrder: ['browser-unified-a', 'browser-unified-b']
         }
@@ -216,7 +219,14 @@ describe('agent-browser-workbench-tabs', () => {
           contentType: 'browser'
         } as never
       ],
-      groups: [{ id: 'group-1', activeTabId: 'sim-1', tabOrder: ['sim-1', 'browser-unified-1'] }]
+      groups: [
+        {
+          id: 'group-1',
+          worktreeId: 'worktree-1',
+          activeTabId: 'sim-1',
+          tabOrder: ['sim-1', 'browser-unified-1']
+        }
+      ]
     })
 
     ensureBrowserUnifiedTabActive({
