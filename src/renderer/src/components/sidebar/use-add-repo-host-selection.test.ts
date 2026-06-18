@@ -158,7 +158,21 @@ describe('useAddRepoHostSelection', () => {
     expect(setStep).not.toHaveBeenCalled()
   })
 
-  it('does not auto-select the active runtime host while it is unavailable', async () => {
+  it('auto-selects the active runtime host while its status probe is pending', async () => {
+    mocks.stateValues = ['local', false]
+    mocks.hostOptions[2] = {
+      ...mocks.hostOptions[2],
+      health: 'disconnected'
+    }
+    mocks.storeState.settings = { activeRuntimeEnvironmentId: 'env-1' }
+    const { useAddRepoHostSelection } = await import('./use-add-repo-host-selection')
+
+    useAddRepoHostSelection({ isOpen: true, setStep: vi.fn() })
+
+    expect(mocks.stateSetters[0]).toHaveBeenCalledWith('runtime:env-1')
+  })
+
+  it('does not auto-select the active runtime host while it is blocked', async () => {
     mocks.stateValues = ['local', false]
     mocks.hostOptions[2] = {
       ...mocks.hostOptions[2],

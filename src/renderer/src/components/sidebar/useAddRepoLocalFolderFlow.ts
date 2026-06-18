@@ -196,9 +196,24 @@ export function useAddRepoLocalFolderFlow({
         return
       }
       await handleAddLocalPath(path, 'local_folder_picker')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      toast.error(
+        message.includes('Pair this web client')
+          ? translate(
+              'auto.components.sidebar.useAddRepoLocalFolderFlow.webPairingRequired',
+              'Pair this web client with Janus Code before browsing folders.'
+            )
+          : translate(
+              'auto.components.sidebar.useAddRepoLocalFolderFlow.folderPickerFailed',
+              'Could not open the folder picker.'
+            ),
+        { description: message.includes('Pair this web client') ? undefined : message }
+      )
     } finally {
       if (gen === localAddGenRef.current) {
         setIsAdding(false)
+        setAddProjectBusyLabel(null)
       }
     }
   }, [handleAddLocalPath, setAddProjectBusyLabel, setIsAdding])

@@ -16,7 +16,7 @@ import {
   saveStoredWebRuntimeEnvironment
 } from './web-runtime-environment'
 import { installWebPreloadApi } from './web-preload-api'
-import { tryConnectLocalDevRuntime } from './web-dev-local-pairing'
+import { isLocalDevWebHost, tryConnectLocalDevRuntime } from './web-dev-local-pairing'
 import { I18nProvider } from '../i18n/I18nProvider'
 import { translate } from '../i18n/i18n'
 
@@ -24,6 +24,10 @@ const App = lazy(() => import('../App'))
 
 function WebRoot(): React.JSX.Element {
   const initialPairingInput = useMemo(() => readPairingInputFromLocation(window.location), [])
+  // Why: UI annotation runs need the Vite localhost shell even when the desktop
+  // runtime is production-style and cannot serve the dev local-pairing endpoint.
+  const allowUnpairedLocalDevShell =
+    import.meta.env.DEV && isLocalDevWebHost(window.location.hostname)
   const [hasEnvironment, setHasEnvironment] = useState(() => {
     const offer = initialPairingInput ? parseWebPairingInput(initialPairingInput) : null
     if (offer) {
@@ -38,7 +42,7 @@ function WebRoot(): React.JSX.Element {
   const [autoConnecting, setAutoConnecting] = useState(false)
 
   useEffect(() => {
-    if (hasEnvironment || initialPairingInput) {
+    if (hasEnvironment || initialPairingInput || allowUnpairedLocalDevShell) {
       return
     }
     let cancelled = false
@@ -77,7 +81,7 @@ function WebRoot(): React.JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [hasEnvironment, initialPairingInput])
+  }, [allowUnpairedLocalDevShell, hasEnvironment, initialPairingInput])
 
   if (autoConnecting) {
     return (
@@ -87,7 +91,7 @@ function WebRoot(): React.JSX.Element {
     )
   }
 
-  if (!hasEnvironment) {
+  if (!hasEnvironment && !allowUnpairedLocalDevShell) {
     return (
       <WebConnect
         initialPairingInput={initialPairingInput}

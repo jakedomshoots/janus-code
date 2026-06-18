@@ -394,8 +394,11 @@
 .theme-retro95 .titlebar,
 .theme-retro95 .titlebar-left,
 .theme-retro95 .titlebar-left-floating {
-  height: 28px;
-  min-height: 28px;
+  /* Why: macOS traffic-light placement and the rounded window mask are aligned
+     to the standard 36px app titlebar; shortening only Retro 95 leaves the top
+     corner band looking clipped. */
+  height: 36px;
+  min-height: 36px;
   background: var(--win-titlebar);
   color: var(--win-titlebar-text);
   border-bottom: 0;
@@ -406,11 +409,11 @@
 
 .theme-retro95 .titlebar-app-name,
 .theme-retro95 .titlebar-left:not(.titlebar-left-floating) .titlebar-app-name {
-  height: 20px;
+  height: 24px;
   border-radius: 0;
   color: var(--win-titlebar-text);
   font-size: 11px;
-  line-height: 20px;
+  line-height: 24px;
 }
 
 .theme-retro95 .titlebar-left:not(.titlebar-left-floating) .titlebar-app-name {

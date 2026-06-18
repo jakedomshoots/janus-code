@@ -62,6 +62,40 @@ describe('AddRepoHostSelector', () => {
     expect(html).toContain('opacity-55')
   })
 
+  it('keeps disconnected runtime hosts selectable while status is pending', () => {
+    const html = renderToStaticMarkup(
+      <AddRepoHostSelector
+        hosts={[
+          {
+            id: 'local',
+            label: 'Local Mac',
+            detail: 'This computer',
+            kind: 'local',
+            health: 'local',
+            presence: 'local'
+          },
+          {
+            id: 'runtime:web-server',
+            label: 'Paired server',
+            detail: 'Janus Code server',
+            kind: 'runtime',
+            health: 'disconnected',
+            presence: 'active'
+          }
+        ]}
+        selectedHostId="runtime:web-server"
+        open
+        onOpenChange={vi.fn()}
+        onSelectHost={vi.fn()}
+      />
+    )
+
+    expect(html).toContain('Paired server')
+    expect(html).toContain('Disconnected')
+    expect(html).toContain('aria-disabled="false"')
+    expect(html).not.toContain('cursor-not-allowed')
+  })
+
   it('shows exact update guidance for incompatible runtime hosts', () => {
     const html = renderToStaticMarkup(
       <AddRepoHostSelector

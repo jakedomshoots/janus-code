@@ -512,7 +512,7 @@ function SectionMetricsBadge({ count }: { count: number }): React.JSX.Element {
 
   return (
     <span
-      className="inline-flex h-4 shrink-0 overflow-hidden rounded-full border border-worktree-sidebar-border bg-worktree-sidebar-accent text-[9px] font-medium leading-none text-muted-foreground/90"
+      className="inline-flex h-4 shrink-0 overflow-hidden rounded-[3px] border border-worktree-sidebar-border bg-worktree-sidebar text-[9px] font-medium leading-none text-muted-foreground/90"
       aria-label={totalLabel}
     >
       <Tooltip>
@@ -3418,7 +3418,7 @@ const VirtualizedWorktreeViewport = React.memo(function VirtualizedWorktreeViewp
                     data-workspace-status={headerWorkspaceStatus ?? undefined}
                     data-workspace-pin-drop-target={isPinnedHeader ? '' : undefined}
                     className={cn(
-                      'group flex h-7 w-full items-center gap-1.5 pr-1 text-left transition-all',
+                      'group flex h-9 w-full items-center gap-1.5 pr-1 text-left transition-all',
                       'cursor-pointer',
                       isDraggingThis &&
                         'bg-accent/80 ring-1 ring-ring/40 shadow-md rounded-md scale-[1.01]',

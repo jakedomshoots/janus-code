@@ -10,7 +10,6 @@ import {
   installRendererCrashDiagnostics,
   recordRendererCrashBreadcrumb
 } from './lib/crash-diagnostics'
-import { applyDocumentTheme } from './lib/document-theme'
 import { installClipboardGrabDumpGuards } from './lib/clipboard-grab-dump-guard'
 import { I18nProvider } from './i18n/I18nProvider'
 import { translate } from './i18n/i18n'
@@ -18,8 +17,6 @@ import { translate } from './i18n/i18n'
 recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.env.DEV })
 installClipboardGrabDumpGuards()
 installRendererCrashDiagnostics()
-
-applyDocumentTheme('retro95', { disableTransitions: false })
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
