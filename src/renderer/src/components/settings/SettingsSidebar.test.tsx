@@ -37,7 +37,8 @@ function makeSetupGuideProgress(
 
 function renderSidebar(
   activeSectionId = 'orchestration',
-  settings: GlobalSettings = getDefaultSettings('/tmp')
+  settings: GlobalSettings = getDefaultSettings('/tmp'),
+  searchQuery = ''
 ): string {
   return renderToStaticMarkup(
     <TooltipProvider>
@@ -83,7 +84,7 @@ function renderSidebar(
         ]}
         repoSections={[]}
         hasRepos={false}
-        searchQuery=""
+        searchQuery={searchQuery}
         onBack={vi.fn()}
         onSearchChange={vi.fn()}
         onSelectSection={vi.fn()}
@@ -94,6 +95,7 @@ function renderSidebar(
 
 describe('SettingsSidebar', () => {
   beforeEach(() => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
     mocks.useSettingsSetupGuideProgress.mockReset()
     mocks.useSettingsSetupGuideProgress.mockReturnValue(makeSetupGuideProgress())
   })
@@ -113,7 +115,7 @@ describe('SettingsSidebar', () => {
   })
 
   it('renders install state labels separately from static badges', () => {
-    const markup = renderSidebar()
+    const markup = renderSidebar('orchestration', getDefaultSettings('/tmp'), 'agent')
 
     expect(markup).toContain('Not installed')
     expect(markup).toContain('Installed')
@@ -158,7 +160,7 @@ describe('SettingsSidebar', () => {
     expect(markup).toContain('Onboarding checklist')
   })
 
-  it('collapses settings groups including the active group', async () => {
+  it('starts settings groups collapsed and toggles them immediately', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root: Root = createRoot(container)
@@ -195,7 +197,8 @@ describe('SettingsSidebar', () => {
       )
     })
 
-    expect(container.textContent).toContain('AI Provider Accounts')
+    expect(container.textContent).not.toContain('Orchestration')
+    expect(container.textContent).not.toContain('AI Provider Accounts')
 
     const activeTrigger = Array.from(container.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('AI Capabilities')
@@ -205,12 +208,18 @@ describe('SettingsSidebar', () => {
       activeTrigger?.click()
     })
 
-    expect(container.textContent).not.toContain('Orchestration')
+    expect(container.textContent).toContain('Orchestration')
 
     const setupTrigger = Array.from(container.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Set Up')
     )
     expect(setupTrigger).toBeDefined()
+    await act(async () => {
+      setupTrigger?.click()
+    })
+
+    expect(container.textContent).toContain('AI Provider Accounts')
+
     await act(async () => {
       setupTrigger?.click()
     })

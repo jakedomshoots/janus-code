@@ -134,7 +134,7 @@ export function SettingsSidebar({
     [settings, systemPrefersDark]
   ) as CSSProperties | undefined
   const setupActive = activeSectionId === 'setup-guide'
-  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
   // Why: "Hide from sidebar" only hides the top-left app sidebar prompt;
   // Settings should remain a stable place to reopen the checklist.
   const showSetupGuideTopRow =
@@ -170,11 +170,11 @@ export function SettingsSidebar({
           : 'border-border/50 bg-muted/30 text-muted-foreground'
     )
   const groupTriggerClassName =
-    'flex w-full items-center gap-1.5 rounded-md px-3 py-1 text-left text-[11px] font-medium uppercase tracking-[0.16em] text-worktree-sidebar-foreground/55 outline-none transition-colors hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50'
+    'flex w-full items-center gap-1.5 rounded-md px-3 py-1 text-left text-[11px] font-medium uppercase tracking-[0.16em] text-worktree-sidebar-foreground/55 outline-none hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50'
   const isGroupOpen = (groupId: string): boolean =>
-    searchQuery.trim().length > 0 || collapsedGroups[groupId] !== true
+    searchQuery.trim().length > 0 || expandedGroups[groupId] === true
   const toggleGroupOpen = (groupId: string, open: boolean): void => {
-    setCollapsedGroups((current) => ({ ...current, [groupId]: !open }))
+    setExpandedGroups((current) => ({ ...current, [groupId]: open }))
   }
 
   return (
@@ -284,13 +284,13 @@ export function SettingsSidebar({
           })}
 
           <Collapsible
-            open={searchQuery.trim().length > 0 || collapsedGroups.projects !== true}
+            open={searchQuery.trim().length > 0 || expandedGroups.projects === true}
             onOpenChange={(nextOpen) => toggleGroupOpen('projects', nextOpen)}
             className="space-y-1"
           >
             <CollapsibleTrigger asChild>
               <button type="button" className={groupTriggerClassName}>
-                {searchQuery.trim().length > 0 || collapsedGroups.projects !== true ? (
+                {searchQuery.trim().length > 0 || expandedGroups.projects === true ? (
                   <ChevronDown className="size-3.5 shrink-0" />
                 ) : (
                   <ChevronRight className="size-3.5 shrink-0" />
