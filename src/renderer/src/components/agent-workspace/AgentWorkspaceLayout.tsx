@@ -102,6 +102,7 @@ export function AgentWorkspaceLayout({
     handlePaneThreadSelect,
     handleNewSession,
     handleBeginDraftAgentSession,
+    handlePendingAgentLaunch,
     handleUpdateDraftSessionAgent,
     handleSelectDraftSession,
     handleCloseDraftSession,
@@ -357,6 +358,7 @@ export function AgentWorkspaceLayout({
                   handleUpdateDraftSessionAgent(pane.id, draftSessionId, agent)
                 }
                 onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
+                onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
                 onSplitPane={(direction) => {
                   const splitDirection =
                     direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'

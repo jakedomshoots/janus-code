@@ -414,6 +414,52 @@ describe('createMainWindow', () => {
     expect(webContents.send).not.toHaveBeenCalled()
   })
 
+  it('does not intercept bare space in before-input-event', () => {
+    const windowHandlers: Record<string, (...args: any[]) => void> = {}
+    const webContents = {
+      on: vi.fn((event, handler) => {
+        windowHandlers[event] = handler
+      }),
+      setZoomLevel: vi.fn(),
+      setBackgroundThrottling: vi.fn(),
+      invalidate: vi.fn(),
+      setWindowOpenHandler: vi.fn(),
+      send: vi.fn(),
+      isDevToolsOpened: vi.fn(),
+      openDevTools: vi.fn(),
+      closeDevTools: vi.fn()
+    }
+    const browserWindowInstance = {
+      webContents,
+      on: vi.fn(),
+      isDestroyed: vi.fn(() => false),
+      isMaximized: vi.fn(() => true),
+      isFullScreen: vi.fn(() => false),
+      getSize: vi.fn(() => [1200, 800]),
+      setSize: vi.fn(),
+      maximize: vi.fn(),
+      show: vi.fn(),
+      loadFile: vi.fn(),
+      loadURL: vi.fn()
+    }
+    browserWindowMock.mockImplementation(function () {
+      return browserWindowInstance
+    })
+
+    createMainWindow(null)
+
+    for (const input of [
+      { type: 'keyDown', code: 'Space', key: ' ', meta: false, control: false, alt: false },
+      { type: 'keyDown', code: 'Space', key: 'Space', meta: false, control: false, alt: false }
+    ]) {
+      const preventDefault = vi.fn()
+      windowHandlers['before-input-event']({ preventDefault } as never, input as never)
+      expect(preventDefault).not.toHaveBeenCalled()
+    }
+
+    expect(webContents.send).not.toHaveBeenCalled()
+  })
+
   it('forwards the platform tab-number jump shortcut to the renderer', () => {
     const windowHandlers: Record<string, (...args: any[]) => void> = {}
     const webContents = {

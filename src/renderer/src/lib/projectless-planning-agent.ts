@@ -1,9 +1,7 @@
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { activateAndRevealWorktree } from '@/lib/worktree-activation'
-import { CLIENT_PLATFORM } from '@/lib/new-workspace'
-import { buildAgentStartupPlan } from '@/lib/tui-agent-startup'
-import { tuiAgentToAgentKind } from '@/lib/telemetry'
+import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { pickQuickWorkspaceAgent } from '@/lib/quick-workspace-agent-selection'
 import { upsertAddedRepoWithProjectHostSetup } from '@/components/sidebar/add-repo-store-upsert'
 import { tryConnectLocalDevRuntime } from '@/web/web-dev-local-pairing'
@@ -25,38 +23,6 @@ function resolvePlanningAgent(preferredAgent?: TuiAgent | null): TuiAgent | null
   }
   const settings = useAppStore.getState().settings
   return pickQuickWorkspaceAgent(settings?.defaultTuiAgent, null, settings?.disabledTuiAgents)
-}
-
-function buildPlanningStartup({
-  agent,
-  prompt
-}: {
-  agent: TuiAgent
-  prompt: string
-}): Parameters<typeof activateAndRevealWorktree>[1] {
-  const settings = useAppStore.getState().settings
-  const startupPlan = buildAgentStartupPlan({
-    agent,
-    prompt,
-    cmdOverrides: settings?.agentCmdOverrides ?? {},
-    platform: CLIENT_PLATFORM,
-    allowEmptyPromptLaunch: true
-  })
-  if (!startupPlan) {
-    return { sidebarRevealBehavior: 'auto' }
-  }
-  return {
-    sidebarRevealBehavior: 'auto',
-    startup: {
-      command: startupPlan.launchCommand,
-      ...(startupPlan.env ? { env: startupPlan.env } : {}),
-      telemetry: {
-        agent_kind: tuiAgentToAgentKind(agent),
-        launch_source: 'sidebar',
-        request_kind: 'new'
-      }
-    }
-  }
 }
 
 async function createPlanningRepo(): Promise<Repo | null> {
@@ -137,10 +103,24 @@ export async function startProjectlessPlanningAgent({
       return false
     }
     const agent = resolvePlanningAgent(preferredAgent)
-    activateAndRevealWorktree(
-      worktree.id,
-      agent ? buildPlanningStartup({ agent, prompt }) : { sidebarRevealBehavior: 'auto' }
-    )
+    const activation = activateAndRevealWorktree(worktree.id, { sidebarRevealBehavior: 'auto' })
+    if (activation === false) {
+      return false
+    }
+    if (agent) {
+      // Why: projectless planning reuses the Janus Ideas folder, but each
+      // composer send must create a fresh agent tab instead of refocusing an
+      // old completed session in the folder's initial terminal.
+      const launched = launchAgentInNewTab({
+        agent,
+        worktreeId: worktree.id,
+        prompt,
+        launchSource: 'sidebar'
+      })
+      if (!launched) {
+        return false
+      }
+    }
     return true
   } catch (error) {
     console.error('Failed to start projectless planning agent:', error)

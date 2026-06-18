@@ -81,6 +81,7 @@ export function AgentWorkspacePane({
   onCloseDraftSession,
   onUpdateDraftSessionAgent,
   onBeginDraftAgentSession,
+  onPendingAgentLaunch,
   onSplitPane,
   onClosePane,
   onOpenTerminalDrawer
@@ -108,6 +109,7 @@ export function AgentWorkspacePane({
   onCloseDraftSession: (draftSessionId: string) => void
   onUpdateDraftSessionAgent: (draftSessionId: string, agent: TuiAgent) => void
   onBeginDraftAgentSession: (agent: TuiAgent) => void
+  onPendingAgentLaunch: () => void
   onSplitPane: (direction: 'right' | 'down' | 'left' | 'up') => void
   onClosePane: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
@@ -209,6 +211,7 @@ export function AgentWorkspacePane({
               browserWorkbench={browserWorkbench}
               pendingDraftAgent={activeDraftSession?.preferredAgent ?? null}
               onDraftSessionAgentChange={thread ? undefined : handleDraftSessionAgentChange}
+              onPendingAgentLaunch={onPendingAgentLaunch}
               onOpenTerminalDrawer={onOpenTerminalDrawer}
             />
           </>

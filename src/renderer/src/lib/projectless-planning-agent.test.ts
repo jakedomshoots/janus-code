@@ -4,6 +4,7 @@ import type { Repo, Worktree } from '../../../shared/types'
 const mocks = vi.hoisted(() => ({
   state: {} as Record<string, unknown>,
   activateAndRevealWorktree: vi.fn(),
+  launchAgentInNewTab: vi.fn(),
   toastError: vi.fn(),
   getDefaultCreateProjectParent: vi.fn(),
   createRepo: vi.fn(),
@@ -20,6 +21,10 @@ vi.mock('@/store', () => ({
 
 vi.mock('@/lib/worktree-activation', () => ({
   activateAndRevealWorktree: mocks.activateAndRevealWorktree
+}))
+
+vi.mock('@/lib/launch-agent-in-new-tab', () => ({
+  launchAgentInNewTab: mocks.launchAgentInNewTab
 }))
 
 vi.mock('@/web/web-dev-local-pairing', () => ({
@@ -74,6 +79,17 @@ function setPlanningState(overrides: Partial<Record<string, unknown>> = {}): voi
   const worktree = makeWorktree(repo.id)
   mocks.getDefaultCreateProjectParent.mockResolvedValue('/tmp')
   mocks.createRepo.mockResolvedValue({ repo })
+  mocks.activateAndRevealWorktree.mockReturnValue({ primaryTabId: 'tab-1' })
+  mocks.launchAgentInNewTab.mockReturnValue({
+    tabId: 'tab-agent',
+    startupPlan: {
+      agent: 'codex',
+      launchCommand: 'codex',
+      expectedProcess: 'codex',
+      followupPrompt: null
+    },
+    pasteDraftAfterLaunch: false
+  })
   mocks.tryConnectLocalDevRuntime.mockResolvedValue(false)
   mocks.state = {
     settings: {
@@ -115,13 +131,14 @@ describe('startProjectlessPlanningAgent', () => {
     expect(mocks.state.fetchWorktrees).toHaveBeenCalledWith('repo-1')
     expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith(
       'repo-1::/tmp/Janus Ideas',
-      expect.objectContaining({
-        sidebarRevealBehavior: 'auto',
-        startup: expect.objectContaining({
-          command: expect.stringContaining('codex')
-        })
-      })
+      expect.objectContaining({ sidebarRevealBehavior: 'auto' })
     )
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'codex',
+      worktreeId: 'repo-1::/tmp/Janus Ideas',
+      prompt: '',
+      launchSource: 'sidebar'
+    })
   })
 
   it('creates the planning folder project when it does not exist yet', async () => {
@@ -147,13 +164,14 @@ describe('startProjectlessPlanningAgent', () => {
     })
     expect(mocks.activateAndRevealWorktree).toHaveBeenCalledWith(
       'created-repo::/tmp/Janus Ideas',
-      expect.objectContaining({
-        sidebarRevealBehavior: 'auto',
-        startup: expect.objectContaining({
-          command: expect.stringContaining('Plan the app first.')
-        })
-      })
+      expect.objectContaining({ sidebarRevealBehavior: 'auto' })
     )
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'codex',
+      worktreeId: 'created-repo::/tmp/Janus Ideas',
+      prompt: 'Plan the app first.',
+      launchSource: 'sidebar'
+    })
   })
 
   it('retries after local dev pairing when the web client starts unpaired', async () => {

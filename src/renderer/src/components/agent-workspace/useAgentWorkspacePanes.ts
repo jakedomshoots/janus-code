@@ -4,7 +4,6 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import {
   appendAgentWorkspaceDraftSession,
   closeAgentWorkspaceDraftSession,
-  createAgentWorkspaceDraftSession,
   selectAgentWorkspaceDraftSession,
   updateAgentWorkspaceDraftSessionAgent
 } from './agent-workspace-draft-sessions'
@@ -15,24 +14,12 @@ import type {
   AgentWorkspacePaneState,
   AgentWorkspaceSplitDirection
 } from './agent-workspace-pane-state'
-
-function createInitialPaneState(selectedThreadId: string | null): AgentWorkspacePaneState {
-  if (selectedThreadId !== null) {
-    return {
-      id: 'pane-1',
-      selectedThreadId,
-      draftSessions: [],
-      selectedDraftSessionId: null
-    }
-  }
-  const draftSession = createAgentWorkspaceDraftSession(null)
-  return {
-    id: 'pane-1',
-    selectedThreadId: null,
-    draftSessions: [draftSession],
-    selectedDraftSessionId: draftSession.id
-  }
-}
+import { selectPanesAfterProjectThreadUpdate } from './agent-workspace-pane-thread-selection'
+import {
+  createInitialPaneState,
+  finalizeDraftSessionAgentBeforeSwitch,
+  type AgentWorkspacePanesController
+} from './agent-workspace-pane-session-state'
 
 export function useAgentWorkspacePanes({
   defaultThreadId,
@@ -44,26 +31,7 @@ export function useAgentWorkspacePanes({
   projectThreads: readonly AgentWorkspaceThread[]
   projectThreadIdsKey: string
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
-}): {
-  readonly panes: readonly AgentWorkspacePaneState[]
-  readonly activePaneId: string
-  readonly activePane: AgentWorkspacePaneState | null
-  readonly splitDirection: AgentWorkspaceSplitDirection
-  readonly setActivePaneId: (paneId: string) => void
-  readonly handlePaneThreadSelect: (paneId: string, threadId: string) => void
-  readonly handleNewSession: (paneId: string) => void
-  readonly handleBeginDraftAgentSession: (agent: TuiAgent, paneId: string) => void
-  readonly handleUpdateDraftSessionAgent: (
-    paneId: string,
-    draftSessionId: string,
-    agent: TuiAgent
-  ) => void
-  readonly handleSelectDraftSession: (paneId: string, draftSessionId: string) => void
-  readonly handleCloseDraftSession: (paneId: string, draftSessionId: string) => void
-  readonly handleCloseThread: (paneId: string, threadId: string) => void
-  readonly handleSplitPane: (paneId: string, direction: AgentWorkspaceSplitDirection) => void
-  readonly handleClosePane: (paneId: string) => void
-} {
+}): AgentWorkspacePanesController {
   const [panes, setPanes] = useState<AgentWorkspacePaneState[]>(() => [
     createInitialPaneState(defaultThreadId)
   ])
@@ -71,36 +39,16 @@ export function useAgentWorkspacePanes({
   const [splitDirection, setSplitDirection] = useState<AgentWorkspaceSplitDirection>('horizontal')
   const nextPaneSequenceRef = useRef(2)
   const draftAgentBySessionIdRef = useRef<Partial<Record<string, TuiAgent>>>({})
+  const previousProjectThreadIdsKeyRef = useRef(projectThreadIdsKey)
   const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0] ?? null
-
-  function finalizeDraftSessionAgentBeforeSwitch(
-    pane: AgentWorkspacePaneState
-  ): AgentWorkspacePaneState {
-    const currentDraftSessionId = pane.selectedDraftSessionId
-    if (!currentDraftSessionId) {
-      return pane
-    }
-    const trackedAgent = draftAgentBySessionIdRef.current[currentDraftSessionId]
-    if (!trackedAgent) {
-      return pane
-    }
-    const nextDraftState = updateAgentWorkspaceDraftSessionAgent(
-      pane,
-      currentDraftSessionId,
-      trackedAgent
-    )
-    return {
-      ...pane,
-      draftSessions: nextDraftState.draftSessions,
-      selectedDraftSessionId: nextDraftState.selectedDraftSessionId
-    }
-  }
 
   function handlePaneThreadSelect(paneId: string, threadId: string): void {
     setActivePaneId(paneId)
     setPanes((currentPanes) =>
       currentPanes.map((pane) =>
-        pane.id === paneId ? { ...pane, selectedThreadId: threadId } : pane
+        pane.id === paneId
+          ? { ...pane, selectedThreadId: threadId, pendingLaunchedThreadSelection: false }
+          : pane
       )
     )
   }
@@ -112,13 +60,19 @@ export function useAgentWorkspacePanes({
         if (pane.id !== paneId) {
           return pane
         }
-        const finalizedPane = finalizeDraftSessionAgentBeforeSwitch(pane)
+        const finalizedPane = finalizeDraftSessionAgentBeforeSwitch(
+          pane,
+          pane.selectedDraftSessionId
+            ? draftAgentBySessionIdRef.current[pane.selectedDraftSessionId]
+            : undefined
+        )
         const nextDraftState = appendAgentWorkspaceDraftSession(finalizedPane)
         return {
           ...pane,
           selectedThreadId: null,
           draftSessions: nextDraftState.draftSessions,
-          selectedDraftSessionId: nextDraftState.selectedDraftSessionId
+          selectedDraftSessionId: nextDraftState.selectedDraftSessionId,
+          pendingLaunchedThreadSelection: false
         }
       })
     )
@@ -132,13 +86,19 @@ export function useAgentWorkspacePanes({
         if (pane.id !== paneId) {
           return pane
         }
-        const finalizedPane = finalizeDraftSessionAgentBeforeSwitch(pane)
+        const finalizedPane = finalizeDraftSessionAgentBeforeSwitch(
+          pane,
+          pane.selectedDraftSessionId
+            ? draftAgentBySessionIdRef.current[pane.selectedDraftSessionId]
+            : undefined
+        )
         const nextDraftState = appendAgentWorkspaceDraftSession(finalizedPane, agent)
         return {
           ...pane,
           selectedThreadId: null,
           draftSessions: nextDraftState.draftSessions,
-          selectedDraftSessionId: nextDraftState.selectedDraftSessionId
+          selectedDraftSessionId: nextDraftState.selectedDraftSessionId,
+          pendingLaunchedThreadSelection: false
         }
       })
     )
@@ -168,6 +128,15 @@ export function useAgentWorkspacePanes({
     )
   }
 
+  function handlePendingAgentLaunch(paneId: string): void {
+    setActivePaneId(paneId)
+    setPanes((currentPanes) =>
+      currentPanes.map((pane) =>
+        pane.id === paneId ? { ...pane, pendingLaunchedThreadSelection: true } : pane
+      )
+    )
+  }
+
   function handleSelectDraftSession(paneId: string, draftSessionId: string): void {
     setActivePaneId(paneId)
     setPanes((currentPanes) =>
@@ -180,7 +149,8 @@ export function useAgentWorkspacePanes({
           ? {
               ...pane,
               selectedThreadId: null,
-              selectedDraftSessionId: nextDraftState.selectedDraftSessionId
+              selectedDraftSessionId: nextDraftState.selectedDraftSessionId,
+              pendingLaunchedThreadSelection: false
             }
           : pane
       })
@@ -204,7 +174,11 @@ export function useAgentWorkspacePanes({
           selectedThreadId:
             wasViewingDraft && nextDraftState.selectedDraftSessionId === null
               ? fallbackThreadId
-              : pane.selectedThreadId
+              : pane.selectedThreadId,
+          pendingLaunchedThreadSelection:
+            wasViewingDraft && nextDraftState.selectedDraftSessionId === null
+              ? false
+              : pane.pendingLaunchedThreadSelection
         }
       })
     )
@@ -214,7 +188,13 @@ export function useAgentWorkspacePanes({
     const fallbackThreadId = projectThreads.find((thread) => thread.id !== threadId)?.id ?? null
     setPanes((currentPanes) =>
       currentPanes.map((pane) =>
-        pane.selectedThreadId === threadId ? { ...pane, selectedThreadId: fallbackThreadId } : pane
+        pane.selectedThreadId === threadId
+          ? {
+              ...pane,
+              selectedThreadId: fallbackThreadId,
+              pendingLaunchedThreadSelection: false
+            }
+          : pane
       )
     )
     if (activePane?.selectedThreadId === threadId) {
@@ -234,7 +214,8 @@ export function useAgentWorkspacePanes({
         id: nextPaneId,
         selectedThreadId: sourcePane?.selectedThreadId ?? defaultThreadId,
         draftSessions: [...(sourcePane?.draftSessions ?? [])],
-        selectedDraftSessionId: sourcePane?.selectedDraftSessionId ?? null
+        selectedDraftSessionId: sourcePane?.selectedDraftSessionId ?? null,
+        pendingLaunchedThreadSelection: false
       }
       return insertIndex === -1
         ? [...currentPanes, nextPane]
@@ -264,13 +245,20 @@ export function useAgentWorkspacePanes({
   }
 
   useEffect(() => {
+    const hadProjectThreads = previousProjectThreadIdsKeyRef.current.length > 0
+    const previousThreadIds = new Set(previousProjectThreadIdsKeyRef.current.split('\u0000'))
+    const launchedThread = projectThreads.find(
+      (thread) => thread.phase === 'running' && !previousThreadIds.has(thread.id)
+    )
+    previousProjectThreadIdsKeyRef.current = projectThreadIdsKey
     setPanes((currentPanes) => {
-      const nextPanes = currentPanes.map((pane) =>
-        pane.selectedThreadId &&
-        !projectThreads.some((thread) => thread.id === pane.selectedThreadId)
-          ? { ...pane, selectedThreadId: defaultThreadId }
-          : pane
-      )
+      const nextPanes = selectPanesAfterProjectThreadUpdate({
+        panes: currentPanes,
+        launchedThread,
+        projectThreads,
+        defaultThreadId,
+        hadProjectThreads
+      })
       return nextPanes.some((pane, index) => pane !== currentPanes[index])
         ? nextPanes
         : currentPanes
@@ -305,6 +293,7 @@ export function useAgentWorkspacePanes({
     handlePaneThreadSelect,
     handleNewSession,
     handleBeginDraftAgentSession,
+    handlePendingAgentLaunch,
     handleUpdateDraftSessionAgent,
     handleSelectDraftSession,
     handleCloseDraftSession,

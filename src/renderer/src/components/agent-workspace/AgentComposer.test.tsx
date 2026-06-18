@@ -6,8 +6,8 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setRendererUiLanguage } from '@/i18n/i18n'
 import type { ActiveAgentNotesSendResult } from '@/lib/active-agent-note-send'
-import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import { makeAnnotation } from './agent-composer-test-fixtures'
 import { AgentComposer } from './AgentComposer'
 
 const mocks = vi.hoisted(() => ({
@@ -100,73 +100,6 @@ const runningThread: AgentWorkspaceThread = {
 
 function makeThread(overrides: Partial<AgentWorkspaceThread>): AgentWorkspaceThread {
   return { ...runningThread, ...overrides }
-}
-
-function makeAnnotation(): BrowserPageAnnotation {
-  return {
-    id: 'annotation-1',
-    browserPageId: 'browser-page-1',
-    comment: 'Make the primary action clearer.',
-    intent: 'change',
-    priority: 'important',
-    createdAt: '2026-06-16T12:00:00.000Z',
-    payload: {
-      page: {
-        sanitizedUrl: 'https://example.com/pricing',
-        title: 'Pricing',
-        viewportWidth: 1280,
-        viewportHeight: 720,
-        scrollX: 0,
-        scrollY: 0,
-        devicePixelRatio: 2,
-        capturedAt: '2026-06-16T12:00:00.000Z'
-      },
-      target: {
-        tagName: 'button',
-        selector: 'main button.primary',
-        elementPath: 'main > button.primary',
-        fullPath: 'html > body > main > button.primary',
-        cssClasses: 'primary',
-        nearbyElements: ['span "$29/month"'],
-        selectedText: null,
-        isFixed: false,
-        reactComponents: '<PricingCta>',
-        sourceFile: 'src/components/PricingCta.tsx:42:8',
-        textSnippet: 'Start free trial',
-        htmlSnippet: '<button class="primary">Start free trial</button>',
-        attributes: { class: 'primary', type: 'button' },
-        accessibility: {
-          role: 'button',
-          accessibleName: 'Start free trial',
-          ariaLabel: null,
-          ariaLabelledBy: null
-        },
-        rectViewport: { x: 400, y: 300, width: 148, height: 44 },
-        rectPage: { x: 400, y: 300, width: 148, height: 44 },
-        computedStyles: {
-          display: 'inline-flex',
-          position: 'relative',
-          width: '148px',
-          height: '44px',
-          margin: '0px',
-          padding: '12px 24px',
-          color: 'rgb(255, 255, 255)',
-          backgroundColor: 'rgb(99, 102, 241)',
-          border: '0px none',
-          borderRadius: '8px',
-          fontFamily: 'Geist, sans-serif',
-          fontSize: '16px',
-          fontWeight: '600',
-          lineHeight: '20px',
-          textAlign: 'center',
-          zIndex: 'auto'
-        }
-      },
-      nearbyText: ['Pro', '$29/month'],
-      ancestorPath: ['section', 'main', 'body'],
-      screenshot: null
-    }
-  }
 }
 
 function deferred<T>(): {
@@ -281,6 +214,38 @@ describe('AgentComposer', () => {
     expect(getDocumentButton('Set reasoning: Medium')).not.toBeNull()
     expect(getDocumentButton('Open model menu')).not.toBeNull()
     expect(getDocumentButton('Open provider menu')).not.toBeNull()
+  })
+
+  it('keeps bare space typing inside the composer draft', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'ab')
+    })
+
+    textarea!.selectionStart = 1
+    textarea!.selectionEnd = 1
+    const event = new KeyboardEvent('keydown', {
+      key: ' ',
+      code: 'Space',
+      bubbles: true,
+      cancelable: true
+    })
+
+    await act(async () => {
+      textarea!.dispatchEvent(event)
+      await Promise.resolve()
+    })
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(textarea?.value).toBe('a b')
+    expect(textarea?.selectionStart).toBe(2)
+    expect(textarea?.selectionEnd).toBe(2)
   })
 
   it('blocks send but keeps drafting when the selected thread is outside the active worktree', async () => {
@@ -570,11 +535,48 @@ describe('AgentComposer', () => {
       agent: 'opencode',
       worktreeId: 'worktree-1',
       prompt: 'Use OpenCode for this workspace.',
-      promptDelivery: 'submit-after-ready',
+      promptDelivery: 'auto-submit',
       launchSource: 'new_workspace_composer',
       onPromptDelivered: expect.any(Function)
     })
-    expect(textarea?.value).toBe('Use OpenCode for this workspace.')
+    expect(textarea?.value).toBe('')
+  })
+
+  it('marks the pane as waiting for the newly launched agent thread', async () => {
+    const onPendingAgentLaunch = vi.fn()
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={makeThread({ phase: 'completed' })}
+          onPendingAgentLaunch={onPendingAgentLaunch}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Start a follow-up agent.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'claude',
+      worktreeId: 'worktree-1',
+      prompt: 'Start a follow-up agent.',
+      agentArgs: '--dangerously-skip-permissions',
+      promptDelivery: 'auto-submit',
+      launchSource: 'new_workspace_composer',
+      onPromptDelivered: expect.any(Function)
+    })
+    expect(onPendingAgentLaunch).toHaveBeenCalledTimes(1)
+    expect(textarea?.value).toBe('')
   })
 
   it('passes the selected thinking mode into new Codex agent launches', async () => {
@@ -622,7 +624,7 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use deep reasoning for this.',
       agentArgs: '--dangerously-bypass-approvals-and-sandbox -c model_reasoning_effort=high',
-      promptDelivery: 'submit-after-ready',
+      promptDelivery: 'auto-submit',
       launchSource: 'new_workspace_composer',
       onPromptDelivered: expect.any(Function)
     })
@@ -680,7 +682,7 @@ describe('AgentComposer', () => {
       prompt: 'Use the selected model.',
       agentArgs:
         '--dangerously-bypass-approvals-and-sandbox --model gpt-5.4-mini -c model_reasoning_effort=medium',
-      promptDelivery: 'submit-after-ready',
+      promptDelivery: 'auto-submit',
       launchSource: 'new_workspace_composer',
       onPromptDelivered: expect.any(Function)
     })
@@ -839,7 +841,7 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use the discovered model.',
       agentArgs: '--model opencode/claude-opus-4-8',
-      promptDelivery: 'submit-after-ready',
+      promptDelivery: 'auto-submit',
       launchSource: 'new_workspace_composer',
       onPromptDelivered: expect.any(Function)
     })

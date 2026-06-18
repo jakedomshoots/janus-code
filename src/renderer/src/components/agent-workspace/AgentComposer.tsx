@@ -57,6 +57,7 @@ export function AgentComposer({
   pendingDraftAgent = null,
   onPendingDraftAgentConsumed,
   onDraftSessionAgentChange,
+  onPendingAgentLaunch,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
@@ -68,6 +69,7 @@ export function AgentComposer({
   pendingDraftAgent?: TuiAgent | null
   onPendingDraftAgentConsumed?: () => void
   onDraftSessionAgentChange?: (agent: TuiAgent) => void
+  onPendingAgentLaunch?: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
@@ -222,6 +224,7 @@ export function AgentComposer({
       submitSequenceRef.current = submitSequence
       const requestContextKey = submitContextKey
       setSubmitting(true)
+      const launchingNewAgent = !canSendToSelectedThread && Boolean(activeWorktreeId)
       const result = canSendToSelectedThread
         ? await submitAgentComposerMessage({
             activeWorktreeId,
@@ -260,10 +263,10 @@ export function AgentComposer({
       }
       setSubmitResult(result)
       setSubmitting(false)
-      if (
-        (canSendToSelectedThread && result.status === 'sent') ||
-        (!activeWorktreeId && result.status === 'launching')
-      ) {
+      if (launchingNewAgent && result.status === 'launching') {
+        onPendingAgentLaunch?.()
+      }
+      if ((canSendToSelectedThread && result.status === 'sent') || result.status === 'launching') {
         setPrompt('')
       }
     },
@@ -274,6 +277,7 @@ export function AgentComposer({
       selectedAgent,
       selectedModel,
       selectedThread,
+      onPendingAgentLaunch,
       submitContextKey,
       submitting,
       thinkingMode,

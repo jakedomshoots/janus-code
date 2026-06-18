@@ -57,7 +57,7 @@ export function launchSelectedAgent({
     agent: selectedAgent,
     worktreeId: activeWorktreeId,
     prompt,
-    promptDelivery: 'submit-after-ready',
+    promptDelivery: 'auto-submit',
     ...(agentArgs ? { agentArgs } : {}),
     launchSource: 'new_workspace_composer',
     onPromptDelivered
@@ -78,7 +78,7 @@ export function launchSelectedAgent({
     status: 'launching',
     message: translate(
       'auto.components.agentWorkspace.composer.agentLaunching',
-      'Starting {{agent}}. Your message will send when it is ready.',
+      'Starting {{agent}} with your message.',
       {
         agent: agentLabel
       }

@@ -59,12 +59,28 @@ const storeMocks = vi.hoisted(() => {
     focusBrowserTabInWorktree
   }
 })
+const launchMocks = vi.hoisted(() => ({
+  launchAgentInNewTab: vi.fn(() => ({
+    tabId: 'tab-agent',
+    startupPlan: {
+      agent: 'codex',
+      launchCommand: 'codex',
+      expectedProcess: 'codex',
+      followupPrompt: null
+    },
+    pasteDraftAfterLaunch: false
+  }))
+}))
 
 vi.mock('@/store', () => ({
   useAppStore: Object.assign(
     (selector: (state: typeof storeMocks.state) => unknown) => selector(storeMocks.state),
     { getState: () => storeMocks.state }
   )
+}))
+
+vi.mock('@/lib/launch-agent-in-new-tab', () => ({
+  launchAgentInNewTab: launchMocks.launchAgentInNewTab
 }))
 
 vi.mock('@/hooks/useDetectedAgents', () => ({
@@ -190,6 +206,12 @@ function hasButton(container: HTMLElement, label: string): boolean {
   return buttons(container).some((button) => button.getAttribute('aria-label') === label)
 }
 
+function setTextControlValue(control: HTMLTextAreaElement, value: string): void {
+  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(control), 'value')?.set
+  valueSetter?.call(control, value)
+  control.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 async function clickPaneAction(label: string, container: HTMLElement): Promise<void> {
   const action = buttons(container).find((button) => button.textContent?.includes(label))
 
@@ -230,6 +252,7 @@ afterEach(() => {
   storeMocks.openModal.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
+  launchMocks.launchAgentInNewTab.mockClear()
   storeMocks.state.browserTabsByWorktree = {}
   storeMocks.state.browserAnnotationsByPageId = {}
   storeMocks.state.activeBrowserTabIdByWorktree = {}
@@ -237,6 +260,150 @@ afterEach(() => {
 })
 
 describe('AgentWorkspace pane workflow', () => {
+  it('selects the first real thread after a draft composer launch creates one', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+
+    await act(async () => {
+      root.render(<AgentWorkspaceLayout snapshot={baseSnapshot()} />)
+    })
+
+    expect(container.querySelector('textarea')?.placeholder).toBe('Start a new agent session')
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={baseSnapshot({
+            threads: [
+              {
+                id: 'thread-1',
+                worktreeId: 'worktree-1',
+                title: 'Plan an app idea',
+                agentKind: 'grok',
+                phase: 'running',
+                updatedAt: '2026-06-18T17:20:00.000Z',
+                branchName: null,
+                cwd: '/Users/jakedom/janus-code'
+              }
+            ],
+            timeline: [
+              {
+                id: 'timeline-1',
+                threadId: 'thread-1',
+                kind: 'user',
+                text: 'Plan an app idea',
+                createdAt: '2026-06-18T17:20:00.000Z',
+                status: 'done'
+              }
+            ],
+            terminalAvailable: true
+          })}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('Plan an app idea')
+    expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
+  })
+
+  it('selects a new running thread launched from a completed thread composer', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+    const completedThread = {
+      id: 'thread-completed',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={baseSnapshot({
+            threads: [completedThread],
+            timeline: [
+              {
+                id: 'timeline-old',
+                threadId: completedThread.id,
+                kind: 'agent',
+                text: 'Old completed output',
+                createdAt: '2026-06-18T17:21:00.000Z',
+                status: 'done'
+              }
+            ]
+          })}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(container.textContent).toContain('Old completed output')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'hello')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={baseSnapshot({
+            threads: [
+              completedThread,
+              {
+                id: 'thread-new',
+                worktreeId: 'worktree-1',
+                title: 'hello',
+                agentKind: 'codex',
+                phase: 'running',
+                updatedAt: '2026-06-18T17:22:00.000Z',
+                branchName: null,
+                cwd: '/Users/jakedom/janus-code'
+              }
+            ],
+            timeline: [
+              {
+                id: 'timeline-old',
+                threadId: completedThread.id,
+                kind: 'agent',
+                text: 'Old completed output',
+                createdAt: '2026-06-18T17:21:00.000Z',
+                status: 'done'
+              },
+              {
+                id: 'timeline-new',
+                threadId: 'thread-new',
+                kind: 'user',
+                text: 'hello',
+                createdAt: '2026-06-18T17:22:00.000Z',
+                status: 'done'
+              }
+            ]
+          })}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('hello')
+    expect(container.textContent).not.toContain('Old completed output')
+    expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
+  })
+
   it('splits and closes agent workspace panes from the tab strip', async () => {
     const container = await renderLayout(baseSnapshot())
 

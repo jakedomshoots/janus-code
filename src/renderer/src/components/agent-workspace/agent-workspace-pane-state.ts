@@ -5,6 +5,7 @@ export type AgentWorkspacePaneState = {
   selectedThreadId: string | null
   draftSessions: readonly AgentWorkspaceDraftSession[]
   selectedDraftSessionId: string | null
+  pendingLaunchedThreadSelection: boolean
 }
 
 export type AgentWorkspaceSplitDirection = 'horizontal' | 'vertical'

@@ -75,6 +75,17 @@ function nativeZoomCommandMatchesKeybindings(
   )
 }
 
+function isUnmodifiedSpaceInput(input: Electron.Input): boolean {
+  return (
+    input.type === 'keyDown' &&
+    !input.alt &&
+    !input.meta &&
+    !input.control &&
+    !input.shift &&
+    (input.key === ' ' || input.key === 'Space' || input.code === 'Space')
+  )
+}
+
 // Why: the titlebar is 36px (border-box, 1px border-bottom).  The visual
 // center of the CSS-centered content sits at ~18 CSS px from the top.
 // At zoom factor z that becomes 18·z window px.  Traffic lights are
@@ -699,6 +710,12 @@ export function createMainWindow(
       !input.shift &&
       modForBold
     ) {
+      return
+    }
+
+    // Why: bare Space is text input, not an app shortcut. Let it reach DOM
+    // editables before the native shortcut router can suppress insertion.
+    if (isUnmodifiedSpaceInput(input)) {
       return
     }
 
