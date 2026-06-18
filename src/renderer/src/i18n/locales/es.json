@@ -502,7 +502,8 @@
         "createGroupFailed": "Could not create a planning project.",
         "startFailed": "Could not start a planning agent.",
         "createProjectFailed": "Could not create Janus Ideas.",
-        "openProjectFailed": "Could not open Janus Ideas."
+        "openProjectFailed": "Could not open Janus Ideas.",
+        "webPairingRequired": "Connect Janus Code before starting a planning agent."
       }
     },
     "hooks": {
@@ -11224,7 +11225,9 @@
           "noModelsFound": "No models found.",
           "setAgentProvider": "Set agent provider: {{label}}",
           "setPermissionMode": "Set permission mode: {{label}}",
-          "searchModelsLabel": "Search models"
+          "searchModelsLabel": "Search models",
+          "projectlessLaunchFailed": "Could not start a planning agent.",
+          "projectlessAgentLaunching": "Starting a planning agent."
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"

@@ -30,7 +30,7 @@ export function getAgentComposerReadinessMessage({
   if (isSelectedThreadReady(thread, activeWorktreeId)) {
     return null
   }
-  if (!activeWorktreeId) {
+  if (!activeWorktreeId && thread) {
     return translate(
       'auto.components.agentWorkspace.composer.selectWorkspaceBeforeLaunching',
       'Select a workspace before starting an agent.'

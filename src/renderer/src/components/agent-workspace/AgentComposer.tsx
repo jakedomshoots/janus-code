@@ -17,10 +17,7 @@ import {
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
 } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
-import {
-  containsLegacyBrowserGrabDump,
-  stripInjectedBrowserGrabDump
-} from '../browser-pane/strip-browser-grab-dump'
+import { stripInjectedBrowserGrabDump } from '../browser-pane/strip-browser-grab-dump'
 import { AgentComposerForm } from './AgentComposerForm'
 import { resolveAgentComposerSelection } from './agent-composer-agent-selection'
 import {
@@ -32,6 +29,8 @@ import {
 import { createPromptDeliveredFeedback } from './agent-composer-delivery-feedback'
 import { launchSelectedAgent } from './agent-composer-launch'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
+import { handleAgentComposerPaste } from './agent-composer-paste'
+import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
@@ -229,25 +228,30 @@ export function AgentComposer({
             selectedThread,
             prompt
           })
-        : launchSelectedAgent({
-            activeWorktreeId,
-            selectedAgent,
-            selectedModel,
-            thinkingMode,
-            prompt: trimmedPrompt,
-            onPromptDelivered: () => {
-              if (
-                submitSequenceRef.current !== submitSequence ||
-                submitContextKeyRef.current !== requestContextKey
-              ) {
-                return
+        : activeWorktreeId
+          ? launchSelectedAgent({
+              activeWorktreeId,
+              selectedAgent,
+              selectedModel,
+              thinkingMode,
+              prompt: trimmedPrompt,
+              onPromptDelivered: () => {
+                if (
+                  submitSequenceRef.current !== submitSequence ||
+                  submitContextKeyRef.current !== requestContextKey
+                ) {
+                  return
+                }
+                setSubmitResult(createPromptDeliveredFeedback(selectedAgent))
+                setPrompt((currentPrompt) =>
+                  currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
+                )
               }
-              setSubmitResult(createPromptDeliveredFeedback(selectedAgent))
-              setPrompt((currentPrompt) =>
-                currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
-              )
-            }
-          })
+            })
+          : await launchProjectlessPlanningComposerAgent({
+              prompt: trimmedPrompt,
+              selectedAgent
+            })
       if (
         submitSequenceRef.current !== submitSequence ||
         submitContextKeyRef.current !== requestContextKey
@@ -256,7 +260,10 @@ export function AgentComposer({
       }
       setSubmitResult(result)
       setSubmitting(false)
-      if (canSendToSelectedThread && result.status === 'sent') {
+      if (
+        (canSendToSelectedThread && result.status === 'sent') ||
+        (!activeWorktreeId && result.status === 'launching')
+      ) {
         setPrompt('')
       }
     },
@@ -289,21 +296,7 @@ export function AgentComposer({
 
   const handlePaste = useCallback(
     (event: React.ClipboardEvent<HTMLTextAreaElement>): void => {
-      const pastedText = event.clipboardData.getData('text/plain')
-      if (!containsLegacyBrowserGrabDump(pastedText)) {
-        return
-      }
-      event.preventDefault()
-      const stripped = stripInjectedBrowserGrabDump(pastedText)
-      if (!stripped) {
-        return
-      }
-      const textarea = event.currentTarget
-      const start = textarea.selectionStart ?? prompt.length
-      const end = textarea.selectionEnd ?? prompt.length
-      setPrompt(
-        stripInjectedBrowserGrabDump(`${prompt.slice(0, start)}${stripped}${prompt.slice(end)}`)
-      )
+      handleAgentComposerPaste({ event, prompt, setPrompt })
     },
     [prompt]
   )

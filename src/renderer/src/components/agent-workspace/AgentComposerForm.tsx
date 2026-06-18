@@ -2,8 +2,8 @@ import { AgentComposerFooter } from './AgentComposerFooter'
 import { AgentComposerTextarea } from './AgentComposerTextarea'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
+import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
-import type { AgentModelOption } from './agent-composer-model-discovery'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
@@ -59,9 +59,9 @@ export function AgentComposerForm({
   browserAnnotationCount: number
   onAttachBrowserContext: () => void
   canSendToSelectedThread: boolean
-  availableAgents: readonly { id: TuiAgent }[]
+  availableAgents: readonly { id: TuiAgent; label: string }[]
   selectedAgent: TuiAgent | null
-  modelOptions: readonly AgentModelOption[]
+  modelOptions: readonly TuiAgentModelOption[]
   selectedModel: string
   modelDiscoveryLoading: boolean
   modelDiscoveryError: string | null
