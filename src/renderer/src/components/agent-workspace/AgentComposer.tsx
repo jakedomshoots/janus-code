@@ -21,8 +21,7 @@ import {
   containsLegacyBrowserGrabDump,
   stripInjectedBrowserGrabDump
 } from '../browser-pane/strip-browser-grab-dump'
-import { AgentComposerFooter } from './AgentComposerFooter'
-import { AgentComposerTextarea } from './AgentComposerTextarea'
+import { AgentComposerForm } from './AgentComposerForm'
 import { resolveAgentComposerSelection } from './agent-composer-agent-selection'
 import {
   decodeAgentModelSelectionsKey,
@@ -30,6 +29,7 @@ import {
   getAgentComposerReadinessMessage,
   isSelectedThreadReady
 } from './agent-composer-readiness'
+import { createPromptDeliveredFeedback } from './agent-composer-delivery-feedback'
 import { launchSelectedAgent } from './agent-composer-launch'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
@@ -40,7 +40,9 @@ import {
   type AgentBrowserWorkbenchState
 } from './useAgentBrowserWorkbench'
 
-type AgentComposerFeedback = Pick<AgentComposerSubmitResult, 'message' | 'status'> & {
+type AgentComposerFeedback = {
+  message: string
+  status: AgentComposerSubmitResult['status'] | 'launching'
   reason?: string
 }
 
@@ -149,8 +151,6 @@ export function AgentComposer({
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
   const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
 
-  // Why: grab copy used to paste DOM dumps into the composer; HMR can also leave a
-  // stale formatter loaded until the host app reloads, so scrub on every update.
   useLayoutEffect(() => {
     const strippedPrompt = stripInjectedBrowserGrabDump(prompt)
     if (strippedPrompt !== prompt) {
@@ -234,7 +234,19 @@ export function AgentComposer({
             selectedAgent,
             selectedModel,
             thinkingMode,
-            prompt: trimmedPrompt
+            prompt: trimmedPrompt,
+            onPromptDelivered: () => {
+              if (
+                submitSequenceRef.current !== submitSequence ||
+                submitContextKeyRef.current !== requestContextKey
+              ) {
+                return
+              }
+              setSubmitResult(createPromptDeliveredFeedback(selectedAgent))
+              setPrompt((currentPrompt) =>
+                currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
+              )
+            }
           })
       if (
         submitSequenceRef.current !== submitSequence ||
@@ -244,7 +256,7 @@ export function AgentComposer({
       }
       setSubmitResult(result)
       setSubmitting(false)
-      if (result.status === 'sent') {
+      if (canSendToSelectedThread && result.status === 'sent') {
         setPrompt('')
       }
     },
@@ -368,49 +380,40 @@ export function AgentComposer({
   )
 
   return (
-    <form className="bg-transparent px-6 pb-6 pt-3" onSubmit={(event) => void handleSubmit(event)}>
-      <div className="mx-auto w-full max-w-[860px]">
-        <div className="agent-composer-shell rounded-none border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
-          <AgentComposerTextarea
-            value={prompt}
-            activeWorktreeId={activeWorktreeId}
-            selectedThread={selectedThread}
-            disabled={composerDisabled}
-            statusMessage={statusMessage}
-            onChange={handlePromptChange}
-            onPaste={handlePaste}
-            onKeyDown={handleKeyDown}
-          />
-          <AgentComposerFooter
-            statusMessage={statusMessage}
-            statusTone={statusTone}
-            permissionMode={permissionMode}
-            onPermissionModeChange={handlePermissionModeChange}
-            thinkingMode={thinkingMode}
-            onThinkingModeChange={handleThinkingModeChange}
-            canOpenTerminalDrawer={canOpenTerminalDrawer}
-            onOpenTerminalDrawer={onOpenTerminalDrawer}
-            canOpenBrowserWorkbench={browserWorkbench.browserAvailable}
-            onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
-            canAttachBrowserContext={browserWorkbench.canAttachBrowserContext}
-            browserAnnotationCount={browserWorkbench.browserAnnotationCount}
-            onAttachBrowserContext={handleAttachBrowserContext}
-            canSendToSelectedThread={canSendToSelectedThread}
-            selectedThread={selectedThread}
-            availableAgents={availableAgents}
-            selectedAgent={selectedAgent}
-            modelOptions={modelOptions}
-            selectedModel={selectedModel}
-            modelDiscoveryLoading={modelDiscovery.loading}
-            modelDiscoveryError={modelDiscovery.error}
-            detectingAgents={detectedAgents.isLoading}
-            onSelectedAgentChange={handleSelectedAgentChange}
-            onSelectedModelChange={handleSelectedModelChange}
-            submitting={submitting}
-            canSubmit={canSubmit}
-          />
-        </div>
-      </div>
-    </form>
+    <AgentComposerForm
+      prompt={prompt}
+      activeWorktreeId={activeWorktreeId}
+      selectedThread={selectedThread}
+      composerDisabled={composerDisabled}
+      statusMessage={statusMessage}
+      statusTone={statusTone}
+      permissionMode={permissionMode}
+      thinkingMode={thinkingMode}
+      canOpenTerminalDrawer={canOpenTerminalDrawer}
+      onOpenTerminalDrawer={onOpenTerminalDrawer}
+      canOpenBrowserWorkbench={browserWorkbench.browserAvailable}
+      onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
+      canAttachBrowserContext={browserWorkbench.canAttachBrowserContext}
+      browserAnnotationCount={browserWorkbench.browserAnnotationCount}
+      onAttachBrowserContext={handleAttachBrowserContext}
+      canSendToSelectedThread={canSendToSelectedThread}
+      availableAgents={availableAgents}
+      selectedAgent={selectedAgent}
+      modelOptions={modelOptions}
+      selectedModel={selectedModel}
+      modelDiscoveryLoading={modelDiscovery.loading}
+      modelDiscoveryError={modelDiscovery.error}
+      detectingAgents={detectedAgents.isLoading}
+      submitting={submitting}
+      canSubmit={canSubmit}
+      onSubmit={handleSubmit}
+      onPromptChange={handlePromptChange}
+      onPaste={handlePaste}
+      onKeyDown={handleKeyDown}
+      onPermissionModeChange={handlePermissionModeChange}
+      onThinkingModeChange={handleThinkingModeChange}
+      onSelectedAgentChange={handleSelectedAgentChange}
+      onSelectedModelChange={handleSelectedModelChange}
+    />
   )
 }

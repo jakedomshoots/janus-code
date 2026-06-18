@@ -69,7 +69,13 @@ export function AgentWorkspaceRightPanelChanges({
   }
 
   return (
-    <section className="min-w-0" aria-label="Changes">
+    <section
+      className="min-w-0"
+      aria-label={translate(
+        'auto.components.agentWorkspace.layout.sourceControlChanges',
+        'Changes'
+      )}
+    >
       <div className="mb-2 flex items-center justify-between gap-2">
         <h2 className="text-sm font-medium text-muted-foreground">
           {translate('auto.components.agentWorkspace.layout.sourceControlChanges', 'Changes')}

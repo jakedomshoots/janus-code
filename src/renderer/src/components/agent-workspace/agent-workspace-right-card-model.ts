@@ -1,4 +1,5 @@
 import { getRuntimePathBasename } from '../../../../shared/cross-platform-path'
+import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { formatAgentWorkspaceDiffStatus, formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type {
@@ -136,7 +137,7 @@ function buildSourceItems(
     })
     sources.push({
       id: `${project.id}:host`,
-      label: 'Environment',
+      label: translate('auto.components.agentWorkspace.rightPanel.environment', 'Environment'),
       detail: formatHostKind(project.hostKind)
     })
   }
@@ -145,7 +146,7 @@ function buildSourceItems(
   if (branchName) {
     sources.push({
       id: `${project?.id ?? thread?.id ?? 'source'}:branch`,
-      label: 'Branch',
+      label: translate('auto.components.agentWorkspace.rightPanel.branch', 'Branch'),
       detail: branchName
     })
   }
@@ -153,7 +154,10 @@ function buildSourceItems(
   if (thread?.cwd && thread.cwd !== project?.path) {
     sources.push({
       id: `${thread.id}:cwd`,
-      label: 'Working directory',
+      label: translate(
+        'auto.components.agentWorkspace.rightPanel.workingDirectory',
+        'Working directory'
+      ),
       detail: thread.cwd
     })
   }

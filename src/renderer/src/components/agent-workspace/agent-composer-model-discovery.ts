@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import {
   getTuiAgentModelOptions,
@@ -35,7 +36,10 @@ function toTuiAgentModelOptions(models: readonly TuiAgentModelOption[]): TuiAgen
   return [
     {
       id: TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
-      label: 'Provider default'
+      label: translate(
+        'auto.components.agentWorkspace.composer.providerDefault',
+        'Provider default'
+      )
     },
     ...models.map((model) => ({ id: model.id, label: model.label }))
   ]

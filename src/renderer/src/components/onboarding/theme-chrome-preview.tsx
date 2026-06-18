@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { translate } from '@/i18n/i18n'
 import type { GlobalSettings } from '../../../../shared/types'
 
 export function ChromePreview({ variant }: { variant: GlobalSettings['theme'] }) {
@@ -34,7 +35,9 @@ function Retro95ChromeMock() {
   return (
     <div className="flex size-full flex-col bg-[#c0c0c0] text-[#000]">
       <div className="flex h-3 items-center justify-between bg-[#000080] px-1 text-[5px] font-bold text-white">
-        <span>Janus Code</span>
+        <span>
+          {translate('auto.components.onboarding.themeChromePreview.janusCode', 'Janus Code')}
+        </span>
         <span className="flex gap-0.5">
           <span className="grid size-2 place-items-center bg-[#c0c0c0] text-[#000]">_</span>
           <span className="grid size-2 place-items-center bg-[#c0c0c0] text-[#000]">x</span>

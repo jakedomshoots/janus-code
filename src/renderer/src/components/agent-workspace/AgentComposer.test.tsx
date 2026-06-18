@@ -570,10 +570,11 @@ describe('AgentComposer', () => {
       agent: 'opencode',
       worktreeId: 'worktree-1',
       prompt: 'Use OpenCode for this workspace.',
-      launchSource: 'new_workspace_composer'
+      promptDelivery: 'submit-after-ready',
+      launchSource: 'new_workspace_composer',
+      onPromptDelivered: expect.any(Function)
     })
-    expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
-    expect(container.textContent).toContain('Started OpenCode.')
+    expect(textarea?.value).toBe('Use OpenCode for this workspace.')
   })
 
   it('passes the selected thinking mode into new Codex agent launches', async () => {
@@ -621,7 +622,9 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use deep reasoning for this.',
       agentArgs: '--dangerously-bypass-approvals-and-sandbox -c model_reasoning_effort=high',
-      launchSource: 'new_workspace_composer'
+      promptDelivery: 'submit-after-ready',
+      launchSource: 'new_workspace_composer',
+      onPromptDelivered: expect.any(Function)
     })
   })
 
@@ -677,7 +680,9 @@ describe('AgentComposer', () => {
       prompt: 'Use the selected model.',
       agentArgs:
         '--dangerously-bypass-approvals-and-sandbox --model gpt-5.4-mini -c model_reasoning_effort=medium',
-      launchSource: 'new_workspace_composer'
+      promptDelivery: 'submit-after-ready',
+      launchSource: 'new_workspace_composer',
+      onPromptDelivered: expect.any(Function)
     })
   })
 
@@ -834,7 +839,9 @@ describe('AgentComposer', () => {
       worktreeId: 'worktree-1',
       prompt: 'Use the discovered model.',
       agentArgs: '--model opencode/claude-opus-4-8',
-      launchSource: 'new_workspace_composer'
+      promptDelivery: 'submit-after-ready',
+      launchSource: 'new_workspace_composer',
+      onPromptDelivered: expect.any(Function)
     })
   })
 

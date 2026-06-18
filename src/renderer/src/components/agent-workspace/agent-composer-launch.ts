@@ -13,9 +13,10 @@ import {
   type TuiAgentThinkingMode
 } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
-import type { AgentComposerSubmitResult } from './agent-composer-submit'
 
-export type AgentComposerLaunchFeedback = Pick<AgentComposerSubmitResult, 'message' | 'status'> & {
+export type AgentComposerLaunchFeedback = {
+  message: string
+  status: 'launching' | 'blocked' | 'error'
   reason?: string
 }
 
@@ -24,13 +25,15 @@ export function launchSelectedAgent({
   selectedAgent,
   selectedModel,
   thinkingMode,
-  prompt
+  prompt,
+  onPromptDelivered
 }: {
   activeWorktreeId: string | null
   selectedAgent: TuiAgent | null
   selectedModel: string
   thinkingMode: TuiAgentThinkingMode
   prompt: string
+  onPromptDelivered?: () => void
 }): AgentComposerLaunchFeedback {
   if (!activeWorktreeId || !selectedAgent) {
     return {
@@ -54,8 +57,10 @@ export function launchSelectedAgent({
     agent: selectedAgent,
     worktreeId: activeWorktreeId,
     prompt,
+    promptDelivery: 'submit-after-ready',
     ...(agentArgs ? { agentArgs } : {}),
-    launchSource: 'new_workspace_composer'
+    launchSource: 'new_workspace_composer',
+    onPromptDelivered
   })
   const agentLabel = getAgentLabel(selectedAgent)
   if (!result) {
@@ -70,10 +75,10 @@ export function launchSelectedAgent({
     }
   }
   return {
-    status: 'sent',
+    status: 'launching',
     message: translate(
-      'auto.components.agentWorkspace.composer.agentStarted',
-      'Started {{agent}}.',
+      'auto.components.agentWorkspace.composer.agentLaunching',
+      'Starting {{agent}}. Your message will send when it is ready.',
       {
         agent: agentLabel
       }

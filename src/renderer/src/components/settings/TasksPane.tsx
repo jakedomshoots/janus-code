@@ -144,8 +144,8 @@ export function TasksPane({ settings, updateSettings }: TasksPaneProps): React.J
                 className={cn(
                   'flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2.5 text-left transition-colors',
                   enabled
-                    ? 'bg-accent/70 text-accent-foreground'
-                    : 'bg-transparent hover:bg-muted/50',
+                    ? 'border-foreground/25 bg-background text-foreground shadow-xs'
+                    : 'bg-transparent text-foreground hover:bg-muted/50',
                   isLastEnabled && 'cursor-not-allowed'
                 )}
               >
@@ -153,7 +153,7 @@ export function TasksPane({ settings, updateSettings }: TasksPaneProps): React.J
                   className={cn(
                     'flex size-7 shrink-0 items-center justify-center rounded-md border',
                     enabled
-                      ? 'border-foreground/20 bg-background/70'
+                      ? 'border-foreground/25 bg-accent text-accent-foreground'
                       : 'border-border/60 bg-muted/40 text-muted-foreground'
                   )}
                 >
@@ -161,14 +161,21 @@ export function TasksPane({ settings, updateSettings }: TasksPaneProps): React.J
                 </span>
                 <span className="min-w-0 flex-1 space-y-0.5">
                   <Label className="cursor-inherit">{option.label}</Label>
-                  <span className="block text-xs text-muted-foreground">{option.description}</span>
+                  <span
+                    className={cn(
+                      'block text-xs',
+                      enabled ? 'text-foreground/75' : 'text-muted-foreground'
+                    )}
+                  >
+                    {option.description}
+                  </span>
                 </span>
                 <span
                   aria-hidden
                   className={cn(
                     'flex size-4 shrink-0 items-center justify-center rounded border text-[10px]',
                     enabled
-                      ? 'border-foreground/50 bg-foreground text-background'
+                      ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-background'
                   )}
                 >

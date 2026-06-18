@@ -2,7 +2,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Globe, Plus, Server, ServerOff, Smartphone } from 'lucide-react'
+import { Globe, Plus, Search, Server, ServerOff, Smartphone } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { getRepoMapFromState, useAllWorktrees } from '@/store/selectors'
 import {
@@ -206,16 +206,19 @@ function HighlightedText({
 
 function PaletteState({ title, subtitle }: { title: string; subtitle: string }): React.JSX.Element {
   return (
-    <div className="px-5 py-8 text-center">
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+    <div className="mx-auto flex max-w-[28rem] flex-col items-center px-6 py-6 text-center">
+      <div className="mb-3 grid size-9 place-items-center rounded-lg border border-border bg-card text-muted-foreground shadow-xs">
+        <Search className="size-4" aria-hidden="true" />
+      </div>
+      <p className="text-[13px] font-medium leading-5 text-foreground">{title}</p>
+      <p className="mt-1 max-w-[24rem] text-xs leading-5 text-muted-foreground">{subtitle}</p>
     </div>
   )
 }
 
 function FooterKey({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <span className="rounded-full border border-border/60 bg-muted/35 px-2 py-0.5 text-[10px] font-medium text-foreground/85">
+    <span className="rounded-md border border-border bg-card px-1.5 py-0.5 text-[10px] font-medium leading-none text-foreground shadow-xs">
       {children}
     </span>
   )
@@ -1421,7 +1424,7 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
         'Search worktrees, settings, tabs, and actions'
       )}
       overlayClassName="bg-black/55 backdrop-blur-[2px]"
-      contentClassName="top-[13%] w-[736px] max-w-[94vw] overflow-hidden rounded-xl border border-border/70 bg-background/96 shadow-[0_26px_84px_rgba(0,0,0,0.32)] backdrop-blur-xl"
+      contentClassName="top-[12%] w-[600px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-[0_18px_48px_rgba(0,0,0,0.24)] backdrop-blur-xl"
       commandProps={{
         loop: true,
         value: commandSelectedItemId,
@@ -1436,11 +1439,11 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
         )}
         value={query}
         onValueChange={handleQueryChange}
-        wrapperClassName="mx-3 mt-3 rounded-lg border border-border/55 bg-muted/28 px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-        iconClassName="mr-2.5 h-4 w-4 text-muted-foreground/60"
-        className="h-12 text-[14px] placeholder:text-muted-foreground/75"
+        wrapperClassName="h-11 border-x-0 border-t-0 border-b border-border bg-transparent px-4"
+        iconClassName="mr-2.5 h-4 w-4 text-muted-foreground"
+        className="h-11 py-0 text-sm placeholder:text-muted-foreground"
       />
-      <CommandList ref={listRef} className="max-h-[min(460px,62vh)] px-2.5 pb-2.5 pt-2">
+      <CommandList ref={listRef} className="max-h-[min(420px,56vh)] px-2.5 py-2">
         {isLoading && selectableItems.length === 0 && !showCreateAction ? (
           <PaletteState
             title={translate(
@@ -1847,8 +1850,8 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
           </>
         )}
       </CommandList>
-      <div className="flex items-center justify-end border-t border-border/60 px-3.5 py-2.5 text-[11px] text-muted-foreground/82">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end border-t border-border bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5">
           <FooterKey>
             {translate('auto.components.WorktreeJumpPalette.f65d992a11', 'Enter')}
           </FooterKey>

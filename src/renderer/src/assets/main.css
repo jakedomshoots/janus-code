@@ -586,7 +586,8 @@
 .theme-retro95 div.rounded-2xl,
 .theme-retro95 div.rounded-xl,
 .theme-retro95 div.rounded-lg,
-.theme-retro95 div.rounded-md {
+.theme-retro95 div.rounded-md,
+.theme-retro95 button.rounded-md {
   border-radius: 0 !important;
   background-color: var(--win-surface);
 }
@@ -631,6 +632,20 @@
 .theme-retro95 [data-state='active'],
 .theme-retro95 [aria-selected='true'] {
   background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 button.rounded-md .text-muted-foreground,
+.theme-retro95 [data-slot='button'] .text-muted-foreground {
+  color: var(--win-text-muted) !important;
+}
+
+.theme-retro95 button.rounded-md:hover .text-muted-foreground,
+.theme-retro95 button.rounded-md:focus-visible .text-muted-foreground,
+.theme-retro95 button.rounded-md[aria-selected='true'] .text-muted-foreground,
+.theme-retro95 [data-slot='button']:hover .text-muted-foreground,
+.theme-retro95 [data-slot='button']:focus-visible .text-muted-foreground,
+.theme-retro95 [data-slot='button'][aria-selected='true'] .text-muted-foreground {
   color: var(--win-highlight-text) !important;
 }
 

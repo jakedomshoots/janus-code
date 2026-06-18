@@ -1,4 +1,5 @@
 import { Bot, ListChecks } from 'lucide-react'
+import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
   AgentWorkspaceDiffSummary,
@@ -23,10 +24,25 @@ export function PanelSummary({
   const completeSteps = plan?.steps.filter((step) => step.status === 'completed').length ?? 0
   const totalSteps = plan?.steps.length ?? 0
   const summaryItems = [
-    totalSteps > 0 ? `${completeSteps}/${totalSteps} steps` : 'No plan',
-    `${diffs.length} changes`,
-    `${subagents} agents`,
-    `${sources} sources`
+    totalSteps > 0
+      ? translate(
+          'auto.components.agentWorkspace.rightPanel.stepProgress',
+          '{{complete}}/{{total}} steps',
+          {
+            complete: completeSteps,
+            total: totalSteps
+          }
+        )
+      : translate('auto.components.agentWorkspace.rightPanel.noPlan', 'No plan'),
+    translate('auto.components.agentWorkspace.rightPanel.changeCount', '{{count}} changes', {
+      count: diffs.length
+    }),
+    translate('auto.components.agentWorkspace.rightPanel.agentCount', '{{count}} agents', {
+      count: subagents
+    }),
+    translate('auto.components.agentWorkspace.rightPanel.sourceCount', '{{count}} sources', {
+      count: sources
+    })
   ]
 
   return (
@@ -42,7 +58,10 @@ export function PanelSummary({
           <div className="truncate text-xs text-muted-foreground">
             {thread
               ? `${formatAgentTypeLabel(thread.agentKind)} · ${formatAgentWorkspacePhase(thread.phase)}`
-              : 'Ready for a new session'}
+              : translate(
+                  'auto.components.agentWorkspace.rightPanel.readyForNewSession',
+                  'Ready for a new session'
+                )}
           </div>
         </div>
       </div>
@@ -77,7 +96,7 @@ export function PlanProgress({
     <section className="mb-4 rounded-2xl border border-border bg-background/60 p-3">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <ListChecks className="size-3.5" aria-hidden="true" />
-        Plan progress
+        {translate('auto.components.agentWorkspace.rightPanel.planProgress', 'Plan progress')}
         <span className="ml-auto text-foreground">
           {completeSteps}/{plan.steps.length}
         </span>
@@ -90,7 +109,9 @@ export function PlanProgress({
       </div>
       {activeStep ? (
         <div className="mt-2 truncate text-xs text-muted-foreground" title={activeStep.title}>
-          Now: {activeStep.title}
+          {translate('auto.components.agentWorkspace.rightPanel.nowStep', 'Now: {{title}}', {
+            title: activeStep.title
+          })}
         </div>
       ) : null}
     </section>

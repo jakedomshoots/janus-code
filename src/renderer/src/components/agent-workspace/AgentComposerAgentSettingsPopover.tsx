@@ -285,7 +285,7 @@ function AgentModelOptions({
           className="h-9 rounded-xl bg-background pl-8 text-sm"
           placeholder={translate('auto.components.agentWorkspace.composer.searchModels', 'Search')}
           aria-label={translate(
-            'auto.components.agentWorkspace.composer.searchModels',
+            'auto.components.agentWorkspace.composer.searchModelsLabel',
             'Search models'
           )}
           onChange={(event) => setQuery(event.target.value)}

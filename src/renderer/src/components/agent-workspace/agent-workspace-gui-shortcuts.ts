@@ -8,33 +8,30 @@ export function routeGuiAgentWorkspaceTabShortcut(actionId: KeybindingActionId):
     return false
   }
 
-  switch (actionId) {
-    case 'tab.newTerminal':
-      bridge.newTerminalTab()
-      return true
-    case 'tab.newBrowser':
-      bridge.openBrowserWorkbench({
-        createNewTab: true,
-        keepAgentSessionVisible: false
-      })
-      return true
-    case 'tab.newMarkdown':
-      bridge.newFileTab()
-      return true
-    case 'tab.openMarkdown':
-      bridge.openFileTab()
-      return true
-    case 'tab.newSimulator':
-      bridge.newSimulatorTab()
-      return true
-    case 'tab.newAgent':
-      return false
-    default:
-      if (actionId.startsWith('tab.newAgent.')) {
-        return false
-      }
-      return false
+  if (actionId === 'tab.newTerminal') {
+    bridge.newTerminalTab()
+    return true
   }
+  if (actionId === 'tab.newBrowser') {
+    bridge.openBrowserWorkbench({
+      createNewTab: true,
+      keepAgentSessionVisible: false
+    })
+    return true
+  }
+  if (actionId === 'tab.newMarkdown') {
+    bridge.newFileTab()
+    return true
+  }
+  if (actionId === 'tab.openMarkdown') {
+    bridge.openFileTab()
+    return true
+  }
+  if (actionId === 'tab.newSimulator') {
+    bridge.newSimulatorTab()
+    return true
+  }
+  return false
 }
 
 export function routeGuiAgentWorkspaceAgentShortcut(agent: TuiAgent): boolean {

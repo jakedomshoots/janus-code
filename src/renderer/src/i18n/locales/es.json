@@ -146,7 +146,8 @@
             "36761d9604": "Se ignoró la acción de combinación de teclas desconocida \"{{value0}}\".",
             "d2e43e426a": "{{value0}} debe ser un objeto.",
             "fb290366b2": "No disponible en la web.",
-            "76122208ca": "Se ignoró el acceso directo para \"{{value0}}\": {{value1}}"
+            "76122208ca": "Se ignoró el acceso directo para \"{{value0}}\": {{value1}}",
+            "modelDiscoveryRequiresWorktree": "Model discovery needs an active worktree."
           }
         },
         "runtime": {
@@ -154,6 +155,9 @@
             "07f788de83": "WebSocket"
           }
         }
+      },
+      "main": {
+        "connecting": "Connecting to Janus Code…"
       }
     },
     "store": {
@@ -3915,7 +3919,9 @@
           "0dc4d1b657": "Introduzca una ruta de servidor para el destino del clon."
         },
         "useAddRepoLocalFolderFlow": {
-          "7ab10e4974": "Utilice una ruta de servidor para agregar proyectos desde un tiempo de ejecución remoto."
+          "7ab10e4974": "Utilice una ruta de servidor para agregar proyectos desde un tiempo de ejecución remoto.",
+          "webPairingRequired": "Pair this web client with Janus Code before browsing folders.",
+          "folderPickerFailed": "Could not open the folder picker."
         },
         "useAddRepoNestedImportFlow": {
           "680cac2c82": "{{value0}} falló",
@@ -4338,7 +4344,13 @@
             "tintOpacity": "Intensidad del tinte",
             "tintOpacityDescription": "Controla con qué fuerza se mezcla el tinte en la barra lateral."
           },
-          "workspaceCardLayoutGuidance": "Usa el menú de opciones de la barra lateral de espacios de trabajo > Diseño de tarjeta > Compacto."
+          "workspaceCardLayoutGuidance": "Usa el menú de opciones de la barra lateral de espacios de trabajo > Diseño de tarjeta > Compacto.",
+          "theme": {
+            "retro95": "Retro 95",
+            "modernAuto": "Modern Auto",
+            "modernDark": "Modern Dark",
+            "modernLight": "Modern Light"
+          }
         },
         "AutoRenameBranchFromWorkSetting": {
           "1626524572": "Nautilus",
@@ -8974,7 +8986,11 @@
           "699ddf83c2": "No se pudo importar la configuración de Ghostty",
           "16a9f0446a": "No se encontraron configuraciones de Ghostty para importar",
           "ad19e5c916": "Importador…",
-          "906c4373fe": "ajustes"
+          "906c4373fe": "ajustes",
+          "retro95": "Retro 95",
+          "modernAuto": "Modern Auto",
+          "modernDark": "Modern Dark",
+          "modernLight": "Modern Light"
         },
         "use": {
           "onboarding": {
@@ -8987,6 +9003,9 @@
         },
         "AgentFeatureSetupStep": {
           "97dcdc010f": "Instalar CLI y habilidades"
+        },
+        "themeChromePreview": {
+          "janusCode": "Janus Code"
         }
       },
       "new": {
@@ -10492,7 +10511,8 @@
             "ea6af700da": "{{value0}} anotación",
             "c13693fe27": "{{value0}} anotaciones",
             "074f0ed10b": "{{value0}} anotación lista. Seleccione otro elemento o copie todos los comentarios.",
-            "a2164a6e5a": "{{value0}} anotaciones listas. Seleccione otro elemento o copie todos los comentarios."
+            "a2164a6e5a": "{{value0}} anotaciones listas. Seleccione otro elemento o copie todos los comentarios.",
+            "6fc89db0d2": "Page snapshot copied."
           },
           "BrowserToolbarMenu": {
             "429ef481f9": "Cancelar",
@@ -10517,7 +10537,8 @@
             "bf648471c5": "Creando…",
             "53bbe3dab4": "Se importaron {{value0}} cookies del archivo.",
             "c5f0e4d3b2a1": "Se importaron {{value0}} cookies de {{value1}} ({{value2}}).",
-            "d6a1f5e4c3b2": "Se importaron {{value0}} cookies de {{value1}}."
+            "d6a1f5e4c3b2": "Se importaron {{value0}} cookies de {{value1}}.",
+            "2499b61a46": "Failed to switch browser profile."
           },
           "GrabConfirmationSheet": {
             "314a0aaa5b": "Adjuntar a IA",
@@ -11017,7 +11038,16 @@
           "panel": "Panel",
           "showRightPanel": "Show right panel",
           "files": "Files",
-          "openProjectFiles": "Open project files"
+          "openProjectFiles": "Open project files",
+          "workspace": "Workspace",
+          "ready": "Ready for Janus Code",
+          "workspaceCommands": "Workspace commands",
+          "openBrowser": "Open browser",
+          "browser": "Browser",
+          "openTerminal": "Open terminal",
+          "terminal": "Terminal",
+          "openWorkbench": "Open workbench",
+          "workbench": "Workbench"
         },
         "layout": {
           "projects": "Proyectos",
@@ -11115,7 +11145,11 @@
           "approvalTerminalNotWritable": "Could not write to the agent terminal. Open the terminal drawer and respond manually.",
           "approvalTerminalUnavailable": "No live terminal session is attached to this thread.",
           "approvalBannerTitle": "Agent needs your approval",
-          "emptyStateHint": "Use New session in the tab strip above, then describe your task in the composer below."
+          "emptyStateHint": "Use New session in the tab strip above, then describe your task in the composer below.",
+          "openBrowser": "Browser",
+          "openTerminal": "Terminal",
+          "oneChange": "1 change",
+          "changeCount": "{{count}} changes"
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
@@ -11166,7 +11200,24 @@
           "browserContextAttached": "Browser context attached.",
           "tools": "Tools",
           "attachBrowserContext": "Attach browser context",
-          "attachBrowserContextWithCount": "Attach browser context ({{count}} annotations)"
+          "attachBrowserContextWithCount": "Attach browser context ({{count}} annotations)",
+          "agentLaunching": "Starting {{agent}}. Your message will send when it is ready.",
+          "providerDefault": "Provider default",
+          "agentSettings": "Agent settings",
+          "reasoning": "Reasoning",
+          "openModelMenu": "Open model menu",
+          "openProviderMenu": "Open provider menu",
+          "reasoningLow": "Low",
+          "reasoningMedium": "Medium",
+          "reasoningHigh": "High",
+          "setReasoning": "Set reasoning: {{label}}",
+          "searchModels": "Search",
+          "loadingModels": "Loading models...",
+          "setModel": "Set model: {{label}}",
+          "noModelsFound": "No models found.",
+          "setAgentProvider": "Set agent provider: {{label}}",
+          "setPermissionMode": "Set permission mode: {{label}}",
+          "searchModelsLabel": "Search models"
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"
@@ -11232,8 +11283,59 @@
           "splitDown": "Split down",
           "closePane": "Close pane",
           "browser": "Browser",
-          "closeThread": "Close thread"
+          "closeThread": "Close thread",
+          "closeWorkbenchTab": "Close workbench tab",
+          "browserTabActions": "Browser tab actions",
+          "duplicateBrowserTab": "Duplicate tab",
+          "closeBrowserTab": "Close browser tab",
+          "closeDraftSession": "Close draft session",
+          "workspaceTabs": "Workspace tabs",
+          "backToChat": "Back to chat",
+          "splitPaneRight": "Split pane right",
+          "splitPaneDown": "Split pane down",
+          "splitPaneLeft": "Split pane left",
+          "splitPaneUp": "Split pane up"
+        },
+        "openMarkdown": {
+          "failed": "Failed to open markdown file."
+        },
+        "rightPanel": {
+          "tabPanel": "{{tab}} panel",
+          "outputs": "Outputs",
+          "noOutputsYet": "No outputs yet",
+          "noChanges": "No changes",
+          "noChangesDetail": "Git changes from Janus Code source control will appear here.",
+          "review": "Review",
+          "noReviewYet": "No review yet",
+          "subagents": "Subagents",
+          "noActiveSubagents": "No active subagents",
+          "sources": "Sources",
+          "noSourcesAttached": "No sources attached",
+          "output": "Output",
+          "changes": "Changes",
+          "context": "Context",
+          "agentWorkspaceRightPanel": "Agent workspace right panel",
+          "emptyTabTitle": "{{label}} is empty",
+          "none": "None",
+          "showMore": "Show {{count}} more",
+          "approve": "Approve",
+          "deny": "Deny",
+          "stepProgress": "{{complete}}/{{total}} steps",
+          "noPlan": "No plan",
+          "changeCount": "{{count}} changes",
+          "agentCount": "{{count}} agents",
+          "sourceCount": "{{count}} sources",
+          "readyForNewSession": "Ready for a new session",
+          "planProgress": "Plan progress",
+          "nowStep": "Now: {{title}}",
+          "environment": "Environment",
+          "branch": "Branch",
+          "workingDirectory": "Working directory"
         }
+      },
+      "DesktopShellRequired": {
+        "title": "Open Janus Code in the desktop app",
+        "description": "This URL is the Electron dev renderer and only works inside the Janus Code window launched by pnpm dev. For browser testing, use the paired web client at http://127.0.0.1:5175/ instead."
       }
     },
     "i18n": {

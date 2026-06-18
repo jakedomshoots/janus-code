@@ -1,6 +1,6 @@
-import { Bot, Check, Folder, GitBranch, Globe, Info, Laptop, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { translate } from '@/i18n/i18n'
 import type {
   AgentWorkspaceApproval,
   AgentWorkspaceDiffSummary,
@@ -11,12 +11,18 @@ import type {
 } from './agent-workspace-types'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
 import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-model'
+import {
+  EmptyPanelState,
+  InfoSection,
+  ItemList,
+  PanelTabs,
+  SectionDivider,
+  SourceGlyphRow
+} from './agent-workspace-right-panel-sections'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
 import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
-
-const VISIBLE_ITEM_COUNT = 6
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -89,11 +95,26 @@ export function AgentWorkspaceRightPanel({
           hasReview={review !== null}
           onSelectedTabChange={onSelectedTabChange}
         />
-        <div role="tabpanel" aria-label={`${selectedTab} panel`}>
+        <div
+          role="tabpanel"
+          aria-label={translate(
+            'auto.components.agentWorkspace.rightPanel.tabPanel',
+            '{{tab}} panel',
+            {
+              tab: selectedTab
+            }
+          )}
+        >
           {selectedTab === 'plan' ? (
             <>
               <PlanProgress plan={plan} />
-              <InfoSection title="Outputs" emptyLabel="No outputs yet">
+              <InfoSection
+                title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
+                emptyLabel={translate(
+                  'auto.components.agentWorkspace.rightPanel.noOutputsYet',
+                  'No outputs yet'
+                )}
+              >
                 <ItemList items={model.outputs} iconKind="output" />
               </InfoSection>
             </>
@@ -112,14 +133,26 @@ export function AgentWorkspaceRightPanel({
                 />
               ) : (
                 <EmptyPanelState
-                  title="No changes"
-                  detail="Git changes from Janus Code source control will appear here."
+                  title={translate(
+                    'auto.components.agentWorkspace.rightPanel.noChanges',
+                    'No changes'
+                  )}
+                  detail={translate(
+                    'auto.components.agentWorkspace.rightPanel.noChangesDetail',
+                    'Git changes from Janus Code source control will appear here.'
+                  )}
                 />
               )}
             </>
           ) : null}
           {selectedTab === 'review' ? (
-            <InfoSection title="Review" emptyLabel="No review yet">
+            <InfoSection
+              title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
+              emptyLabel={translate(
+                'auto.components.agentWorkspace.rightPanel.noReviewYet',
+                'No review yet'
+              )}
+            >
               <ItemList
                 items={
                   review
@@ -138,11 +171,26 @@ export function AgentWorkspaceRightPanel({
           ) : null}
           {selectedTab === 'details' ? (
             <>
-              <InfoSection title="Subagents" emptyLabel="No active subagents">
+              <InfoSection
+                title={translate(
+                  'auto.components.agentWorkspace.rightPanel.subagents',
+                  'Subagents'
+                )}
+                emptyLabel={translate(
+                  'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
+                  'No active subagents'
+                )}
+              >
                 <ItemList items={model.subagents} iconKind="subagent" />
               </InfoSection>
               <SectionDivider />
-              <InfoSection title="Sources" emptyLabel="No sources attached">
+              <InfoSection
+                title={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
+                emptyLabel={translate(
+                  'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
+                  'No sources attached'
+                )}
+              >
                 <ItemList items={model.sources} iconKind="source" />
                 <SourceGlyphRow sources={model.sources} />
               </InfoSection>
@@ -158,184 +206,6 @@ export function AgentWorkspaceRightPanel({
         />
       </div>
     </aside>
-  )
-}
-
-function PanelTabs({
-  selectedTab,
-  diffs,
-  hasPlan,
-  hasReview,
-  onSelectedTabChange
-}: {
-  selectedTab: AgentWorkspaceRightPanelTab
-  diffs: number
-  hasPlan: boolean
-  hasReview: boolean
-  onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
-}): React.JSX.Element {
-  const tabs: readonly {
-    id: AgentWorkspaceRightPanelTab
-    label: string
-    count?: number
-    available: boolean
-  }[] = [
-    { id: 'plan', label: 'Output', available: hasPlan },
-    { id: 'diff', label: 'Changes', count: diffs, available: diffs > 0 },
-    { id: 'review', label: 'Review', available: hasReview },
-    { id: 'details', label: 'Context', available: true }
-  ]
-
-  return (
-    <div
-      className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1"
-      role="tablist"
-      aria-label="Agent workspace right panel"
-    >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          className={cn(
-            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-2 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
-            selectedTab === tab.id
-              ? 'bg-card text-foreground shadow-xs'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-          )}
-          role="tab"
-          aria-selected={selectedTab === tab.id}
-          title={tab.available ? tab.label : `${tab.label} is empty`}
-          onClick={() => onSelectedTabChange(tab.id)}
-        >
-          <span className="truncate">{tab.label}</span>
-          {typeof tab.count === 'number' && tab.count > 0 ? (
-            <span className="rounded-full bg-muted px-1 text-[10px] text-muted-foreground">
-              {tab.count}
-            </span>
-          ) : null}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function InfoSection({
-  title,
-  emptyLabel,
-  children
-}: {
-  title: string
-  emptyLabel: string
-  children: React.ReactNode
-}): React.JSX.Element {
-  return (
-    <section className="min-w-0" aria-label={title}>
-      <h2 className="mb-2 text-sm font-medium text-muted-foreground">{title}</h2>
-      <div className="min-w-0">{children}</div>
-      <p className="hidden text-sm text-muted-foreground empty:block">{emptyLabel}</p>
-    </section>
-  )
-}
-
-function EmptyPanelState({ title, detail }: { title: string; detail: string }): React.JSX.Element {
-  return (
-    <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm">
-      <div className="font-medium text-foreground">{title}</div>
-      <div className="mt-1 text-muted-foreground">{detail}</div>
-    </div>
-  )
-}
-
-function ItemList({
-  items,
-  iconKind
-}: {
-  items: readonly { id: string; label: string; detail: string }[]
-  iconKind: 'output' | 'subagent' | 'source'
-}): React.JSX.Element {
-  if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">None</p>
-  }
-  const visibleItems = items.slice(0, VISIBLE_ITEM_COUNT)
-  const hiddenCount = Math.max(0, items.length - visibleItems.length)
-
-  return (
-    <div className="space-y-1">
-      {visibleItems.map((item) => (
-        <InfoRow key={item.id} item={item} iconKind={iconKind} />
-      ))}
-      {hiddenCount > 0 ? (
-        <div className="px-8 pt-1 text-xs text-muted-foreground">Show {hiddenCount} more</div>
-      ) : null}
-    </div>
-  )
-}
-
-function InfoRow({
-  item,
-  iconKind
-}: {
-  item: { id: string; label: string; detail: string }
-  iconKind: 'output' | 'subagent' | 'source'
-}): React.JSX.Element {
-  return (
-    <div className="flex h-10 min-w-0 items-center gap-3 rounded-xl px-1.5 text-sm text-foreground transition-colors hover:bg-background/70">
-      <InfoRowIcon item={item} iconKind={iconKind} />
-      <div className="min-w-0 flex-1">
-        <div className="truncate font-medium">{item.label}</div>
-        <div className="truncate text-xs text-muted-foreground">{item.detail}</div>
-      </div>
-    </div>
-  )
-}
-
-function InfoRowIcon({
-  item,
-  iconKind
-}: {
-  item: { id: string; label: string }
-  iconKind: 'output' | 'subagent' | 'source'
-}): React.JSX.Element {
-  if (iconKind === 'subagent') {
-    return (
-      <span className="flex size-5 shrink-0 items-center justify-center text-muted-foreground">
-        <Bot className="size-4" aria-hidden="true" />
-      </span>
-    )
-  }
-
-  const Icon =
-    iconKind === 'output'
-      ? Info
-      : item.label === 'Branch'
-        ? GitBranch
-        : item.label === 'Environment'
-          ? Laptop
-          : Folder
-
-  return (
-    <span className="flex size-5 shrink-0 items-center justify-center text-muted-foreground">
-      <Icon className="size-4" aria-hidden="true" />
-    </span>
-  )
-}
-
-function SourceGlyphRow({
-  sources
-}: {
-  sources: readonly { id: string; label: string }[]
-}): React.JSX.Element | null {
-  if (sources.length === 0) {
-    return null
-  }
-  return (
-    <div className="mt-3 flex items-center gap-3 px-1 text-muted-foreground" aria-hidden="true">
-      {sources.map((source) => {
-        const Icon =
-          source.label === 'Branch' ? GitBranch : source.label === 'Environment' ? Globe : Folder
-        return <Icon key={source.id} className="size-4" />
-      })}
-    </div>
   )
 }
 
@@ -368,7 +238,7 @@ function ApprovalActions({
           onClick={() => void onDecision('approve')}
         >
           <Check className="size-3.5" aria-hidden="true" />
-          Approve
+          {translate('auto.components.agentWorkspace.rightPanel.approve', 'Approve')}
         </Button>
         <Button
           type="button"
@@ -379,7 +249,7 @@ function ApprovalActions({
           onClick={() => void onDecision('deny')}
         >
           <X className="size-3.5" aria-hidden="true" />
-          Deny
+          {translate('auto.components.agentWorkspace.rightPanel.deny', 'Deny')}
         </Button>
       </div>
       {approvalFeedback ? (
@@ -387,8 +257,4 @@ function ApprovalActions({
       ) : null}
     </div>
   )
-}
-
-function SectionDivider(): React.JSX.Element {
-  return <div className="my-4 h-px bg-border" />
 }
