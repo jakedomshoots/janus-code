@@ -1,4 +1,5 @@
 import type { GlobalSettings } from './types'
+import { resolveModernThemePreference } from './app-theme'
 
 export type TerminalColorSchemeMode = 'dark' | 'light'
 
@@ -15,7 +16,7 @@ export function resolveTerminalColorSchemeMode(
   settings: Pick<GlobalSettings, 'theme'> | null | undefined,
   systemPrefersDark: boolean
 ): TerminalColorSchemeMode {
-  const theme = settings?.theme ?? 'system'
+  const theme = resolveModernThemePreference(settings?.theme)
   return theme === 'system' ? (systemPrefersDark ? 'dark' : 'light') : theme
 }
 

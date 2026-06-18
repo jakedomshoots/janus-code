@@ -51,12 +51,13 @@ import { translate } from '@/i18n/i18n'
 import type { UiLanguage } from '../../../../shared/ui-language'
 import { LeftSidebarAppearanceSetting } from './LeftSidebarAppearanceSetting'
 import { getWorkspaceCardLayoutEntry } from './appearance-sidebar-search'
+import type { AppThemePreference } from '../../../../shared/app-theme'
 export { getAppearancePaneSearchEntries }
 
 type AppearancePaneProps = {
   settings: GlobalSettings
   updateSettings: (updates: Partial<GlobalSettings>) => void
-  applyTheme: (theme: 'system' | 'dark' | 'light') => void
+  applyTheme: (theme: AppThemePreference) => void
   fontSuggestions: string[]
   terminalFontSuggestions: string[]
   systemPrefersDark: boolean
@@ -122,7 +123,7 @@ export function AppearancePane({
               'auto.components.settings.AppearancePane.0f28e7b30c',
               'Choose how Janus Code looks in the app window.'
             )}
-            keywords={getThemeEntries()[0]?.keywords ?? ['dark', 'light', 'system']}
+            keywords={getThemeEntries()[0]?.keywords ?? ['retro', 'windows', 'modern']}
           >
             <SettingsRow
               label={translate('auto.components.settings.AppearancePane.932ff1fbff', 'Theme')}
@@ -143,21 +144,31 @@ export function AppearancePane({
                   }}
                   options={[
                     {
+                      value: 'retro95',
+                      label: translate(
+                        'auto.components.settings.AppearancePane.theme.retro95',
+                        'Retro 95'
+                      )
+                    },
+                    {
                       value: 'system',
                       label: translate(
-                        'auto.components.settings.AppearancePane.fb0e0b4453',
-                        'System'
+                        'auto.components.settings.AppearancePane.theme.modernAuto',
+                        'Modern Auto'
                       )
                     },
                     {
                       value: 'dark',
-                      label: translate('auto.components.settings.AppearancePane.7d26ccabe8', 'Dark')
+                      label: translate(
+                        'auto.components.settings.AppearancePane.theme.modernDark',
+                        'Modern Dark'
+                      )
                     },
                     {
                       value: 'light',
                       label: translate(
-                        'auto.components.settings.AppearancePane.fd89b5487c',
-                        'Light'
+                        'auto.components.settings.AppearancePane.theme.modernLight',
+                        'Modern Light'
                       )
                     }
                   ]}

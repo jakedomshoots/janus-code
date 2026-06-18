@@ -17,6 +17,15 @@ export const getThemeEntries = createLocalizedCatalog((): SettingsSearchEntry[] 
       'Choose how Janus Code looks in the app window.'
     ),
     keywords: [
+      ...translateSearchKeyword('auto.components.settings.appearance.search.theme.retro', 'retro'),
+      ...translateSearchKeyword(
+        'auto.components.settings.appearance.search.theme.windows95',
+        'windows 95'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.appearance.search.theme.modern',
+        'modern'
+      ),
       ...translateSearchKeyword('auto.components.settings.appearance.search.262fe1d24f', 'dark'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.44d873fd18', 'light'),
       ...translateSearchKeyword('auto.components.settings.appearance.search.3a9b69d734', 'system')

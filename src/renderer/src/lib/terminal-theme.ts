@@ -1,6 +1,7 @@
 import type { ITheme } from '@xterm/xterm'
 import { getTheme, getThemeNames } from './terminal-themes-data'
 import type { GlobalSettings } from '../../../shared/types'
+import { resolveModernThemePreference, type ModernThemePreference } from '../../../shared/app-theme'
 import {
   makeCustomTerminalThemeSelection,
   normalizeTerminalCustomThemes,
@@ -18,7 +19,7 @@ const DEFAULT_TERMINAL_DIVIDER_LIGHT = '#d4d4d8'
 
 export type EffectiveTerminalAppearance = {
   mode: 'dark' | 'light'
-  sourceTheme: 'system' | 'dark' | 'light'
+  sourceTheme: ModernThemePreference
   themeName: string
   dividerColor: string
   theme: ITheme | null
@@ -121,8 +122,9 @@ export function resolveEffectiveTerminalAppearance(
   >,
   systemPrefersDark = getSystemPrefersDark()
 ): EffectiveTerminalAppearance {
+  const modernTheme = resolveModernThemePreference(settings.theme)
   const sourceTheme =
-    settings.theme === 'system' ? (systemPrefersDark ? 'dark' : 'light') : settings.theme
+    modernTheme === 'system' ? (systemPrefersDark ? 'dark' : 'light') : modernTheme
   const useLightVariant = sourceTheme === 'light' && settings.terminalUseSeparateLightTheme
   const themeName = useLightVariant
     ? settings.terminalThemeLight || DEFAULT_TERMINAL_THEME_LIGHT
@@ -133,7 +135,7 @@ export function resolveEffectiveTerminalAppearance(
 
   return {
     mode: sourceTheme,
-    sourceTheme: settings.theme,
+    sourceTheme: modernTheme,
     themeName,
     dividerColor,
     theme: getTerminalThemePreview(themeName, settings, useLightVariant ? 'light' : 'dark'),

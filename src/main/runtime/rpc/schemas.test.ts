@@ -8,14 +8,8 @@ import {
   OptionalPositiveInt,
   OptionalString
 } from './schemas'
-import {
-  InterceptEnable,
-  Screenshot,
-  Scroll,
-  TabClose,
-  TabSwitch,
-  Wait
-} from './methods/browser-schemas'
+import { InterceptEnable, Screenshot, Scroll, Wait } from './methods/browser-schemas'
+import { TabClose, TabSwitch } from './methods/browser-tab-profile-schemas'
 import { TERMINAL_METHODS } from './methods/terminal'
 import { WORKTREE_METHODS } from './methods/worktree'
 

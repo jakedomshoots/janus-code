@@ -2483,6 +2483,11 @@ export class Store {
           : false
         const autoRenameBranchFromWorkDefaultedOn =
           parsed.settings?.autoRenameBranchFromWorkDefaultedOn === true
+        const retro95ThemeDefaultedOn = parsed.settings?.retro95ThemeDefaultedOn === true
+        const migratedTheme =
+          retro95ThemeDefaultedOn || parsed.settings?.theme !== 'system'
+            ? parsed.settings?.theme
+            : 'retro95'
         // Why: default-on rollout should activate old profiles once, but a
         // later Settings opt-out must survive reloads.
         const migratedAutoRenameBranchFromWork = normalizeAutoRenameBranchFromWorkDefaultOn(
@@ -2548,6 +2553,9 @@ export class Store {
         if (!autoRenameBranchFromWorkDefaultedOn) {
           this.loadNeedsSave = true
         }
+        if (!retro95ThemeDefaultedOn) {
+          this.loadNeedsSave = true
+        }
         const normalizedOnboarding = normalizeLoadedOnboardingState(
           parsed.onboarding,
           defaults.onboarding
@@ -2574,6 +2582,12 @@ export class Store {
           settings: {
             ...defaults.settings,
             ...parsed.settings,
+            // Why: Retro 95 became the product default after earlier builds
+            // persisted "system" as an inherited default. Move that cohort
+            // once so upgrades see the new default; explicit dark/light
+            // choices stay modern, and later Settings choices are preserved.
+            theme: migratedTheme ?? defaults.settings.theme,
+            retro95ThemeDefaultedOn: true,
             // Why: v1.3.42 renamed the cosmetic sidekick setting to pet. Carry
             // the old persisted flag forward once so enabled users don't lose it.
             experimentalPet:
@@ -4227,6 +4241,9 @@ export class Store {
     }
     if ('autoRenameBranchFromWork' in updates || 'autoRenameBranchFromWorkDefaultedOn' in updates) {
       sanitizedUpdates.autoRenameBranchFromWorkDefaultedOn = true
+    }
+    if ('theme' in updates || 'retro95ThemeDefaultedOn' in updates) {
+      sanitizedUpdates.retro95ThemeDefaultedOn = true
     }
     if ('openInApplications' in updates) {
       sanitizedUpdates.openInApplications = normalizeOpenInApplications(updates.openInApplications)

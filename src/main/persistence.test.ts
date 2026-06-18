@@ -413,7 +413,8 @@ describe('Store', () => {
     const settings = store.getSettings()
     expect(settings.branchPrefix).toBe('git-username')
     expect(settings.refreshLocalBaseRefOnWorktreeCreate).toBe(false)
-    expect(settings.theme).toBe('system')
+    expect(settings.theme).toBe('retro95')
+    expect(settings.retro95ThemeDefaultedOn).toBe(true)
     expect(settings.appIcon).toBe('classic')
     expect(settings.appFontFamily).toBe('Geist')
     expect(settings.editorAutoSave).toBe(false)
@@ -1527,7 +1528,7 @@ describe('Store', () => {
 
     const store = await createStore()
     expect(store.getRepos()).toEqual([])
-    expect(store.getSettings().theme).toBe('system')
+    expect(store.getSettings().theme).toBe('retro95')
   })
 
   // ── 4. Schema migration: merges with defaults ───────────────────────
@@ -1622,6 +1623,40 @@ describe('Store', () => {
     expect(store.getSettings().commitMessageAi?.customPrompt).toBe('Use Conventional Commits.')
   })
 
+  it('migrates old inherited system theme profiles to Retro 95 once', async () => {
+    writeDataFile({
+      schemaVersion: 1,
+      repos: [],
+      worktreeMeta: {},
+      settings: { theme: 'system' },
+      ui: {},
+      githubCache: { pr: {}, issue: {} },
+      workspaceSession: {}
+    })
+
+    const store = await createStore()
+
+    expect(store.getSettings().theme).toBe('retro95')
+    expect(store.getSettings().retro95ThemeDefaultedOn).toBe(true)
+  })
+
+  it('preserves explicit modern theme choices during the Retro 95 default migration', async () => {
+    writeDataFile({
+      schemaVersion: 1,
+      repos: [],
+      worktreeMeta: {},
+      settings: { theme: 'dark' },
+      ui: {},
+      githubCache: { pr: {}, issue: {} },
+      workspaceSession: {}
+    })
+
+    const store = await createStore()
+
+    expect(store.getSettings().theme).toBe('dark')
+    expect(store.getSettings().retro95ThemeDefaultedOn).toBe(true)
+  })
+
   it('migrates first-work branch auto-rename on for existing profiles once', async () => {
     writeDataFile({
       schemaVersion: 1,
@@ -1665,6 +1700,14 @@ describe('Store', () => {
     const updated = store.updateSettings({ autoRenameBranchFromWorkDefaultedOn: false })
 
     expect(updated.autoRenameBranchFromWorkDefaultedOn).toBe(true)
+  })
+
+  it('does not let settings updates clear the Retro 95 theme migration guard', async () => {
+    const store = await createStore()
+
+    const updated = store.updateSettings({ retro95ThemeDefaultedOn: false })
+
+    expect(updated.retro95ThemeDefaultedOn).toBe(true)
   })
 
   it('merges rollback commit-message AI writes into existing source-control AI on load', async () => {
@@ -3449,7 +3492,7 @@ describe('Store', () => {
   it('updateSettings merges partial updates', async () => {
     const store = await createStore()
     const initial = store.getSettings()
-    expect(initial.theme).toBe('system')
+    expect(initial.theme).toBe('retro95')
 
     const updated = store.updateSettings({
       theme: 'dark',

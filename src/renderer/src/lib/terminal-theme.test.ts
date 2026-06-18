@@ -26,6 +26,24 @@ describe('resolveEffectiveTerminalAppearance', () => {
     expect(appearance.themeName).toBe(DEFAULT_TERMINAL_THEME_LIGHT)
   })
 
+  it('uses the light terminal theme for Retro 95 app chrome', () => {
+    const appearance = resolveEffectiveTerminalAppearance(
+      {
+        theme: 'retro95',
+        terminalThemeDark: DEFAULT_TERMINAL_THEME_DARK,
+        terminalDividerColorDark: '#3f3f46',
+        terminalUseSeparateLightTheme: true,
+        terminalThemeLight: DEFAULT_TERMINAL_THEME_LIGHT,
+        terminalDividerColorLight: '#d4d4d8'
+      },
+      true
+    )
+
+    expect(appearance.mode).toBe('light')
+    expect(appearance.sourceTheme).toBe('light')
+    expect(appearance.themeName).toBe(DEFAULT_TERMINAL_THEME_LIGHT)
+  })
+
   it('uses the dark terminal theme for system theme on dark OS', () => {
     const appearance = resolveEffectiveTerminalAppearance(
       {

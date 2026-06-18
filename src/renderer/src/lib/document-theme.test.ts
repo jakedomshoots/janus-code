@@ -79,6 +79,7 @@ describe('document theme', () => {
   it('resolves explicit theme preferences', () => {
     expect(resolveDocumentTheme('dark')).toBe(true)
     expect(resolveDocumentTheme('light')).toBe(false)
+    expect(resolveDocumentTheme('retro95')).toBe(false)
   })
 
   it('resolves system from matchMedia', () => {
@@ -91,9 +92,21 @@ describe('document theme', () => {
 
     applyDocumentTheme('dark', { root, disableTransitions: false })
     expect(root.classList.contains('dark')).toBe(true)
+    expect(root.classList.contains('theme-modern')).toBe(true)
 
     applyDocumentTheme('light', { root, disableTransitions: false })
     expect(root.classList.contains('dark')).toBe(false)
+  })
+
+  it('applies Retro 95 root classes as the light default skin', () => {
+    const root = createThemeRoot()
+
+    applyDocumentTheme('retro95', { root, disableTransitions: false })
+
+    expect(root.classList.contains('light')).toBe(true)
+    expect(root.classList.contains('dark')).toBe(false)
+    expect(root.classList.contains('theme-retro95')).toBe(true)
+    expect(root.classList.contains('theme-modern')).toBe(false)
   })
 
   it('applies system root class from matchMedia', () => {

@@ -162,6 +162,32 @@ describe('AppearancePane', () => {
     mocks.state.settingsSearchQuery = 'automations'
   })
 
+  it('offers Retro 95 as the default theme alongside modern alternatives', async () => {
+    mocks.state.settingsSearchQuery = 'theme'
+    const updateSettings = vi.fn()
+    const settings = getDefaultSettings('/tmp')
+
+    const container = await renderAppearancePane(settings, updateSettings)
+    const themeButtons = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button[role="radio"]')
+    )
+
+    expect(settings.theme).toBe('retro95')
+    expect(container.textContent).toContain('Retro 95')
+    expect(container.textContent).toContain('Modern Auto')
+    expect(container.textContent).toContain('Modern Dark')
+    expect(container.textContent).toContain('Modern Light')
+
+    const modernLightButton = themeButtons.find((button) => button.textContent === 'Modern Light')
+    expect(modernLightButton).toBeDefined()
+
+    await act(async () => {
+      modernLightButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(updateSettings).toHaveBeenCalledWith({ theme: 'light' })
+  })
+
   it('renders the language dropdown with system, english, chinese, korean, japanese, and spanish options', async () => {
     mocks.state.settingsSearchQuery = 'language'
     const updateSettings = vi.fn()

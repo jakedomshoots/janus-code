@@ -13,6 +13,7 @@ import { resolveTerminalLigaturesEnabled } from '../../../../shared/terminal-lig
 import { PREVIEW_BUFFER } from './terminal-preview-content'
 import { SettingsSwitch } from './SettingsFormControls'
 import type { GlobalSettings } from '../../../../shared/types'
+import { resolveModernThemePreference } from '../../../../shared/app-theme'
 import { translate } from '@/i18n/i18n'
 
 // Why: pin cols/rows so PREVIEW_BUFFER never wraps. Sized so the longest
@@ -57,10 +58,11 @@ function resolveAppMode(
   settings: Pick<GlobalSettings, 'theme'>,
   systemPrefersDark: boolean
 ): PreviewMode {
-  if (settings.theme === 'system') {
+  const theme = resolveModernThemePreference(settings.theme)
+  if (theme === 'system') {
     return systemPrefersDark ? 'dark' : 'light'
   }
-  return settings.theme
+  return theme
 }
 
 export function TerminalSettingsPreview({

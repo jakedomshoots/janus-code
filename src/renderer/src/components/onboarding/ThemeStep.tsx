@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Monitor, Moon, Settings2, Sun } from 'lucide-react'
+import { Check, Monitor, Moon, Settings2, SquareCode, Sun } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { track } from '@/lib/telemetry'
@@ -196,20 +196,26 @@ export function ThemeStep({ theme, onThemeChange, settings, updateSettings }: Th
     icon: typeof Monitor
   }[] = [
     {
+      id: 'retro95',
+      label: translate('auto.components.onboarding.ThemeStep.retro95', 'Retro 95'),
+      hint: 'Classic Janus',
+      icon: SquareCode
+    },
+    {
       id: 'system',
-      label: translate('auto.components.onboarding.ThemeStep.827ea7b4a2', 'System'),
+      label: translate('auto.components.onboarding.ThemeStep.modernAuto', 'Modern Auto'),
       hint: 'Match OS',
       icon: Monitor
     },
     {
       id: 'dark',
-      label: translate('auto.components.onboarding.ThemeStep.fa7b673ea9', 'Dark'),
+      label: translate('auto.components.onboarding.ThemeStep.modernDark', 'Modern Dark'),
       hint: 'Easy on the eyes',
       icon: Moon
     },
     {
       id: 'light',
-      label: translate('auto.components.onboarding.ThemeStep.ad192706e6', 'Light'),
+      label: translate('auto.components.onboarding.ThemeStep.modernLight', 'Modern Light'),
       hint: 'Bright & crisp',
       icon: Sun
     }
@@ -217,7 +223,7 @@ export function ThemeStep({ theme, onThemeChange, settings, updateSettings }: Th
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {themes.map(({ id, label, hint, icon: Icon }) => {
           const selected = theme === id
           return (

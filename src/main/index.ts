@@ -64,6 +64,7 @@ import { maybeRedirectAppImageCliLaunch } from './startup/appimage-cli-redirect'
 import { startFirstWindowStartupServices } from './startup/first-window-startup-services'
 import { getDevInstanceIdentity } from './startup/dev-instance-identity'
 import { hydrateShellPath, mergePathSegments } from './startup/hydrate-shell-path'
+import { resolveNativeThemeSource } from '../shared/app-theme'
 import {
   acquireSingleInstanceLock,
   logSingleInstanceLockBypass,
@@ -1435,7 +1436,7 @@ app.whenReady().then(async () => {
     serveSimStateWatcher.markOrcaManaged(info)
     runtimeService.notifyEmulatorAutoAttachFromWatcher(worktreeId, info)
   })
-  nativeTheme.themeSource = store.getSettings().theme ?? 'system'
+  nativeTheme.themeSource = resolveNativeThemeSource(store.getSettings().theme)
   if (shouldInstallManagedHooks(is.dev)) {
     // Why: the persisted off switch must run before any auto-install path so
     // users who removed Orca-managed hooks do not see them silently reappear on launch.

@@ -33,6 +33,7 @@ import type { SleepingAgentSessionRecord } from './agent-session-resume'
 import type { ClaudeAgentTeamsMode } from './claude-agent-teams-tmux-compat'
 import type { TerminalCustomTheme } from './terminal-custom-themes'
 import type { UiLanguage } from './ui-language'
+import type { AppThemePreference } from './app-theme'
 
 // Re-exported for backward compat with renderer call sites that import
 // `WorkspaceCreateTelemetrySource` from '../../../shared/types'.
@@ -2294,7 +2295,11 @@ export type GlobalSettings = {
   branchPrefix: 'git-username' | 'custom' | 'none'
   branchPrefixCustom: string
   enableGitHubAttribution: boolean
-  theme: 'system' | 'dark' | 'light'
+  theme: AppThemePreference
+  /** One-shot migration guard for making Retro 95 the app default. Existing
+   *  profiles that only carried the old inherited "system" default move once;
+   *  later explicit Modern choices stick. */
+  retro95ThemeDefaultedOn?: boolean
   /** Controls the left sidebar surface without changing terminal brightness. */
   leftSidebarAppearanceMode: LeftSidebarAppearanceMode
   leftSidebarTintColor?: string

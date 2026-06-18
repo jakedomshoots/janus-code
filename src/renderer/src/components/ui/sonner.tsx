@@ -7,9 +7,10 @@ import {
 } from 'lucide-react'
 import { Toaster as Sonner, type ToasterProps } from 'sonner'
 import { useAppStore } from '@/store'
+import { resolveModernThemePreference } from '../../../../shared/app-theme'
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = useAppStore((s) => s.settings?.theme) || 'system'
+  const theme = resolveModernThemePreference(useAppStore((s) => s.settings?.theme))
 
   return (
     <Sonner

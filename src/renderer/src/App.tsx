@@ -1241,11 +1241,8 @@ function App(): React.JSX.Element {
       return
     }
 
-    if (settings.theme === 'dark') {
-      applyDocumentTheme('dark')
-      return undefined
-    } else if (settings.theme === 'light') {
-      applyDocumentTheme('light')
+    if (settings.theme !== 'system') {
+      applyDocumentTheme(settings.theme)
       return undefined
     } else {
       // system

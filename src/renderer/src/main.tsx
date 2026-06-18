@@ -19,7 +19,7 @@ recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.e
 installClipboardGrabDumpGuards()
 installRendererCrashDiagnostics()
 
-applyDocumentTheme('system', { disableTransitions: false })
+applyDocumentTheme('retro95', { disableTransitions: false })
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

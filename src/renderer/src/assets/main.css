@@ -270,6 +270,240 @@
   --annotation-highlight: #fbbf24;
 }
 
+/* ── Retro 95 Default Theme ─────────────────────────── */
+
+.theme-retro95 {
+  --app-font-family: 'MS Sans Serif', Tahoma, Verdana, Arial, system-ui, sans-serif;
+  --font-sans: var(--app-font-family);
+  --font-mono: 'Courier New', 'JetBrains Mono', Consolas, monospace;
+  --radius: 0px;
+  --win-bg: #008080;
+  --win-surface: #c0c0c0;
+  --win-surface-light: #dfdfdf;
+  --win-surface-dark: #808080;
+  --win-border-light: #ffffff;
+  --win-border-dark: #808080;
+  --win-border-black: #000000;
+  --win-titlebar: #000080;
+  --win-titlebar-text: #ffffff;
+  --win-titlebar-inactive: #808080;
+  --win-text: #000000;
+  --win-text-muted: #404040;
+  --win-input-bg: #ffffff;
+  --win-highlight: #000080;
+  --win-highlight-text: #ffffff;
+  --win-danger: #800000;
+  --win-warning: #808000;
+  --win-success: #008000;
+  --win-font: var(--app-font-family);
+  --win-font-mono: var(--font-mono);
+  --background: var(--win-bg);
+  --editor-surface: var(--win-input-bg);
+  --foreground: var(--win-text);
+  --card: var(--win-surface);
+  --card-foreground: var(--win-text);
+  --popover: var(--win-surface);
+  --popover-foreground: var(--win-text);
+  --primary: var(--win-titlebar);
+  --primary-foreground: var(--win-titlebar-text);
+  --secondary: var(--win-surface);
+  --secondary-foreground: var(--win-text);
+  --muted: var(--win-surface-light);
+  --muted-foreground: var(--win-text-muted);
+  --accent: var(--win-highlight);
+  --accent-foreground: var(--win-highlight-text);
+  --destructive: var(--win-danger);
+  --destructive-foreground: #ffffff;
+  --border: var(--win-border-dark);
+  --input: var(--win-border-dark);
+  --ring: var(--win-border-black);
+  --terminal-pane-locate: var(--win-titlebar);
+  --ai-action-accent: var(--win-titlebar);
+  --status-success: var(--win-success);
+  --status-success-background: #d8f0d8;
+  --status-success-border: var(--win-success);
+  --chart-1: #000080;
+  --chart-2: #008080;
+  --chart-3: #800080;
+  --chart-4: #808000;
+  --chart-5: #800000;
+  --worktree-sidebar: var(--win-surface);
+  --worktree-sidebar-foreground: var(--win-text);
+  --worktree-sidebar-accent: var(--win-highlight);
+  --worktree-sidebar-accent-foreground: var(--win-highlight-text);
+  --worktree-sidebar-border: var(--win-border-dark);
+  --worktree-sidebar-ring: var(--win-border-black);
+  --sidebar: var(--win-surface);
+  --sidebar-foreground: var(--win-text);
+  --sidebar-primary: var(--win-titlebar);
+  --sidebar-primary-foreground: var(--win-titlebar-text);
+  --sidebar-accent: var(--win-highlight);
+  --sidebar-accent-foreground: var(--win-highlight-text);
+  --sidebar-border: var(--win-border-dark);
+  --sidebar-ring: var(--win-border-black);
+  --terminal-pane-title-on-light-fg: #000000;
+  --terminal-pane-title-on-light-input-fg: #000000;
+  --terminal-pane-title-on-light-placeholder: #404040;
+  --terminal-pane-title-on-light-button-fg: #000000;
+  --terminal-pane-title-on-light-button-hover-fg: #000000;
+  --terminal-pane-title-on-light-input-bg: #ffffff;
+  --terminal-pane-title-on-light-separator: #808080;
+  --git-decoration-added: #008000;
+  --git-decoration-modified: #808000;
+  --git-decoration-deleted: #800000;
+  --git-decoration-renamed: #000080;
+  --git-decoration-untracked: #008000;
+  --git-decoration-copied: #000080;
+  --git-decoration-ignored: #808080;
+  --git-graph-ref: #000080;
+  --git-graph-remote-ref: #800080;
+  --git-graph-base-ref: #808000;
+  --git-graph-lane-1: #000080;
+  --git-graph-lane-2: #008080;
+  --git-graph-lane-3: #800080;
+  --git-graph-lane-4: #808000;
+  --git-graph-lane-5: #800000;
+  --annotation-highlight: #ffff00;
+}
+
+.theme-retro95 body {
+  font-size: 12px;
+  letter-spacing: 0;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+.theme-retro95 .app-layout,
+.theme-retro95 #root {
+  background: var(--win-bg);
+}
+
+.theme-retro95 .titlebar,
+.theme-retro95 .titlebar-left,
+.theme-retro95 .titlebar-left-floating {
+  height: 28px;
+  min-height: 28px;
+  background: var(--win-titlebar);
+  color: var(--win-titlebar-text);
+  border-bottom: 0;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset -1px -1px 0 var(--win-border-dark);
+}
+
+.theme-retro95 .titlebar-app-name,
+.theme-retro95 .titlebar-left:not(.titlebar-left-floating) .titlebar-app-name {
+  height: 20px;
+  border-radius: 0;
+  color: var(--win-titlebar-text);
+  font-size: 11px;
+  line-height: 20px;
+}
+
+.theme-retro95 [data-slot='button'],
+.theme-retro95 button.win95-button {
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: var(--win-surface) !important;
+  color: var(--win-text) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset 2px 2px 0 var(--win-surface-light),
+    inset -1px -1px 0 var(--win-border-black),
+    inset -2px -2px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 [data-slot='button']:active,
+.theme-retro95 button.win95-button:active {
+  transform: translate(1px, 1px);
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-black),
+    inset 2px 2px 0 var(--win-border-dark),
+    inset -1px -1px 0 var(--win-border-light) !important;
+}
+
+.theme-retro95 [data-slot='button']:focus-visible,
+.theme-retro95 button:focus-visible,
+.theme-retro95 [role='radio']:focus-visible,
+.theme-retro95 [role='tab']:focus-visible {
+  outline: 1px dotted var(--win-border-black) !important;
+  outline-offset: -4px;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset 2px 2px 0 var(--win-surface-light),
+    inset -1px -1px 0 var(--win-border-black),
+    inset -2px -2px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 [data-slot='input'],
+.theme-retro95 input:not([type='checkbox']):not([type='radio']),
+.theme-retro95 textarea,
+.theme-retro95 select {
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: var(--win-input-bg) !important;
+  color: var(--win-text) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-black),
+    inset 2px 2px 0 var(--win-border-dark),
+    inset -1px -1px 0 var(--win-border-light) !important;
+}
+
+.theme-retro95 [data-slot='dialog-content'],
+.theme-retro95 [data-slot='popover-content'],
+.theme-retro95 [data-slot='sheet-content'],
+.theme-retro95 [data-slot='dropdown-menu-content'],
+.theme-retro95 [data-slot='command'],
+.theme-retro95 [data-slot='card'],
+.theme-retro95 aside > div,
+.theme-retro95 section.rounded-2xl,
+.theme-retro95 div.rounded-2xl,
+.theme-retro95 div.rounded-xl,
+.theme-retro95 div.rounded-lg {
+  border-radius: 0 !important;
+  background-color: var(--win-surface);
+}
+
+.theme-retro95 [data-slot='dialog-content'],
+.theme-retro95 [data-slot='popover-content'],
+.theme-retro95 [data-slot='sheet-content'],
+.theme-retro95 [data-slot='dropdown-menu-content'],
+.theme-retro95 [data-slot='card'],
+.theme-retro95 aside > div {
+  border: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset 2px 2px 0 var(--win-surface-light),
+    inset -1px -1px 0 var(--win-border-black),
+    inset -2px -2px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 .scrollbar-sleek,
+.theme-retro95 .scrollbar-sleek-lg,
+.theme-retro95 .worktree-sidebar-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: var(--win-surface) var(--win-border-dark);
+}
+
+.theme-retro95 .scrollbar-sleek::-webkit-scrollbar,
+.theme-retro95 .scrollbar-sleek-lg::-webkit-scrollbar,
+.theme-retro95 .worktree-sidebar-scrollbar::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.theme-retro95 .scrollbar-sleek::-webkit-scrollbar-thumb,
+.theme-retro95 .scrollbar-sleek-lg::-webkit-scrollbar-thumb,
+.theme-retro95 .worktree-sidebar-scrollbar::-webkit-scrollbar-thumb {
+  min-height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: var(--win-surface);
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset -1px -1px 0 var(--win-border-black);
+}
+
 .linear-priority-bars {
   --linear-priority-bar-inactive-fill: color-mix(in srgb, lch(39.576 1.25 282) 34%, transparent);
 }

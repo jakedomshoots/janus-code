@@ -2,6 +2,9 @@ import { cn } from '@/lib/utils'
 import type { GlobalSettings } from '../../../../shared/types'
 
 export function ChromePreview({ variant }: { variant: GlobalSettings['theme'] }) {
+  if (variant === 'retro95') {
+    return <Retro95ChromeMock />
+  }
   if (variant === 'system') {
     return (
       <div className="relative size-full">
@@ -25,6 +28,35 @@ export function ChromePreview({ variant }: { variant: GlobalSettings['theme'] })
     )
   }
   return <ChromeMock dark={variant === 'dark'} />
+}
+
+function Retro95ChromeMock() {
+  return (
+    <div className="flex size-full flex-col bg-[#c0c0c0] text-[#000]">
+      <div className="flex h-3 items-center justify-between bg-[#000080] px-1 text-[5px] font-bold text-white">
+        <span>Janus Code</span>
+        <span className="flex gap-0.5">
+          <span className="grid size-2 place-items-center bg-[#c0c0c0] text-[#000]">_</span>
+          <span className="grid size-2 place-items-center bg-[#c0c0c0] text-[#000]">x</span>
+        </span>
+      </div>
+      <div className="flex min-h-0 flex-1 gap-1 p-1">
+        <div className="w-[34%] bg-white shadow-[inset_1px_1px_0_#000,inset_-1px_-1px_0_#fff]">
+          <div className="m-1 h-1 bg-[#000080]" />
+          <div className="mx-1 mt-1 h-1 bg-[#808080]" />
+          <div className="mx-1 mt-1 h-1 bg-[#808080]" />
+        </div>
+        <div className="flex flex-1 flex-col gap-1">
+          <div className="flex gap-0.5">
+            <div className="h-2 w-8 bg-[#c0c0c0] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#000]" />
+            <div className="h-2 w-4 bg-[#c0c0c0] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#000]" />
+          </div>
+          <div className="flex-1 bg-white shadow-[inset_1px_1px_0_#000,inset_-1px_-1px_0_#fff]" />
+          <div className="h-3 bg-white shadow-[inset_1px_1px_0_#000,inset_-1px_-1px_0_#fff]" />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function ChromeMock({ dark }: { dark: boolean }) {

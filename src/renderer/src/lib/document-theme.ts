@@ -1,4 +1,5 @@
 import type { GlobalSettings } from '../../../shared/types'
+import { isRetro95Theme, resolveModernThemePreference } from '../../../shared/app-theme'
 
 export type DocumentThemePreference = GlobalSettings['theme']
 
@@ -47,10 +48,11 @@ export function resolveDocumentTheme(
   theme: DocumentThemePreference,
   matchMedia?: ThemeMediaMatcher
 ): boolean {
-  if (theme === 'dark') {
+  const modernTheme = resolveModernThemePreference(theme)
+  if (modernTheme === 'dark') {
     return true
   }
-  if (theme === 'light') {
+  if (modernTheme === 'light') {
     return false
   }
   return systemPrefersDark(matchMedia)
@@ -63,6 +65,7 @@ export function applyDocumentTheme(
   const root = options.root ?? document.documentElement
   const disableTransitions = options.disableTransitions ?? true
   const shouldUseDarkTheme = resolveDocumentTheme(theme, options.matchMedia)
+  const shouldUseRetro95Theme = isRetro95Theme(theme)
 
   if (disableTransitions) {
     root.classList.add(THEME_TRANSITION_DISABLED_CLASS)
@@ -72,6 +75,8 @@ export function applyDocumentTheme(
   // Mirror with `light` so consumers can observe the resolved theme
   // symmetrically (Tailwind keys only on `dark`, so this is style-neutral).
   root.classList.toggle('light', !shouldUseDarkTheme)
+  root.classList.toggle('theme-retro95', shouldUseRetro95Theme)
+  root.classList.toggle('theme-modern', !shouldUseRetro95Theme)
 
   if (!disableTransitions) {
     return
