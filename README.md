@@ -14,15 +14,66 @@
 </p>
 
 <p align="center">
-  <strong>A GUI-first desktop workspace for CLI coding agents.</strong><br/>
-  Run Claude Code, Codex, Gemini, OpenCode, and other terminal-native agents side by side, each in its own worktree and tracked in one place.
+  <strong>A retro desktop workbench for modern coding agents.</strong><br/>
+  Janus Code wraps terminal-native agents in a tactile GUI with browser-style panes, project worktrees, model controls, and annotation-aware browser context.
 </p>
 
 <h3 align="center"><a href="https://github.com/jakedomshoots/janus-code/releases/latest"><ins>Download Janus Code</ins></a></h3>
 
 <p align="center">
-  <img src="docs/assets/readme-hero.jpg" alt="Janus Code desktop app running agents in parallel worktrees" width="960" />
+  <img src="docs/assets/readme-hero.jpg" alt="Janus Code desktop workspace for browser-style agent orchestration" width="960" />
 </p>
+
+## The Janus Code Interface
+
+Janus Code is built around the idea of beginnings and endings. The default
+interface starts with Retro 95: early desktop software, sharp edges, explicit
+controls, and fast tactile feedback. The alternative Modern themes keep the
+current polished Janus look available when you want the newer end of the
+timeline.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Retro 95 by Default
+
+The main workspace now opens in a Windows 95-inspired skin with system-style
+bevels, compact controls, classic focus states, and a dense desktop layout made
+for repeated coding work.
+
+</td>
+<td width="50%" valign="top">
+
+### Modern as the Alternative
+
+Prefer the current Janus styling? Switch to **Modern Auto**, **Modern Dark**, or
+**Modern Light** from Appearance settings without changing your projects,
+agents, terminals, or browser sessions.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### Browser-Like Agent Tabs
+
+Agent sessions, browser workbench access, terminal tools, and pane controls are
+organized like a desktop browser so multiple threads can stay visible without
+turning the workspace into a terminal wall.
+
+</td>
+<td width="50%" valign="top">
+
+### Composer-First Controls
+
+Provider, model, permission, thinking mode, browser context, and terminal entry
+points live around the chat composer, where the agent launch flow actually uses
+them.
+
+</td>
+</tr>
+</table>
 
 ## Features
 
@@ -30,9 +81,11 @@
 <tr>
 <td width="50%" valign="middle">
 
-### Parallel Worktrees
+### Multi-Agent Workspaces
 
-Fan one prompt across five agents, each in its own isolated git worktree — compare the results and merge the winner.
+Run Claude Code, Codex, Gemini, OpenCode, and other CLI agents side by side.
+Each session can live in its own isolated git worktree with status, diffs, and
+thread state tracked in the desktop UI.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
@@ -44,9 +97,11 @@ Fan one prompt across five agents, each in its own isolated git worktree — com
 <tr>
 <td width="50%" valign="middle">
 
-### Terminal Splits
+### Browser-Style Pane Orchestration
 
-Ghostty-class terminals with WebGL rendering, infinite splits, and scrollback that survives restarts.
+Split panes, switch agent threads like tabs, open the browser workbench beside
+the conversation, and keep terminal debugging available without making the
+terminal the primary interface.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
@@ -58,9 +113,11 @@ Ghostty-class terminals with WebGL rendering, infinite splits, and scrollback th
 <tr>
 <td width="50%" valign="middle">
 
-### Design Mode
+### Browser Annotation Handoff
 
-Click any UI element in a real Chromium window to send its HTML, CSS, and a cropped screenshot straight into your agent's prompt.
+Use the embedded Chromium browser to inspect real pages, grab UI elements, add
+annotations, and attach that browser context directly into the next agent
+message.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
@@ -72,35 +129,37 @@ Click any UI element in a real Chromium window to send its HTML, CSS, and a crop
 <tr>
 <td width="50%" valign="middle">
 
-### GitHub &amp; Linear, Native
+### Provider And Model Controls
 
-Browse PRs, issues, and project boards in-app — open a worktree from any task and review without a context switch.
-
-[Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
-
-</td>
-<td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/github-linear.gif" type="image/gif"><img src="docs/assets/feature-wall/github-linear.jpg" alt="GitHub and Linear task workflows in Janus Code" width="100%" /></picture></a>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="middle">
-
-### SSH Worktrees
-
-Run agents on a beefy remote box with full file editing, git, and terminals — auto-reconnect and port forwarding included.
+Pick the provider, model, permission level, and thinking mode from the composer
+surface so the GUI launch path and the underlying CLI agent stay in sync.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
 </td>
 <td width="50%">
-  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/ssh-worktrees.gif" type="image/gif"><img src="docs/assets/feature-wall/ssh-worktrees.jpg" alt="Remote worktrees over SSH" width="100%" /></picture></a>
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/cli-agents.gif" type="image/gif"><img src="docs/assets/feature-wall/cli-agents.jpg" alt="Provider and model controls for CLI agents" width="100%" /></picture></a>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="middle">
 
-### Annotate AI Diffs
+### GitHub, Linear, And Repo Context
+
+Browse PRs, issues, project boards, source control state, diffs, repo previews,
+and task context in-app before handing work to an agent.
+
+[Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
+
+</td>
+<td width="50%">
+  <a href="https://github.com/jakedomshoots/janus-code/tree/main/docs"><picture><source srcset="docs/assets/feature-wall/github-linear.gif" type="image/gif"><img src="docs/assets/feature-wall/github-linear.jpg" alt="GitHub, Linear, and repo context workflows in Janus Code" width="100%" /></picture></a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
+### Review AI Diffs
 
 Drop comments on any diff line and ship them back to the agent — review, edit, and commit without leaving Janus Code.
 
@@ -114,9 +173,10 @@ Drop comments on any diff line and ship them back to the agent — review, edit,
 <tr>
 <td width="50%" valign="middle">
 
-### Drag Files to Agents
+### Files, Images, And Markdown
 
-VS Code's editor with autosave everywhere — drag files or images straight into an agent prompt.
+Preview Markdown, images, PDFs, and repo docs. Drag files or images straight
+into an agent prompt when the task needs local context.
 
 [Docs →](https://github.com/jakedomshoots/janus-code/tree/main/docs)
 
@@ -128,7 +188,7 @@ VS Code's editor with autosave everywhere — drag files or images straight into
 <tr>
 <td width="50%" valign="middle">
 
-### Janus CLI
+### Janus CLI And Automation
 
 Agents can drive Janus Code too. Script workflows with the primary `janus` CLI for workspace, terminal, browser, and progress automation.
 
@@ -143,9 +203,9 @@ Agents can drive Janus Code too. Script workflows with the primary `janus` CLI f
 
 **Also in the box:**
 
+- **[Retro/Modern Appearance](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — Start in Retro 95, switch to Modern Auto/Dark/Light when you want the newer Janus surface.
 - **[Quick open](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — Search across worktrees, files, agents, commands, and repo context without leaving your flow.
 - **[Account switcher &amp; usage tracking](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — See Claude and Codex usage and rate-limit resets, and hot-swap accounts without re-logging in.
-- **[Rich repo previews](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — Preview Markdown, images, PDFs, and repo docs in the workspace.
 - **[Computer Use](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — Let agents operate desktop apps and visible UI when a workflow needs real interaction.
 - **[Notifications and unread state](https://github.com/jakedomshoots/janus-code/tree/main/docs)** — Know when an agent finishes or needs attention, then mark threads unread to come back later.
 - **And many, many more** — the [changelog](https://github.com/jakedomshoots/janus-code/releases) is the real feature list.
