@@ -23,7 +23,7 @@ export function AgentComposerTextarea({
 }): React.JSX.Element {
   return (
     <textarea
-      className="block min-h-32 w-full resize-none bg-transparent px-7 pb-3 pt-6 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+      className="agent-composer-textarea block min-h-32 w-full resize-none bg-transparent px-7 pb-3 pt-6 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
       value={value}
       placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}
       disabled={disabled}
