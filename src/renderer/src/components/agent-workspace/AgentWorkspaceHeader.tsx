@@ -74,21 +74,30 @@ export function AgentWorkspaceHeader({
           </span>
         </div>
       </div>
-      <div className="flex min-w-0 shrink-0 items-center gap-1.5">
+      <div
+        className="flex min-w-0 shrink items-center justify-end gap-1.5 overflow-x-auto [scrollbar-width:none]"
+        aria-label={translate(
+          'auto.components.agentWorkspace.header.workspaceCommands',
+          'Workspace commands'
+        )}
+      >
         {canStartSession ? (
           <Button
             type="button"
             variant="default"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onNewSession}
             aria-label={translate(
               'auto.components.agentWorkspace.header.newSession',
               'New session'
             )}
+            title={translate('auto.components.agentWorkspace.header.newSession', 'New session')}
           >
             <MessageSquarePlus className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
+            <span className="hidden sm:inline">
+              {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
+            </span>
           </Button>
         ) : null}
         {canOpenBrowser ? (
@@ -96,15 +105,18 @@ export function AgentWorkspaceHeader({
             type="button"
             variant="outline"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onOpenBrowserWorkbench}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openBrowser',
               'Open browser'
             )}
+            title={translate('auto.components.agentWorkspace.header.openBrowser', 'Open browser')}
           >
             <Globe className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.browser', 'Browser')}
+            <span className="hidden xl:inline">
+              {translate('auto.components.agentWorkspace.header.browser', 'Browser')}
+            </span>
           </Button>
         ) : null}
         {canOpenTerminal ? (
@@ -112,15 +124,18 @@ export function AgentWorkspaceHeader({
             type="button"
             variant="outline"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onOpenTerminalDrawer}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openTerminal',
               'Open terminal'
             )}
+            title={translate('auto.components.agentWorkspace.header.openTerminal', 'Open terminal')}
           >
             <Terminal className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.terminal', 'Terminal')}
+            <span className="hidden xl:inline">
+              {translate('auto.components.agentWorkspace.header.terminal', 'Terminal')}
+            </span>
           </Button>
         ) : null}
         {canOpenWorkbench ? (
@@ -128,15 +143,21 @@ export function AgentWorkspaceHeader({
             type="button"
             variant="outline"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onOpenWorkbench}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openWorkbench',
               'Open workbench'
             )}
+            title={translate(
+              'auto.components.agentWorkspace.header.openWorkbench',
+              'Open workbench'
+            )}
           >
             <LayoutDashboard className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.workbench', 'Workbench')}
+            <span className="hidden 2xl:inline">
+              {translate('auto.components.agentWorkspace.header.workbench', 'Workbench')}
+            </span>
           </Button>
         ) : null}
         {canOpenProjectFiles ? (
@@ -144,15 +165,21 @@ export function AgentWorkspaceHeader({
             type="button"
             variant="outline"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onOpenProjectFiles}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openProjectFiles',
               'Open project files'
             )}
+            title={translate(
+              'auto.components.agentWorkspace.header.openProjectFiles',
+              'Open project files'
+            )}
           >
             <FolderOpen className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.files', 'Files')}
+            <span className="hidden xl:inline">
+              {translate('auto.components.agentWorkspace.header.files', 'Files')}
+            </span>
           </Button>
         ) : null}
         {canExpandRightPanel ? (
@@ -160,15 +187,21 @@ export function AgentWorkspaceHeader({
             type="button"
             variant="outline"
             size="xs"
-            className="active:scale-[0.98]"
+            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
             onClick={onExpandRightPanel}
             aria-label={translate(
               'auto.components.agentWorkspace.header.showRightPanel',
               'Show right panel'
             )}
+            title={translate(
+              'auto.components.agentWorkspace.header.showRightPanel',
+              'Show right panel'
+            )}
           >
             <PanelRightOpen className="size-3.5" aria-hidden="true" />
-            {translate('auto.components.agentWorkspace.header.panel', 'Panel')}
+            <span className="hidden xl:inline">
+              {translate('auto.components.agentWorkspace.header.panel', 'Panel')}
+            </span>
           </Button>
         ) : null}
       </div>

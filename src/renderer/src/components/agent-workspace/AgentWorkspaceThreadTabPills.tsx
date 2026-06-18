@@ -38,8 +38,9 @@ export const WorkbenchTabPill = memo(function WorkbenchTabPill({
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        className="flex min-w-0 flex-1 items-center gap-1.5 text-left outline-none"
         onClick={onSelect}
+        title={label}
       >
         <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
         <span className="truncate font-medium">{label}</span>
@@ -74,8 +75,9 @@ export const BrowserTabPill = memo(function BrowserTabPill({
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        className="flex min-w-0 flex-1 items-center gap-1.5 text-left outline-none"
         onClick={onSelect}
+        title={label}
       >
         <Globe className="size-3.5 shrink-0 text-blue-500" aria-hidden="true" />
         <span className="truncate font-medium">{label}</span>
@@ -86,8 +88,12 @@ export const BrowserTabPill = memo(function BrowserTabPill({
             type="button"
             variant="ghost"
             size="icon-xs"
-            className="shrink-0 opacity-0 group-hover:opacity-70 hover:opacity-100"
+            className="shrink-0 opacity-0 transition-opacity group-hover:opacity-70 hover:opacity-100 focus-visible:opacity-100"
             aria-label={translate(
+              'auto.components.agentWorkspace.threadTabs.browserTabActions',
+              'Browser tab actions'
+            )}
+            title={translate(
               'auto.components.agentWorkspace.threadTabs.browserTabActions',
               'Browser tab actions'
             )}
@@ -144,8 +150,9 @@ export const DraftSessionTab = memo(function DraftSessionTab({
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none"
         onClick={onSelect}
+        title={label}
       >
         <DraftSessionIcon agent={draftSession.preferredAgent} />
         <span className="truncate font-medium">{label}</span>
@@ -178,8 +185,9 @@ export const ThreadTab = memo(function ThreadTab({
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none"
         onClick={onSelect}
+        title={thread.title}
       >
         <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
         <span className="truncate font-medium">{thread.title}</span>
@@ -218,7 +226,7 @@ function CloseTabButton({
       type="button"
       variant="ghost"
       size="icon-xs"
-      className="shrink-0 opacity-70 hover:opacity-100"
+      className="shrink-0 opacity-0 transition-[background-color,color,opacity] group-hover:opacity-70 hover:opacity-100 focus-visible:opacity-100"
       aria-label={label}
       title={label}
       onClick={(event) => {
@@ -233,9 +241,10 @@ function CloseTabButton({
 
 function getTabPillClassName(selected: boolean): string {
   return cn(
-    'group flex h-9 max-w-72 shrink-0 items-center gap-1 rounded-xl border pl-3 pr-1.5 text-xs transition-colors active:scale-[0.99]',
+    'group relative flex h-9 max-w-72 shrink-0 items-center gap-1 overflow-hidden rounded-xl border pl-3 pr-1.5 text-xs transition-[background-color,border-color,color,box-shadow,transform] focus-within:ring-1 focus-within:ring-ring/60 active:scale-[0.99]',
+    'before:absolute before:inset-y-2 before:left-1 before:w-0.5 before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity',
     selected
-      ? 'border-border bg-card text-foreground shadow-xs'
+      ? 'border-border bg-card text-foreground shadow-xs before:opacity-100'
       : 'border-transparent bg-card/45 text-muted-foreground hover:bg-accent hover:text-foreground'
   )
 }

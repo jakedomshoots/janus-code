@@ -14,6 +14,7 @@ import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
+import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
 
 const VISIBLE_ITEM_COUNT = 6
 
@@ -73,7 +74,14 @@ export function AgentWorkspaceRightPanel({
 
   return (
     <aside className="pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-[26px] border border-border bg-card/95 p-5 text-card-foreground shadow-xs">
+      <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-[26px] border border-border bg-card/95 p-5 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+        <PanelSummary
+          thread={thread}
+          plan={plan}
+          diffs={diffs}
+          sources={model.sources.length}
+          subagents={model.subagents.length}
+        />
         <PanelTabs
           selectedTab={selectedTab}
           diffs={diffs.length}
@@ -81,61 +89,66 @@ export function AgentWorkspaceRightPanel({
           hasReview={review !== null}
           onSelectedTabChange={onSelectedTabChange}
         />
-        {selectedTab === 'plan' ? (
-          <InfoSection title="Outputs" emptyLabel="No outputs yet">
-            <ItemList items={model.outputs} iconKind="output" />
-          </InfoSection>
-        ) : null}
-        {selectedTab === 'diff' ? (
-          <>
-            {diffs.length > 0 ? (
-              <AgentWorkspaceRightPanelChanges
-                diffs={diffs}
-                sourceControlBusy={sourceControlBusy}
-                sourceControlError={sourceControlError}
-                onStageDiff={onStageDiff}
-                onUnstageDiff={onUnstageDiff}
-                onDiscardDiff={onDiscardDiff}
-                onCommitStaged={onCommitStaged}
+        <div role="tabpanel" aria-label={`${selectedTab} panel`}>
+          {selectedTab === 'plan' ? (
+            <>
+              <PlanProgress plan={plan} />
+              <InfoSection title="Outputs" emptyLabel="No outputs yet">
+                <ItemList items={model.outputs} iconKind="output" />
+              </InfoSection>
+            </>
+          ) : null}
+          {selectedTab === 'diff' ? (
+            <>
+              {diffs.length > 0 ? (
+                <AgentWorkspaceRightPanelChanges
+                  diffs={diffs}
+                  sourceControlBusy={sourceControlBusy}
+                  sourceControlError={sourceControlError}
+                  onStageDiff={onStageDiff}
+                  onUnstageDiff={onUnstageDiff}
+                  onDiscardDiff={onDiscardDiff}
+                  onCommitStaged={onCommitStaged}
+                />
+              ) : (
+                <EmptyPanelState
+                  title="No changes"
+                  detail="Git changes from Janus Code source control will appear here."
+                />
+              )}
+            </>
+          ) : null}
+          {selectedTab === 'review' ? (
+            <InfoSection title="Review" emptyLabel="No review yet">
+              <ItemList
+                items={
+                  review
+                    ? [
+                        {
+                          id: review.id,
+                          label: review.title,
+                          detail: `${review.providerLabel} #${review.number} · ${review.state}`
+                        }
+                      ]
+                    : []
+                }
+                iconKind="output"
               />
-            ) : (
-              <EmptyPanelState
-                title="No changes"
-                detail="Git changes from Janus Code source control will appear here."
-              />
-            )}
-          </>
-        ) : null}
-        {selectedTab === 'review' ? (
-          <InfoSection title="Review" emptyLabel="No review yet">
-            <ItemList
-              items={
-                review
-                  ? [
-                      {
-                        id: review.id,
-                        label: review.title,
-                        detail: `${review.providerLabel} #${review.number} · ${review.state}`
-                      }
-                    ]
-                  : []
-              }
-              iconKind="output"
-            />
-          </InfoSection>
-        ) : null}
-        {selectedTab === 'details' ? (
-          <>
-            <InfoSection title="Subagents" emptyLabel="No active subagents">
-              <ItemList items={model.subagents} iconKind="subagent" />
             </InfoSection>
-            <SectionDivider />
-            <InfoSection title="Sources" emptyLabel="No sources attached">
-              <ItemList items={model.sources} iconKind="source" />
-              <SourceGlyphRow sources={model.sources} />
-            </InfoSection>
-          </>
-        ) : null}
+          ) : null}
+          {selectedTab === 'details' ? (
+            <>
+              <InfoSection title="Subagents" emptyLabel="No active subagents">
+                <ItemList items={model.subagents} iconKind="subagent" />
+              </InfoSection>
+              <SectionDivider />
+              <InfoSection title="Sources" emptyLabel="No sources attached">
+                <ItemList items={model.sources} iconKind="source" />
+                <SourceGlyphRow sources={model.sources} />
+              </InfoSection>
+            </>
+          ) : null}
+        </div>
         <ApprovalActions
           approval={approval}
           canRespondInTerminal={canRespondInTerminal}
@@ -174,18 +187,23 @@ function PanelTabs({
   ]
 
   return (
-    <div className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1">
+    <div
+      className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1"
+      role="tablist"
+      aria-label="Agent workspace right panel"
+    >
       {tabs.map((tab) => (
         <button
           key={tab.id}
           type="button"
           className={cn(
-            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-2 text-xs font-medium transition-colors active:scale-[0.98]',
+            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-2 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
             selectedTab === tab.id
               ? 'bg-card text-foreground shadow-xs'
               : 'text-muted-foreground hover:bg-accent hover:text-foreground'
           )}
-          aria-pressed={selectedTab === tab.id}
+          role="tab"
+          aria-selected={selectedTab === tab.id}
           title={tab.available ? tab.label : `${tab.label} is empty`}
           onClick={() => onSelectedTabChange(tab.id)}
         >
@@ -261,7 +279,7 @@ function InfoRow({
   iconKind: 'output' | 'subagent' | 'source'
 }): React.JSX.Element {
   return (
-    <div className="flex h-10 min-w-0 items-center gap-3 rounded-xl px-1.5 text-sm text-foreground">
+    <div className="flex h-10 min-w-0 items-center gap-3 rounded-xl px-1.5 text-sm text-foreground transition-colors hover:bg-background/70">
       <InfoRowIcon item={item} iconKind={iconKind} />
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium">{item.label}</div>
