@@ -23,7 +23,7 @@ export function AgentComposerToolCluster({
   return (
     <div
       role="group"
-      className="flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-border bg-background p-0.5"
+      className="flex h-10 shrink-0 items-center gap-0.5 rounded-full border border-border bg-background p-1"
       aria-label={translate('auto.components.agentWorkspace.composer.tools', 'Tools')}
     >
       <Button

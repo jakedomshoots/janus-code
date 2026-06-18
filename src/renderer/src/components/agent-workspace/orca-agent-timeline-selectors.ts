@@ -60,6 +60,45 @@ function toFailureTimelineEntry(
   }
 }
 
+function toWaitingTimelineEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  if (entry.state !== 'waiting') {
+    return null
+  }
+  const text =
+    entry.toolEvent?.fallbackText ??
+    (entry.toolName
+      ? `Waiting for approval: ${entry.toolName}`
+      : 'Waiting for your input or approval')
+  return {
+    id: `${thread.id}:waiting:${entry.stateStartedAt}`,
+    threadId: thread.id,
+    kind: 'approval',
+    text,
+    createdAt: getIsoTimestamp(entry.updatedAt),
+    status: 'pending'
+  }
+}
+
+function toLegacyToolSnapshotEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  if (entry.toolEvent || entry.state !== 'working' || !entry.toolName) {
+    return null
+  }
+  return {
+    id: `${thread.id}:tool-snapshot:${entry.stateStartedAt}:${entry.toolName}`,
+    threadId: thread.id,
+    kind: 'tool',
+    text: entry.toolName,
+    createdAt: getIsoTimestamp(entry.updatedAt),
+    status: 'running'
+  }
+}
+
 function toCompletionTimelineEntry(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
@@ -86,6 +125,14 @@ function appendTimelineEntries(
   const toolEntry = toToolTimelineEntry(thread, entry)
   if (toolEntry) {
     timeline.push(toolEntry)
+  }
+  const legacyToolEntry = toLegacyToolSnapshotEntry(thread, entry)
+  if (legacyToolEntry) {
+    timeline.push(legacyToolEntry)
+  }
+  const waitingEntry = toWaitingTimelineEntry(thread, entry)
+  if (waitingEntry) {
+    timeline.push(waitingEntry)
   }
   const failureEntry = toFailureTimelineEntry(thread, entry)
   if (failureEntry) {

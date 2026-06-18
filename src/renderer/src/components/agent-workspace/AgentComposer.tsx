@@ -14,15 +14,25 @@ import {
   type TuiAgentThinkingMode
 } from '../../../../shared/tui-agent-thinking'
 import {
-  getTuiAgentModelOptions,
   isTuiAgentModelSelection,
   resolveTuiAgentSelectedModel,
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
 } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
-import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import {
+  containsLegacyBrowserGrabDump,
+  stripInjectedBrowserGrabDump
+} from '../browser-pane/strip-browser-grab-dump'
 import { AgentComposerFooter } from './AgentComposerFooter'
+import {
+  decodeAgentModelSelectionsKey,
+  encodeAgentModelSelections,
+  getAgentComposerPlaceholder,
+  getAgentComposerReadinessMessage,
+  isSelectedThreadReady
+} from './agent-composer-readiness'
 import { launchSelectedAgent } from './agent-composer-launch'
+import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
 import { submitAgentComposerMessage, type AgentComposerSubmitResult } from './agent-composer-submit'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
@@ -43,13 +53,21 @@ export function AgentComposer({
   selectedProject = null,
   terminalAvailable = false,
   browserWorkbench: browserWorkbenchProp,
+  draftSessionId = null,
+  pendingDraftAgent = null,
+  onPendingDraftAgentConsumed,
+  onDraftSessionAgentChange,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
   selectedProject?: AgentWorkspaceProject | null
+  draftSessionId?: string | null
   terminalAvailable?: boolean
   browserWorkbench?: AgentBrowserWorkbenchState
+  pendingDraftAgent?: TuiAgent | null
+  onPendingDraftAgentConsumed?: () => void
+  onDraftSessionAgentChange?: (agent: TuiAgent) => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
@@ -106,7 +124,8 @@ export function AgentComposer({
         : pickTuiAgent(defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents),
     [defaultTuiAgent, detectedAgents.detectedIds, disabledTuiAgents]
   )
-  const modelOptions = useMemo(() => getTuiAgentModelOptions(selectedAgent), [selectedAgent])
+  const modelDiscovery = useAgentComposerModelDiscovery(selectedAgent, selectedProject)
+  const modelOptions = modelDiscovery.options
   const selectedModel = useMemo(
     () =>
       selectedAgent
@@ -117,7 +136,7 @@ export function AgentComposer({
   const trimmedPrompt = prompt.trim()
   const readinessMessage = useMemo(
     () =>
-      getReadinessMessage({
+      getAgentComposerReadinessMessage({
         thread: selectedThread,
         activeWorktreeId,
         selectedAgent,
@@ -135,12 +154,23 @@ export function AgentComposer({
   ].join(':')
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
+  const onDraftSessionAgentChangeRef = useRef(onDraftSessionAgentChange)
+  onDraftSessionAgentChangeRef.current = onDraftSessionAgentChange
   const composerDisabled = submitting
   const canSubmit = !submitting && readinessMessage === null && trimmedPrompt.length > 0
   const statusMessage = submitResult?.message ?? readinessMessage
   const statusTone = submitResult?.status ?? (readinessMessage ? 'blocked' : null)
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
   const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
+
+  // Why: grab copy used to paste DOM dumps into the composer; HMR can also leave a
+  // stale formatter loaded until the host app reloads, so scrub on every update.
+  useLayoutEffect(() => {
+    const strippedPrompt = stripInjectedBrowserGrabDump(prompt)
+    if (strippedPrompt !== prompt) {
+      setPrompt(strippedPrompt)
+    }
+  }, [prompt])
 
   useEffect(() => {
     setSelectedAgent((current) => {
@@ -150,6 +180,26 @@ export function AgentComposer({
       return preferredAgent ?? availableAgents[0]?.id ?? null
     })
   }, [availableAgents, preferredAgent])
+
+  useEffect(() => {
+    if (!pendingDraftAgent) {
+      return
+    }
+    if (availableAgents.some((agent) => agent.id === pendingDraftAgent)) {
+      setSelectedAgent(pendingDraftAgent)
+    }
+    onPendingDraftAgentConsumed?.()
+  }, [availableAgents, onPendingDraftAgentConsumed, pendingDraftAgent])
+
+  useEffect(() => {
+    if (selectedThread || !draftSessionId || !selectedAgent) {
+      return
+    }
+    if (pendingDraftAgent === selectedAgent) {
+      return
+    }
+    onDraftSessionAgentChangeRef.current?.(selectedAgent)
+  }, [draftSessionId, pendingDraftAgent, selectedAgent, selectedThread])
 
   useEffect(() => {
     setComposerModelSelections(decodeAgentModelSelectionsKey(settingsModelSelectionsKey))
@@ -219,6 +269,24 @@ export function AgentComposer({
     }
   }
 
+  function handlePaste(event: React.ClipboardEvent<HTMLTextAreaElement>): void {
+    const pastedText = event.clipboardData.getData('text/plain')
+    if (!containsLegacyBrowserGrabDump(pastedText)) {
+      return
+    }
+    event.preventDefault()
+    const stripped = stripInjectedBrowserGrabDump(pastedText)
+    if (!stripped) {
+      return
+    }
+    const textarea = event.currentTarget
+    const start = textarea.selectionStart ?? prompt.length
+    const end = textarea.selectionEnd ?? prompt.length
+    setPrompt(
+      stripInjectedBrowserGrabDump(`${prompt.slice(0, start)}${stripped}${prompt.slice(end)}`)
+    )
+  }
+
   function handleSelectedModelChange(modelId: string): void {
     if (!selectedAgent || !isTuiAgentModelSelection(selectedAgent, modelId)) {
       return
@@ -251,10 +319,9 @@ export function AgentComposer({
       return
     }
     setPrompt((currentPrompt) => {
-      const trimmedCurrent = currentPrompt.trimEnd()
-      return trimmedCurrent
-        ? `${trimmedCurrent}\n\n${browserWorkbench.browserAnnotationMarkdown}`
-        : browserWorkbench.browserAnnotationMarkdown
+      const cleanedCurrent = stripInjectedBrowserGrabDump(currentPrompt)
+      const attachment = browserWorkbench.browserAnnotationMarkdown
+      return cleanedCurrent ? `${cleanedCurrent}\n\n${attachment}` : attachment
     })
     setSubmitResult({
       status: 'sent',
@@ -266,16 +333,13 @@ export function AgentComposer({
   }
 
   return (
-    <form
-      className="border-t border-border/70 bg-background/95 px-4 py-4"
-      onSubmit={(event) => void handleSubmit(event)}
-    >
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="rounded-[26px] border border-border bg-card shadow-sm transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
+    <form className="bg-transparent px-6 pb-8 pt-4" onSubmit={(event) => void handleSubmit(event)}>
+      <div className="mx-auto w-full max-w-[1040px]">
+        <div className="rounded-[34px] border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <textarea
-            className="block min-h-24 w-full resize-none bg-transparent px-6 pb-3 pt-5 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+            className="block min-h-32 w-full resize-none bg-transparent px-7 pb-3 pt-6 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
             value={prompt}
-            placeholder={getPlaceholder(selectedThread, activeWorktreeId)}
+            placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}
             disabled={composerDisabled}
             aria-label={translate(
               'auto.components.agentWorkspace.composer.messageAgent',
@@ -284,11 +348,12 @@ export function AgentComposer({
             aria-describedby={statusMessage ? 'agent-workspace-composer-status' : undefined}
             rows={3}
             onChange={(event) => {
-              setPrompt(event.target.value)
+              setPrompt(stripInjectedBrowserGrabDump(event.target.value))
               if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
                 setSubmitResult(null)
               }
             }}
+            onPaste={handlePaste}
             onKeyDown={handleKeyDown}
           />
           <AgentComposerFooter
@@ -311,8 +376,15 @@ export function AgentComposer({
             selectedAgent={selectedAgent}
             modelOptions={modelOptions}
             selectedModel={selectedModel}
+            modelDiscoveryLoading={modelDiscovery.loading}
+            modelDiscoveryError={modelDiscovery.error}
             detectingAgents={detectedAgents.isLoading}
-            onSelectedAgentChange={setSelectedAgent}
+            onSelectedAgentChange={(agent) => {
+              setSelectedAgent(agent)
+              if (!selectedThread && draftSessionId && agent) {
+                onDraftSessionAgentChangeRef.current?.(agent)
+              }
+            }}
             onSelectedModelChange={handleSelectedModelChange}
             submitting={submitting}
             canSubmit={canSubmit}
@@ -321,97 +393,4 @@ export function AgentComposer({
       </div>
     </form>
   )
-}
-
-function isSelectedThreadReady(
-  thread: AgentWorkspaceThread | null,
-  activeWorktreeId: string | null
-): boolean {
-  return Boolean(thread && thread.phase === 'running' && activeWorktreeId === thread.worktreeId)
-}
-
-function getReadinessMessage({
-  thread,
-  activeWorktreeId,
-  selectedAgent,
-  detectingAgents
-}: {
-  thread: AgentWorkspaceThread | null
-  activeWorktreeId: string | null
-  selectedAgent: TuiAgent | null
-  detectingAgents: boolean
-}): string | null {
-  if (thread && activeWorktreeId !== thread.worktreeId) {
-    return translate(
-      'auto.components.agentWorkspace.composer.threadNotActiveWorktree',
-      'Switch to this worktree before sending a message.'
-    )
-  }
-  if (isSelectedThreadReady(thread, activeWorktreeId)) {
-    return null
-  }
-  if (!activeWorktreeId) {
-    return translate(
-      'auto.components.agentWorkspace.composer.selectWorkspaceBeforeLaunching',
-      'Select a workspace before starting an agent.'
-    )
-  }
-  if (detectingAgents) {
-    return translate(
-      'auto.components.agentWorkspace.composer.detectingProviders',
-      'Detecting available agents for this workspace...'
-    )
-  }
-  if (!selectedAgent) {
-    return translate(
-      'auto.components.agentWorkspace.composer.noDetectedProviders',
-      'No detected agents are available for this workspace.'
-    )
-  }
-  return null
-}
-
-function getPlaceholder(
-  thread: AgentWorkspaceThread | null,
-  activeWorktreeId: string | null
-): string {
-  if (!thread) {
-    return translate(
-      'auto.components.agentWorkspace.composer.startNewAgentPlaceholder',
-      'Start a new agent session'
-    )
-  }
-  if (thread.phase !== 'running') {
-    return translate(
-      'auto.components.agentWorkspace.composer.startAfterThreadPlaceholder',
-      'Start a new agent; selected thread is {{phase}}',
-      { phase: formatAgentWorkspacePhase(thread.phase) }
-    )
-  }
-  if (activeWorktreeId !== thread.worktreeId) {
-    return translate(
-      'auto.components.agentWorkspace.composer.switchWorktreePlaceholder',
-      'Switch to this worktree'
-    )
-  }
-  return translate(
-    'auto.components.agentWorkspace.composer.messageSelectedAgent',
-    'Message the selected agent...'
-  )
-}
-
-function encodeAgentModelSelections(
-  selections: Partial<Record<TuiAgent, string>> | null | undefined
-): string {
-  return JSON.stringify(
-    Object.entries(selections ?? {}).sort(([left], [right]) => left.localeCompare(right))
-  )
-}
-
-function decodeAgentModelSelectionsKey(key: string): Partial<Record<TuiAgent, string>> {
-  try {
-    return Object.fromEntries(JSON.parse(key) as [TuiAgent, string][])
-  } catch {
-    return {}
-  }
 }

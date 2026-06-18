@@ -4,6 +4,10 @@ import { useAppStore } from '@/store'
 import type { Tab, TabGroup } from '../../../../shared/types'
 import EmulatorPane from './EmulatorPane'
 import { tabGroupBodyAnchorName } from '../tab-group/tab-group-body-anchor'
+import {
+  buildTabGroupOverlayStyle,
+  useTabGroupBodyOverlayRect
+} from '../tab-group/tab-group-overlay-positioning'
 
 const EMPTY_UNIFIED_TABS: readonly Tab[] = []
 const EMPTY_GROUPS: readonly TabGroup[] = []
@@ -22,26 +26,23 @@ const SimulatorOverlaySlot = memo(function SimulatorOverlaySlot({
   onFocusOwningGroup
 }: SimulatorOverlaySlotProps): React.JSX.Element {
   const anchorName = groupId !== undefined ? tabGroupBodyAnchorName(groupId) : undefined
+  const { overlayRef, measuredRect } = useTabGroupBodyOverlayRect(groupId, isActive)
   const style: React.CSSProperties = useMemo(
-    () =>
-      anchorName
-        ? {
-            position: 'absolute',
-            positionAnchor: anchorName,
-            top: `anchor(${anchorName} top)`,
-            left: `anchor(${anchorName} left)`,
-            width: `anchor-size(${anchorName} width)`,
-            height: `anchor-size(${anchorName} height)`,
-            zIndex: isActive ? 2 : 1,
-            visibility: isActive ? 'visible' : 'hidden',
-            pointerEvents: isActive ? 'auto' : 'none'
-          }
-        : { display: 'none' },
-    [anchorName, isActive]
+    () => ({
+      ...buildTabGroupOverlayStyle({
+        anchorName,
+        isPaintable: isActive,
+        isActive,
+        measuredRect
+      }),
+      zIndex: isActive ? 2 : 1
+    }),
+    [anchorName, isActive, measuredRect]
   )
 
   return (
     <div
+      ref={overlayRef}
       style={style}
       className="orca-emulator-overlay-slot min-h-0 min-w-0 overflow-hidden"
       onPointerDownCapture={() => {

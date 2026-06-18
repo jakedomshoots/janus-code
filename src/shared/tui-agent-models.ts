@@ -16,6 +16,51 @@ const PROVIDER_DEFAULT_MODEL: TuiAgentModelOption = {
   label: 'Provider default'
 }
 
+const OPENCODE_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'opencode/deepseek-v4-flash-free', label: 'OpenCode DeepSeek V4 Flash Free' },
+  { id: 'opencode/gpt-5.5', label: 'OpenCode GPT-5.5' },
+  { id: 'opencode/gpt-5.4', label: 'OpenCode GPT-5.4' },
+  { id: 'opencode/gpt-5.4-mini', label: 'OpenCode GPT-5.4 Mini' },
+  { id: 'kimi-for-coding/k2p7', label: 'Kimi K2.7 Code' }
+]
+
+const PI_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'kimi-coding/kimi-for-coding', label: 'Kimi K2.7 Code' },
+  { id: 'openai-codex/gpt-5.5', label: 'OpenAI Codex GPT-5.5' },
+  { id: 'openai-codex/gpt-5.4', label: 'OpenAI Codex GPT-5.4' },
+  { id: 'openai-codex/gpt-5.4-mini', label: 'OpenAI Codex GPT-5.4 Mini' },
+  { id: 'minimax/MiniMax-M2.7', label: 'MiniMax M2.7' }
+]
+
+const OMP_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'opencode/gpt-5.5', label: 'OpenCode GPT-5.5' },
+  { id: 'opencode/gpt-5.4', label: 'OpenCode GPT-5.4' },
+  { id: 'opencode/gpt-5.4-mini', label: 'OpenCode GPT-5.4 Mini' },
+  { id: 'opencode/deepseek-v4-flash-free', label: 'OpenCode DeepSeek V4 Flash Free' },
+  { id: 'kimi-for-coding/k2p7', label: 'Kimi K2.7 Code' }
+]
+
+const GROK_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'grok-composer-2.5-fast', label: 'Grok Composer 2.5 Fast' },
+  { id: 'grok-build', label: 'Grok Build' }
+]
+
+const COMMAND_CODE_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+  { id: 'claude-opus-4-7', label: 'Claude Opus 4.7' },
+  { id: 'gpt-5.5', label: 'GPT-5.5' },
+  { id: 'moonshotai/Kimi-K2.7-Code', label: 'MoonshotAI Kimi K2.7 Code' },
+  { id: 'MiniMaxAI/MiniMax-M2.7', label: 'MiniMaxAI MiniMax M2.7' }
+]
+
+const HERMES_MODEL_OPTIONS: readonly TuiAgentModelOption[] = [
+  { id: 'moonshotai/kimi-k2.7-code', label: 'Kimi K2.7 Code' },
+  { id: 'moonshotai/kimi-k2.6', label: 'Kimi K2.6' },
+  { id: 'xai/grok-composer-2.5-fast', label: 'Grok Composer 2.5 Fast' },
+  { id: 'openai-codex/gpt-5.5', label: 'OpenAI Codex GPT-5.5' },
+  { id: 'minimax/MiniMax-M2.7', label: 'MiniMax M2.7' }
+]
+
 const TUI_AGENT_MODEL_OPTIONS: Partial<Record<TuiAgent, readonly TuiAgentModelOption[]>> = {
   claude: [
     { id: 'haiku', label: 'Haiku' },
@@ -35,11 +80,12 @@ const TUI_AGENT_MODEL_OPTIONS: Partial<Record<TuiAgent, readonly TuiAgentModelOp
     { id: 'gpt-5.3-codex-spark', label: 'GPT-5.3 Codex Spark' },
     { id: 'gpt-5.2', label: 'GPT-5.2' }
   ],
-  opencode: [
-    { id: 'opencode/deepseek-v4-flash-free', label: 'OpenCode DeepSeek V4 Flash Free' },
-    { id: 'opencode/gpt-5.4-mini', label: 'OpenCode GPT-5.4 Mini' }
-  ],
-  pi: [{ id: 'github-copilot/gpt-5.4-mini', label: 'GitHub Copilot GPT-5.4 Mini' }],
+  opencode: OPENCODE_MODEL_OPTIONS,
+  pi: PI_MODEL_OPTIONS,
+  omp: OMP_MODEL_OPTIONS,
+  grok: GROK_MODEL_OPTIONS,
+  'command-code': COMMAND_CODE_MODEL_OPTIONS,
+  hermes: HERMES_MODEL_OPTIONS,
   amp: [
     { id: 'smart', label: 'Smart' },
     { id: 'rush', label: 'Rush' },
@@ -47,7 +93,7 @@ const TUI_AGENT_MODEL_OPTIONS: Partial<Record<TuiAgent, readonly TuiAgentModelOp
     { id: 'deep', label: 'Deep' }
   ],
   cursor: [{ id: 'auto', label: 'Auto' }],
-  kimi: [{ id: 'kimi-code/kimi-for-coding', label: 'Kimi K2.6' }],
+  kimi: [{ id: 'kimi-code/kimi-for-coding', label: 'Kimi K2.7 Code' }],
   copilot: [
     { id: 'auto', label: 'Auto' },
     { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6' },
@@ -71,6 +117,19 @@ const TUI_AGENT_MODEL_FLAG_BY_AGENT: Partial<Record<TuiAgent, TuiAgentModelFlag>
   amp: '--mode'
 }
 
+const TUI_AGENT_DYNAMIC_MODEL_AGENTS = new Set<TuiAgent>([
+  'codex',
+  'opencode',
+  'pi',
+  'omp',
+  'cursor',
+  'antigravity',
+  'grok',
+  'command-code',
+  'hermes',
+  'kimi'
+])
+
 export function getTuiAgentModelOptions(agent: TuiAgent | null | undefined): TuiAgentModelOption[] {
   if (!agent) {
     return [PROVIDER_DEFAULT_MODEL]
@@ -79,10 +138,13 @@ export function getTuiAgentModelOptions(agent: TuiAgent | null | undefined): Tui
 }
 
 export function isTuiAgentModelSelection(agent: TuiAgent, modelId: unknown): modelId is string {
-  return (
-    typeof modelId === 'string' &&
-    getTuiAgentModelOptions(agent).some((option) => option.id === modelId)
-  )
+  if (typeof modelId !== 'string') {
+    return false
+  }
+  if (getTuiAgentModelOptions(agent).some((option) => option.id === modelId)) {
+    return true
+  }
+  return TUI_AGENT_DYNAMIC_MODEL_AGENTS.has(agent) && modelId.trim().length > 0
 }
 
 export function normalizeTuiAgentModelSelections(

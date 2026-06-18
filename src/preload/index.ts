@@ -5,6 +5,7 @@ import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { preloadE2EConfig } from './e2e-config'
 import { glApi } from './gitlab'
+import { stripInjectedBrowserGrabDump } from '../shared/browser-grab-dump-strip'
 import type { AppIdentity } from '../shared/app-identity'
 import type { CliInstallStatus } from '../shared/cli-install-types'
 import type { AgentHookInstallStatus } from '../shared/agent-hook-types'
@@ -428,6 +429,8 @@ const api = {
       ipcRenderer.invoke('app:getFloatingMarkdownDirectory'),
     pickFloatingMarkdownDocument: (): Promise<MarkdownDocument | null> =>
       ipcRenderer.invoke('app:pickFloatingMarkdownDocument'),
+    pickMarkdownDocument: (defaultPath: string): Promise<MarkdownDocument | null> =>
+      ipcRenderer.invoke('app:pickMarkdownDocument', defaultPath),
     pickFloatingWorkspaceDirectory: (): Promise<string | null> =>
       ipcRenderer.invoke('app:pickFloatingWorkspaceDirectory')
   },
@@ -3133,8 +3136,9 @@ const api = {
     saveClipboardImageAsTempFile: (args?: {
       connectionId?: string | null
     }): Promise<string | null> => ipcRenderer.invoke('clipboard:saveImageAsTempFile', args),
+    // Why: scrub legacy grab DOM dumps before they reach the OS clipboard.
     writeClipboardText: (text: string): Promise<void> =>
-      ipcRenderer.invoke('clipboard:writeText', text),
+      ipcRenderer.invoke('clipboard:writeText', stripInjectedBrowserGrabDump(text)),
     writeSelectionClipboardText: (text: string): Promise<void> =>
       ipcRenderer.invoke('clipboard:writeSelectionText', text),
     writeClipboardImage: (dataUrl: string): Promise<void> =>

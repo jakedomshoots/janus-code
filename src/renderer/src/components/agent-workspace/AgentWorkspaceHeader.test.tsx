@@ -22,16 +22,21 @@ const thread: AgentWorkspaceThread = {
 }
 
 describe('AgentWorkspaceHeader', () => {
-  it('renders the selected thread provider label instead of assuming Codex', () => {
+  it('does not render workspace metadata in the header', () => {
     const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={thread} />)
 
-    expect(markup).toContain('OpenCode')
+    expect(markup).toBe('')
+    expect(markup).not.toContain('janus-code')
+    expect(markup).not.toContain('OpenCode')
     expect(markup).not.toContain('Codex')
+    expect(markup).not.toContain('running')
+    expect(markup).not.toContain('feature/provider-parity')
   })
 
   it('does not render one-off pane chrome in the workspace header', () => {
     const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={null} />)
 
+    expect(markup).toBe('')
     expect(markup).not.toContain('Panes')
     expect(markup).not.toContain('Open panes')
   })

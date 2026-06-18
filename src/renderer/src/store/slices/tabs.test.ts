@@ -168,6 +168,22 @@ describe('TabsSlice', () => {
       expect(group.recentTabIds).toEqual([tab1.id])
     })
 
+    it('inserts a new tab immediately after the active tab when requested', () => {
+      const tab1 = store.getState().createUnifiedTab(WT, 'terminal')
+      const tab2 = store.getState().createUnifiedTab(WT, 'editor', {
+        id: 'notes.md',
+        label: 'notes.md',
+        activate: false
+      })
+      const tab3 = store.getState().createUnifiedTab(WT, 'browser', {
+        insertAfterActiveTab: true
+      })
+
+      const group = store.getState().groupsByWorktree[WT][0]
+      expect(group.activeTabId).toBe(tab3.id)
+      expect(group.tabOrder).toEqual([tab1.id, tab3.id, tab2.id])
+    })
+
     it('replaces existing preview tab when creating a new preview', () => {
       const preview1 = store.getState().createUnifiedTab(WT, 'editor', {
         id: 'file-a.ts',

@@ -1008,6 +1008,33 @@ describe('web repos preload API', () => {
     vi.doUnmock('./web-runtime-client')
   })
 
+  it('routes folder picking through the paired runtime', async () => {
+    const runtimeCalls: { method: string; params: unknown }[] = []
+    vi.doMock('./web-runtime-client', () => ({
+      WebRuntimeClient: class {
+        call(method: string, params?: unknown): Promise<RuntimeRpcResponse<unknown>> {
+          runtimeCalls.push({ method, params })
+          return Promise.resolve({
+            id: `call-${runtimeCalls.length}`,
+            ok: true,
+            result: { path: '/Users/alice/project' },
+            _meta: { runtimeId: 'runtime-1' }
+          })
+        }
+
+        close(): void {}
+      }
+    }))
+
+    const globals = installBrowserGlobals('Linux')
+    writeStoredRuntimeEnvironment(globals.storage)
+    const { installWebPreloadApi } = await import('./web-preload-api')
+    installWebPreloadApi()
+
+    await expect(globals.window.api.repos.pickFolder()).resolves.toBe('/Users/alice/project')
+    expect(runtimeCalls).toEqual([{ method: 'repo.pickFolder', params: undefined }])
+  })
+
   it.each([
     ['/home/alice', '/home/alice/orca/projects'],
     ['/', '/orca/projects'],
@@ -1083,6 +1110,14 @@ describe('web worktree preload API', () => {
       WebRuntimeClient: class {
         call(method: string, params?: unknown): Promise<RuntimeRpcResponse<unknown>> {
           runtimeCalls.push({ method, params })
+          if (method === 'repo.list') {
+            return Promise.resolve({
+              id: `call-${runtimeCalls.length}`,
+              ok: true,
+              result: { repos: [{ id: 'repo-1', name: 'repo', path: '/workspace/repo' }] },
+              _meta: { runtimeId: 'runtime-1' }
+            })
+          }
           if (method === 'worktree.detectedList') {
             return Promise.resolve({
               id: `call-${runtimeCalls.length}`,
@@ -1122,6 +1157,101 @@ describe('web worktree preload API', () => {
     expect(runtimeCalls).toEqual([
       { method: 'worktree.detectedList', params: { repo: 'repo-1' } },
       { method: 'worktree.list', params: { repo: 'repo-1', limit: 10_000 } }
+    ])
+  })
+
+  it('routes commit-message model discovery through runtime git RPC', async () => {
+    const runtimeCalls: { method: string; params: unknown }[] = []
+    const worktree = {
+      id: 'repo-1::/workspace/repo',
+      repoId: 'repo-1',
+      path: '/workspace/repo',
+      head: 'abc123',
+      branch: 'refs/heads/main',
+      isBare: false,
+      isMainWorktree: true,
+      displayName: 'repo',
+      comment: '',
+      linkedIssue: null,
+      linkedPR: null,
+      linkedLinearIssue: null,
+      linkedGitLabMR: null,
+      linkedGitLabIssue: null,
+      isArchived: false,
+      isUnread: false,
+      isPinned: false,
+      sortOrder: 0,
+      lastActivityAt: 0,
+      workspaceStatus: 'todo'
+    }
+    vi.doMock('./web-runtime-client', () => ({
+      WebRuntimeClient: class {
+        call(method: string, params?: unknown): Promise<RuntimeRpcResponse<unknown>> {
+          runtimeCalls.push({ method, params })
+          if (method === 'repo.list') {
+            return Promise.resolve({
+              id: `call-${runtimeCalls.length}`,
+              ok: true,
+              result: { repos: [{ id: 'repo-1', name: 'repo', path: '/workspace/repo' }] },
+              _meta: { runtimeId: 'runtime-1' }
+            })
+          }
+          if (method === 'worktree.detectedList') {
+            return Promise.resolve({
+              id: `call-${runtimeCalls.length}`,
+              ok: true,
+              result: { worktrees: [worktree], totalCount: 1, truncated: false },
+              _meta: { runtimeId: 'runtime-1' }
+            })
+          }
+          return Promise.resolve({
+            id: `call-${runtimeCalls.length}`,
+            ok: true,
+            result: {
+              success: true,
+              capability: {
+                id: 'opencode',
+                label: 'OpenCode',
+                modelSource: 'dynamic',
+                models: [],
+                defaultModelId: 'opencode/deepseek-v4-flash-free'
+              },
+              models: [{ id: 'opencode/claude-opus-4-8', label: 'Claude Opus 4.8' }],
+              defaultModelId: 'opencode/claude-opus-4-8'
+            },
+            _meta: { runtimeId: 'runtime-1' }
+          })
+        }
+
+        close(): void {}
+      }
+    }))
+
+    const globals = installBrowserGlobals('Linux')
+    writeStoredRuntimeEnvironment(globals.storage)
+    const { installWebPreloadApi } = await import('./web-preload-api')
+    installWebPreloadApi()
+
+    const result = await globals.window.api.git.discoverCommitMessageModels({
+      agentId: 'opencode',
+      worktreePath: '/workspace/repo'
+    })
+
+    expect(result).toMatchObject({
+      success: true,
+      models: [{ id: 'opencode/claude-opus-4-8' }]
+    })
+    expect(runtimeCalls).toEqual([
+      { method: 'repo.list', params: undefined },
+      { method: 'worktree.detectedList', params: { repo: 'repo-1' } },
+      {
+        method: 'git.discoverCommitMessageModels',
+        params: {
+          worktree: `id:${worktree.id}`,
+          agentId: 'opencode',
+          agentCmdOverrides: {}
+        }
+      }
     ])
   })
 })

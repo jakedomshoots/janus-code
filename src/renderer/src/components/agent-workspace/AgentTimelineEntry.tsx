@@ -49,12 +49,12 @@ export function AgentTimelineEntry({
         </span>
         <div
           className={cn(
-            'min-w-0 rounded-md border px-3 py-2 shadow-xs',
+            'min-w-0 rounded-2xl border px-4 py-3 shadow-xs',
             entry.kind === 'user'
-              ? 'border-border bg-secondary text-secondary-foreground'
+              ? 'border-border bg-card text-card-foreground'
               : 'border-border bg-background',
             entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
-              ? 'bg-muted/20'
+              ? 'bg-card/70'
               : null,
             entry.kind === 'error'
               ? 'border-destructive/35 bg-destructive/10 text-destructive'

@@ -6,12 +6,8 @@ import { useAppStore } from '@/store'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspacePlan,
-  AgentWorkspaceProject,
-  AgentWorkspaceApproval,
   AgentWorkspaceReviewSummary,
-  AgentWorkspaceSnapshot,
-  AgentWorkspaceThread,
-  AgentWorkspaceTimelineEntry
+  AgentWorkspaceSnapshot
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
@@ -26,64 +22,22 @@ import {
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 import { useAgentWorkspaceSourceControlActions } from './useAgentWorkspaceSourceControlActions'
-import { closeAgentWorkspaceThread } from './agent-workspace-thread-close'
-import { pickAgentWorkspaceApprovalThreadId } from './agent-workspace-approval-focus'
-
-type AgentWorkspacePaneState = {
-  id: string
-  selectedThreadId: string | null
-}
-
-type AgentWorkspaceSplitDirection = 'horizontal' | 'vertical'
-
-function getSelectedProject(snapshot: AgentWorkspaceSnapshot): AgentWorkspaceProject | null {
-  return (
-    snapshot.projects.find((project) => project.id === snapshot.activeWorktreeId) ??
-    snapshot.projects[0] ??
-    null
-  )
-}
-
-function getProjectThreads(
-  snapshot: AgentWorkspaceSnapshot,
-  project: AgentWorkspaceProject | null
-): readonly AgentWorkspaceThread[] {
-  return project
-    ? snapshot.threads.filter((thread) => thread.worktreeId === project.id)
-    : snapshot.threads
-}
-
-function getThreadTimeline(
-  snapshot: AgentWorkspaceSnapshot,
-  thread: AgentWorkspaceThread | null
-): readonly AgentWorkspaceTimelineEntry[] {
-  return thread ? snapshot.timeline.filter((entry) => entry.threadId === thread.id) : []
-}
-
-function getThreadDiffs(
-  snapshot: AgentWorkspaceSnapshot,
-  thread: AgentWorkspaceThread | null
-): readonly AgentWorkspaceDiffSummary[] {
-  return thread ? snapshot.diffs.filter((diff) => diff.threadId === thread.id) : []
-}
-
-function getThreadApproval(
-  snapshot: AgentWorkspaceSnapshot,
-  thread: AgentWorkspaceThread | null
-): AgentWorkspaceApproval | null {
-  return thread
-    ? (snapshot.approvals.find((approval) => approval.threadId === thread.id) ?? null)
-    : null
-}
-
-function getThreadReview(
-  snapshot: AgentWorkspaceSnapshot,
-  thread: AgentWorkspaceThread | null
-): AgentWorkspaceReviewSummary | null {
-  return thread
-    ? ((snapshot.reviews ?? []).find((review) => review.worktreeId === thread.worktreeId) ?? null)
-    : null
-}
+import { pruneStaleAgentBrowserTabs } from './agent-browser-workbench-tabs'
+import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
+import { useTabGroupWorkspaceModel } from '@/components/tab-group/useTabGroupWorkspaceModel'
+import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
+import { isWebRuntimeSessionActive } from '@/runtime/web-runtime-session'
+import { getActiveAgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
+import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
+import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
+import {
+  getProjectThreads,
+  getSelectedProject,
+  getThreadApproval,
+  getThreadDiffs,
+  getThreadReview,
+  getThreadTimeline
+} from './agent-workspace-layout-selectors'
 
 function getRightPanelStateInput(
   thread: AgentWorkspaceThread | null,
@@ -121,17 +75,12 @@ export function AgentWorkspaceLayout({
 }: {
   snapshot: AgentWorkspaceSnapshot
   terminalDrawerReason?: AgentTerminalRevealReason | null
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const projectThreads = getProjectThreads(snapshot, selectedProject)
   const defaultThread = projectThreads[0] ?? null
-  const [panes, setPanes] = useState<AgentWorkspacePaneState[]>(() => [
-    { id: 'pane-1', selectedThreadId: defaultThread?.id ?? null }
-  ])
-  const [activePaneId, setActivePaneId] = useState('pane-1')
-  const [splitDirection, setSplitDirection] = useState<AgentWorkspaceSplitDirection>('horizontal')
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
       getRightPanelStateInput(
@@ -143,7 +92,27 @@ export function AgentWorkspaceLayout({
     )
   )
   const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
-  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0] ?? null
+  const {
+    panes,
+    activePaneId,
+    activePane,
+    splitDirection,
+    setActivePaneId,
+    handlePaneThreadSelect,
+    handleNewSession,
+    handleBeginDraftAgentSession,
+    handleUpdateDraftSessionAgent,
+    handleSelectDraftSession,
+    handleCloseDraftSession,
+    handleCloseThread,
+    handleSplitPane,
+    handleClosePane
+  } = useAgentWorkspacePanes({
+    defaultThreadId: defaultThread?.id ?? null,
+    projectThreads,
+    projectThreadIdsKey,
+    onOpenTerminalDrawer
+  })
   const selectedThread = activePane?.selectedThreadId
     ? (projectThreads.find((thread) => thread.id === activePane.selectedThreadId) ?? null)
     : null
@@ -165,30 +134,40 @@ export function AgentWorkspaceLayout({
   )
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
-  const nextPaneSequenceRef = useRef(2)
+  const lastPrunedAgentBrowserWorktreeRef = useRef<string | null>(null)
 
-  useEffect(() => {
-    setPanes((currentPanes) => {
-      let changed = false
-      const nextPanes = currentPanes.map((pane) => {
-        if (!pane.selectedThreadId) {
-          return pane
-        }
-        if (projectThreads.some((thread) => thread.id === pane.selectedThreadId)) {
-          return pane
-        }
-        changed = true
-        return { ...pane, selectedThreadId: defaultThread?.id ?? null }
-      })
-      return changed ? nextPanes : currentPanes
-    })
-  }, [defaultThread?.id, projectThreadIdsKey, projectThreads])
+  const closeBrowserTab = useAppStore((state) => state.closeBrowserTab)
+  const guiAgentWorkspaceEnabled = useAppStore(
+    (state) => state.settings?.guiAgentWorkspaceEnabled === true
+  )
+  const focusedGroupId = useAppStore((state) =>
+    snapshot.activeWorktreeId
+      ? (state.activeGroupIdByWorktree?.[snapshot.activeWorktreeId] ??
+        state.groupsByWorktree?.[snapshot.activeWorktreeId]?.[0]?.id ??
+        null)
+      : null
+  )
+  const tabGroupModel = useTabGroupWorkspaceModel({
+    worktreeId: snapshot.activeWorktreeId ?? '',
+    groupId: focusedGroupId ?? ''
+  })
+  const browserWorkbench = useAgentBrowserWorkbench({
+    activeWorktreeId: snapshot.activeWorktreeId,
+    browserWorkbenchActive: terminalDrawerReason === 'browser',
+    onOpenTerminalDrawer
+  })
 
-  useEffect(() => {
-    if (!panes.some((pane) => pane.id === activePaneId)) {
-      setActivePaneId(panes[0]?.id ?? 'pane-1')
-    }
-  }, [activePaneId, panes])
+  useAgentWorkspaceActionBridgeRegistration({
+    activePaneId,
+    activeWorktreeId: snapshot.activeWorktreeId,
+    browserWorkbench,
+    focusedGroupId,
+    guiAgentWorkspaceEnabled,
+    onBeginDraftAgentSession: handleBeginDraftAgentSession,
+    onOpenTerminalDrawer,
+    tabGroupCommands: tabGroupModel.commands,
+    terminalDrawerReason
+  })
 
   useEffect(() => {
     if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
@@ -204,6 +183,41 @@ export function AgentWorkspaceLayout({
       setRightSidebarOpen(false)
     }
   }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
+
+  useEffect(() => {
+    // Why: persisted UI can restore explorer open; agent workspace should start
+    // distraction-free until the user clicks Files or uses the explorer shortcut.
+    setRightSidebarOpen(false)
+  }, [snapshot.activeWorktreeId, setRightSidebarOpen])
+
+  useEffect(() => {
+    if (terminalDrawerReason === 'browser') {
+      setRightSidebarOpen(false)
+    }
+  }, [terminalDrawerReason, setRightSidebarOpen])
+
+  useEffect(() => {
+    if (!snapshot.activeWorktreeId) {
+      lastPrunedAgentBrowserWorktreeRef.current = null
+      return
+    }
+    if (terminalDrawerReason === 'browser') {
+      return
+    }
+    const worktreeId = snapshot.activeWorktreeId
+    if (lastPrunedAgentBrowserWorktreeRef.current === worktreeId) {
+      return
+    }
+    lastPrunedAgentBrowserWorktreeRef.current = worktreeId
+    const state = useAppStore.getState()
+    const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(state, worktreeId)
+    pruneStaleAgentBrowserTabs({
+      state,
+      worktreeId,
+      webRuntimeActive: isWebRuntimeSessionActive(runtimeEnvironmentId),
+      closeBrowserTab
+    })
+  }, [closeBrowserTab, snapshot.activeWorktreeId, terminalDrawerReason])
 
   useEffect(
     () => () => {
@@ -224,92 +238,6 @@ export function AgentWorkspaceLayout({
       ...current,
       collapsed: false
     }))
-  }
-
-  function handlePaneThreadSelect(paneId: string, threadId: string): void {
-    setActivePaneId(paneId)
-    setPanes((currentPanes) =>
-      currentPanes.map((pane) =>
-        pane.id === paneId ? { ...pane, selectedThreadId: threadId } : pane
-      )
-    )
-  }
-
-  useEffect(() => {
-    if (!activePane) {
-      return
-    }
-    const approvalThreadId = pickAgentWorkspaceApprovalThreadId(
-      projectThreads,
-      activePane.selectedThreadId
-    )
-    if (!approvalThreadId) {
-      return
-    }
-    handlePaneThreadSelect(activePane.id, approvalThreadId)
-  }, [activePane, projectThreadIdsKey, projectThreads])
-
-  function handleNewSession(paneId: string): void {
-    setActivePaneId(paneId)
-    setPanes((currentPanes) =>
-      currentPanes.map((pane) => (pane.id === paneId ? { ...pane, selectedThreadId: null } : pane))
-    )
-  }
-
-  function handleCloseThread(paneId: string, threadId: string): void {
-    const remainingThreads = projectThreads.filter((thread) => thread.id !== threadId)
-    const fallbackThreadId = remainingThreads[0]?.id ?? null
-    setPanes((currentPanes) =>
-      currentPanes.map((pane) => {
-        if (pane.selectedThreadId !== threadId) {
-          return pane
-        }
-        return { ...pane, selectedThreadId: fallbackThreadId }
-      })
-    )
-    if (activePane?.selectedThreadId === threadId) {
-      setActivePaneId(paneId)
-    }
-    closeAgentWorkspaceThread(threadId)
-  }
-
-  function handleSplitPane(paneId: string, direction: AgentWorkspaceSplitDirection): void {
-    setSplitDirection(direction)
-    const nextPaneId = `pane-${nextPaneSequenceRef.current}`
-    nextPaneSequenceRef.current += 1
-    const sourcePane = panes.find((pane) => pane.id === paneId)
-    setPanes((currentPanes) => {
-      const insertIndex = currentPanes.findIndex((pane) => pane.id === paneId)
-      const nextPane = {
-        id: nextPaneId,
-        selectedThreadId: sourcePane?.selectedThreadId ?? defaultThread?.id ?? null
-      }
-      if (insertIndex === -1) {
-        return [...currentPanes, nextPane]
-      }
-      return [
-        ...currentPanes.slice(0, insertIndex + 1),
-        nextPane,
-        ...currentPanes.slice(insertIndex + 1)
-      ]
-    })
-    setActivePaneId(nextPaneId)
-  }
-
-  function handleClosePane(paneId: string): void {
-    setPanes((currentPanes) => {
-      if (currentPanes.length <= 1) {
-        return currentPanes
-      }
-      const closingIndex = currentPanes.findIndex((pane) => pane.id === paneId)
-      const nextPanes = currentPanes.filter((pane) => pane.id !== paneId)
-      if (activePaneId === paneId) {
-        setActivePaneId(
-          nextPanes[Math.max(0, closingIndex - 1)]?.id ?? nextPanes[0]?.id ?? 'pane-1'
-        )
-      }
-      return nextPanes
-    })
   }
 
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
@@ -342,7 +270,9 @@ export function AgentWorkspaceLayout({
       rightPanel={
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel
+            project={selectedProject}
             thread={selectedThread}
+            threads={projectThreads}
             plan={selectedPlan}
             approval={selectedApproval}
             diffs={diffs}
@@ -370,6 +300,7 @@ export function AgentWorkspaceLayout({
           const paneThread = pane.selectedThreadId
             ? (projectThreads.find((thread) => thread.id === pane.selectedThreadId) ?? null)
             : null
+          const activeDraftSession = getActiveAgentWorkspaceDraftSession(pane)
           const paneApproval = getThreadApproval(snapshot, paneThread)
           const paneTimeline = getThreadTimeline(snapshot, paneThread)
           return (
@@ -397,16 +328,33 @@ export function AgentWorkspaceLayout({
                 hasSplitPanes={panes.length > 1}
                 threads={projectThreads}
                 thread={paneThread}
+                draftSessions={pane.draftSessions}
+                selectedDraftSessionId={pane.selectedDraftSessionId}
+                activeDraftSession={activeDraftSession}
                 approval={paneApproval}
                 timeline={paneTimeline}
                 terminalAvailable={snapshot.terminalAvailable}
                 browserWorkbenchActive={terminalDrawerReason === 'browser'}
+                tabGroupWorkbenchActive={terminalDrawerReason === 'workbench'}
                 onFocusPane={() => setActivePaneId(pane.id)}
                 onSelectThread={(threadId) => handlePaneThreadSelect(pane.id, threadId)}
                 onCloseThread={(threadId) => handleCloseThread(pane.id, threadId)}
                 onNewSession={() => handleNewSession(pane.id)}
-                onSplitRight={() => handleSplitPane(pane.id, 'horizontal')}
-                onSplitDown={() => handleSplitPane(pane.id, 'vertical')}
+                onSelectDraftSession={(draftSessionId) =>
+                  handleSelectDraftSession(pane.id, draftSessionId)
+                }
+                onCloseDraftSession={(draftSessionId) =>
+                  handleCloseDraftSession(pane.id, draftSessionId)
+                }
+                onUpdateDraftSessionAgent={(draftSessionId, agent) =>
+                  handleUpdateDraftSessionAgent(pane.id, draftSessionId, agent)
+                }
+                onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
+                onSplitPane={(direction) => {
+                  const splitDirection =
+                    direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'
+                  handleSplitPane(pane.id, splitDirection)
+                }}
                 onClosePane={() => handleClosePane(pane.id)}
                 onOpenTerminalDrawer={onOpenTerminalDrawer}
               />

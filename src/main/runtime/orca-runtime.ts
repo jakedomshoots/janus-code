@@ -256,7 +256,7 @@ import {
 } from './claude-agent-teams-shim-env'
 import { joinWorktreeRelativePath } from './runtime-relative-paths'
 import { collectMemorySnapshot } from '../memory/collector'
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, dialog, ipcMain } from 'electron'
 import type { AgentBrowserBridge } from '../browser/agent-browser-bridge'
 import { BrowserError } from '../browser/cdp-bridge'
 import {
@@ -1930,6 +1930,19 @@ export class OrcaRuntimeService {
       throw new Error('runtime_unavailable')
     }
     return collectMemorySnapshot(this.store)
+  }
+
+  async pickRepoFolder(): Promise<string | null> {
+    // Why: paired web clients cannot read absolute paths from browser directory
+    // handles, so the desktop runtime must own the native folder picker.
+    const ownerWindow = this.getAvailableAuthoritativeWindow()
+    const result = ownerWindow
+      ? await dialog.showOpenDialog(ownerWindow, { properties: ['openDirectory'] })
+      : await dialog.showOpenDialog({ properties: ['openDirectory'] })
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+    return result.filePaths[0]
   }
 
   getUIState(): PersistedUIState {
@@ -17886,6 +17899,21 @@ export class OrcaRuntimeService {
 
   browserHighlight: RuntimeBrowserCommands['browserHighlight'] =
     this.browserCommands.browserHighlight.bind(this.browserCommands)
+
+  browserSetGrabMode: RuntimeBrowserCommands['browserSetGrabMode'] =
+    this.browserCommands.browserSetGrabMode.bind(this.browserCommands)
+
+  browserAwaitGrabSelection: RuntimeBrowserCommands['browserAwaitGrabSelection'] =
+    this.browserCommands.browserAwaitGrabSelection.bind(this.browserCommands)
+
+  browserCancelGrab: RuntimeBrowserCommands['browserCancelGrab'] =
+    this.browserCommands.browserCancelGrab.bind(this.browserCommands)
+
+  browserCaptureSelectionScreenshot: RuntimeBrowserCommands['browserCaptureSelectionScreenshot'] =
+    this.browserCommands.browserCaptureSelectionScreenshot.bind(this.browserCommands)
+
+  browserExtractHoverPayload: RuntimeBrowserCommands['browserExtractHoverPayload'] =
+    this.browserCommands.browserExtractHoverPayload.bind(this.browserCommands)
 
   browserExec: RuntimeBrowserCommands['browserExec'] = this.browserCommands.browserExec.bind(
     this.browserCommands

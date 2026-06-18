@@ -1,8 +1,7 @@
-import { ArrowUp, Brain, Cpu, Loader2, ShieldCheck } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { ArrowUp, ChevronDown, Loader2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { translate } from '@/i18n/i18n'
-import { AgentIcon } from '@/lib/agent-catalog'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { cn } from '@/lib/utils'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
@@ -11,6 +10,12 @@ import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import {
+  ChatDropdownContent,
+  ChatDropdownOption,
+  ChatDropdownSection
+} from './AgentComposerChatDropdown'
+import { AgentComposerAgentSettingsPopover } from './AgentComposerAgentSettingsPopover'
 import { AgentComposerToolCluster } from './AgentComposerToolCluster'
 
 export function AgentComposerFooter({
@@ -33,6 +38,8 @@ export function AgentComposerFooter({
   selectedAgent,
   modelOptions,
   selectedModel,
+  modelDiscoveryLoading,
+  modelDiscoveryError,
   detectingAgents,
   onSelectedAgentChange,
   onSelectedModelChange,
@@ -58,6 +65,8 @@ export function AgentComposerFooter({
   selectedAgent: TuiAgent | null
   modelOptions: readonly TuiAgentModelOption[]
   selectedModel: string
+  modelDiscoveryLoading: boolean
+  modelDiscoveryError: string | null
   detectingAgents: boolean
   onSelectedAgentChange: (agent: TuiAgent | null) => void
   onSelectedModelChange: (modelId: string) => void
@@ -65,7 +74,7 @@ export function AgentComposerFooter({
   canSubmit: boolean
 }): React.JSX.Element {
   return (
-    <div className="px-4 pb-3">
+    <div className="px-5 pb-5">
       <p
         id="agent-workspace-composer-status"
         className={cn(
@@ -76,16 +85,8 @@ export function AgentComposerFooter({
       >
         {statusMessage ?? ''}
       </p>
-      <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          {canSendToSelectedThread ? null : (
-            <>
-              <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
-              <ThinkingModeSelect value={thinkingMode} onChange={onThinkingModeChange} />
-            </>
-          )}
-        </div>
-        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+      <div className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-3">
+        <div className="justify-self-start">
           <AgentComposerToolCluster
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
@@ -95,6 +96,13 @@ export function AgentComposerFooter({
             browserAnnotationCount={browserAnnotationCount}
             onAttachBrowserContext={onAttachBrowserContext}
           />
+        </div>
+        {canSendToSelectedThread ? (
+          <div />
+        ) : (
+          <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
+        )}
+        <div className="min-w-0 justify-self-end">
           {canSendToSelectedThread ? (
             <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
               {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
@@ -103,35 +111,34 @@ export function AgentComposerFooter({
               </span>
             </div>
           ) : (
-            <>
-              <AgentProviderSelect
-                agents={availableAgents}
-                value={selectedAgent}
-                detecting={detectingAgents}
-                onChange={onSelectedAgentChange}
-              />
-              <AgentModelSelect
-                options={modelOptions}
-                value={selectedModel}
-                disabled={!selectedAgent || modelOptions.length <= 1}
-                onChange={onSelectedModelChange}
-              />
-            </>
+            <AgentComposerAgentSettingsPopover
+              thinkingMode={thinkingMode}
+              onThinkingModeChange={onThinkingModeChange}
+              availableAgents={availableAgents}
+              selectedAgent={selectedAgent}
+              modelOptions={modelOptions}
+              selectedModel={selectedModel}
+              modelDiscoveryLoading={modelDiscoveryLoading}
+              modelDiscoveryError={modelDiscoveryError}
+              detectingAgents={detectingAgents}
+              onSelectedAgentChange={onSelectedAgentChange}
+              onSelectedModelChange={onSelectedModelChange}
+            />
           )}
-          <Button
-            type="submit"
-            size="icon"
-            className="rounded-full"
-            disabled={!canSubmit}
-            aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
-          >
-            {submitting ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <ArrowUp className="size-5" aria-hidden="true" />
-            )}
-          </Button>
         </div>
+        <Button
+          type="submit"
+          size="icon"
+          className="size-11 rounded-full"
+          disabled={!canSubmit}
+          aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
+        >
+          {submitting ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowUp className="size-5" aria-hidden="true" />
+          )}
+        </Button>
       </div>
     </div>
   )
@@ -144,188 +151,63 @@ function PermissionModeSelect({
   value: AgentPermissionMode
   onChange: (mode: AgentPermissionMode) => void
 }): React.JSX.Element {
-  return (
-    <ComposerToolbarSelect
-      label={translate('auto.components.agentWorkspace.composer.permissions', 'Permissions')}
-      ariaLabel={translate(
-        'auto.components.agentWorkspace.composer.permissionMode',
-        'Permission mode'
-      )}
-      icon={<ShieldCheck className="size-3.5" aria-hidden="true" />}
-      value={value}
-      onChange={(nextValue) => onChange(nextValue as AgentPermissionMode)}
-      options={[
-        {
-          value: 'manual',
-          label: translate('auto.components.agentWorkspace.composer.permissionManual', 'Ask first')
-        },
-        {
-          value: 'yolo',
-          label: translate('auto.components.agentWorkspace.composer.permissionYolo', 'Full access')
-        },
-        {
-          value: 'mixed',
-          label: translate(
-            'auto.components.agentWorkspace.composer.permissionMixed',
-            'Mixed defaults'
-          ),
-          disabled: true
-        }
-      ]}
-    />
-  )
-}
+  const options = [
+    {
+      value: 'manual',
+      label: translate('auto.components.agentWorkspace.composer.permissionManual', 'Ask first')
+    },
+    {
+      value: 'yolo',
+      label: translate('auto.components.agentWorkspace.composer.permissionYolo', 'Full access')
+    },
+    {
+      value: 'mixed',
+      label: translate('auto.components.agentWorkspace.composer.permissionMixed', 'Mixed defaults'),
+      disabled: true
+    }
+  ] as const
+  const selectedLabel = options.find((option) => option.value === value)?.label ?? options[0].label
 
-function ThinkingModeSelect({
-  value,
-  onChange
-}: {
-  value: TuiAgentThinkingMode
-  onChange: (mode: TuiAgentThinkingMode) => void
-}): React.JSX.Element {
   return (
-    <ComposerToolbarSelect
-      label={translate('auto.components.agentWorkspace.composer.thinking', 'Thinking')}
-      ariaLabel={translate('auto.components.agentWorkspace.composer.thinkingMode', 'Thinking mode')}
-      icon={<Brain className="size-3.5" aria-hidden="true" />}
-      value={value}
-      onChange={(nextValue) => onChange(nextValue as TuiAgentThinkingMode)}
-      options={[
-        {
-          value: 'quick',
-          label: translate('auto.components.agentWorkspace.composer.thinkingQuick', 'Quick')
-        },
-        {
-          value: 'standard',
-          label: translate('auto.components.agentWorkspace.composer.thinkingStandard', 'Standard')
-        },
-        {
-          value: 'deep',
-          label: translate('auto.components.agentWorkspace.composer.thinkingDeep', 'Deep')
-        }
-      ]}
-    />
-  )
-}
-
-function ComposerToolbarSelect({
-  label,
-  ariaLabel,
-  icon,
-  value,
-  options,
-  disabled = false,
-  selectClassName,
-  onChange
-}: {
-  label: string
-  ariaLabel: string
-  icon: ReactNode
-  value: string
-  options: readonly { value: string; label: string; disabled?: boolean }[]
-  disabled?: boolean
-  selectClassName?: string
-  onChange: (value: string) => void
-}): React.JSX.Element {
-  return (
-    <label className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1 text-muted-foreground/90">
-        {icon}
-        {label}
-      </span>
-      <select
-        aria-label={ariaLabel}
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        className={cn(
-          'h-7 min-w-24 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
-          selectClassName
-        )}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value} disabled={option.disabled}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  )
-}
-
-function AgentModelSelect({
-  options,
-  value,
-  disabled,
-  onChange
-}: {
-  options: readonly TuiAgentModelOption[]
-  value: string
-  disabled: boolean
-  onChange: (modelId: string) => void
-}): React.JSX.Element {
-  return (
-    <ComposerToolbarSelect
-      label={translate('auto.components.agentWorkspace.composer.model', 'Model')}
-      ariaLabel={translate('auto.components.agentWorkspace.composer.agentModel', 'Agent model')}
-      icon={<Cpu className="size-3.5" aria-hidden="true" />}
-      value={value}
-      disabled={disabled}
-      selectClassName="max-w-44 truncate"
-      onChange={onChange}
-      options={options.map((option) => ({
-        value: option.id,
-        label: option.label
-      }))}
-    />
-  )
-}
-
-function AgentProviderSelect({
-  agents,
-  value,
-  detecting,
-  onChange
-}: {
-  agents: readonly { id: TuiAgent; label: string }[]
-  value: TuiAgent | null
-  detecting: boolean
-  onChange: (agent: TuiAgent | null) => void
-}): React.JSX.Element {
-  const disabled = detecting || agents.length === 0
-  return (
-    <label className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
-      <span>{translate('auto.components.agentWorkspace.composer.provider', 'Provider')}</span>
-      <select
-        aria-label={translate(
-          'auto.components.agentWorkspace.composer.agentProvider',
-          'Agent provider'
-        )}
-        value={value ?? ''}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value ? (event.target.value as TuiAgent) : null)}
-        className="h-7 max-w-44 border-0 bg-transparent px-1 text-xs font-medium text-foreground outline-none transition-[color,box-shadow] focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {disabled ? (
-          <option value="">
-            {detecting
-              ? translate(
-                  'auto.components.agentWorkspace.composer.detectingAgents',
-                  'Detecting agents'
-                )
-              : translate(
-                  'auto.components.agentWorkspace.composer.noAgentsDetected',
-                  'No agents detected'
-                )}
-          </option>
-        ) : null}
-        {agents.map((agent) => (
-          <option key={agent.id} value={agent.id}>
-            {agent.label}
-          </option>
-        ))}
-      </select>
-      {value ? <AgentIcon agent={value} size={14} /> : null}
-    </label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-10 justify-start gap-2 rounded-full px-4 text-xs"
+          aria-label={translate(
+            'auto.components.agentWorkspace.composer.permissionMode',
+            'Permission mode'
+          )}
+        >
+          <ShieldCheck className="size-3.5 text-muted-foreground" aria-hidden="true" />
+          <span className="text-muted-foreground">
+            {translate('auto.components.agentWorkspace.composer.permissions', 'Permissions')}
+          </span>
+          <span className="font-medium text-foreground">{selectedLabel}</span>
+          <ChevronDown className="ml-1 size-3.5 text-muted-foreground" aria-hidden="true" />
+        </Button>
+      </PopoverTrigger>
+      <ChatDropdownContent align="center" side="top" sideOffset={10}>
+        <ChatDropdownSection
+          title={translate('auto.components.agentWorkspace.composer.permissions', 'Permissions')}
+        >
+          {options.map((option) => (
+            <ChatDropdownOption
+              key={option.value}
+              label={option.label}
+              selected={option.value === value}
+              disabled={option.disabled}
+              ariaLabel={translate(
+                'auto.components.agentWorkspace.composer.setPermissionMode',
+                'Set permission mode: {{label}}',
+                { label: option.label }
+              )}
+              onSelect={() => onChange(option.value)}
+            />
+          ))}
+        </ChatDropdownSection>
+      </ChatDropdownContent>
+    </Popover>
   )
 }

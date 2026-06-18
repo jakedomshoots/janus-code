@@ -26,6 +26,7 @@ import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
 import { shouldSuppressProjectRightSidebar } from './components/agent-workspace/agent-workspace-right-sidebar'
 import { buildAppFontFamily } from '@/lib/app-font-family'
+import { shouldEnableReactGrab } from '@/lib/react-grab-dev-gate'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -577,6 +578,24 @@ function App(): React.JSX.Element {
   const showWorktreeHistoryControls = shouldShowWorktreeHistoryControls(activeView, {
     guiAgentWorkspaceEnabled
   })
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+    if (
+      !shouldEnableReactGrab({
+        dev: true,
+        enableFlag: import.meta.env.VITE_ENABLE_REACT_GRAB,
+        guiAgentWorkspaceEnabled
+      })
+    ) {
+      return
+    }
+    void import('react-grab').then(({ init }) => init())
+    void import('react-grab/styles.css')
+  }, [guiAgentWorkspaceEnabled])
+
   const titlebarLeftControlsRef = useRef<HTMLDivElement | null>(null)
   const [collapsedSidebarHeaderWidth, setCollapsedSidebarHeaderWidth] = useState(0)
   const [mountedLazyModalIds, setMountedLazyModalIds] = useState<Set<LazyModalId>>(() => new Set())
@@ -1294,7 +1313,8 @@ function App(): React.JSX.Element {
     !shouldSuppressProjectRightSidebar({
       guiAgentWorkspaceEnabled,
       activeView,
-      agentWorkspaceRightPanelExpanded
+      agentWorkspaceRightPanelExpanded,
+      rightSidebarOpen
     })
 
   const handleToggleExpand = (): void => {

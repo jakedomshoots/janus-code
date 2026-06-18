@@ -92,6 +92,7 @@ export async function createWebRuntimeSessionBrowserTab(args: {
   profileId?: string | null
   targetGroupId?: string
   selectWorktree?: boolean
+  activate?: boolean
 }): Promise<boolean> {
   const environmentId =
     args.environmentId?.trim() ??
@@ -101,7 +102,8 @@ export async function createWebRuntimeSessionBrowserTab(args: {
     return false
   }
 
-  const shouldSelectWorktree = args.selectWorktree !== false
+  const shouldActivate = args.activate !== false
+  const shouldSelectWorktree = args.selectWorktree !== false && shouldActivate
   const stagedFromWorktreeId = useAppStore.getState().activeWorktreeId
   if (shouldSelectWorktree) {
     selectWebRuntimeSessionWorktree(args.worktreeId)
@@ -128,7 +130,9 @@ export async function createWebRuntimeSessionBrowserTab(args: {
       remotePageId: created.browserPageId,
       url: args.url,
       targetGroupId: args.targetGroupId,
+      activate: shouldActivate,
       restoreFocus:
+        shouldActivate &&
         shouldSelectWorktree &&
         (stagedFromWorktreeId === args.worktreeId ||
           useAppStore.getState().activeWorktreeId === args.worktreeId)
@@ -150,6 +154,7 @@ function stageWebRuntimeBrowserTab(args: {
   remotePageId: string
   url?: string
   targetGroupId?: string
+  activate?: boolean
   restoreFocus?: boolean
 }): void {
   const remotePageId = args.remotePageId.trim()
@@ -166,8 +171,9 @@ function stageWebRuntimeBrowserTab(args: {
     selectWebRuntimeSessionWorktree(args.worktreeId)
   }
 
+  const shouldActivate = args.activate !== false
   if (existing) {
-    if (args.restoreFocus !== false) {
+    if (args.restoreFocus !== false && shouldActivate) {
       useAppStore
         .getState()
         .focusBrowserTabInWorktree(args.worktreeId, existing.pageId, { surfacePane: true })
@@ -181,7 +187,8 @@ function stageWebRuntimeBrowserTab(args: {
   // remote handle immediately so the current worktree stays selected.
   const browserTab = useAppStore.getState().createBrowserTab(args.worktreeId, url, {
     title: url === 'about:blank' ? 'New Browser Tab' : url,
-    focusAddressBar: true,
+    focusAddressBar: shouldActivate,
+    activate: shouldActivate,
     browserRuntimeEnvironmentId: args.environmentId,
     targetGroupId: args.targetGroupId
   })
@@ -191,7 +198,8 @@ function stageWebRuntimeBrowserTab(args: {
   }
   useAppStore.getState().setRemoteBrowserPageHandle(pageId, {
     environmentId: args.environmentId,
-    remotePageId
+    remotePageId,
+    pendingHostMirror: true
   })
 }
 

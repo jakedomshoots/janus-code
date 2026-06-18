@@ -1,0 +1,231 @@
+import type { TuiAgent } from '../../../../shared/types'
+import { Copy, FileText, Globe, Plus, Smartphone, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { translate } from '@/i18n/i18n'
+import { AgentIcon } from '@/lib/agent-catalog'
+import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
+import { cn } from '@/lib/utils'
+import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import type { AgentWorkspaceThread } from './agent-workspace-types'
+import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
+
+export function WorkbenchTabPill({
+  label,
+  contentType,
+  selected,
+  onSelect,
+  onClose
+}: {
+  label: string
+  contentType: 'simulator' | 'editor' | 'diff' | 'conflict-review'
+  selected: boolean
+  onSelect: () => void
+  onClose: () => void
+}): React.JSX.Element {
+  const Icon = contentType === 'simulator' ? Smartphone : FileText
+
+  return (
+    <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        onClick={onSelect}
+      >
+        <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+        <span className="truncate font-medium">{label}</span>
+      </button>
+      <CloseTabButton
+        label={translate(
+          'auto.components.agentWorkspace.threadTabs.closeWorkbenchTab',
+          'Close workbench tab'
+        )}
+        onClose={onClose}
+      />
+    </div>
+  )
+}
+
+export function BrowserTabPill({
+  label,
+  selected,
+  onSelect,
+  onClose,
+  onDuplicate
+}: {
+  label: string
+  selected: boolean
+  onSelect: () => void
+  onClose: () => void
+  onDuplicate: () => void
+}): React.JSX.Element {
+  return (
+    <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        onClick={onSelect}
+      >
+        <Globe className="size-3.5 shrink-0 text-blue-500" aria-hidden="true" />
+        <span className="truncate font-medium">{label}</span>
+      </button>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            className="shrink-0 opacity-0 group-hover:opacity-70 hover:opacity-100"
+            aria-label={translate(
+              'auto.components.agentWorkspace.threadTabs.browserTabActions',
+              'Browser tab actions'
+            )}
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            <span className="text-[10px] font-semibold">...</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" side="bottom" sideOffset={4}>
+          <DropdownMenuItem
+            onSelect={() => {
+              onDuplicate()
+            }}
+          >
+            <Copy className="size-4" />
+            {translate(
+              'auto.components.agentWorkspace.threadTabs.duplicateBrowserTab',
+              'Duplicate tab'
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <CloseTabButton
+        label={translate(
+          'auto.components.agentWorkspace.threadTabs.closeBrowserTab',
+          'Close browser tab'
+        )}
+        onClose={onClose}
+      />
+    </div>
+  )
+}
+
+export function DraftSessionTab({
+  draftSession,
+  selected,
+  onSelect,
+  onClose
+}: {
+  draftSession: AgentWorkspaceDraftSession
+  selected: boolean
+  onSelect: () => void
+  onClose: () => void
+}): React.JSX.Element {
+  const label = draftSession.preferredAgent
+    ? formatAgentTypeLabel(draftSession.preferredAgent)
+    : translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')
+
+  return (
+    <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        onClick={onSelect}
+      >
+        <DraftSessionIcon agent={draftSession.preferredAgent} />
+        <span className="truncate font-medium">{label}</span>
+      </button>
+      <CloseTabButton
+        label={translate(
+          'auto.components.agentWorkspace.threadTabs.closeDraftSession',
+          'Close draft session'
+        )}
+        onClose={onClose}
+      />
+    </div>
+  )
+}
+
+export function ThreadTab({
+  thread,
+  selected,
+  onSelect,
+  onClose
+}: {
+  thread: AgentWorkspaceThread
+  selected: boolean
+  onSelect: () => void
+  onClose: () => void
+}): React.JSX.Element {
+  return (
+    <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+        onClick={onSelect}
+      >
+        <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
+        <span className="truncate font-medium">{thread.title}</span>
+        <span className="hidden shrink-0 text-muted-foreground/80 sm:inline">
+          {formatAgentTypeLabel(thread.agentKind)}
+        </span>
+        <span className="hidden shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground group-hover:text-foreground md:inline">
+          {formatAgentWorkspacePhase(thread.phase)}
+        </span>
+      </button>
+      <CloseTabButton
+        label={translate('auto.components.agentWorkspace.threadTabs.closeThread', 'Close thread')}
+        onClose={onClose}
+      />
+    </div>
+  )
+}
+
+function DraftSessionIcon({ agent }: { agent: TuiAgent | null }): React.JSX.Element {
+  return agent ? (
+    <AgentIcon agent={agentTypeToIconAgent(agent)} size={14} />
+  ) : (
+    <Plus className="size-3.5 shrink-0" aria-hidden="true" />
+  )
+}
+
+function CloseTabButton({
+  label,
+  onClose
+}: {
+  label: string
+  onClose: () => void
+}): React.JSX.Element {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-xs"
+      className="shrink-0 opacity-70 hover:opacity-100"
+      aria-label={label}
+      title={label}
+      onClick={(event) => {
+        event.stopPropagation()
+        onClose()
+      }}
+    >
+      <X className="size-3" aria-hidden="true" />
+    </Button>
+  )
+}
+
+function getTabPillClassName(selected: boolean): string {
+  return cn(
+    'group flex h-9 max-w-72 shrink-0 items-center gap-1 rounded-xl border pl-3 pr-1.5 text-xs transition-colors',
+    selected
+      ? 'border-border bg-card text-foreground'
+      : 'border-transparent bg-card/45 text-muted-foreground hover:bg-accent hover:text-foreground'
+  )
+}

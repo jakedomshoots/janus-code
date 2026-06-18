@@ -1,17 +1,9 @@
 import { lazy, Suspense, useMemo } from 'react'
 import { useDroppable } from '@dnd-kit/core'
-import { Columns2, Ellipsis, Rows2, X } from 'lucide-react'
 import { useAppStore } from '../../store'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import TabBar from '../tab-bar/TabBar'
 
-import { TabBarQuickCommandsButton } from '../tab-bar/TabBarQuickCommandsButton'
+import { TabGroupPaneActionChrome } from './TabGroupPaneActionChrome'
 import { useTabGroupWorkspaceModel } from './useTabGroupWorkspaceModel'
 import TabGroupDropOverlay from './TabGroupDropOverlay'
 import { closeTerminalTab } from '../terminal/terminal-tab-actions'
@@ -29,6 +21,8 @@ const EditorPanel = lazy(() => import('../editor/EditorPanel'))
 export default function TabGroupPanel({
   groupId,
   worktreeId,
+  agentBrowserWorkbenchMode = false,
+  agentWorkbenchSurfaceMode = false,
   isFocused,
   hasSplitGroups,
   touchesRightEdge,
@@ -41,6 +35,8 @@ export default function TabGroupPanel({
 }: {
   groupId: string
   worktreeId: string
+  agentBrowserWorkbenchMode?: boolean
+  agentWorkbenchSurfaceMode?: boolean
   isFocused: boolean
   hasSplitGroups: boolean
   touchesRightEdge: boolean
@@ -82,10 +78,30 @@ export default function TabGroupPanel({
     [bodyAnchorName]
   )
 
+  const hideAgentWorkbenchTabRow = agentBrowserWorkbenchMode || agentWorkbenchSurfaceMode
+  const visibleTerminalTabs = hideAgentWorkbenchTabRow ? [] : terminalTabs
+  const visibleEditorItems = agentBrowserWorkbenchMode ? [] : editorItems
+  const visibleTabBarOrder = agentBrowserWorkbenchMode
+    ? tabBarOrder.filter((entryId) => browserItems.some((item) => item.id === entryId))
+    : tabBarOrder
+  const visibleActiveTabType = agentBrowserWorkbenchMode
+    ? 'browser'
+    : activeTab?.contentType === 'terminal'
+      ? 'terminal'
+      : activeTab?.contentType === 'browser'
+        ? 'browser'
+        : activeTab?.contentType === 'simulator'
+          ? 'simulator'
+          : 'editor'
+
   const tabBar = (
     <TabBar
-      tabs={terminalTabs}
-      activeTabId={activeTab?.contentType === 'terminal' ? activeTab.entityId : null}
+      tabs={visibleTerminalTabs}
+      activeTabId={
+        agentBrowserWorkbenchMode || activeTab?.contentType !== 'terminal'
+          ? null
+          : activeTab.entityId
+      }
       groupId={groupId}
       worktreeId={worktreeId}
       expandedPaneByTabId={model.expandedPaneByTabId}
@@ -125,26 +141,33 @@ export default function TabGroupPanel({
       onSetCustomTitle={commands.setTabCustomTitle}
       onSetTabColor={commands.setTabColor}
       onTogglePaneExpand={commands.toggleTerminalPaneExpand}
-      editorFiles={editorItems}
+      editorFiles={visibleEditorItems}
       browserTabs={browserItems}
       activeFileId={
+        agentBrowserWorkbenchMode ||
         activeTab?.contentType === 'terminal' ||
         activeTab?.contentType === 'browser' ||
         activeTab?.contentType === 'simulator'
           ? null
           : activeTab?.id
       }
-      activeBrowserTabId={activeTab?.contentType === 'browser' ? activeTab.entityId : null}
-      activeSimulatorTabId={activeTab?.contentType === 'simulator' ? activeTab.id : null}
-      activeTabType={
-        activeTab?.contentType === 'terminal'
-          ? 'terminal'
+      activeBrowserTabId={
+        agentBrowserWorkbenchMode
+          ? ((activeTab?.contentType === 'browser' ? activeTab.entityId : null) ??
+            browserItems[0]?.id ??
+            null)
           : activeTab?.contentType === 'browser'
-            ? 'browser'
-            : activeTab?.contentType === 'simulator'
-              ? 'simulator'
-              : 'editor'
+            ? activeTab.entityId
+            : null
       }
+      activeSimulatorTabId={
+        agentBrowserWorkbenchMode
+          ? null
+          : activeTab?.contentType === 'simulator'
+            ? activeTab.id
+            : null
+      }
+      activeTabType={visibleActiveTabType}
       onActivateFile={commands.activateEditor}
       onCloseFile={commands.closeItem}
       onActivateBrowserTab={commands.activateBrowser}
@@ -178,14 +201,12 @@ export default function TabGroupPanel({
         }
         commands.pinFile(item.entityId, item.id)
       }}
-      tabBarOrder={tabBarOrder}
+      tabBarOrder={visibleTabBarOrder}
       onCreateSplitGroup={commands.createSplitGroup}
       hoveredTabInsertion={hoveredTabInsertion}
     />
   )
 
-  const menuButtonClassName =
-    'my-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
   // Why: focused-only — the QC split-button and Pane Actions ellipsis both
   // appear together so the action cluster never reflows when focus shifts
   // between groups. Unfocused groups collapse the cluster fully (no
@@ -233,116 +254,55 @@ export default function TabGroupPanel({
           way to drag-move the window is via -webkit-app-region: drag. Without
           this, the empty space after tabs in the center column is dead — the
           user can only drag from the tiny left-sidebar header strip. */}
-      <div
-        className="h-[32px] shrink-0 border-b border-border bg-card"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
-        <div className="flex h-full items-stretch pr-1.5">
-          {/* Why: Electron's native drag hit-test only respects no-drag on DOM
+      {/* Why: agent browser workbench renders browser tabs in AgentWorkspaceThreadTabs
+          so the session strip and browser tabs share one row like the original Orca UI. */}
+      {!hideAgentWorkbenchTabRow ? (
+        <div
+          className="h-[32px] shrink-0 border-b border-border bg-card"
+          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+        >
+          <div className="flex h-full items-stretch pr-1.5">
+            {/* Why: Electron's native drag hit-test only respects no-drag on DOM
               descendants, not z-index siblings. When the left sidebar is
               collapsed, its header floats absolutely (z-10) over this tab row
               from a separate DOM branch. An explicit no-drag spacer here
               punches a hole in the drag surface so the floating sidebar toggle
               and other titlebar controls remain clickable. */}
-          {reserveCollapsedSidebarHeaderSpace && !sidebarOpen ? (
-            <div
-              className="shrink-0"
-              style={
-                {
-                  width: 'var(--collapsed-sidebar-header-width)',
-                  WebkitAppRegion: 'no-drag'
-                } as React.CSSProperties
-              }
-            />
-          ) : null}
-          <div className="min-w-0 flex-1 h-full">{tabBar}</div>
-          {/* Why: pane-scoped layout actions belong with the active pane instead
+            {reserveCollapsedSidebarHeaderSpace && !sidebarOpen ? (
+              <div
+                className="shrink-0"
+                style={
+                  {
+                    width: 'var(--collapsed-sidebar-header-width)',
+                    WebkitAppRegion: 'no-drag'
+                  } as React.CSSProperties
+                }
+              />
+            ) : null}
+            <div className="min-w-0 flex-1 h-full">{tabBar}</div>
+            {/* Why: pane-scoped layout actions belong with the active pane instead
               of the global tab-bar `+`, which should keep opening tabs exactly
               as before. The local overflow menu holds split directions and
               close-group without changing the existing tab-creation affordance. */}
-          <div
-            className={actionChromeClassName}
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          >
-            {isFocused ? (
-              <TabBarQuickCommandsButton worktreeId={worktreeId} groupId={groupId} />
+            {/* Why: agent browser workbench renders these actions in AgentWorkspaceThreadTabs
+              so they stay visible even when the chat pane is covered by browser tabs. */}
+            {!hideAgentWorkbenchTabRow ? (
+              <div
+                className={actionChromeClassName}
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              >
+                {isFocused ? (
+                  <TabGroupPaneActionChrome
+                    worktreeId={worktreeId}
+                    groupId={groupId}
+                    hasSplitGroups={hasSplitGroups}
+                    onSplit={commands.createSplitGroup}
+                    onCloseGroup={commands.closeGroup}
+                  />
+                ) : null}
+              </div>
             ) : null}
-            {isFocused ? (
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label={translate(
-                      'auto.components.tab.group.TabGroupPanel.9acaf92093',
-                      'Pane Actions'
-                    )}
-                    title={translate(
-                      'auto.components.tab.group.TabGroupPanel.9acaf92093',
-                      'Pane Actions'
-                    )}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                    }}
-                    className={menuButtonClassName}
-                  >
-                    <Ellipsis className="size-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="bottom" sideOffset={4}>
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      commands.createSplitGroup('right')
-                    }}
-                  >
-                    <Columns2 className="size-4" />
-                    {translate('auto.components.tab.group.TabGroupPanel.ab1e2bff04', 'Split Right')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      commands.createSplitGroup('down')
-                    }}
-                  >
-                    <Rows2 className="size-4" />
-                    {translate('auto.components.tab.group.TabGroupPanel.4df2a06d36', 'Split Down')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      commands.createSplitGroup('left')
-                    }}
-                  >
-                    <Columns2 className="size-4" />
-                    {translate('auto.components.tab.group.TabGroupPanel.30137df7d0', 'Split Left')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      commands.createSplitGroup('up')
-                    }}
-                  >
-                    <Rows2 className="size-4" />
-                    {translate('auto.components.tab.group.TabGroupPanel.0db2081805', 'Split Up')}
-                  </DropdownMenuItem>
-                  {hasSplitGroups ? (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onSelect={() => {
-                          commands.closeGroup()
-                        }}
-                      >
-                        <X className="size-4" />
-                        {translate(
-                          'auto.components.tab.group.TabGroupPanel.f7d6ce445e',
-                          'Close Group'
-                        )}
-                      </DropdownMenuItem>
-                    </>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-          </div>
-          {/* Why: Electron's native drag hit-test ignores z-index — a no-drag
+            {/* Why: Electron's native drag hit-test ignores z-index — a no-drag
               element only overrides drag when it's a DOM descendant, not a
               sibling in another branch. The floating right-sidebar toggle and
               the fixed-position window-controls overlay on Windows both sit in
@@ -350,19 +310,20 @@ export default function TabGroupPanel({
               punch holes in the drag surface beneath them. The sidebar toggle
               is 40px (w-10); window controls add --window-controls-width
               (138px on Windows, 0px elsewhere) on top. */}
-          {reserveClosedExplorerToggleSpace && !rightSidebarOpen ? (
-            <div
-              className="shrink-0"
-              style={
-                {
-                  width: 'calc(40px + var(--window-controls-width, 0px))',
-                  WebkitAppRegion: 'no-drag'
-                } as React.CSSProperties
-              }
-            />
-          ) : null}
+            {reserveClosedExplorerToggleSpace && !rightSidebarOpen ? (
+              <div
+                className="shrink-0"
+                style={
+                  {
+                    width: 'calc(40px + var(--window-controls-width, 0px))',
+                    WebkitAppRegion: 'no-drag'
+                  } as React.CSSProperties
+                }
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div
         ref={setBodyDropRef}

@@ -374,11 +374,13 @@ describe('discoverCommitMessageModelsLocal', () => {
     listeners.get('stdout:data')?.(Buffer.from('provider model\n'))
     listeners.get('close')?.(0)
 
-    await expect(pending).resolves.toMatchObject({
+    const result = await pending
+
+    expect(result).toMatchObject({
       success: true,
-      defaultModelId: 'github-copilot/gpt-5.4-mini',
-      models: [{ id: 'github-copilot/gpt-5.4-mini' }]
+      defaultModelId: 'kimi-coding/kimi-for-coding'
     })
+    expect(result.models[0]?.id).toBe('kimi-coding/kimi-for-coding')
   })
 
   it('parses Pi model discovery from stderr when the CLI exits successfully', async () => {

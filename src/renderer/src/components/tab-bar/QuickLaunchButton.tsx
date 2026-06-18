@@ -14,6 +14,8 @@ import { translate } from '@/i18n/i18n'
 export type QuickLaunchAgentMenuItemsProps = {
   worktreeId: string
   groupId: string
+  /** GUI agent workspace overrides terminal launch with composer draft selection. */
+  onLaunchAgent?: (agent: TuiAgent) => void
   /** Called after the tab is created so keyboard focus lands in the new xterm.
    *  Reuses the TabBar's existing double-rAF handoff — this component does
    *  not duplicate the focus logic. */
@@ -92,6 +94,7 @@ async function waitForTerminalPty(tabId: string, timeoutMs: number): Promise<boo
 function QuickLaunchAgentMenuItemsInner({
   worktreeId,
   groupId,
+  onLaunchAgent,
   onFocusTerminal,
   prompt,
   promptDelivery,
@@ -124,6 +127,10 @@ function QuickLaunchAgentMenuItemsInner({
 
   const runLaunch = useCallback(
     (agent: TuiAgent) => {
+      if (onLaunchAgent) {
+        onLaunchAgent(agent)
+        return
+      }
       const entry = getCatalogEntry(agent)
       const label = entry?.label ?? agent
       const result = launchAgentInNewTab({
@@ -173,7 +180,16 @@ function QuickLaunchAgentMenuItemsInner({
         toast.message(getLaunchWatchdogTimeoutMessage(label))
       })
     },
-    [worktreeId, groupId, onFocusTerminal, prompt, promptDelivery, launchSource, onPromptDelivered]
+    [
+      groupId,
+      launchSource,
+      onFocusTerminal,
+      onLaunchAgent,
+      onPromptDelivered,
+      prompt,
+      promptDelivery,
+      worktreeId
+    ]
   )
 
   const enabledDetectedIds = detectedIds ? filterEnabledTuiAgents(detectedIds, disabledAgents) : []

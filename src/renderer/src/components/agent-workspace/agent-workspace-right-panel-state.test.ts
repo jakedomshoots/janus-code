@@ -83,11 +83,14 @@ describe('agent workspace right panel state', () => {
     expect(resolveDefaultTab({ hasStructuredPlan: true })).toBe('plan')
   })
 
-  it('falls back to a collapsed details tab when no richer panel has data', () => {
+  it('shows details for an ordinary selected thread', () => {
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({}))).toEqual({
       selectedTab: 'details',
-      collapsed: true
+      collapsed: false
     })
+  })
+
+  it('keeps the panel collapsed when no thread is selected', () => {
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({ thread: null }))).toEqual({
       selectedTab: 'details',
       collapsed: true

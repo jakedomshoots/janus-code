@@ -10,6 +10,7 @@ import { createServer as createHttpsServer, type Server as HttpsServer } from 'h
 import { createServer as createHttpServer, type Server as HttpServer } from 'http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import type { RpcTransport } from './transport'
+import { wrapWithDevLocalPairingHandler } from './dev-local-pairing-http-handler'
 import { createStaticWebClientHandler } from './static-web-client-handler'
 
 const MAX_WS_MESSAGE_BYTES = 1024 * 1024
@@ -51,6 +52,10 @@ export type WebSocketTransportOptions = {
   // Why: the pairing server can also serve the browser client, so users do
   // not need a second dev/static server once the web bundle is built.
   staticRoot?: string
+  devLocalPairing?: {
+    enabled: boolean
+    createPairingUrl: () => string | null
+  }
 }
 
 export class WebSocketTransport implements RpcTransport {
@@ -61,6 +66,7 @@ export class WebSocketTransport implements RpcTransport {
   private readonly heartbeatIntervalMs: number
   private readonly preAuthTimeoutMs: number
   private readonly staticRoot: string | undefined
+  private readonly devLocalPairing: WebSocketTransportOptions['devLocalPairing']
   private httpServer: HttpsServer | HttpServer | null = null
   private wss: WebSocketServer | null = null
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null
@@ -84,7 +90,8 @@ export class WebSocketTransport implements RpcTransport {
     tlsKey,
     heartbeatIntervalMs,
     preAuthTimeoutMs,
-    staticRoot
+    staticRoot,
+    devLocalPairing
   }: WebSocketTransportOptions) {
     this.host = host
     this.port = port
@@ -93,6 +100,7 @@ export class WebSocketTransport implements RpcTransport {
     this.heartbeatIntervalMs = heartbeatIntervalMs ?? HEARTBEAT_INTERVAL_MS
     this.preAuthTimeoutMs = preAuthTimeoutMs ?? PRE_AUTH_TIMEOUT_MS
     this.staticRoot = staticRoot
+    this.devLocalPairing = devLocalPairing
   }
 
   onMessage(handler: WebSocketMessageHandler): void {
@@ -163,9 +171,13 @@ export class WebSocketTransport implements RpcTransport {
   }
 
   private createHttpServer(): HttpServer | HttpsServer {
-    const requestListener = this.staticRoot
-      ? createStaticWebClientHandler(this.staticRoot)
-      : undefined
+    const requestListener = wrapWithDevLocalPairingHandler(
+      this.staticRoot ? createStaticWebClientHandler(this.staticRoot) : undefined,
+      {
+        enabled: this.devLocalPairing?.enabled === true,
+        createPairingUrl: () => this.devLocalPairing?.createPairingUrl() ?? null
+      }
+    )
     return this.tlsCert && this.tlsKey
       ? createHttpsServer({ cert: this.tlsCert, key: this.tlsKey }, requestListener)
       : createHttpServer(requestListener)

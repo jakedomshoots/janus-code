@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Cable, Loader2, Server, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +12,7 @@ import {
 } from './web-runtime-environment'
 import { parseWebPairingInput } from './web-pairing'
 import { WebRuntimeClient } from './web-runtime-client'
+import { tryConnectLocalDevRuntime } from './web-dev-local-pairing'
 import { translate } from '@/i18n/i18n'
 
 type WebConnectProps = {
@@ -29,6 +30,18 @@ export default function WebConnect({
   const [error, setError] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
   const parsedOffer = useMemo(() => parseWebPairingInput(pairingCode), [pairingCode])
+
+  useEffect(() => {
+    let cancelled = false
+    void tryConnectLocalDevRuntime().then((connected) => {
+      if (!cancelled && connected) {
+        onConnected()
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [onConnected])
 
   const connect = async (): Promise<void> => {
     setError(null)

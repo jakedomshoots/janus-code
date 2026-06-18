@@ -1,63 +1,123 @@
-import { Columns2, Globe, Plus, Rows2, X } from 'lucide-react'
+import type { TuiAgent } from '../../../../shared/types'
+import { MessageSquare, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { TabBarNewTabMenu } from '@/components/tab-bar/TabBarNewTabMenu'
+import { TabGroupPaneActionChrome } from '@/components/tab-group/TabGroupPaneActionChrome'
+import { useTabGroupWorkspaceModel } from '@/components/tab-group/useTabGroupWorkspaceModel'
+import type { TabGroupSplitDirection } from '@/components/tab-group/TabGroupPaneActionChrome'
 import { translate } from '@/i18n/i18n'
-import { AgentIcon } from '@/lib/agent-catalog'
-import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
-import { cn } from '@/lib/utils'
-import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import { useAppStore } from '@/store'
+import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
+import {
+  BrowserTabPill,
+  DraftSessionTab,
+  ThreadTab,
+  WorkbenchTabPill
+} from './AgentWorkspaceThreadTabPills'
+import { openMarkdownFileInActiveWorkspace } from './open-markdown-file-in-workspace'
+import { useAgentWorkspaceBrowserTabStrip } from './useAgentWorkspaceBrowserTabStrip'
+import { useAgentWorkspaceWorkbenchTabStrip } from './useAgentWorkspaceWorkbenchTabStrip'
 
 export function AgentWorkspaceThreadTabs({
+  activeWorktreeId,
   paneLabel,
   threads,
   selectedThreadId,
+  draftSessions,
+  selectedDraftSessionId,
   hasSplitPanes,
   onFocusPane,
   onSelectThread,
   onCloseThread,
   onNewSession,
+  onSelectDraftSession,
+  onCloseDraftSession,
   browserAvailable,
   browserWorkbenchActive,
-  browserTabCount,
+  tabGroupWorkbenchActive,
   onOpenBrowserWorkbench,
-  onSplitRight,
-  onSplitDown,
+  onDismissWorkbenchSurface,
+  onBeginDraftAgentSession,
+  onOpenTerminalDrawer,
+  onSplitPane,
   onClosePane
 }: {
+  activeWorktreeId: string | null
   paneLabel: string
   threads: readonly AgentWorkspaceThread[]
   selectedThreadId: string | null
+  draftSessions: readonly AgentWorkspaceDraftSession[]
+  selectedDraftSessionId: string | null
   hasSplitPanes: boolean
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
   onCloseThread: (threadId: string) => void
   onNewSession: () => void
+  onSelectDraftSession: (draftSessionId: string) => void
+  onCloseDraftSession: (draftSessionId: string) => void
   browserAvailable: boolean
   browserWorkbenchActive: boolean
-  browserTabCount: number
-  onOpenBrowserWorkbench: () => void
-  onSplitRight: () => void
-  onSplitDown: () => void
+  tabGroupWorkbenchActive: boolean
+  onOpenBrowserWorkbench: (options?: {
+    createNewTab?: boolean
+    browserTabId?: string
+    keepAgentSessionVisible?: boolean
+  }) => void
+  onDismissWorkbenchSurface: () => void
+  onBeginDraftAgentSession: (agent: TuiAgent) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
+  onSplitPane: (direction: TabGroupSplitDirection) => void
   onClosePane: () => void
 }): React.JSX.Element {
-  const hasDraftSession = selectedThreadId === null
+  const workbenchSurfaceActive = browserWorkbenchActive || tabGroupWorkbenchActive
+  const draftSessionActive = selectedThreadId === null && selectedDraftSessionId !== null
+  const focusedGroupId = useAppStore((state) =>
+    activeWorktreeId
+      ? (state.activeGroupIdByWorktree[activeWorktreeId] ??
+        state.groupsByWorktree[activeWorktreeId]?.[0]?.id ??
+        null)
+      : null
+  )
+  const tabGroupModel = useTabGroupWorkspaceModel({
+    worktreeId: activeWorktreeId ?? '',
+    groupId: focusedGroupId ?? ''
+  })
+  const browserTabStrip = useAgentWorkspaceBrowserTabStrip({
+    worktreeId: activeWorktreeId,
+    groupId: focusedGroupId,
+    browserWorkbenchActive,
+    onOpenBrowserWorkbench,
+    onDismissWorkbenchSurface
+  })
+  const workbenchTabStrip = useAgentWorkspaceWorkbenchTabStrip({
+    worktreeId: activeWorktreeId,
+    groupId: focusedGroupId,
+    tabGroupWorkbenchActive,
+    onDismissWorkbench: onDismissWorkbenchSurface
+  })
+
+  function openWorkbenchSurface(): void {
+    onOpenTerminalDrawer?.('workbench')
+  }
 
   return (
-    <div className="h-9 shrink-0 border-b border-border/60 bg-card">
+    <div className="h-12 shrink-0 border-b border-border/70 bg-background">
       <div className="flex h-full min-w-0 items-stretch">
         <div
-          className="scrollbar-sleek flex min-w-0 flex-1 items-end gap-1 overflow-x-auto px-2 pt-1"
+          className="scrollbar-sleek flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-4"
           role="tablist"
           aria-label={translate(
-            'auto.components.agentWorkspace.threadTabs.agentSessions',
-            'Agent sessions'
+            'auto.components.agentWorkspace.threadTabs.workspaceTabs',
+            'Workspace tabs'
           )}
         >
           {threads.map((thread) => (
             <ThreadTab
               key={thread.id}
               thread={thread}
-              selected={thread.id === selectedThreadId}
+              selected={!browserWorkbenchActive && thread.id === selectedThreadId}
               onSelect={() => {
                 onFocusPane()
                 onSelectThread(thread.id)
@@ -68,30 +128,134 @@ export function AgentWorkspaceThreadTabs({
               }}
             />
           ))}
-          {hasDraftSession ? (
-            <NewSessionTab
+          {draftSessions.map((draftSession) => (
+            <DraftSessionTab
+              key={draftSession.id}
+              draftSession={draftSession}
+              selected={
+                draftSessionActive &&
+                !workbenchSurfaceActive &&
+                draftSession.id === selectedDraftSessionId
+              }
               onSelect={() => {
                 onFocusPane()
-                onNewSession()
+                if (workbenchSurfaceActive) {
+                  onDismissWorkbenchSurface()
+                }
+                onSelectDraftSession(draftSession.id)
               }}
-            />
-          ) : null}
-          {browserAvailable ? (
-            <BrowserWorkbenchTab
-              active={browserWorkbenchActive}
-              browserTabCount={browserTabCount}
-              onSelect={() => {
+              onClose={() => {
                 onFocusPane()
-                onOpenBrowserWorkbench()
+                onCloseDraftSession(draftSession.id)
               }}
             />
+          ))}
+          {browserAvailable
+            ? browserTabStrip.browserTabs.map((browserTab) => (
+                <BrowserTabPill
+                  key={browserTab.id}
+                  label={browserTab.label}
+                  selected={
+                    browserWorkbenchActive && browserTab.id === browserTabStrip.activeBrowserTabId
+                  }
+                  onSelect={() => {
+                    onFocusPane()
+                    browserTabStrip.selectBrowserTab(browserTab.id)
+                  }}
+                  onClose={() => {
+                    onFocusPane()
+                    browserTabStrip.closeBrowserTab(browserTab.id)
+                  }}
+                  onDuplicate={() => {
+                    onFocusPane()
+                    tabGroupModel.commands.duplicateBrowserTab(browserTab.id)
+                  }}
+                />
+              ))
+            : null}
+          {tabGroupWorkbenchActive
+            ? workbenchTabStrip.workbenchTabs.map((workbenchTab) => (
+                <WorkbenchTabPill
+                  key={workbenchTab.id}
+                  label={workbenchTab.label}
+                  contentType={workbenchTab.contentType}
+                  selected={workbenchTab.id === workbenchTabStrip.activeWorkbenchTabId}
+                  onSelect={() => {
+                    onFocusPane()
+                    workbenchTabStrip.selectWorkbenchTab(workbenchTab.id)
+                  }}
+                  onClose={() => {
+                    onFocusPane()
+                    workbenchTabStrip.closeWorkbenchTab(workbenchTab.id)
+                  }}
+                />
+              ))
+            : null}
+          {activeWorktreeId && focusedGroupId ? (
+            <div
+              className="shrink-0"
+              onPointerDown={() => {
+                onFocusPane()
+              }}
+            >
+              <TabBarNewTabMenu
+                worktreeId={activeWorktreeId}
+                groupId={focusedGroupId}
+                triggerClassName="my-0 h-9 w-9 rounded-xl border border-transparent bg-card/60 hover:bg-accent hover:text-foreground"
+                onLaunchAgent={(agent) => {
+                  onBeginDraftAgentSession(agent)
+                }}
+                onNewTerminalTab={() => {
+                  tabGroupModel.commands.newTerminalTab()
+                  onOpenTerminalDrawer?.('debug-button')
+                }}
+                onNewTerminalWithShell={(shell) => {
+                  tabGroupModel.commands.newTerminalWithShell(shell)
+                  onOpenTerminalDrawer?.('debug-button')
+                }}
+                onNewBrowserTab={() => {
+                  onOpenBrowserWorkbench({
+                    createNewTab: true,
+                    keepAgentSessionVisible: false
+                  })
+                }}
+                onNewFileTab={() => {
+                  openWorkbenchSurface()
+                  void tabGroupModel.commands.newFileTab()
+                }}
+                onOpenFileTab={() => {
+                  openWorkbenchSurface()
+                  void openMarkdownFileInActiveWorkspace(focusedGroupId)
+                }}
+                onNewSimulatorTab={() => {
+                  openWorkbenchSurface()
+                  tabGroupModel.commands.newSimulatorTab?.()
+                }}
+                onOpenEntry={tabGroupModel.commands.openEntry}
+              />
+            </div>
           ) : null}
         </div>
-        <div className="flex shrink-0 items-center gap-0.5 px-2">
+        <div className="flex shrink-0 items-center gap-1 px-3">
           {hasSplitPanes ? (
             <span className="hidden text-[11px] text-muted-foreground lg:inline">{paneLabel}</span>
           ) : null}
-          {!hasDraftSession ? (
+          {workbenchSurfaceActive ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="hidden h-7 shrink-0 sm:inline-flex"
+              onClick={() => {
+                onFocusPane()
+                onDismissWorkbenchSurface()
+              }}
+            >
+              <MessageSquare className="size-3.5" aria-hidden="true" />
+              {translate('auto.components.agentWorkspace.threadTabs.backToChat', 'Back to chat')}
+            </Button>
+          ) : null}
+          {!draftSessionActive && !workbenchSurfaceActive ? (
             <Button
               type="button"
               variant="ghost"
@@ -112,158 +276,18 @@ export function AgentWorkspaceThreadTabs({
               <Plus className="size-4" aria-hidden="true" />
             </Button>
           ) : null}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            aria-label={translate(
-              'auto.components.agentWorkspace.threadTabs.splitRight',
-              'Split right'
-            )}
-            title={translate('auto.components.agentWorkspace.threadTabs.splitRight', 'Split right')}
-            onClick={onSplitRight}
-          >
-            <Columns2 className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            aria-label={translate(
-              'auto.components.agentWorkspace.threadTabs.splitDown',
-              'Split down'
-            )}
-            title={translate('auto.components.agentWorkspace.threadTabs.splitDown', 'Split down')}
-            onClick={onSplitDown}
-          >
-            <Rows2 className="size-4" aria-hidden="true" />
-          </Button>
-          {hasSplitPanes ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              aria-label={translate(
-                'auto.components.agentWorkspace.threadTabs.closePane',
-                'Close pane'
-              )}
-              title={translate('auto.components.agentWorkspace.threadTabs.closePane', 'Close pane')}
-              onClick={onClosePane}
-            >
-              <X className="size-4" aria-hidden="true" />
-            </Button>
+          {activeWorktreeId && focusedGroupId ? (
+            <TabGroupPaneActionChrome
+              worktreeId={activeWorktreeId}
+              groupId={focusedGroupId}
+              hasSplitGroups={hasSplitPanes}
+              agentPaneMode={true}
+              onSplit={onSplitPane}
+              onCloseGroup={onClosePane}
+            />
           ) : null}
         </div>
       </div>
-    </div>
-  )
-}
-
-function BrowserWorkbenchTab({
-  active,
-  browserTabCount,
-  onSelect
-}: {
-  active: boolean
-  browserTabCount: number
-  onSelect: () => void
-}): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      className={cn(
-        'flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border px-3 text-xs transition-colors',
-        active
-          ? 'border-border border-b-background bg-background text-foreground'
-          : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
-      )}
-      onClick={onSelect}
-    >
-      <Globe className="size-3.5" aria-hidden="true" />
-      <span className="truncate font-medium">
-        {translate('auto.components.agentWorkspace.threadTabs.browser', 'Browser')}
-      </span>
-      {browserTabCount > 0 ? (
-        <span className="rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-          {browserTabCount}
-        </span>
-      ) : null}
-    </button>
-  )
-}
-
-function NewSessionTab({ onSelect }: { onSelect: () => void }): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected="true"
-      className="flex h-8 max-w-64 shrink-0 items-center gap-2 rounded-t-md border border-b-background bg-background px-3 text-xs text-foreground"
-      onClick={onSelect}
-    >
-      <Plus className="size-3.5" aria-hidden="true" />
-      <span className="truncate font-medium">
-        {translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')}
-      </span>
-    </button>
-  )
-}
-
-function ThreadTab({
-  thread,
-  selected,
-  onSelect,
-  onClose
-}: {
-  thread: AgentWorkspaceThread
-  selected: boolean
-  onSelect: () => void
-  onClose: () => void
-}): React.JSX.Element {
-  return (
-    <div
-      role="tab"
-      aria-selected={selected}
-      className={cn(
-        'group flex h-8 max-w-72 shrink-0 items-center gap-1 rounded-t-md border pl-3 pr-1 text-xs transition-colors',
-        selected
-          ? 'border-border border-b-background bg-background text-foreground'
-          : 'border-transparent bg-muted/25 text-muted-foreground hover:bg-muted/45 hover:text-foreground'
-      )}
-    >
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
-        onClick={onSelect}
-      >
-        <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
-        <span className="truncate font-medium">{thread.title}</span>
-        <span className="hidden shrink-0 text-muted-foreground/80 sm:inline">
-          {formatAgentTypeLabel(thread.agentKind)}
-        </span>
-        <span className="hidden shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground group-hover:text-foreground md:inline">
-          {formatAgentWorkspacePhase(thread.phase)}
-        </span>
-      </button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xs"
-        className="shrink-0 opacity-70 hover:opacity-100"
-        aria-label={translate(
-          'auto.components.agentWorkspace.threadTabs.closeThread',
-          'Close thread'
-        )}
-        title={translate('auto.components.agentWorkspace.threadTabs.closeThread', 'Close thread')}
-        onClick={(event) => {
-          event.stopPropagation()
-          onClose()
-        }}
-      >
-        <X className="size-3" aria-hidden="true" />
-      </Button>
     </div>
   )
 }

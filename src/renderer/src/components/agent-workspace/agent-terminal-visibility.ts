@@ -4,6 +4,7 @@ export const AGENT_TERMINAL_REVEAL_REASONS = [
   'failure',
   'keyboard-shortcut',
   'browser',
+  'workbench',
   'approval'
 ] as const
 
@@ -18,9 +19,15 @@ export type AgentTerminalVisibilityInput = {
 export type AgentTerminalVisibilityState = {
   readonly drawerRendered: boolean
   readonly drawerOpen: boolean
+  readonly browserWorkbenchOpen: boolean
+  readonly tabGroupWorkbenchOpen: boolean
   readonly openReason: AgentTerminalRevealReason | null
   readonly terminalWorkspaceMounted: boolean
   readonly terminalAvailable: boolean
+}
+
+function isMainPaneWorkbenchReason(reason: AgentTerminalRevealReason | null): boolean {
+  return reason === 'browser' || reason === 'workbench'
 }
 
 export function isAgentTerminalRevealReason(value: string): value is AgentTerminalRevealReason {
@@ -32,10 +39,18 @@ export function getAgentTerminalVisibilityState({
   openReason,
   terminalAvailable
 }: AgentTerminalVisibilityInput): AgentTerminalVisibilityState {
+  const resolvedReason = guiAgentWorkspaceEnabled ? openReason : null
   return {
     drawerRendered: guiAgentWorkspaceEnabled,
-    drawerOpen: guiAgentWorkspaceEnabled && openReason !== null,
-    openReason: guiAgentWorkspaceEnabled ? openReason : null,
+    // Why: browser workbench overlays the agent chat pane (original Orca layout),
+    // not the bottom terminal drawer reserved for debug/approval terminals.
+    drawerOpen:
+      guiAgentWorkspaceEnabled &&
+      resolvedReason !== null &&
+      !isMainPaneWorkbenchReason(resolvedReason),
+    browserWorkbenchOpen: guiAgentWorkspaceEnabled && resolvedReason === 'browser',
+    tabGroupWorkbenchOpen: guiAgentWorkspaceEnabled && resolvedReason === 'workbench',
+    openReason: resolvedReason,
     terminalWorkspaceMounted: true,
     terminalAvailable
   }

@@ -81,6 +81,9 @@ const electronMocks = vi.hoisted(() => {
     BrowserWindow: { fromId: vi.fn((_id: number): unknown => null) },
     webContents: { fromId: vi.fn((_id: number): unknown => null) },
     ipcMain,
+    dialog: {
+      showOpenDialog: vi.fn().mockResolvedValue({ canceled: true, filePaths: [] })
+    },
     app: { getPath: vi.fn(() => '/tmp') }
   }
 })
@@ -367,6 +370,8 @@ afterEach(() => {
   electronMocks.BrowserWindow.fromId.mockReturnValue(null)
   electronMocks.webContents.fromId.mockReset()
   electronMocks.webContents.fromId.mockReturnValue(null)
+  electronMocks.dialog.showOpenDialog.mockReset()
+  electronMocks.dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] })
   electronMocks.ipcMain.on.mockClear()
   electronMocks.ipcMain.removeListener.mockClear()
   electronMocks.ipcMain.emit.mockClear()
@@ -981,6 +986,33 @@ describe('OrcaRuntimeService', () => {
     runtime.attachWindow(TEST_WINDOW_ID)
 
     expect(runtime.getStatus().capabilities).toContain('browser.screencast.v1')
+  })
+
+  it('picks repo folders from the authoritative desktop window', async () => {
+    const runtime = createRuntime()
+    const ownerWindow = { isDestroyed: () => false }
+    electronMocks.BrowserWindow.fromId.mockReturnValue(ownerWindow as never)
+    electronMocks.dialog.showOpenDialog.mockResolvedValue({
+      canceled: false,
+      filePaths: ['/srv/projects/orca']
+    })
+
+    runtime.attachWindow(TEST_WINDOW_ID)
+
+    await expect(runtime.pickRepoFolder()).resolves.toBe('/srv/projects/orca')
+    expect(electronMocks.dialog.showOpenDialog).toHaveBeenCalledWith(ownerWindow, {
+      properties: ['openDirectory']
+    })
+  })
+
+  it('returns null when repo folder picking is cancelled', async () => {
+    const runtime = createRuntime()
+    electronMocks.dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] })
+
+    await expect(runtime.pickRepoFolder()).resolves.toBeNull()
+    expect(electronMocks.dialog.showOpenDialog).toHaveBeenCalledWith({
+      properties: ['openDirectory']
+    })
   })
 
   it('claims the first window as authoritative and ignores later windows', () => {

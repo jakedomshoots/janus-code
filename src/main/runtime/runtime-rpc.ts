@@ -36,6 +36,8 @@ type OrcaRuntimeRpcServerOptions = {
   enableWebSocket?: boolean
   wsPort?: number
   webClientRoot?: string
+  devWebClientOrigin?: string
+  enableDevLocalPairing?: boolean
   // Why: test-only overrides for the two time-bound constants below.
   // Production callers must not pass these — defaults are set by the design
   // doc (§3.1) and changing them in production would weaken the admission
@@ -99,9 +101,17 @@ function formatWebSocketUrl(url: URL): string {
   return url.pathname === '/' && !url.search && !url.hash ? formatted.replace(/\/$/, '') : formatted
 }
 
-function createWebClientUrl(endpoint: string, pairingUrl: string): string {
-  const url = new URL(endpoint)
-  url.protocol = url.protocol === 'wss:' ? 'https:' : 'http:'
+function createWebClientUrl(
+  endpoint: string,
+  pairingUrl: string,
+  devWebClientOrigin?: string
+): string {
+  const url = devWebClientOrigin
+    ? new URL(devWebClientOrigin.endsWith('/') ? devWebClientOrigin : `${devWebClientOrigin}/`)
+    : new URL(endpoint)
+  if (!devWebClientOrigin) {
+    url.protocol = url.protocol === 'wss:' ? 'https:' : 'http:'
+  }
   url.pathname = webClientPathForEndpoint(url.pathname)
   url.search = ''
   // Why: pairing URLs include full runtime credentials. Keeping them in the
@@ -330,6 +340,9 @@ function isLongPollRequest(request: RpcRequest): boolean {
   if (request.method === 'terminal.wait') {
     return true
   }
+  if (request.method === 'browser.awaitGrabSelection') {
+    return true
+  }
   if (request.method === 'orchestration.check') {
     const params = request.params as { wait?: unknown } | undefined
     return params?.wait === true
@@ -346,6 +359,8 @@ export class OrcaRuntimeRpcServer {
   private readonly enableWebSocket: boolean
   private readonly wsPort: number
   private readonly webClientRoot: string | undefined
+  private readonly devWebClientOrigin: string | undefined
+  private readonly enableDevLocalPairing: boolean
   private readonly authToken = randomBytes(24).toString('hex')
   private readonly keepaliveIntervalMs: number
   private readonly longPollCap: number
@@ -383,6 +398,8 @@ export class OrcaRuntimeRpcServer {
     enableWebSocket = false,
     wsPort = DEFAULT_WS_PORT,
     webClientRoot,
+    devWebClientOrigin,
+    enableDevLocalPairing = false,
     keepaliveIntervalMs = KEEPALIVE_INTERVAL_MS,
     longPollCap = LONG_POLL_CAP
   }: OrcaRuntimeRpcServerOptions) {
@@ -394,6 +411,8 @@ export class OrcaRuntimeRpcServer {
     this.enableWebSocket = enableWebSocket
     this.wsPort = wsPort
     this.webClientRoot = webClientRoot
+    this.devWebClientOrigin = devWebClientOrigin
+    this.enableDevLocalPairing = enableDevLocalPairing
     this.keepaliveIntervalMs = keepaliveIntervalMs
     this.longPollCap = longPollCap
   }
@@ -475,7 +494,9 @@ export class OrcaRuntimeRpcServer {
       endpoint,
       deviceId: device.deviceId,
       webClientUrl:
-        this.webClientRoot && scope === 'runtime' ? createWebClientUrl(endpoint, pairingUrl) : null
+        scope === 'runtime' && (this.webClientRoot || this.devWebClientOrigin)
+          ? createWebClientUrl(endpoint, pairingUrl, this.devWebClientOrigin)
+          : null
     }
   }
 
@@ -650,7 +671,20 @@ export class OrcaRuntimeRpcServer {
         const wsTransport = new WebSocketTransport({
           host: '0.0.0.0',
           port: this.wsPort,
-          staticRoot: this.webClientRoot
+          staticRoot: this.webClientRoot,
+          devLocalPairing: this.enableDevLocalPairing
+            ? {
+                enabled: true,
+                createPairingUrl: () => {
+                  const offer = this.createPairingOffer({
+                    address: '127.0.0.1',
+                    name: 'Local Web Dev',
+                    scope: 'runtime'
+                  })
+                  return offer.available ? offer.pairingUrl : null
+                }
+              }
+            : undefined
         })
         this.wsTransport = wsTransport
 

@@ -112,6 +112,218 @@ function withOpenAiThinking(
     : {}
 }
 
+const PI_COMPATIBLE_THINKING_LEVELS: ThinkingLevel[] = [
+  { id: 'off', label: 'Off' },
+  { id: 'low', label: 'Low' },
+  { id: 'medium', label: 'Medium' },
+  { id: 'high', label: 'High' },
+  { id: 'xhigh', label: 'Extra High' }
+]
+
+function withPiCompatibleThinking(): Pick<
+  CommitMessageModel,
+  'thinkingLevels' | 'defaultThinkingLevel'
+> {
+  return {
+    thinkingLevels: PI_COMPATIBLE_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  }
+}
+
+function buildPiArgs({
+  model,
+  thinkingLevel
+}: {
+  model: string
+  thinkingLevel?: string
+}): string[] {
+  return [
+    '--print',
+    '--no-session',
+    '--no-tools',
+    '--no-extensions',
+    '--no-skills',
+    '--no-context-files',
+    '--mode',
+    'text',
+    '--model',
+    model,
+    ...(thinkingLevel ? ['--thinking', thinkingLevel] : [])
+  ]
+}
+
+function buildOmpArgs({
+  model,
+  thinkingLevel
+}: {
+  model: string
+  thinkingLevel?: string
+}): string[] {
+  return [
+    '--print',
+    '--no-session',
+    '--no-tools',
+    '--no-extensions',
+    '--no-skills',
+    '--mode',
+    'text',
+    '--model',
+    model,
+    ...(thinkingLevel ? ['--thinking', thinkingLevel] : [])
+  ]
+}
+
+const PI_MODEL_FALLBACKS: CommitMessageModel[] = [
+  {
+    // Why: `pi --list-models` on local OAuth installs reports this provider
+    // first; keeping it as fallback avoids the old GitHub-Copilot-only default.
+    id: 'kimi-coding/kimi-for-coding',
+    label: 'Kimi K2.7 Code',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'openai-codex/gpt-5.5',
+    label: 'OpenAI Codex GPT-5.5',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'openai-codex/gpt-5.4',
+    label: 'OpenAI Codex GPT-5.4',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'openai-codex/gpt-5.4-mini',
+    label: 'OpenAI Codex GPT-5.4 Mini',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'minimax/MiniMax-M2.7',
+    label: 'MiniMax M2.7',
+    ...withPiCompatibleThinking()
+  }
+]
+
+const OMP_MODEL_FALLBACKS: CommitMessageModel[] = [
+  {
+    id: 'opencode/gpt-5.5',
+    label: 'OpenCode GPT-5.5',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'opencode/gpt-5.4',
+    label: 'OpenCode GPT-5.4',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'opencode/gpt-5.4-mini',
+    label: 'OpenCode GPT-5.4 Mini',
+    ...withPiCompatibleThinking()
+  },
+  {
+    // Why: OMP can surface an empty dynamic catalog when no API keys are set;
+    // this OpenCode-hosted free model keeps the picker usable as a fallback.
+    id: 'opencode/deepseek-v4-flash-free',
+    label: 'OpenCode DeepSeek V4 Flash Free',
+    ...withPiCompatibleThinking()
+  },
+  {
+    id: 'kimi-for-coding/k2p7',
+    label: 'Kimi K2.7 Code',
+    ...withPiCompatibleThinking()
+  }
+]
+
+const KIMI_THINKING_LEVELS: ThinkingLevel[] = [
+  { id: 'on', label: 'On' },
+  { id: 'off', label: 'Off' }
+]
+
+const KIMI_MODEL_FALLBACKS: CommitMessageModel[] = [
+  { id: 'default', label: 'Config default' },
+  {
+    // Why: Kimi's local provider list exposes this alias while the display
+    // name in config.toml tracks the underlying K2.7 Code model.
+    id: 'kimi-code/kimi-for-coding',
+    label: 'Kimi K2.7 Code',
+    thinkingLevels: KIMI_THINKING_LEVELS,
+    defaultThinkingLevel: 'on'
+  }
+]
+
+const GROK_MODEL_FALLBACKS: CommitMessageModel[] = [
+  {
+    id: 'grok-composer-2.5-fast',
+    label: 'Grok Composer 2.5 Fast',
+    thinkingLevels: CLAUDE_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  { id: 'grok-build', label: 'Grok Build' }
+]
+
+const COMMAND_CODE_MODEL_FALLBACKS: CommitMessageModel[] = [
+  {
+    id: 'claude-sonnet-4-6',
+    label: 'Claude Sonnet 4.6',
+    thinkingLevels: CLAUDE_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'claude-opus-4-7',
+    label: 'Claude Opus 4.7',
+    thinkingLevels: CLAUDE_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'gpt-5.5',
+    label: 'GPT-5.5',
+    ...withOpenAiThinking('gpt-5.5')
+  },
+  {
+    id: 'moonshotai/Kimi-K2.7-Code',
+    label: 'MoonshotAI Kimi K2.7 Code',
+    thinkingLevels: BASIC_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'MiniMaxAI/MiniMax-M2.7',
+    label: 'MiniMaxAI MiniMax M2.7',
+    thinkingLevels: BASIC_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  }
+]
+
+const HERMES_MODEL_FALLBACKS: CommitMessageModel[] = [
+  {
+    id: 'moonshotai/kimi-k2.7-code',
+    label: 'Kimi K2.7 Code',
+    thinkingLevels: BASIC_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'moonshotai/kimi-k2.6',
+    label: 'Kimi K2.6',
+    thinkingLevels: BASIC_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'xai/grok-composer-2.5-fast',
+    label: 'Grok Composer 2.5 Fast',
+    thinkingLevels: CLAUDE_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  },
+  {
+    id: 'openai-codex/gpt-5.5',
+    label: 'OpenAI Codex GPT-5.5',
+    ...withOpenAiThinking('gpt-5.5')
+  },
+  {
+    id: 'minimax/MiniMax-M2.7',
+    label: 'MiniMax M2.7',
+    thinkingLevels: BASIC_THINKING_LEVELS,
+    defaultThinkingLevel: 'low'
+  }
+]
+
 export function parseCodexModels(stdout: string): CommitMessageModel[] {
   try {
     const parsed = JSON.parse(stdout) as {
@@ -173,21 +385,54 @@ export function parsePiModels(stdout: string): CommitMessageModel[] {
         return {
           id,
           label: `${labelFromModelId(provider)} ${labelFromModelId(model)}`,
-          ...(thinking === 'yes'
-            ? {
-                thinkingLevels: [
-                  { id: 'off', label: 'Off' },
-                  { id: 'low', label: 'Low' },
-                  { id: 'medium', label: 'Medium' },
-                  { id: 'high', label: 'High' },
-                  { id: 'xhigh', label: 'Extra High' }
-                ],
-                defaultThinkingLevel: 'low'
-              }
+          ...(thinking === 'yes' ? withPiCompatibleThinking() : {})
+        }
+      })
+  )
+}
+
+export function parseGrokModels(stdout: string): CommitMessageModel[] {
+  return uniqueModels(
+    stdout
+      .split(/\r?\n/)
+      .map((line) => /^\s*[-*]\s+([^\s(]+)(?:\s+\(default\))?/.exec(line.trim()))
+      .filter((match): match is RegExpExecArray => Boolean(match))
+      .map((match) => {
+        const id = match[1]
+        return {
+          id,
+          label: labelFromModelId(id),
+          ...(/composer/i.test(id)
+            ? { thinkingLevels: CLAUDE_THINKING_LEVELS, defaultThinkingLevel: 'low' }
             : {})
         }
       })
   )
+}
+
+export function parseCommandCodeModels(stdout: string): CommitMessageModel[] {
+  return uniqueModels(
+    stdout
+      .split(/\r?\n/)
+      .map((line) => /^([A-Za-z0-9][^\s]*)\s{2,}.+$/.exec(line.trim()))
+      .filter((match): match is RegExpExecArray => Boolean(match))
+      .map((match) => {
+        const id = match[1]
+        return {
+          id,
+          label: labelFromModelId(id),
+          ...withCommandCodeThinking(id)
+        }
+      })
+  )
+}
+
+export function parseKimiProviderModels(stdout: string): CommitMessageModel[] {
+  const defaultModel = stdout.match(/^Default model:\s*(\S+)/m)?.[1]
+  if (!defaultModel) {
+    return []
+  }
+  return uniqueModels([toKimiModel(defaultModel)])
 }
 
 export function parseCursorModels(stdout: string): CommitMessageModel[] {
@@ -203,6 +448,27 @@ export function parseCursorModels(stdout: string): CommitMessageModel[] {
         ...withOpenAiThinking(match[1])
       }))
   )
+}
+
+function withCommandCodeThinking(
+  id: string
+): Pick<CommitMessageModel, 'thinkingLevels' | 'defaultThinkingLevel'> {
+  if (/claude|opus|sonnet/i.test(id)) {
+    return { thinkingLevels: CLAUDE_THINKING_LEVELS, defaultThinkingLevel: 'low' }
+  }
+  if (/gpt|codex/i.test(id)) {
+    return withOpenAiThinking(id)
+  }
+  return { thinkingLevels: BASIC_THINKING_LEVELS, defaultThinkingLevel: 'low' }
+}
+
+function toKimiModel(id: string): CommitMessageModel {
+  return {
+    id,
+    label: id === 'kimi-code/kimi-for-coding' ? 'Kimi K2.7 Code' : labelFromModelId(id),
+    thinkingLevels: KIMI_THINKING_LEVELS,
+    defaultThinkingLevel: 'on'
+  }
 }
 
 export function parseAntigravityModels(stdout: string): CommitMessageModel[] {
@@ -360,9 +626,25 @@ export const COMMIT_MESSAGE_AGENT_SPECS: Partial<Record<TuiAgent, CommitMessageA
         label: 'OpenCode DeepSeek V4 Flash Free'
       },
       {
+        id: 'opencode/gpt-5.5',
+        label: 'OpenCode GPT 5.5',
+        ...withOpenAiThinking('gpt-5.5')
+      },
+      {
+        id: 'opencode/gpt-5.4',
+        label: 'OpenCode GPT 5.4',
+        ...withOpenAiThinking('gpt-5.4')
+      },
+      {
         id: 'opencode/gpt-5.4-mini',
         label: 'OpenCode GPT 5.4 Mini',
         ...withOpenAiThinking('gpt-5.4-mini')
+      },
+      {
+        id: 'kimi-for-coding/k2p7',
+        label: 'Kimi K2.7 Code',
+        thinkingLevels: BASIC_THINKING_LEVELS,
+        defaultThinkingLevel: 'low'
       }
     ],
     defaultModelId: 'opencode/deepseek-v4-flash-free'
@@ -372,31 +654,22 @@ export const COMMIT_MESSAGE_AGENT_SPECS: Partial<Record<TuiAgent, CommitMessageA
     label: 'Pi',
     binary: 'pi',
     promptDelivery: 'stdin',
-    buildArgs: ({ model, thinkingLevel }) => [
-      '--print',
-      '--no-session',
-      '--no-tools',
-      '--no-extensions',
-      '--no-skills',
-      '--no-context-files',
-      '--mode',
-      'text',
-      '--model',
-      model,
-      ...(thinkingLevel ? ['--thinking', thinkingLevel] : [])
-    ],
+    buildArgs: buildPiArgs,
     modelSource: 'dynamic',
     modelDiscovery: { binary: 'pi', args: ['--list-models'], parse: parsePiModels },
-    models: [
-      {
-        // Why: Pi commonly authenticates through GitHub Copilot locally; using
-        // that provider avoids selecting a raw OpenAI model when no key exists.
-        id: 'github-copilot/gpt-5.4-mini',
-        label: 'Github Copilot GPT 5.4 Mini',
-        ...withOpenAiThinking('gpt-5.4-mini')
-      }
-    ],
-    defaultModelId: 'github-copilot/gpt-5.4-mini'
+    models: PI_MODEL_FALLBACKS,
+    defaultModelId: 'kimi-coding/kimi-for-coding'
+  },
+  omp: {
+    id: 'omp',
+    label: 'OMP',
+    binary: 'omp',
+    promptDelivery: 'stdin',
+    buildArgs: buildOmpArgs,
+    modelSource: 'dynamic',
+    modelDiscovery: { binary: 'omp', args: ['models'], parse: parseLineModels },
+    models: OMP_MODEL_FALLBACKS,
+    defaultModelId: 'opencode/deepseek-v4-flash-free'
   },
   amp: {
     id: 'amp',
@@ -452,6 +725,47 @@ export const COMMIT_MESSAGE_AGENT_SPECS: Partial<Record<TuiAgent, CommitMessageA
     models: [{ id: 'auto', label: 'Auto' }],
     defaultModelId: 'auto'
   },
+  grok: {
+    id: 'grok',
+    label: 'Grok',
+    binary: 'grok',
+    promptDelivery: 'argv',
+    buildArgs: ({ prompt, model, thinkingLevel }) => [
+      '--single',
+      prompt,
+      '--model',
+      model,
+      '--permission-mode',
+      'plan',
+      ...(thinkingLevel ? ['--effort', thinkingLevel] : [])
+    ],
+    modelSource: 'dynamic',
+    modelDiscovery: { binary: 'grok', args: ['models'], parse: parseGrokModels },
+    models: GROK_MODEL_FALLBACKS,
+    defaultModelId: 'grok-composer-2.5-fast'
+  },
+  'command-code': {
+    id: 'command-code',
+    label: 'Command Code',
+    binary: 'command-code',
+    promptDelivery: 'argv',
+    buildArgs: ({ prompt, model }) => [
+      '--print',
+      prompt,
+      '--model',
+      model,
+      '--permission-mode',
+      'plan'
+    ],
+    modelSource: 'dynamic',
+    modelDiscovery: {
+      binary: 'command-code',
+      args: ['--list-models'],
+      parse: parseCommandCodeModels
+    },
+    models: COMMAND_CODE_MODEL_FALLBACKS,
+    defaultModelId: 'claude-sonnet-4-6'
+  },
   kimi: {
     id: 'kimi',
     label: 'Kimi',
@@ -467,22 +781,20 @@ export const COMMIT_MESSAGE_AGENT_SPECS: Partial<Record<TuiAgent, CommitMessageA
           ? ['--no-thinking']
           : [])
     ],
-    modelSource: 'static',
-    models: [
-      { id: 'default', label: 'Config default' },
-      {
-        // Why: Kimi resolves its managed model by provider/model; bare model
-        // names are rejected by the CLI with "LLM not set".
-        id: 'kimi-code/kimi-for-coding',
-        label: 'Kimi K2.6',
-        thinkingLevels: [
-          { id: 'on', label: 'On' },
-          { id: 'off', label: 'Off' }
-        ],
-        defaultThinkingLevel: 'on'
-      }
-    ],
+    modelSource: 'dynamic',
+    modelDiscovery: { binary: 'kimi', args: ['provider', 'list'], parse: parseKimiProviderModels },
+    models: KIMI_MODEL_FALLBACKS,
     defaultModelId: 'default'
+  },
+  hermes: {
+    id: 'hermes',
+    label: 'Hermes',
+    binary: 'hermes',
+    promptDelivery: 'argv',
+    buildArgs: ({ prompt, model }) => ['--oneshot', prompt, '--model', model, '--yolo'],
+    modelSource: 'static',
+    models: HERMES_MODEL_FALLBACKS,
+    defaultModelId: 'moonshotai/kimi-k2.7-code'
   },
   copilot: {
     id: 'copilot',

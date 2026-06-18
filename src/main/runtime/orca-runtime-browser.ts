@@ -63,6 +63,12 @@ import {
   selectBrowserProfile
 } from '../browser/browser-cookie-import'
 import { waitForTabRegistration, waitForWorktreeTabRegistration } from '../ipc/browser'
+import type {
+  BrowserCaptureSelectionScreenshotResult,
+  BrowserExtractHoverResult,
+  BrowserGrabResult,
+  BrowserSetGrabModeResult
+} from '../../shared/browser-grab-types'
 
 export type BrowserCommandTargetParams = {
   worktree?: string
@@ -252,6 +258,17 @@ export class RuntimeBrowserCommands {
       worktreeId,
       browserPageId
     }
+  }
+
+  private resolveBrowserPageWebContentsForGrab(
+    params: BrowserCommandTargetParams
+  ): ResolvedBrowserPageWebContents {
+    const worktreeId = params.worktree?.trim() || undefined
+    const browserPageId = params.page?.trim()
+    if (!browserPageId) {
+      throw new BrowserError('browser_no_tab', 'No browser tab open in this worktree')
+    }
+    return this.resolveBrowserPageWebContents(worktreeId, browserPageId)
   }
 
   private resolveBrowserPageWebContents(
@@ -1013,6 +1030,13 @@ export class RuntimeBrowserCommands {
     params: { x: number; y: number } & BrowserCommandTargetParams
   ): Promise<unknown> {
     const target = await this.resolveBrowserCommandTarget(params)
+    if (
+      target.browserPageId &&
+      browserManager.hasActiveGrabOp(target.browserPageId) &&
+      this.forwardGrabPointerEvent(target, 'mouseMove', params.x, params.y)
+    ) {
+      return { ok: true }
+    }
     return this.requireAgentBrowserBridge().mouseMove(
       params.x,
       params.y,
@@ -1025,6 +1049,15 @@ export class RuntimeBrowserCommands {
     params: { button?: string } & BrowserCommandTargetParams
   ): Promise<unknown> {
     const target = await this.resolveBrowserCommandTarget(params)
+    if (target.browserPageId && browserManager.hasActiveGrabOp(target.browserPageId)) {
+      const point = await this.resolveGrabPointerPoint(target)
+      if (
+        point &&
+        this.forwardGrabPointerEvent(target, 'mouseDown', point.x, point.y, params.button)
+      ) {
+        return { ok: true }
+      }
+    }
     return this.requireAgentBrowserBridge().mouseDown(
       params.button,
       target.worktreeId,
@@ -1048,6 +1081,15 @@ export class RuntimeBrowserCommands {
 
   async browserMouseUp(params: { button?: string } & BrowserCommandTargetParams): Promise<unknown> {
     const target = await this.resolveBrowserCommandTarget(params)
+    if (target.browserPageId && browserManager.hasActiveGrabOp(target.browserPageId)) {
+      const point = await this.resolveGrabPointerPoint(target)
+      if (
+        point &&
+        this.forwardGrabPointerEvent(target, 'mouseUp', point.x, point.y, params.button)
+      ) {
+        return { ok: true }
+      }
+    }
     return this.requireAgentBrowserBridge().mouseUp(
       params.button,
       target.worktreeId,
@@ -1288,6 +1330,68 @@ export class RuntimeBrowserCommands {
       target.worktreeId,
       target.browserPageId
     )
+  }
+
+  // ── Browser context grab (paired web clients) ──
+
+  async browserSetGrabMode(
+    params: { enabled: boolean } & BrowserCommandTargetParams
+  ): Promise<BrowserSetGrabModeResult> {
+    const resolved = this.resolveBrowserPageWebContentsForGrab(params)
+    const success = await browserManager.setGrabMode(
+      resolved.browserPageId,
+      params.enabled,
+      resolved.webContents
+    )
+    return success ? { ok: true } : { ok: false, reason: 'not-ready' }
+  }
+
+  async browserAwaitGrabSelection(
+    params: { opId: string } & BrowserCommandTargetParams
+  ): Promise<BrowserGrabResult> {
+    const resolved = this.resolveBrowserPageWebContentsForGrab(params)
+    return browserManager.awaitGrabSelection(
+      resolved.browserPageId,
+      params.opId,
+      resolved.webContents
+    )
+  }
+
+  browserCancelGrab(params: BrowserCommandTargetParams): boolean {
+    const resolved = this.resolveBrowserPageWebContentsForGrab(params)
+    browserManager.cancelGrabOp(resolved.browserPageId, 'user')
+    return true
+  }
+
+  async browserCaptureSelectionScreenshot(
+    params: {
+      rect: { x: number; y: number; width: number; height: number }
+    } & BrowserCommandTargetParams
+  ): Promise<BrowserCaptureSelectionScreenshotResult> {
+    const resolved = this.resolveBrowserPageWebContentsForGrab(params)
+    const screenshot = await browserManager.captureSelectionScreenshot(
+      resolved.browserPageId,
+      params.rect,
+      resolved.webContents
+    )
+    if (!screenshot) {
+      return { ok: false, reason: 'Screenshot capture failed' }
+    }
+    return { ok: true, screenshot }
+  }
+
+  async browserExtractHoverPayload(
+    params: BrowserCommandTargetParams
+  ): Promise<BrowserExtractHoverResult> {
+    const resolved = this.resolveBrowserPageWebContentsForGrab(params)
+    const payload = await browserManager.extractHoverPayload(
+      resolved.browserPageId,
+      resolved.webContents
+    )
+    if (!payload) {
+      return { ok: false, reason: 'No element hovered' }
+    }
+    return { ok: true, payload }
   }
 
   // ── New: exec passthrough + tab lifecycle ──
@@ -1676,6 +1780,77 @@ export class RuntimeBrowserCommands {
       worktreeId: browserManager.getWorktreeIdForTab(tab.browserPageId) ?? null,
       profileId: profile.id,
       profileLabel: profile.label
+    }
+  }
+
+  private async resolveGrabPointerPoint(
+    target: ResolvedBrowserCommandTarget
+  ): Promise<{ x: number; y: number } | null> {
+    if (!target.browserPageId) {
+      return null
+    }
+    try {
+      const resolved = this.resolveBrowserPageWebContents(target.worktreeId, target.browserPageId)
+      const point = await resolved.webContents.executeJavaScript(`(function(){
+        if (!window.__orcaGrabPointerPoint) {
+          return null
+        }
+        const point = window.__orcaGrabPointerPoint
+        return { x: point.x, y: point.y }
+      })()`)
+      if (
+        !point ||
+        typeof point !== 'object' ||
+        typeof (point as { x?: unknown }).x !== 'number' ||
+        typeof (point as { y?: unknown }).y !== 'number'
+      ) {
+        return null
+      }
+      return {
+        x: Math.round((point as { x: number }).x),
+        y: Math.round((point as { y: number }).y)
+      }
+    } catch {
+      return null
+    }
+  }
+
+  private forwardGrabPointerEvent(
+    target: ResolvedBrowserCommandTarget,
+    kind: 'mouseMove' | 'mouseDown' | 'mouseUp',
+    x: number,
+    y: number,
+    buttonName?: string
+  ): boolean {
+    if (!target.browserPageId) {
+      return false
+    }
+    try {
+      const resolved = this.resolveBrowserPageWebContents(target.worktreeId, target.browserPageId)
+      const guest = resolved.webContents
+      if (guest.isDestroyed()) {
+        return false
+      }
+      // Why: paired web clients drive selection through screencast coordinates.
+      // sendInputEvent reaches the in-guest grab overlay; CDP mouse events do not.
+      if (kind === 'mouseMove') {
+        guest.sendInputEvent({ type: 'mouseMove', x, y })
+        void guest
+          .executeJavaScript(`window.__orcaGrabPointerPoint = { x: ${x}, y: ${y} }`)
+          .catch(() => {})
+        return true
+      }
+      const button = buttonName === 'middle' ? 'middle' : buttonName === 'right' ? 'right' : 'left'
+      guest.sendInputEvent({
+        type: kind,
+        x,
+        y,
+        button,
+        clickCount: 1
+      })
+      return true
+    } catch {
+      return false
     }
   }
 

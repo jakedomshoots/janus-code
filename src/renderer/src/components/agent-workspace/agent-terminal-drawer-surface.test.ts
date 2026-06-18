@@ -46,6 +46,11 @@ describe('syncAgentTerminalDrawerSurface', () => {
     expect(mocks.setActiveTabType).not.toHaveBeenCalled()
   })
 
+  it('does not override tab-group workbench surface selection', () => {
+    syncAgentTerminalDrawerSurface('workbench')
+    expect(mocks.setActiveTabType).not.toHaveBeenCalled()
+  })
+
   it('focuses the terminal surface when opening the drawer for terminal reasons', () => {
     syncAgentTerminalDrawerSurface('keyboard-shortcut')
     expect(mocks.setActiveTabType).toHaveBeenCalledWith('terminal')

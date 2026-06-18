@@ -81,6 +81,10 @@ import {
 } from '@/runtime/web-runtime-session'
 import { openMobileEmulatorTab } from '@/lib/open-mobile-emulator-tab'
 import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
+import {
+  routeGuiAgentWorkspaceAgentShortcut,
+  routeGuiAgentWorkspaceTabShortcut
+} from './agent-workspace/agent-workspace-gui-shortcuts'
 import { listBoundAgentTabActions, resolveDefaultAgentForNewTab } from '@/lib/agent-tab-shortcuts'
 import {
   createFloatingWorkspaceBrowserTab,
@@ -204,7 +208,23 @@ function getKeybindingContext(target: EventTarget | null): KeybindingContext {
     : 'app'
 }
 
-function TerminalWorkspace(): React.JSX.Element | null {
+function TerminalWorkspace({
+  agentTerminalDrawerOpen = false,
+  agentBrowserWorkbenchOpen = false,
+  agentBrowserWorkbenchOverlayHost = false,
+  suppressBrowserOverlays = false,
+  suppressSimulatorOverlays = false,
+  suppressTerminalOverlays = false
+}: {
+  agentTerminalDrawerOpen?: boolean
+  agentBrowserWorkbenchOpen?: boolean
+  agentBrowserWorkbenchOverlayHost?: boolean
+  suppressBrowserOverlays?: boolean
+  suppressSimulatorOverlays?: boolean
+  suppressTerminalOverlays?: boolean
+}): React.JSX.Element | null {
+  const agentWorkbenchSurfaceOpen =
+    agentTerminalDrawerOpen || agentBrowserWorkbenchOpen || agentBrowserWorkbenchOverlayHost
   const mountedWorktreeIdsRef = useRef(new Set<string>())
   const measurableBackgroundWorktreeIdsRef = useRef(new Set<string>())
   const allWorktrees = useAllWorktrees()
@@ -1298,6 +1318,9 @@ function TerminalWorkspace(): React.JSX.Element | null {
           void createFloatingWorkspaceTerminalTab(useAppStore.getState())
           return
         }
+        if (routeGuiAgentWorkspaceTabShortcut('tab.newTerminal')) {
+          return
+        }
         handleNewTab()
         return
       }
@@ -1341,6 +1364,9 @@ function TerminalWorkspace(): React.JSX.Element | null {
           e.preventDefault()
           notifyTerminalCapture(agentActionId)
           if (agentToLaunch) {
+            if (routeGuiAgentWorkspaceAgentShortcut(agentToLaunch)) {
+              return
+            }
             handleNewAgentTab(agentToLaunch)
           } else {
             toast.message(
@@ -1379,6 +1405,9 @@ function TerminalWorkspace(): React.JSX.Element | null {
           void createFloatingWorkspaceBrowserTab(useAppStore.getState())
           return
         }
+        if (routeGuiAgentWorkspaceTabShortcut('tab.newBrowser')) {
+          return
+        }
         handleNewBrowserTab()
         return
       }
@@ -1388,6 +1417,9 @@ function TerminalWorkspace(): React.JSX.Element | null {
         e.preventDefault()
         notifyTerminalCapture('tab.newSimulator')
         if (!floatingWorkspaceFocused) {
+          if (routeGuiAgentWorkspaceTabShortcut('tab.newSimulator')) {
+            return
+          }
           handleNewSimulatorTab()
         }
         return
@@ -1430,7 +1462,19 @@ function TerminalWorkspace(): React.JSX.Element | null {
           })
           return
         }
+        if (routeGuiAgentWorkspaceTabShortcut('tab.newMarkdown')) {
+          return
+        }
         void handleNewFile()
+        return
+      }
+
+      if (!e.repeat && matchShortcut('tab.openMarkdown')) {
+        e.preventDefault()
+        notifyTerminalCapture('tab.openMarkdown')
+        if (routeGuiAgentWorkspaceTabShortcut('tab.openMarkdown')) {
+          return
+        }
         return
       }
 
@@ -1695,6 +1739,53 @@ function TerminalWorkspace(): React.JSX.Element | null {
     setActiveTabType
   ])
 
+  const worktreeSplitSurfaces = anyMountedWorktreeHasLayout ? (
+    <div
+      className={`relative flex flex-1 min-w-0 min-h-0 overflow-hidden${effectiveActiveLayout ? '' : ' hidden'}`}
+    >
+      {workspaceSurfaces
+        .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
+        .map((workspace) => {
+          const layout = getEffectiveLayoutForWorktree(workspace.id)
+          if (!layout) {
+            return null
+          }
+          const isVisible =
+            workspace.id === renderedActiveWorktreeId &&
+            (activeView === 'terminal' || agentWorkbenchSurfaceOpen)
+          const shouldMeasureHiddenWorktree =
+            !isVisible && measurableBackgroundWorktreeIdsRef.current.has(workspace.id)
+          return (
+            <WorktreeSplitSurface
+              key={`tab-groups-${workspace.id}`}
+              worktreeId={workspace.id}
+              worktreePath={workspace.path}
+              layout={layout}
+              focusedGroupId={activeGroupIdByWorktree[workspace.id]}
+              isVisible={isVisible}
+              hideTabGroupChrome={agentBrowserWorkbenchOpen || agentBrowserWorkbenchOverlayHost}
+              suppressBrowserOverlays={suppressBrowserOverlays}
+              suppressSimulatorOverlays={suppressSimulatorOverlays}
+              suppressTerminalOverlays={suppressTerminalOverlays}
+              shouldMeasureHiddenWorktree={shouldMeasureHiddenWorktree}
+              activityTerminalPortals={activityTerminalPortals}
+            />
+          )
+        })}
+    </div>
+  ) : null
+
+  if (agentBrowserWorkbenchOverlayHost) {
+    return (
+      <div
+        className={`flex min-h-0 flex-1 flex-col overflow-hidden${renderedActiveWorktreeId ? '' : ' hidden'}`}
+        data-agent-browser-overlay-host="true"
+      >
+        {worktreeSplitSurfaces}
+      </div>
+    )
+  }
+
   return (
     <div
       className={`flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden${renderedActiveWorktreeId ? '' : ' hidden'}`}
@@ -1765,42 +1856,7 @@ function TerminalWorkspace(): React.JSX.Element | null {
           — tab groups + terminal extend to the top of the window instead.
           The old summary label (workspace / active surface) is removed. */}
 
-      {anyMountedWorktreeHasLayout ? (
-        <div
-          className={`relative flex flex-1 min-w-0 min-h-0 overflow-hidden${effectiveActiveLayout ? '' : ' hidden'}`}
-        >
-          {/* Why: each mounted worktree surface is absolutely positioned so we
-              can preserve hidden trees without reflowing the active one. Keep
-              a relative anchor here so those panes size to the workspace body
-              rather than some outer ancestor when split groups are enabled. */}
-          {workspaceSurfaces
-            .filter((workspace) => mountedWorktreeIdsRef.current.has(workspace.id))
-            .map((workspace) => {
-              const layout = getEffectiveLayoutForWorktree(workspace.id)
-              if (!layout) {
-                return null
-              }
-              // Why: use strict equality with 'terminal' instead of !== 'settings'
-              // so the terminal/browser surface hides on the tasks page too.
-              const isVisible =
-                activeView === 'terminal' && workspace.id === renderedActiveWorktreeId
-              const shouldMeasureHiddenWorktree =
-                !isVisible && measurableBackgroundWorktreeIdsRef.current.has(workspace.id)
-              return (
-                <WorktreeSplitSurface
-                  key={`tab-groups-${workspace.id}`}
-                  worktreeId={workspace.id}
-                  worktreePath={workspace.path}
-                  layout={layout}
-                  focusedGroupId={activeGroupIdByWorktree[workspace.id]}
-                  isVisible={isVisible}
-                  shouldMeasureHiddenWorktree={shouldMeasureHiddenWorktree}
-                  activityTerminalPortals={activityTerminalPortals}
-                />
-              )
-            })}
-        </div>
-      ) : null}
+      {worktreeSplitSurfaces}
 
       {!effectiveActiveLayout && !anyMountedWorktreeHasLayout && (
         <>
@@ -1843,7 +1899,8 @@ function TerminalWorkspace(): React.JSX.Element | null {
                 // Why: use strict equality with 'terminal' instead of !== 'settings'
                 // so the terminal/browser surface hides on the tasks page too.
                 const isVisible =
-                  activeView === 'terminal' && workspace.id === renderedActiveWorktreeId
+                  workspace.id === renderedActiveWorktreeId &&
+                  (activeView === 'terminal' || agentWorkbenchSurfaceOpen)
                 const shouldMeasureHiddenWorktree =
                   !isVisible && measurableBackgroundWorktreeIdsRef.current.has(workspace.id)
                 return (
@@ -1914,7 +1971,8 @@ function TerminalWorkspace(): React.JSX.Element | null {
               // Why: use strict equality with 'terminal' instead of !== 'settings'
               // so browser panes also hide on the tasks page.
               const isVisibleWorktree =
-                activeView === 'terminal' && workspace.id === renderedActiveWorktreeId
+                workspace.id === renderedActiveWorktreeId &&
+                (activeView === 'terminal' || agentTerminalDrawerOpen)
               if (browserTabs.length === 0) {
                 return null
               }
@@ -2130,6 +2188,24 @@ function Terminal(): React.JSX.Element | null {
           onOpenTerminalDrawer={setTerminalDrawerReason}
         />
       }
+      browserWorkbenchOverlayHost={
+        guiAgentWorkspaceEnabled &&
+        (terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen) ? (
+          <TerminalWorkspace
+            agentBrowserWorkbenchOpen={
+              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
+            }
+            agentBrowserWorkbenchOverlayHost
+            // Why: editor/simulator workbench renders inline in the agent pane;
+            // browser overlays must not paint over it when reason is 'workbench'.
+            suppressBrowserOverlays={terminalVisibility.tabGroupWorkbenchOpen}
+            suppressSimulatorOverlays={terminalVisibility.browserWorkbenchOpen}
+            suppressTerminalOverlays={
+              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
+            }
+          />
+        ) : null
+      }
       terminalWorkspace={
         guiAgentWorkspaceEnabled ? (
           <AgentTerminalDrawer
@@ -2138,7 +2214,12 @@ function Terminal(): React.JSX.Element | null {
             terminalAvailable={terminalVisibility.terminalAvailable}
             onClose={() => setTerminalDrawerReason(null)}
           >
-            <TerminalWorkspace />
+            <TerminalWorkspace
+              agentTerminalDrawerOpen={terminalVisibility.drawerOpen}
+              suppressBrowserOverlays={
+                terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
+              }
+            />
           </AgentTerminalDrawer>
         ) : (
           <TerminalWorkspace />
@@ -2167,6 +2248,10 @@ const WorktreeSplitSurface = React.memo(function WorktreeSplitSurface({
   layout,
   focusedGroupId,
   isVisible,
+  hideTabGroupChrome = false,
+  suppressBrowserOverlays = false,
+  suppressSimulatorOverlays = false,
+  suppressTerminalOverlays = false,
   shouldMeasureHiddenWorktree,
   activityTerminalPortals
 }: {
@@ -2175,6 +2260,10 @@ const WorktreeSplitSurface = React.memo(function WorktreeSplitSurface({
   layout: TabGroupLayoutNode
   focusedGroupId?: string
   isVisible: boolean
+  hideTabGroupChrome?: boolean
+  suppressBrowserOverlays?: boolean
+  suppressSimulatorOverlays?: boolean
+  suppressTerminalOverlays?: boolean
   shouldMeasureHiddenWorktree: boolean
   activityTerminalPortals: ActivityTerminalPortalTarget[]
 }): React.JSX.Element {
@@ -2192,9 +2281,9 @@ const WorktreeSplitSurface = React.memo(function WorktreeSplitSurface({
     <div
       className={
         isVisible
-          ? 'absolute inset-0 flex'
+          ? 'absolute inset-0 flex min-h-0 w-full flex-col'
           : shouldKeepPaintable
-            ? 'absolute inset-0 flex opacity-0 pointer-events-none'
+            ? 'absolute inset-0 flex min-h-0 w-full flex-col opacity-0 pointer-events-none'
             : 'absolute inset-0 hidden'
       }
       // Why: automation-visible panes must stay paintable for webviews, but
@@ -2203,20 +2292,28 @@ const WorktreeSplitSurface = React.memo(function WorktreeSplitSurface({
       aria-hidden={!isVisible}
     >
       <CodexRestartChip worktreeId={worktreeId} />
-      <TabGroupSplitLayout
-        layout={layout}
-        worktreeId={worktreeId}
-        focusedGroupId={focusedGroupId}
-        isWorktreeActive={isVisible}
-      />
-      <TerminalPaneOverlayLayer
-        worktreeId={worktreeId}
-        worktreePath={worktreePath}
-        isWorktreeActive={isVisible}
-        activityTerminalPortals={activityTerminalPortals}
-      />
-      <BrowserPaneOverlayLayer worktreeId={worktreeId} isWorktreeActive={isVisible} />
-      <EmulatorPaneOverlayLayer worktreeId={worktreeId} isWorktreeActive={isVisible} />
+      {hideTabGroupChrome ? null : (
+        <TabGroupSplitLayout
+          layout={layout}
+          worktreeId={worktreeId}
+          focusedGroupId={focusedGroupId}
+          isWorktreeActive={isVisible}
+        />
+      )}
+      {suppressTerminalOverlays ? null : (
+        <TerminalPaneOverlayLayer
+          worktreeId={worktreeId}
+          worktreePath={worktreePath}
+          isWorktreeActive={isVisible}
+          activityTerminalPortals={activityTerminalPortals}
+        />
+      )}
+      {suppressBrowserOverlays ? null : (
+        <BrowserPaneOverlayLayer worktreeId={worktreeId} isWorktreeActive={isVisible} />
+      )}
+      {suppressSimulatorOverlays ? null : (
+        <EmulatorPaneOverlayLayer worktreeId={worktreeId} isWorktreeActive={isVisible} />
+      )}
       <AiVaultSessionDropLayer worktreeId={worktreeId} enabled={isVisible} />
     </div>
   )

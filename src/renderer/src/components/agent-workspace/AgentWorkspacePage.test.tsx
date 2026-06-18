@@ -9,7 +9,6 @@ import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
 import { AgentWorkspacePage } from './AgentWorkspacePage'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
-import { TerminalViewSwitch } from '../terminal/terminal-view-switch'
 
 const emptySnapshot: AgentWorkspaceSnapshot = {
   activeWorktreeId: null,
@@ -43,8 +42,20 @@ const storeMocks = vi.hoisted(() => {
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
+    repos: [],
+    worktreesByRepo: {},
+    unifiedTabsByWorktree: {},
+    activeGroupIdByWorktree: {
+      'worktree-1': 'group-1',
+      'worktree-2': 'group-2'
+    },
+    groupsByWorktree: {
+      'worktree-1': [{ id: 'group-1', activeTabId: null, tabOrder: [] }],
+      'worktree-2': [{ id: 'group-2', activeTabId: null, tabOrder: [] }]
+    },
     createBrowserTab: vi.fn(),
     focusBrowserTabInWorktree: vi.fn(),
+    closeBrowserTab: vi.fn(),
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
     showRightSidebarFiles: vi.fn()
@@ -59,17 +70,71 @@ const storeMocks = vi.hoisted(() => {
 })
 
 vi.mock('@/store', () => ({
-  useAppStore: (selector: (state: typeof storeMocks.state) => unknown) =>
-    selector({
-      ...storeMocks.state,
-      agentWorkspaceTestSnapshot: currentSnapshot
-    })
+  useAppStore: Object.assign(
+    (selector: (state: typeof storeMocks.state) => unknown) =>
+      selector({
+        ...storeMocks.state,
+        agentWorkspaceTestSnapshot: currentSnapshot
+      }),
+    {
+      getState: () => ({
+        ...storeMocks.state,
+        agentWorkspaceTestSnapshot: currentSnapshot
+      })
+    }
+  )
 }))
 
 vi.mock('./orca-agent-workspace-selectors', () => ({
   selectAgentWorkspaceSnapshot: (state: {
     agentWorkspaceTestSnapshot: AgentWorkspaceSnapshot
   }): AgentWorkspaceSnapshot => state.agentWorkspaceTestSnapshot
+}))
+
+vi.mock('@/components/tab-group/useTabGroupWorkspaceModel', () => ({
+  useTabGroupWorkspaceModel: () => ({
+    commands: {
+      newTerminalTab: vi.fn(),
+      newTerminalWithShell: vi.fn(),
+      newBrowserTab: vi.fn(),
+      newFileTab: vi.fn(async () => undefined),
+      newSimulatorTab: vi.fn(),
+      openEntry: vi.fn(async () => undefined),
+      duplicateBrowserTab: vi.fn()
+    },
+    browserItems: [],
+    activeTab: null,
+    groupTabs: []
+  })
+}))
+
+vi.mock('./useAgentBrowserWorkbench', () => ({
+  useAgentBrowserWorkbench: () => ({
+    browserWorkbenchReady: true,
+    canOpenBrowserDrawer: true,
+    browserAvailable: true,
+    browserTabCount: 0,
+    browserAnnotationCount: 0,
+    browserAnnotationMarkdown: '',
+    canAttachBrowserContext: false,
+    openBrowserWorkbench: vi.fn()
+  })
+}))
+
+vi.mock('@/components/tab-bar/TabBarNewTabMenu', () => ({
+  TabBarNewTabMenu: () => (
+    <button type="button" aria-label="New tab">
+      New tab
+    </button>
+  )
+}))
+
+vi.mock('@/components/tab-group/TabGroupPaneActionChrome', () => ({
+  TabGroupPaneActionChrome: () => (
+    <button type="button" aria-label="Pane Actions">
+      Pane Actions
+    </button>
+  )
 }))
 
 function renderPage(snapshot: AgentWorkspaceSnapshot): string {
@@ -99,7 +164,7 @@ describe('AgentWorkspacePage', () => {
     )
   })
 
-  it('renders the project, thread, header, and right-panel shell for a running thread', () => {
+  it('renders the project, thread, and right-panel shell for a running thread', () => {
     const markup = renderPage({
       activeWorktreeId: 'worktree-1',
       projects: [
@@ -152,11 +217,34 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Implement GUI workspace shell')
     expect(markup).toContain('running')
     expect(markup).toContain('Build the first shell')
-    expect(markup).toContain('Plan')
-    expect(markup).toContain('Diff')
-    expect(markup).toContain('Terminal')
     expect(markup).toContain('Message the selected agent')
-    expect(markup).toContain('src/renderer/src/components/Terminal.tsx')
+    expect(markup).toContain('Outputs')
+    expect(markup).toContain('Terminal.tsx')
+    expect(markup).toContain('/Users/jakedom/janus-code')
+  })
+
+  it('does not render the empty workspace header when no thread is selected', () => {
+    const markup = renderPage({
+      activeWorktreeId: 'worktree-1',
+      projects: [
+        {
+          id: 'worktree-1',
+          label: 'janus-code',
+          path: '/Users/jakedom/janus-code',
+          hostKind: 'local'
+        }
+      ],
+      threads: [],
+      plans: [],
+      timeline: [],
+      approvals: [],
+      diffs: [],
+      terminalAvailable: true
+    })
+
+    expect(markup).toContain('Start a new agent session')
+    expect(markup).not.toContain('h-[52px]')
+    expect(markup).not.toContain('border-b border-border/60 bg-background px-4')
   })
 
   it('uses the app shell sidebar instead of rendering an internal project rail', () => {
@@ -191,7 +279,6 @@ describe('AgentWorkspacePage', () => {
       terminalAvailable: true
     })
 
-    expect(markup).toContain('janus-code')
     expect(markup).toContain('Blend the GUI into the app shell')
     expect(markup).not.toContain('Projects')
     expect(markup).not.toContain('Create worktree')
@@ -218,8 +305,7 @@ describe('AgentWorkspacePage', () => {
 
     expect(markup).toContain('Janus Code')
     expect(markup).toContain('New session')
-    expect(markup).toContain('Split right')
-    expect(markup).toContain('Split down')
+    expect(markup).toContain('Pane Actions')
     expect(markup).not.toContain('Use New session in the tab strip above')
     expect(markup).not.toContain('Start new session')
     expect(markup).not.toContain('Ready for a Janus session')
@@ -229,36 +315,6 @@ describe('AgentWorkspacePage', () => {
     expect(markup).not.toContain('Run')
     expect(markup).not.toContain('Terminal session is available as a debug panel.')
     expect(markup).not.toContain('Select a thread to view its timeline.')
-  })
-})
-
-describe('Terminal GUI agent workspace flag boundary', () => {
-  it('renders the terminal workspace branch when the GUI agent workspace flag is off', () => {
-    const markup = renderToStaticMarkup(
-      <TerminalViewSwitch
-        guiAgentWorkspaceEnabled={false}
-        agentWorkspace={<span>GUI agent workspace</span>}
-        terminalWorkspace={<span>Terminal workspace</span>}
-      />
-    )
-
-    expect(markup).toContain('Terminal workspace')
-    expect(markup).not.toContain('GUI agent workspace')
-  })
-
-  it('renders the GUI branch while preserving the terminal workspace when the GUI flag is on', () => {
-    const markup = renderToStaticMarkup(
-      <TerminalViewSwitch
-        guiAgentWorkspaceEnabled
-        agentWorkspace={<span>GUI agent workspace</span>}
-        terminalWorkspace={<span>Terminal workspace</span>}
-      />
-    )
-
-    expect(markup).toContain('GUI agent workspace')
-    expect(markup).toContain('Terminal workspace')
-    expect(markup).toContain('data-terminal-view="gui-agent-workspace"')
-    expect(markup).toContain('data-terminal-view="preserved-terminal-workspace"')
   })
 })
 
@@ -528,29 +584,16 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
-    const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
-      (button) => button.textContent === 'Diff'
-    )
-    expect(diffTab).toBeDefined()
-
-    await act(async () => {
-      diffTab?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }))
-    })
-
-    expect(diffTab?.getAttribute('data-state')).toBe('active')
-    expect(container.textContent).toContain('src/first.tsx')
+    expect(container.textContent).toContain('Outputs')
+    expect(container.textContent).toContain('first.tsx')
     expect(container.textContent).not.toContain('src/second.tsx')
 
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
-    const updatedDiffTab = Array.from(
-      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-    ).find((button) => button.textContent === 'Diff')
-    expect(updatedDiffTab?.getAttribute('data-state')).toBe('active')
     expect(container.textContent).not.toContain('src/first.tsx')
-    expect(container.textContent).toContain('src/second.tsx')
+    expect(container.textContent).toContain('second.tsx')
   })
 
   it('re-defaults to details when the active worktree changes to a thread that needs approval', async () => {
@@ -618,20 +661,14 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
-    const diffTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
-      (button) => button.textContent === 'Diff'
-    )
-    expect(diffTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('first.tsx')
 
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
 
-    const detailsTab = Array.from(
-      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-    ).find((button) => button.textContent === 'Details')
-    expect(detailsTab?.getAttribute('data-state')).toBe('active')
-    expect(container.textContent).toContain('This thread needs approval before it can continue.')
+    expect(container.textContent).toContain('Needs approval thread')
+    expect(container.textContent).toContain('needs approval')
   })
 
   it('chooses the plan tab by default for running threads with structured plan state', async () => {
@@ -692,12 +729,9 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       )
     })
 
-    const planTab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
-      (button) => button.textContent === 'Plan'
-    )
-    expect(planTab?.getAttribute('data-state')).toBe('active')
+    expect(container.textContent).toContain('Outputs')
     expect(container.textContent).toContain('Planned thread execution')
-    expect(container.textContent).toContain('Render the plan tab')
+    expect(container.textContent).toContain('0/1 steps complete')
   })
 
   it('chooses the details tab by default for threads that need approval', async () => {
@@ -751,11 +785,8 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       )
     })
 
-    const detailsTab = Array.from(
-      container.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-    ).find((button) => button.textContent === 'Details')
-    expect(detailsTab?.getAttribute('data-state')).toBe('active')
-    expect(container.textContent).toContain('This thread needs approval before it can continue.')
+    expect(container.textContent).toContain('Approve command')
+    expect(container.textContent).toContain('needs approval')
   })
 
   it('opens the terminal drawer from failure and composer controls', async () => {

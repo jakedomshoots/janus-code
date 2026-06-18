@@ -60,6 +60,7 @@ export type TabsSlice = {
         targetGroupId: string
         activate: boolean
         recordInteraction: boolean
+        insertAfterActiveTab: boolean
       }
     >
   ) => Tab
@@ -537,7 +538,20 @@ export const createTabsSlice: StateCreator<AppState, [], [], TabsSlice> = (set, 
         isPinned: init?.isPinned
       }
 
-      nextOrder = dedupeTabOrder([...nextOrder, created.id])
+      if (init?.insertAfterActiveTab && group.activeTabId) {
+        const activeIndex = nextOrder.indexOf(group.activeTabId)
+        nextOrder = dedupeTabOrder(
+          activeIndex >= 0
+            ? [
+                ...nextOrder.slice(0, activeIndex + 1),
+                created.id,
+                ...nextOrder.slice(activeIndex + 1)
+              ]
+            : [...nextOrder, created.id]
+        )
+      } else {
+        nextOrder = dedupeTabOrder([...nextOrder, created.id])
+      }
       const shouldActivate = init?.activate ?? true
       const nextActiveTabId = shouldActivate ? created.id : (group.activeTabId ?? created.id)
       const sanitizedRecent = sanitizeRecentTabIds(group.recentTabIds, nextOrder)

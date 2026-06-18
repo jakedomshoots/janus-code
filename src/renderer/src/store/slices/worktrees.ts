@@ -2799,6 +2799,11 @@ export const createWorktreeSlice: StateCreator<AppState, [], [], WorktreeSlice> 
         activeTabType,
         activeTabTypeByWorktree: nextActiveTabTypeByWorktree,
         rightSidebarExplorerView: restoredRightSidebarExplorerView,
+        // Why: GUI agent workspace owns the center column; carrying an open
+        // project explorer across worktree switches breaks that flow.
+        ...(s.settings?.guiAgentWorkspaceEnabled === true && s.activeView === 'terminal'
+          ? { rightSidebarOpen: false }
+          : {}),
         activeTabId,
         everActivatedWorktreeIds: nextEverActivated,
         ...(nextWorktrees !== s.worktreesByRepo ? { worktreesByRepo: nextWorktrees } : {}),

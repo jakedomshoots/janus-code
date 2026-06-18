@@ -4,7 +4,7 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 // Why: the drawer chrome switches on reveal reason, but TerminalWorkspace still
 // renders from store activeTabType — browser opens must leave that alone.
 export function syncAgentTerminalDrawerSurface(reason: AgentTerminalRevealReason | null): void {
-  if (!reason || reason === 'browser') {
+  if (!reason || reason === 'browser' || reason === 'workbench') {
     return
   }
 

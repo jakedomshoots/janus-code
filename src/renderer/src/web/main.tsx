@@ -1,6 +1,6 @@
 import '../assets/main.css'
 
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import WebConnect from './WebConnect'
@@ -16,6 +16,7 @@ import {
   saveStoredWebRuntimeEnvironment
 } from './web-runtime-environment'
 import { installWebPreloadApi } from './web-preload-api'
+import { tryConnectLocalDevRuntime } from './web-dev-local-pairing'
 import { I18nProvider } from '../i18n/I18nProvider'
 import { translate } from '../i18n/i18n'
 
@@ -34,6 +35,57 @@ function WebRoot(): React.JSX.Element {
     }
     return readStoredWebRuntimeEnvironment() !== null
   })
+  const [autoConnecting, setAutoConnecting] = useState(false)
+
+  useEffect(() => {
+    if (hasEnvironment || initialPairingInput) {
+      return
+    }
+    let cancelled = false
+    setAutoConnecting(true)
+
+    const attemptConnect = async (): Promise<boolean> => tryConnectLocalDevRuntime()
+
+    void (async () => {
+      // Why: the desktop runtime can still be booting when the web dev server is
+      // already up. Retry local pairing briefly instead of dropping users on the
+      // manual connect screen after a single failed attempt.
+      const retryDelaysMs = [0, 750, 1500, 3000, 5000, 8000, 12_000]
+      for (const delayMs of retryDelaysMs) {
+        if (cancelled) {
+          return
+        }
+        if (delayMs > 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, delayMs))
+        }
+        if (cancelled) {
+          return
+        }
+        if (await attemptConnect()) {
+          if (!cancelled) {
+            setHasEnvironment(true)
+          }
+          return
+        }
+      }
+    })().finally(() => {
+      if (!cancelled) {
+        setAutoConnecting(false)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [hasEnvironment, initialPairingInput])
+
+  if (autoConnecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center text-sm text-muted-foreground">
+        {translate('auto.web.main.connecting', 'Connecting to Janus Code…')}
+      </div>
+    )
+  }
 
   if (!hasEnvironment) {
     return (

@@ -10,7 +10,7 @@ export function AgentWorkspacePage({
   onOpenTerminalDrawer
 }: {
   terminalDrawerReason?: AgentTerminalRevealReason | null
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 } = {}): React.JSX.Element {
   const snapshot = useAppStore(selectAgentWorkspaceSnapshot)
 

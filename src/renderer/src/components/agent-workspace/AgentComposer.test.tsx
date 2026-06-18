@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   launchAgentInNewTab: vi.fn(),
   useDetectedAgents: vi.fn(),
   updateSettings: vi.fn(),
+  discoverCommitMessageModels: vi.fn(),
   createBrowserTab: vi.fn(),
   focusBrowserTabInWorktree: vi.fn(),
   browserState: {
@@ -51,6 +52,7 @@ vi.mock('@/store', () => ({
           agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
           agentModelSelections: Record<string, string>
         }
+        repos: []
         updateSettings: typeof mocks.updateSettings
         browserTabsByWorktree: typeof mocks.browserState.browserTabsByWorktree
         browserAnnotationsByPageId: typeof mocks.browserState.browserAnnotationsByPageId
@@ -66,6 +68,7 @@ vi.mock('@/store', () => ({
           agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' },
           agentModelSelections: {}
         },
+        repos: [],
         updateSettings: mocks.updateSettings,
         browserTabsByWorktree: mocks.browserState.browserTabsByWorktree,
         browserAnnotationsByPageId: mocks.browserState.browserAnnotationsByPageId,
@@ -177,10 +180,23 @@ function deferred<T>(): {
   return { promise, resolve }
 }
 
-function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
-  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(textarea), 'value')?.set
-  valueSetter?.call(textarea, value)
-  textarea.dispatchEvent(new Event('input', { bubbles: true }))
+function setTextControlValue(control: HTMLInputElement | HTMLTextAreaElement, value: string): void {
+  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(control), 'value')?.set
+  valueSetter?.call(control, value)
+  control.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
+async function openAgentSettings(container: HTMLElement): Promise<void> {
+  const button = container.querySelector<HTMLButtonElement>('button[aria-label="Agent settings"]')
+  expect(button).not.toBeNull()
+  await act(async () => {
+    button?.click()
+    await Promise.resolve()
+  })
+}
+
+function getDocumentButton(label: string): HTMLButtonElement | null {
+  return document.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)
 }
 
 describe('AgentComposer', () => {
@@ -196,6 +212,12 @@ describe('AgentComposer', () => {
     mocks.launchAgentInNewTab.mockReset()
     mocks.useDetectedAgents.mockReset()
     mocks.updateSettings.mockReset()
+    mocks.discoverCommitMessageModels.mockReset()
+    window.api = {
+      git: {
+        discoverCommitMessageModels: mocks.discoverCommitMessageModels
+      }
+    } as never
     mocks.createBrowserTab.mockReset()
     mocks.focusBrowserTabInWorktree.mockReset()
     mocks.browserState.browserTabsByWorktree = {}
@@ -206,6 +228,10 @@ describe('AgentComposer', () => {
       isLoading: false,
       isRefreshing: false,
       refresh: vi.fn()
+    })
+    mocks.discoverCommitMessageModels.mockResolvedValue({
+      success: false,
+      error: 'Discovery not configured for this test.'
     })
     mocks.launchAgentInNewTab.mockReturnValue({
       tabId: 'tab-opencode',
@@ -222,7 +248,39 @@ describe('AgentComposer', () => {
   afterEach(async () => {
     act(() => root.unmount())
     document.body.replaceChildren()
+    delete (window as Partial<Window>).api
     await setRendererUiLanguage('en')
+  })
+
+  it('renders the floating chat composer skin without hiding core controls', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
+    })
+
+    const form = container.querySelector('form')
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const panel = textarea?.parentElement
+    const footerLayout = container.querySelector(
+      '#agent-workspace-composer-status'
+    )?.nextElementSibling
+
+    expect(form?.className).toContain('bg-transparent')
+    expect(form?.className).toContain('pb-8')
+    expect(panel?.className).toContain('rounded-[34px]')
+    expect(footerLayout?.className).toContain(
+      'grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto]'
+    )
+    expect(footerLayout?.className).not.toContain('justify-between')
+    expect(container.querySelector('select[aria-label="Thinking mode"]')).toBeNull()
+    expect(container.querySelector('select[aria-label="Agent model"]')).toBeNull()
+    expect(container.querySelector('select[aria-label="Agent provider"]')).toBeNull()
+    expect(container.querySelector('button[type="submit"]')).not.toBeNull()
+
+    await openAgentSettings(container)
+
+    expect(getDocumentButton('Set reasoning: Medium')).not.toBeNull()
+    expect(getDocumentButton('Open model menu')).not.toBeNull()
+    expect(getDocumentButton('Open provider menu')).not.toBeNull()
   })
 
   it('blocks send but keeps drafting when the selected thread is outside the active worktree', async () => {
@@ -258,7 +316,7 @@ describe('AgentComposer', () => {
     expect(container.querySelector('select[aria-label="Agent model"]')).toBeNull()
 
     await act(async () => {
-      setTextareaValue(textarea!, 'Status?')
+      setTextControlValue(textarea!, 'Status?')
     })
     await act(async () => {
       button?.click()
@@ -306,16 +364,101 @@ describe('AgentComposer', () => {
     expect(attachButton?.disabled).toBe(false)
 
     await act(async () => {
-      setTextareaValue(textarea!, 'Use this page context.')
+      setTextControlValue(textarea!, 'Use this page context.')
     })
     await act(async () => {
       attachButton?.click()
     })
 
     expect(textarea?.value).toContain('Use this page context.')
-    expect(textarea?.value).toContain('## Design Feedback: /pricing')
-    expect(textarea?.value).toContain('**Feedback:** Make the primary action clearer.')
+    expect(textarea?.value).toContain('Make the primary action clearer.')
+    expect(textarea?.value).not.toContain('Attached browser context from')
+    expect(textarea?.value).not.toContain('## Design Feedback:')
     expect(container.textContent).toContain('Browser context attached.')
+  })
+
+  it('strips verbose annotation markdown dumps from the composer draft', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(
+        textarea!,
+        [
+          '## Design Feedback: /web-index.html',
+          '',
+          '**URL:** http://127.0.0.1:5175/web-index.html',
+          '**Browser tab id:** page-1',
+          '**Feedback:** This text is still showing'
+        ].join('\n')
+      )
+    })
+
+    expect(textarea?.value).toBe('This text is still showing')
+  })
+
+  it('strips legacy grab dumps from the composer draft', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(
+        textarea!,
+        [
+          'Attached browser context from http://127.0.0.1:5175/web-index.html',
+          '',
+          'Selected element:',
+          'header',
+          'Dimensions: 100x22',
+          'Full DOM path: body > div#root > header'
+        ].join('\n')
+      )
+    })
+
+    expect(textarea?.value).toBe('')
+  })
+
+  it('blocks legacy grab dumps pasted into the composer', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Keep this note.')
+    })
+
+    const legacyGrabDump = [
+      'Attached browser context from http://127.0.0.1:5175/web-index.html',
+      '',
+      'Selected element:',
+      'h1',
+      'Full DOM path: body > div#root > h1'
+    ].join('\n')
+
+    await act(async () => {
+      textarea!.selectionStart = textarea!.value.length
+      textarea!.selectionEnd = textarea!.value.length
+      const pasteEvent = new Event('paste', { bubbles: true, cancelable: true }) as ClipboardEvent
+      Object.defineProperty(pasteEvent, 'clipboardData', {
+        value: {
+          getData: (type: string) => (type === 'text/plain' ? legacyGrabDump : '')
+        }
+      })
+      textarea!.dispatchEvent(pasteEvent)
+    })
+
+    expect(textarea?.value).toBe('Keep this note.')
   })
 
   it('ignores a stale submit result after the selected thread changes', async () => {
@@ -332,7 +475,7 @@ describe('AgentComposer', () => {
     expect(button).not.toBeNull()
 
     await act(async () => {
-      setTextareaValue(textarea!, 'Keep this draft.')
+      setTextControlValue(textarea!, 'Keep this draft.')
     })
     await act(async () => {
       button?.click()
@@ -371,7 +514,7 @@ describe('AgentComposer', () => {
     expect(button).not.toBeNull()
 
     await act(async () => {
-      setTextareaValue(textarea!, 'Keep this draft.')
+      setTextControlValue(textarea!, 'Keep this draft.')
     })
     await act(async () => {
       button?.click()
@@ -402,23 +545,22 @@ describe('AgentComposer', () => {
     })
 
     const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
-    const providerSelect = container.querySelector<HTMLSelectElement>(
-      'select[aria-label="Agent provider"]'
-    )
+    await openAgentSettings(container)
+    await act(async () => {
+      getDocumentButton('Open provider menu')?.click()
+    })
+    const openCodeOption = getDocumentButton('Set agent provider: OpenCode')
     const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
     expect(textarea).not.toBeNull()
-    expect(providerSelect).not.toBeNull()
+    expect(openCodeOption).not.toBeNull()
     expect(button).not.toBeNull()
-    expect(providerSelect?.textContent).toContain('Claude')
-    expect(providerSelect?.textContent).toContain('OpenCode')
-    expect(providerSelect?.textContent).not.toContain('Codex')
+    expect(getDocumentButton('Set agent provider: Codex')).toBeNull()
 
     await act(async () => {
-      providerSelect!.value = 'opencode'
-      providerSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+      openCodeOption?.click()
     })
     await act(async () => {
-      setTextareaValue(textarea!, 'Use OpenCode for this workspace.')
+      setTextControlValue(textarea!, 'Use OpenCode for this workspace.')
     })
     await act(async () => {
       button?.click()
@@ -457,20 +599,18 @@ describe('AgentComposer', () => {
     })
 
     const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
-    const thinkingSelect = container.querySelector<HTMLSelectElement>(
-      'select[aria-label="Thinking mode"]'
-    )
+    await openAgentSettings(container)
+    const highReasoningOption = getDocumentButton('Set reasoning: High')
     const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
     expect(textarea).not.toBeNull()
-    expect(thinkingSelect).not.toBeNull()
+    expect(highReasoningOption).not.toBeNull()
     expect(button).not.toBeNull()
 
     await act(async () => {
-      thinkingSelect!.value = 'deep'
-      thinkingSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+      highReasoningOption?.click()
     })
     await act(async () => {
-      setTextareaValue(textarea!, 'Use deep reasoning for this.')
+      setTextControlValue(textarea!, 'Use deep reasoning for this.')
     })
     await act(async () => {
       button?.click()
@@ -508,21 +648,21 @@ describe('AgentComposer', () => {
     })
 
     const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
-    const modelSelect = container.querySelector<HTMLSelectElement>(
-      'select[aria-label="Agent model"]'
-    )
+    await openAgentSettings(container)
+    await act(async () => {
+      getDocumentButton('Open model menu')?.click()
+    })
+    const modelOption = getDocumentButton('Set model: GPT-5.4 Mini')
     const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
     expect(textarea).not.toBeNull()
-    expect(modelSelect).not.toBeNull()
-    expect(modelSelect?.textContent).toContain('GPT-5.4 Mini')
+    expect(modelOption).not.toBeNull()
     expect(button).not.toBeNull()
 
     await act(async () => {
-      modelSelect!.value = 'gpt-5.4-mini'
-      modelSelect!.dispatchEvent(new Event('change', { bubbles: true }))
+      modelOption?.click()
     })
     await act(async () => {
-      setTextareaValue(textarea!, 'Use the selected model.')
+      setTextControlValue(textarea!, 'Use the selected model.')
     })
     await act(async () => {
       button?.click()
@@ -539,6 +679,133 @@ describe('AgentComposer', () => {
         '--dangerously-bypass-approvals-and-sandbox --model gpt-5.4-mini -c model_reasoning_effort=medium',
       launchSource: 'new_workspace_composer'
     })
+  })
+
+  it('loads searchable discovered models for the selected chat agent', async () => {
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['opencode'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.discoverCommitMessageModels.mockResolvedValue({
+      success: true,
+      capability: {
+        id: 'opencode',
+        label: 'OpenCode',
+        modelSource: 'dynamic',
+        defaultModelId: 'opencode/deepseek-v4-flash-free',
+        models: []
+      },
+      defaultModelId: 'opencode/deepseek-v4-flash-free',
+      models: [
+        { id: 'opencode/deepseek-v4-flash-free', label: 'DeepSeek V4 Flash Free' },
+        { id: 'opencode/gpt-5.5', label: 'GPT-5.5' },
+        { id: 'kimi-for-coding/k2p7', label: 'Kimi K2.7 Code' },
+        { id: 'opencode/claude-opus-4-8', label: 'Claude Opus 4.8' }
+      ]
+    })
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-opencode',
+      startupPlan: {
+        agent: 'opencode',
+        launchCommand: 'opencode',
+        expectedProcess: 'opencode',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={null}
+          selectedProject={{
+            id: 'worktree-1',
+            label: 'Janus',
+            path: '/Users/jakedom/Documents/janus-code',
+            hostKind: 'local',
+            agentDetectionTarget: { kind: 'local' }
+          }}
+        />
+      )
+      await Promise.resolve()
+    })
+
+    await openAgentSettings(container)
+    await act(async () => {
+      getDocumentButton('Open model menu')?.click()
+    })
+
+    expect(mocks.discoverCommitMessageModels).toHaveBeenCalledWith({
+      agentId: 'opencode',
+      worktreePath: '/Users/jakedom/Documents/janus-code',
+      connectionId: undefined
+    })
+
+    const searchInput = document.querySelector<HTMLInputElement>(
+      'input[aria-label="Search models"]'
+    )
+    expect(searchInput).not.toBeNull()
+    expect(document.body.textContent).toContain('OpenCode')
+    expect(document.body.textContent).toContain('opencode/deepseek-v4-flash-free')
+    expect(document.body.textContent).toContain('opencode/gpt-5.5')
+    expect(document.body.textContent).toContain('Kimi')
+    expect(document.body.textContent).not.toContain('Anthropic / Claude')
+    await act(async () => {
+      setTextControlValue(searchInput!, 'opus')
+    })
+
+    const dynamicModelOption = getDocumentButton('Set model: Claude Opus 4.8')
+    expect(dynamicModelOption).not.toBeNull()
+    await act(async () => {
+      dynamicModelOption?.click()
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    await act(async () => {
+      setTextControlValue(textarea!, 'Use the discovered model.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.updateSettings).toHaveBeenCalledWith({
+      agentModelSelections: { opencode: 'opencode/claude-opus-4-8' }
+    })
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith({
+      agent: 'opencode',
+      worktreeId: 'worktree-1',
+      prompt: 'Use the discovered model.',
+      agentArgs: '--model opencode/claude-opus-4-8',
+      launchSource: 'new_workspace_composer'
+    })
+  })
+
+  it('syncs the resolved draft agent back to the workspace tab strip', async () => {
+    const onDraftSessionAgentChange = vi.fn()
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['grok', 'codex', 'claude'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={null}
+          draftSessionId="draft-1"
+          onDraftSessionAgentChange={onDraftSessionAgentChange}
+        />
+      )
+      await Promise.resolve()
+    })
+
+    expect(onDraftSessionAgentChange).toHaveBeenCalledWith('claude')
   })
 
   it('opens the terminal drawer from the composer toolbar', async () => {

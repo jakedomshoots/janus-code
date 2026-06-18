@@ -24,15 +24,28 @@ const storeMocks = vi.hoisted(() => {
     createdAt: 1
   }))
   const focusBrowserTabInWorktree = vi.fn()
+  const ensureWorktreeRootGroup = vi.fn()
+  const createUnifiedTab = vi.fn()
+  const closeBrowserTab = vi.fn()
   const state = {
-    settings: { guiAgentWorkspaceEnabled: false },
+    browserDefaultUrl: 'data:text/html,',
+    settings: { guiAgentWorkspaceEnabled: false, defaultTuiAgent: 'grok', disabledTuiAgents: [] },
+    repos: [],
+    worktreesByRepo: {},
     openDiff: vi.fn(),
     openModal: vi.fn(),
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
+    unifiedTabsByWorktree: {},
+    remoteBrowserPageHandlesByPageId: {},
+    activeGroupIdByWorktree: { 'worktree-1': 'group-1' },
+    groupsByWorktree: { 'worktree-1': [{ id: 'group-1', activeTabId: null, tabOrder: [] }] },
     createBrowserTab,
     focusBrowserTabInWorktree,
+    ensureWorktreeRootGroup,
+    createUnifiedTab,
+    closeBrowserTab,
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
     showRightSidebarFiles: vi.fn()
@@ -48,7 +61,104 @@ const storeMocks = vi.hoisted(() => {
 })
 
 vi.mock('@/store', () => ({
-  useAppStore: (selector: (state: typeof storeMocks.state) => unknown) => selector(storeMocks.state)
+  useAppStore: Object.assign(
+    (selector: (state: typeof storeMocks.state) => unknown) => selector(storeMocks.state),
+    { getState: () => storeMocks.state }
+  )
+}))
+
+vi.mock('@/hooks/useDetectedAgents', () => ({
+  useDetectedAgents: () => ({
+    detectedIds: ['grok', 'codex', 'claude'],
+    isLoading: false,
+    isRefreshing: false,
+    refresh: vi.fn()
+  })
+}))
+
+vi.mock('@/components/tab-group/useTabGroupWorkspaceModel', () => ({
+  useTabGroupWorkspaceModel: () => ({
+    group: { tabOrder: [] },
+    groupTabs: [],
+    browserItems: [],
+    activeTab: null,
+    commands: {
+      newTerminalTab: vi.fn(),
+      newTerminalWithShell: vi.fn(),
+      newBrowserTab: vi.fn(),
+      newFileTab: vi.fn(),
+      newSimulatorTab: undefined,
+      openEntry: vi.fn(),
+      activateEditor: vi.fn(),
+      activateBrowser: vi.fn(),
+      closeItem: vi.fn(),
+      duplicateBrowserTab: vi.fn()
+    }
+  })
+}))
+
+vi.mock('@/components/tab-bar/TabBarNewTabMenu', () => ({
+  TabBarNewTabMenu: ({
+    onLaunchAgent
+  }: {
+    onLaunchAgent?: (agent: 'codex' | 'claude') => void
+  }) => (
+    <div>
+      <button type="button" aria-label="New tab">
+        New tab
+      </button>
+      <button
+        type="button"
+        aria-label="Launch Codex draft"
+        onClick={() => onLaunchAgent?.('codex')}
+      >
+        Launch Codex draft
+      </button>
+      <button
+        type="button"
+        aria-label="Launch Claude draft"
+        onClick={() => onLaunchAgent?.('claude')}
+      >
+        Launch Claude draft
+      </button>
+    </div>
+  )
+}))
+
+vi.mock('./useAgentWorkspaceBrowserTabStrip', () => ({
+  useAgentWorkspaceBrowserTabStrip: () => ({
+    browserTabs: [],
+    activeBrowserTabId: null,
+    selectBrowserTab: vi.fn(),
+    createBrowserTab: vi.fn(),
+    closeBrowserTab: vi.fn()
+  })
+}))
+
+vi.mock('@/components/tab-group/TabGroupPaneActionChrome', () => ({
+  TabGroupPaneActionChrome: ({
+    onSplit,
+    onCloseGroup,
+    hasSplitGroups
+  }: {
+    onSplit: (direction: 'right' | 'down' | 'left' | 'up') => void
+    onCloseGroup?: () => void
+    hasSplitGroups?: boolean
+  }) => (
+    <div data-testid="pane-action-chrome">
+      <button type="button" aria-label="Pane Actions">
+        Pane Actions
+      </button>
+      <button type="button" onClick={() => onSplit('right')}>
+        Split Right
+      </button>
+      {hasSplitGroups ? (
+        <button type="button" onClick={() => onCloseGroup?.()}>
+          Close Group
+        </button>
+      ) : null}
+    </div>
+  )
 }))
 
 function baseSnapshot(overrides: Partial<AgentWorkspaceSnapshot> = {}): AgentWorkspaceSnapshot {
@@ -80,9 +190,19 @@ function hasButton(container: HTMLElement, label: string): boolean {
   return buttons(container).some((button) => button.getAttribute('aria-label') === label)
 }
 
+async function clickPaneAction(label: string, container: HTMLElement): Promise<void> {
+  const action = buttons(container).find((button) => button.textContent?.includes(label))
+
+  await act(async () => {
+    action?.click()
+  })
+}
+
 async function renderLayout(
   snapshot: AgentWorkspaceSnapshot,
-  options: { onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void } = {}
+  options: {
+    onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
+  } = {}
 ): Promise<HTMLElement> {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   const container = document.createElement('div')
@@ -121,29 +241,15 @@ describe('AgentWorkspace pane workflow', () => {
     const container = await renderLayout(baseSnapshot())
 
     expect(container.querySelectorAll('[role="tab"]').length).toBe(1)
-    expect(hasButton(container, 'Close pane')).toBe(false)
+    expect(hasButton(container, 'Pane Actions')).toBe(true)
 
-    const splitRight = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Split right'
-    )
-
-    await act(async () => {
-      splitRight?.click()
-    })
+    await clickPaneAction('Split Right', container)
 
     expect(container.querySelectorAll('[role="tab"]').length).toBe(2)
-    expect(hasButton(container, 'Close pane')).toBe(true)
 
-    const closePane = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Close pane'
-    )
-
-    await act(async () => {
-      closePane?.click()
-    })
+    await clickPaneAction('Close Group', container)
 
     expect(container.querySelectorAll('[role="tab"]').length).toBe(1)
-    expect(hasButton(container, 'Close pane')).toBe(false)
   })
 
   it('shows one new-session affordance at a time in the tab strip', async () => {
@@ -179,6 +285,38 @@ describe('AgentWorkspace pane workflow', () => {
     expect(hasButton(container, 'Start new session')).toBe(false)
   })
 
+  it('creates a new draft session tab when launching an agent from the new-tab menu', async () => {
+    const container = await renderLayout(baseSnapshot())
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(container.textContent).toContain('Grok')
+
+    const launchCodexDraft = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Launch Codex draft'
+    )
+    const launchClaudeDraft = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Launch Claude draft'
+    )
+
+    await act(async () => {
+      launchCodexDraft?.click()
+    })
+
+    expect(container.querySelectorAll('[role="tab"]').length).toBe(2)
+    expect(container.textContent).toContain('Grok')
+    expect(container.textContent).toContain('Codex')
+
+    await act(async () => {
+      launchClaudeDraft?.click()
+    })
+
+    expect(container.querySelectorAll('[role="tab"]').length).toBe(3)
+    expect(container.textContent).toContain('Claude')
+  })
+
   it('opens the Janus Code browser workbench from the composer', async () => {
     const onOpenTerminalDrawer = vi.fn()
     const container = await renderLayout(baseSnapshot(), { onOpenTerminalDrawer })
@@ -188,6 +326,7 @@ describe('AgentWorkspace pane workflow', () => {
 
     await act(async () => {
       browserButton?.click()
+      await Promise.resolve()
     })
 
     expect(storeMocks.createBrowserTab).toHaveBeenCalledWith(
@@ -196,7 +335,8 @@ describe('AgentWorkspace pane workflow', () => {
       expect.objectContaining({
         activate: true,
         focusAddressBar: true,
-        title: 'New Browser Tab'
+        title: 'New Browser Tab',
+        targetGroupId: 'group-1'
       })
     )
     expect(storeMocks.focusBrowserTabInWorktree).toHaveBeenCalledWith(

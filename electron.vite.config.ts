@@ -219,10 +219,14 @@ export default defineConfig({
   },
   renderer: {
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@renderer': resolve('src/renderer/src'),
         '@': resolve('src/renderer/src')
       }
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities']
     },
     plugins: [react(), tailwindcss()],
     worker: {

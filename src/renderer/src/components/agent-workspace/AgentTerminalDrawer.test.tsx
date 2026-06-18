@@ -31,7 +31,7 @@ describe('AgentTerminalDrawer', () => {
     expect(markup).toContain('Preserved terminal workspace')
   })
 
-  it('labels an opened drawer with the reveal reason', () => {
+  it('keeps the opened terminal drawer header visually quiet', () => {
     const markup = renderToStaticMarkup(
       <AgentTerminalDrawer
         open
@@ -44,8 +44,10 @@ describe('AgentTerminalDrawer', () => {
     )
 
     expect(markup).toContain('data-state="open"')
-    expect(markup).toContain('Terminal drawer')
-    expect(markup).toContain('Opened from keyboard shortcut')
+    expect(markup).toContain('aria-label="Terminal drawer"')
+    expect(markup).toContain('Close terminal drawer')
+    expect(markup).not.toContain('Opened from keyboard shortcut')
+    expect(markup).not.toContain('Opened from composer tools')
   })
 
   it('labels the browser workbench distinctly from the terminal drawer', () => {
@@ -55,9 +57,26 @@ describe('AgentTerminalDrawer', () => {
       </AgentTerminalDrawer>
     )
 
-    expect(markup).toContain('Browser workbench')
-    expect(markup).toContain('Browser, grab, and annotations are available here.')
+    expect(markup).toContain('aria-label="Browser workbench"')
+    expect(markup).not.toContain('Browser, grab, and annotations are available here.')
     expect(markup).toContain('Close browser workbench')
+  })
+
+  it('does not show drawer status copy for browser workbench', () => {
+    const markup = renderToStaticMarkup(
+      <AgentTerminalDrawer
+        open
+        reason="browser"
+        terminalAvailable={false}
+        onClose={() => undefined}
+      >
+        {preservedTerminal}
+      </AgentTerminalDrawer>
+    )
+
+    expect(markup).toContain('aria-label="Browser workbench"')
+    expect(markup).not.toContain('Browser, grab, and annotations are available here.')
+    expect(markup).not.toContain('No terminal session is attached to this workspace.')
   })
 
   it('calls onClose from the close button', async () => {

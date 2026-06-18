@@ -62,6 +62,11 @@ import {
 import { isGitRepoKind } from '../../../shared/repo-kind'
 import { TOGGLE_FLOATING_TERMINAL_EVENT } from '@/lib/floating-terminal'
 import { focusTerminalTabSurface } from '@/lib/focus-terminal-tab-surface'
+import {
+  getAgentWorkspaceActionBridge,
+  isGuiAgentWorkspaceActionRoutingActive
+} from '@/components/agent-workspace/agent-workspace-action-bridge'
+import { routeGuiAgentWorkspaceNewBrowserTabFromIpc } from '@/components/agent-workspace/agent-workspace-gui-shortcuts'
 import { activateTabAndFocusPane } from '@/lib/activate-tab-and-focus-pane'
 import { focusRuntimeTerminalSurface } from '@/runtime/sync-runtime-graph'
 import { setFitOverride, hydrateOverrides } from '@/lib/pane-manager/mobile-fit-overrides'
@@ -1755,6 +1760,9 @@ export function useIpcEvents(): void {
           void createFloatingWorkspaceBrowserTab(store)
           return
         }
+        if (routeGuiAgentWorkspaceNewBrowserTabFromIpc()) {
+          return
+        }
         const worktreeId = store.activeWorktreeId
         if (worktreeId) {
           const environmentId = getWorktreeRuntimeEnvironmentId(worktreeId)
@@ -1802,6 +1810,10 @@ export function useIpcEvents(): void {
           })
           return
         }
+        if (isGuiAgentWorkspaceActionRoutingActive()) {
+          getAgentWorkspaceActionBridge()?.newFileTab()
+          return
+        }
         const worktreeId = store.activeWorktreeId
         if (!worktreeId) {
           return
@@ -1818,6 +1830,10 @@ export function useIpcEvents(): void {
     // preload mocks should not crash the whole event hook when it is absent.
     const unsubscribeNewSimulatorTab = window.api.ui.onNewSimulatorTab?.(() => {
       if (isRuntimeEnvironmentActive()) {
+        return
+      }
+      if (isGuiAgentWorkspaceActionRoutingActive()) {
+        getAgentWorkspaceActionBridge()?.newSimulatorTab()
         return
       }
       const store = useAppStore.getState()

@@ -1,11 +1,13 @@
 import { useMemo } from 'react'
-import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
-import { ORCA_BROWSER_BLANK_URL } from '../../../../shared/constants'
 import type { BrowserWorkspace } from '../../../../shared/types'
 import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
-import { formatBrowserAnnotationsAsMarkdown } from '../browser-pane/browser-annotation-output'
+import { formatBrowserAnnotationsForAgentPrompt } from '../browser-pane/browser-annotation-output'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import {
+  openAgentBrowserWorkbench,
+  type OpenAgentBrowserWorkbenchOptions
+} from './agent-browser-workbench-open'
 
 const EMPTY_BROWSER_TABS: readonly BrowserWorkspace[] = []
 const EMPTY_BROWSER_ANNOTATIONS: readonly BrowserPageAnnotation[] = []
@@ -18,15 +20,17 @@ export type AgentBrowserWorkbenchState = {
   readonly browserAnnotationCount: number
   readonly browserAnnotationMarkdown: string
   readonly canAttachBrowserContext: boolean
-  readonly openBrowserWorkbench: () => void
+  readonly openBrowserWorkbench: (options?: OpenAgentBrowserWorkbenchOptions) => void
 }
 
 export function useAgentBrowserWorkbench({
   activeWorktreeId,
+  browserWorkbenchActive = false,
   onOpenTerminalDrawer
 }: {
   activeWorktreeId: string | null
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  browserWorkbenchActive?: boolean
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): AgentBrowserWorkbenchState {
   const browserTabs = useAppStore((state) =>
     activeWorktreeId
@@ -38,7 +42,15 @@ export function useAgentBrowserWorkbench({
   )
   const browserAnnotationsByPageId = useAppStore((state) => state.browserAnnotationsByPageId)
   const createBrowserTab = useAppStore((state) => state.createBrowserTab)
+  const closeBrowserTab = useAppStore((state) => state.closeBrowserTab)
+  const createUnifiedTab = useAppStore((state) => state.createUnifiedTab)
+  const activateTab = useAppStore((state) => state.activateTab)
+  const setActiveBrowserTab = useAppStore((state) => state.setActiveBrowserTab)
+  const setActiveTabType = useAppStore((state) => state.setActiveTabType)
   const focusBrowserTabInWorktree = useAppStore((state) => state.focusBrowserTabInWorktree)
+  const openNewBrowserTabInActiveWorkspace = useAppStore(
+    (state) => state.openNewBrowserTabInActiveWorkspace
+  )
 
   const activeBrowserTab = useMemo(
     () =>
@@ -48,34 +60,33 @@ export function useAgentBrowserWorkbench({
     [activeBrowserTabId, browserTabs]
   )
   const visibleBrowserTab = activeBrowserTab ?? browserTabs[0] ?? null
+  // Why: annotations are keyed by browser page id — never fall back to the
+  // workspace tab id or attach/send will miss the user's feedback notes.
   const activeBrowserPageId =
-    visibleBrowserTab?.activePageId ?? visibleBrowserTab?.pageIds?.[0] ?? visibleBrowserTab?.id
+    visibleBrowserTab?.activePageId ?? visibleBrowserTab?.pageIds?.[0] ?? null
   const browserAnnotations = activeBrowserPageId
     ? (browserAnnotationsByPageId[activeBrowserPageId] ?? EMPTY_BROWSER_ANNOTATIONS)
     : EMPTY_BROWSER_ANNOTATIONS
   const browserAnnotationMarkdown = useMemo(
-    () => formatBrowserAnnotationsAsMarkdown([...browserAnnotations]),
+    () => formatBrowserAnnotationsForAgentPrompt([...browserAnnotations]),
     [browserAnnotations]
   )
 
-  function openBrowserWorkbench(): void {
-    if (!activeWorktreeId || typeof onOpenTerminalDrawer !== 'function') {
-      return
-    }
-
-    const browserTab =
-      visibleBrowserTab ??
-      createBrowserTab(activeWorktreeId, ORCA_BROWSER_BLANK_URL, {
-        title: translate(
-          'auto.components.agentWorkspace.composer.newBrowserTab',
-          'New Browser Tab'
-        ),
-        focusAddressBar: true,
-        activate: true
-      })
-    const browserPageId = browserTab.activePageId ?? browserTab.pageIds?.[0] ?? browserTab.id
-    focusBrowserTabInWorktree(activeWorktreeId, browserPageId, { surfacePane: true })
-    onOpenTerminalDrawer('browser')
+  function openBrowserWorkbench(options?: OpenAgentBrowserWorkbenchOptions): void {
+    openAgentBrowserWorkbench({
+      activeWorktreeId,
+      browserWorkbenchActive,
+      onOpenTerminalDrawer,
+      options,
+      createBrowserTab,
+      closeBrowserTab,
+      createUnifiedTab,
+      activateTab,
+      setActiveBrowserTab,
+      setActiveTabType,
+      focusBrowserTabInWorktree,
+      openNewBrowserTabInActiveWorkspace
+    })
   }
 
   const browserWorkbenchReady = Boolean(activeWorktreeId)

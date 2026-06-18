@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { PaneSize } from './emulator-device-frame-layout'
 
 export function useEmulatorPaneSize() {
   const paneRef = useRef<HTMLDivElement | null>(null)
   const [paneSize, setPaneSize] = useState<PaneSize | null>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = paneRef.current
     if (!node) {
       return

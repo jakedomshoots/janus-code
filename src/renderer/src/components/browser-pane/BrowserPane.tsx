@@ -10,6 +10,7 @@ import {
   type DragEvent
 } from 'react'
 import { createPortal } from 'react-dom'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { getConnectionId } from '@/lib/connection-context'
 import { detectLanguage } from '@/lib/language-detect'
@@ -56,6 +57,7 @@ import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner
 import { ORCA_BROWSER_BLANK_URL, ORCA_BROWSER_PARTITION } from '../../../../shared/constants'
 import type {
   BrowserLoadError,
+  BrowserViewportPresetId,
   BrowserPage as BrowserPageState,
   BrowserWorkspace as BrowserWorkspaceState
 } from '../../../../shared/types'
@@ -95,8 +97,9 @@ import {
 } from '../../../../shared/browser-grab-types'
 import { BROWSER_ANNOTATION_VIEWPORT_MESSAGE_PREFIX } from '../../../../shared/browser-annotation-viewport-bridge'
 import { useGrabMode } from './useGrabMode'
-import { formatGrabPayloadAsText } from './GrabConfirmationSheet'
-import { formatBrowserAnnotationsAsMarkdown } from './browser-annotation-output'
+import { copyBrowserGrabPayloadToClipboard } from './grab-payload-copy-text'
+import { stripInjectedBrowserGrabDump } from './strip-browser-grab-dump'
+import { formatBrowserAnnotationsForAgentPrompt } from './browser-annotation-output'
 import { isEditableKeyboardTarget } from './browser-keyboard'
 import { getBrowserPagesForWorkspace } from './browser-pane-page-selection'
 import BrowserAddressBar from './BrowserAddressBar'
@@ -110,6 +113,11 @@ import {
   getRemoteBrowserKeyboardShortcut,
   getRemoteBrowserKeypressKey
 } from './remote-browser-keyboard'
+import { setWebBrowserGrabRoute } from '@/web/web-browser-grab-routing'
+import {
+  getRemoteBrowserOverlayAnchor,
+  useRemoteBrowserAnnotationSession
+} from './remote-browser-annotation-session'
 import {
   consumeBrowserFocusRequest,
   ORCA_BROWSER_FOCUS_REQUEST_EVENT,
@@ -142,6 +150,7 @@ import type {
   BrowserReloadResult,
   BrowserScreencastResult,
   BrowserTabInfo,
+  BrowserTabSetProfileResult,
   RuntimeStatus
 } from '../../../../shared/runtime-types'
 import {
@@ -410,7 +419,7 @@ function PendingBrowserAnnotationCard({
         <textarea
           id="browser-annotation-comment"
           value={comment}
-          onChange={(event) => setComment(event.target.value)}
+          onChange={(event) => setComment(stripInjectedBrowserGrabDump(event.target.value))}
           placeholder={translate(
             'auto.components.browser.pane.BrowserPane.532bac48c5',
             'Describe what the agent should change here...'
@@ -816,6 +825,8 @@ export default function BrowserPane({
         key={`${activeBrowserRuntimeEnvironmentId ?? ''}:${activeBrowserPage.id}`}
         browserTab={activeBrowserPage}
         runtimeEnvironmentId={activeBrowserRuntimeEnvironmentId}
+        workspaceId={browserTab.id}
+        sessionProfileId={browserTab.sessionProfileId ?? null}
         worktreeId={browserTab.worktreeId}
         isActive={isActive}
         onUpdatePageState={updateBrowserPageState}
@@ -857,6 +868,8 @@ export default function BrowserPane({
 function RemoteBrowserPagePane({
   browserTab,
   runtimeEnvironmentId,
+  workspaceId,
+  sessionProfileId,
   worktreeId,
   isActive,
   onUpdatePageState,
@@ -864,6 +877,8 @@ function RemoteBrowserPagePane({
 }: {
   browserTab: BrowserPageState
   runtimeEnvironmentId: string
+  workspaceId: string
+  sessionProfileId: string | null
   worktreeId: string
   isActive: boolean
   onUpdatePageState: (tabId: string, updates: BrowserTabPageState) => void
@@ -914,6 +929,43 @@ function RemoteBrowserPagePane({
   const createBrowserTab = useAppStore((s) => s.createBrowserTab)
   const closeBrowserPage = useAppStore((s) => s.closeBrowserPage)
   const closeBrowserTab = useAppStore((s) => s.closeBrowserTab)
+  const activeGroupId = useAppStore((s) => s.activeGroupIdByWorktree[worktreeId])
+  const grabElementShortcut = useShortcutLabel('browser.grabElement')
+  const clearBrowserPageAnnotations = useAppStore((s) => s.clearBrowserPageAnnotations)
+  const deleteBrowserPageAnnotation = useAppStore((s) => s.deleteBrowserPageAnnotation)
+  const setBrowserPageViewportPreset = useAppStore((s) => s.setBrowserPageViewportPreset)
+  const {
+    grab: remoteGrab,
+    grabIntent: remoteGrabIntent,
+    startGrabIntent: startRemoteGrabIntent,
+    pendingAnnotationPayload: remotePendingAnnotationPayload,
+    handleAddBrowserAnnotation: handleAddRemoteBrowserAnnotation,
+    handleCancelPendingBrowserAnnotation: handleCancelRemotePendingBrowserAnnotation,
+    browserAnnotations: remoteBrowserAnnotations,
+    browserAnnotationTrayOpen: remoteBrowserAnnotationTrayOpen,
+    setBrowserAnnotationTrayOpen: setRemoteBrowserAnnotationTrayOpen,
+    browserAnnotationsPrompt: remoteBrowserAnnotationsPrompt,
+    browserAnnotationsCopied: remoteBrowserAnnotationsCopied,
+    handleCopyBrowserAnnotations: handleCopyRemoteBrowserAnnotations
+  } = useRemoteBrowserAnnotationSession({
+    browserPageId: browserTab.id,
+    worktreeId,
+    isActive
+  })
+
+  const syncWebBrowserGrabRoute = useCallback(
+    (remotePageId: string | null): void => {
+      if (!remotePageId) {
+        setWebBrowserGrabRoute(browserTab.id, null)
+        return
+      }
+      setWebBrowserGrabRoute(browserTab.id, {
+        worktreeSelector: runtimeWorktree,
+        remotePageId
+      })
+    },
+    [browserTab.id, runtimeWorktree]
+  )
 
   currentBrowserTabIdRef.current = browserTab.id
   currentBrowserTabUrlRef.current = browserTab.url
@@ -958,6 +1010,7 @@ function RemoteBrowserPagePane({
         state.removeRemoteBrowserPageHandle(browserTab.id, remotePageId)
       }
       remotePageIdRef.current = null
+      syncWebBrowserGrabRoute(null)
       remoteOperationGenerationRef.current += 1
       streamGenerationRef.current += 1
       activeStreamTokenRef.current = null
@@ -988,7 +1041,14 @@ function RemoteBrowserPagePane({
       }
       closeBrowserPage(browserTab.id)
     },
-    [browserTab.id, browserTab.workspaceId, clearStreamFrame, closeBrowserPage, closeBrowserTab]
+    [
+      browserTab.id,
+      browserTab.workspaceId,
+      clearStreamFrame,
+      closeBrowserPage,
+      closeBrowserTab,
+      syncWebBrowserGrabRoute
+    ]
   )
 
   const rememberRemoteViewportSize = useCallback(
@@ -1260,6 +1320,12 @@ function RemoteBrowserPagePane({
   }, [contextMenu])
 
   useEffect(() => {
+    return () => {
+      syncWebBrowserGrabRoute(null)
+    }
+  }, [syncWebBrowserGrabRoute])
+
+  useEffect(() => {
     if (!activeRuntimeEnvironmentId) {
       return
     }
@@ -1276,6 +1342,7 @@ function RemoteBrowserPagePane({
       }
       const removedHandle = state.removeRemoteBrowserPageHandle(browserTab.id, remotePageId)
       remotePageIdRef.current = null
+      syncWebBrowserGrabRoute(null)
       if (!removedHandle) {
         return
       }
@@ -1288,7 +1355,13 @@ function RemoteBrowserPagePane({
         { timeoutMs: 15_000, suppressFeatureInteraction: true }
       ).catch(() => {})
     }
-  }, [activeRuntimeEnvironmentId, browserTab.id, runtimeWorktree, worktreeId])
+  }, [
+    activeRuntimeEnvironmentId,
+    browserTab.id,
+    runtimeWorktree,
+    syncWebBrowserGrabRoute,
+    worktreeId
+  ])
 
   const applyRemoteTabInfo = useCallback(
     (tab: Pick<BrowserTabInfo, 'url' | 'title'>): void => {
@@ -1404,6 +1477,7 @@ function RemoteBrowserPagePane({
           return null
         }
         remotePageIdRef.current = created.browserPageId
+        syncWebBrowserGrabRoute(created.browserPageId)
         setRemoteBrowserPageHandle(browserTab.id, {
           environmentId: target.environmentId,
           remotePageId: created.browserPageId
@@ -1415,6 +1489,7 @@ function RemoteBrowserPagePane({
       if (existingHandle?.environmentId === target.environmentId) {
         const cachedToken = { ...token, remotePageId: existingHandle.remotePageId }
         remotePageIdRef.current = existingHandle.remotePageId
+        syncWebBrowserGrabRoute(existingHandle.remotePageId)
         try {
           const cachedTab = await fetchRemoteTabInfoRef.current(cachedToken)
           if (!cachedTab) {
@@ -1430,6 +1505,7 @@ function RemoteBrowserPagePane({
             .removeRemoteBrowserPageHandle(browserTab.id, existingHandle.remotePageId)
           if (remotePageIdRef.current === existingHandle.remotePageId) {
             remotePageIdRef.current = null
+            syncWebBrowserGrabRoute(null)
           }
           if (!isCurrentRemoteOperationToken(token)) {
             return null
@@ -1445,6 +1521,7 @@ function RemoteBrowserPagePane({
       closeMissingRemotePage,
       isCurrentRemoteOperationToken,
       setRemoteBrowserPageHandle,
+      syncWebBrowserGrabRoute,
       runtimeWorktree
     ]
   )
@@ -1930,6 +2007,99 @@ function RemoteBrowserPagePane({
     },
     [runRemoteNavigation]
   )
+
+  const applyRemoteViewportPreset = useCallback(
+    (nextId: BrowserViewportPresetId | null): void => {
+      setBrowserPageViewportPreset(browserTab.id, nextId)
+      const preset = getBrowserViewportPreset(nextId)
+      const nextSize = preset ? browserViewportPresetToOverride(preset) : readRemoteViewportSize()
+      const pageId = remotePageIdRef.current
+      const target = runtimeTarget()
+      if (!pageId || !target || !nextSize) {
+        return
+      }
+      void callRuntimeRpc(
+        target,
+        'browser.viewport',
+        {
+          worktree: runtimeWorktree,
+          page: pageId,
+          width: nextSize.width,
+          height: nextSize.height,
+          deviceScaleFactor: nextSize.deviceScaleFactor,
+          mobile: nextSize.mobile
+        },
+        { timeoutMs: 15_000, suppressFeatureInteraction: true }
+      )
+        .then(() => restartRemoteStreamForViewportRef.current(pageId))
+        .catch((error) => {
+          const message =
+            error instanceof Error ? error.message : 'Failed to update remote browser viewport.'
+          setRemoteError(message)
+        })
+    },
+    [
+      browserTab.id,
+      readRemoteViewportSize,
+      runtimeTarget,
+      runtimeWorktree,
+      setBrowserPageViewportPreset
+    ]
+  )
+
+  const inspectRemotePage = useCallback((): void => {
+    const pageId = remotePageIdRef.current
+    const target = runtimeTarget()
+    if (!pageId || !target) {
+      return
+    }
+    void callRuntimeRpc(
+      target,
+      'browser.snapshot',
+      { worktree: runtimeWorktree, page: pageId },
+      { timeoutMs: 15_000, suppressFeatureInteraction: true }
+    )
+      .then((snapshot) => {
+        void window.api.ui.writeClipboardText(
+          typeof snapshot === 'string' ? snapshot : JSON.stringify(snapshot, null, 2)
+        )
+        toast.success(
+          translate('auto.components.browser.pane.BrowserPane.6fc89db0d2', 'Page snapshot copied.')
+        )
+      })
+      .catch((error) => {
+        const message =
+          error instanceof Error ? error.message : 'Failed to inspect remote browser page.'
+        setRemoteError(message)
+      })
+  }, [runtimeTarget, runtimeWorktree])
+
+  const switchRemoteBrowserProfile = useCallback(
+    async (profileId: string | null): Promise<boolean> => {
+      const pageId = remotePageIdRef.current
+      const target = runtimeTarget()
+      if (!pageId || !target) {
+        return false
+      }
+      try {
+        await callRuntimeRpc<BrowserTabSetProfileResult>(
+          target,
+          'browser.tabSetProfile',
+          { worktree: runtimeWorktree, page: pageId, profileId: profileId ?? null },
+          { timeoutMs: 30_000, suppressFeatureInteraction: true }
+        )
+        return true
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to switch remote browser profile.'
+        setRemoteError(message)
+        return false
+      }
+    },
+    [runtimeTarget, runtimeWorktree]
+  )
+
+  const externalUrl = normalizeExternalBrowserUrl(browserTab.url)
 
   const submitAddressBar = (): void => {
     const searchEngine = useAppStore.getState().browserDefaultSearchEngine
@@ -2424,6 +2594,7 @@ function RemoteBrowserPagePane({
           variant="ghost"
           className="h-7 w-7"
           onClick={() => void runRemoteNavigation('browser.back')}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.40edfa75cb', 'Back')}
         >
           <ArrowLeft className="size-4" />
         </Button>
@@ -2432,6 +2603,7 @@ function RemoteBrowserPagePane({
           variant="ghost"
           className="h-7 w-7"
           onClick={() => void runRemoteNavigation('browser.forward')}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.250a9b3e42', 'Forward')}
         >
           <ArrowRight className="size-4" />
         </Button>
@@ -2440,6 +2612,7 @@ function RemoteBrowserPagePane({
           variant="ghost"
           className="h-7 w-7"
           onClick={() => void runRemoteNavigation('browser.reload')}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.0e080d820e', 'Reload')}
         >
           {busy || browserTab.loading ? (
             <Loader2 className="size-4 animate-spin" />
@@ -2454,31 +2627,129 @@ function RemoteBrowserPagePane({
           onNavigate={navigateToUrl}
           inputRef={addressBarInputRef}
         />
+
+        <BrowserImportHintButton profileId={sessionProfileId} />
+
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7 opacity-50"
-              aria-disabled="true"
-              aria-label={translate(
-                'auto.components.browser.pane.BrowserPane.deb5293610',
-                'Browser annotations unavailable in remote runtime'
-              )}
-              onClick={(event) => {
-                event.preventDefault()
-              }}
-            >
-              <MessageSquarePlus className="size-4" />
-            </Button>
+            <span className="inline-flex">
+              <Button
+                size="icon"
+                variant={
+                  remoteGrab.state !== 'idle' && remoteGrabIntent === 'copy' ? 'default' : 'ghost'
+                }
+                className={cn(
+                  'h-8 w-8',
+                  remoteGrab.state !== 'idle' &&
+                    remoteGrabIntent === 'copy' &&
+                    'bg-foreground/80 text-background hover:bg-foreground/90'
+                )}
+                disabled={!remotePageIdRef.current || busy}
+                onClick={() => startRemoteGrabIntent('copy')}
+                aria-label={translate(
+                  'auto.components.browser.pane.BrowserPane.fdfc7fe0ef',
+                  'Grab page element'
+                )}
+                data-contextual-tour-target="browser-grab-control"
+              >
+                <Crosshair className="size-4" />
+              </Button>
+            </span>
           </TooltipTrigger>
           <TooltipContent side="bottom" sideOffset={4}>
             {translate(
-              'auto.components.browser.pane.BrowserPane.8b7e6d1f5a',
-              'Browser annotations are only available in local browser tabs.'
+              'auto.components.browser.pane.BrowserPane.acbe79fd01',
+              'Grab page element ({{value0}})',
+              { value0: grabElementShortcut }
             )}
           </TooltipContent>
         </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex">
+              <Button
+                size="icon"
+                variant={
+                  remoteGrab.state !== 'idle' && remoteGrabIntent === 'annotate'
+                    ? 'default'
+                    : 'ghost'
+                }
+                className={cn(
+                  'relative h-7 w-7',
+                  remoteGrab.state !== 'idle' &&
+                    remoteGrabIntent === 'annotate' &&
+                    'bg-foreground/80 text-background hover:bg-foreground/90'
+                )}
+                disabled={!remotePageIdRef.current || busy}
+                onClick={() => startRemoteGrabIntent('annotate')}
+                aria-label={translate(
+                  'auto.components.browser.pane.BrowserPane.fc9be38f6f',
+                  'Annotate page element'
+                )}
+              >
+                <MessageSquarePlus className="size-4" />
+                {remoteBrowserAnnotations.length > 0 ? (
+                  <span className="absolute -top-1 -right-1 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-4 text-primary-foreground">
+                    {remoteBrowserAnnotations.length}
+                  </span>
+                ) : null}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={4}>
+            {translate(
+              'auto.components.browser.pane.BrowserPane.fc9be38f6f',
+              'Annotate page element'
+            )}
+          </TooltipContent>
+        </Tooltip>
+
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7"
+          onClick={inspectRemotePage}
+          title={translate('auto.components.browser.pane.BrowserPane.a8f37f70c3', 'Inspect Page')}
+          disabled={!remotePageIdRef.current || busy}
+        >
+          <SquareCode className="size-4" />
+        </Button>
+
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7"
+          onClick={() => {
+            if (!externalUrl) {
+              return
+            }
+            void window.api.shell.openUrl(externalUrl)
+          }}
+          title={translate(
+            'auto.components.browser.pane.BrowserPane.0f41bf80c7',
+            'Open in default browser'
+          )}
+          disabled={!externalUrl}
+        >
+          <ExternalLink className="size-4" />
+        </Button>
+
+        <BrowserToolbarMenu
+          currentProfileId={sessionProfileId}
+          workspaceId={workspaceId}
+          browserPageId={browserTab.id}
+          viewportPresetId={browserTab.viewportPresetId ?? null}
+          onDestroyWebview={() => {
+            const pageId = remotePageIdRef.current
+            if (pageId) {
+              closeMissingRemotePage(pageId)
+            }
+          }}
+          onApplyViewportPreset={applyRemoteViewportPreset}
+          onSwitchRuntimeProfile={switchRemoteBrowserProfile}
+          isActive={isActive}
+        />
       </div>
       <div
         ref={remoteViewportRef}
@@ -2526,6 +2797,141 @@ function RemoteBrowserPagePane({
             </div>
           </div>
         )}
+        {remotePendingAnnotationPayload ? (
+          <PendingBrowserAnnotationCard
+            payload={remotePendingAnnotationPayload}
+            anchor={getRemoteBrowserOverlayAnchor(
+              remotePendingAnnotationPayload,
+              remoteViewportRef.current,
+              imageRef.current,
+              frameMetadata
+            )}
+            portalContainer={remoteViewportRef.current}
+            onAdd={handleAddRemoteBrowserAnnotation}
+            onCancel={handleCancelRemotePendingBrowserAnnotation}
+          />
+        ) : null}
+        {remoteBrowserAnnotations.length > 0 && remoteBrowserAnnotationTrayOpen ? (
+          <div className="absolute right-3 bottom-3 z-30 flex max-h-[45%] w-[min(20rem,calc(100%-1.5rem))] flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
+            <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+              <MessageSquarePlus className="size-4 text-muted-foreground" />
+              <div className="min-w-0 flex-1 text-sm font-medium">
+                {remoteBrowserAnnotations.length === 1
+                  ? translate(
+                      'auto.components.browser.pane.BrowserPane.ea6af700da',
+                      '{{value0}} annotation',
+                      { value0: remoteBrowserAnnotations.length }
+                    )
+                  : translate(
+                      'auto.components.browser.pane.BrowserPane.c13693fe27',
+                      '{{value0}} annotations',
+                      { value0: remoteBrowserAnnotations.length }
+                    )}
+              </div>
+              <DropdownMenu modal={false}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="xs" variant="outline" className="gap-1.5">
+                        <Send className="size-3" />
+                        {translate('auto.components.browser.pane.BrowserPane.ac39b9366b', 'Send')}
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" sideOffset={6}>
+                    {translate(
+                      'auto.components.browser.pane.BrowserPane.95af781091',
+                      'Send feedback to a new agent'
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="min-w-[180px]">
+                  <QuickLaunchAgentMenuItems
+                    worktreeId={worktreeId}
+                    groupId={activeGroupId ?? worktreeId}
+                    onFocusTerminal={focusTerminalTabSurface}
+                    prompt={remoteBrowserAnnotationsPrompt}
+                    promptDelivery="submit-after-ready"
+                    launchSource="notes_send"
+                    onPromptDelivered={() => setRemoteBrowserAnnotationTrayOpen(false)}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                size="xs"
+                variant="outline"
+                className="gap-1.5"
+                onClick={handleCopyRemoteBrowserAnnotations}
+              >
+                {remoteBrowserAnnotationsCopied ? (
+                  <CircleCheck className="size-3" />
+                ) : (
+                  <Copy className="size-3" />
+                )}
+                {remoteBrowserAnnotationsCopied
+                  ? translate('auto.components.browser.pane.BrowserPane.6f4ab3592b', 'Copied')
+                  : translate('auto.components.browser.pane.BrowserPane.d51ef37351', 'Copy')}
+              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => clearBrowserPageAnnotations(browserTab.id)}
+                    aria-label={translate(
+                      'auto.components.browser.pane.BrowserPane.734e4343ec',
+                      'Clear browser annotations'
+                    )}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" sideOffset={6}>
+                  {translate(
+                    'auto.components.browser.pane.BrowserPane.11c5084aa2',
+                    'Clear annotations'
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="scrollbar-sleek min-h-0 flex-1 overflow-auto p-1.5">
+              {remoteBrowserAnnotations.map((annotation, index) => (
+                <div
+                  key={annotation.id}
+                  className="group flex gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-accent focus-within:bg-accent"
+                >
+                  <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                    {index + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-foreground">
+                      {annotation.payload.target.accessibility.accessibleName ||
+                        annotation.payload.target.textSnippet ||
+                        annotation.payload.target.tagName}
+                    </div>
+                    <div className="mt-0.5 line-clamp-2 text-muted-foreground">
+                      {annotation.comment}
+                    </div>
+                  </div>
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+                    onClick={() => deleteBrowserPageAnnotation(browserTab.id, annotation.id)}
+                    aria-label={translate(
+                      'auto.components.browser.pane.BrowserPane.f2d0c22d67',
+                      'Delete annotation {{value0}}',
+                      { value0: index + 1 }
+                    )}
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
         {remoteError ? (
           <div className="absolute bottom-4 left-1/2 max-w-md -translate-x-1/2 rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
             {remoteError}
@@ -2639,8 +3045,15 @@ function BrowserPagePane({
   } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
   const [findOpen, setFindOpen] = useState(false)
+  const guiAgentWorkspaceEnabled = useAppStore(
+    (state) => state.settings?.guiAgentWorkspaceEnabled === true
+  )
+  const guiAgentWorkspaceEnabledRef = useRef(guiAgentWorkspaceEnabled)
+  guiAgentWorkspaceEnabledRef.current = guiAgentWorkspaceEnabled
   const grab = useGrabMode(browserTab.id)
-  const [grabIntent, setGrabIntent] = useState<GrabIntent>('copy')
+  const [grabIntent, setGrabIntent] = useState<GrabIntent>(() =>
+    useAppStore.getState().settings?.guiAgentWorkspaceEnabled === true ? 'annotate' : 'copy'
+  )
   const grabIntentRef = useRef(grabIntent)
   grabIntentRef.current = grabIntent
   const [pendingAnnotationPayload, setPendingAnnotationPayload] =
@@ -2667,8 +3080,10 @@ function BrowserPagePane({
   browserAnnotationsRef.current = browserAnnotations
   const [browserAnnotationTrayOpen, setBrowserAnnotationTrayOpen] = useState(true)
   const [browserAnnotationsCopied, setBrowserAnnotationsCopied] = useState(false)
+  // Why: Send/Copy in the annotation tray targets the agent composer — only user
+  // feedback belongs in that prompt, not the verbose design-brief markdown.
   const browserAnnotationsPrompt = useMemo(
-    () => formatBrowserAnnotationsAsMarkdown(browserAnnotations),
+    () => formatBrowserAnnotationsForAgentPrompt(browserAnnotations),
     [browserAnnotations]
   )
   const openAgentSendPopoverTargetMode = useAppStore((s) => s.openAgentSendPopoverTargetMode)
@@ -2809,21 +3224,25 @@ function BrowserPagePane({
     if (grab.state !== 'confirming' || !grab.payload) {
       return
     }
-    if (grabIntent === 'annotate') {
+    if (grabIntent === 'annotate' || guiAgentWorkspaceEnabled) {
       setPendingAnnotationPayload(grab.payload)
+      if (guiAgentWorkspaceEnabled && grabIntent !== 'annotate') {
+        setGrabIntent('annotate')
+      }
       return
     }
     if (!grab.contextMenu) {
-      const text = formatGrabPayloadAsText(grab.payload)
-      void window.api.ui.writeClipboardText(text)
-      recordFeatureInteraction('browser-grab')
-      showGrabToast('Copied', 'success', grab.payload)
+      if (copyBrowserGrabPayloadToClipboard(grab.payload)) {
+        recordFeatureInteraction('browser-grab')
+        showGrabToast('Copied', 'success', grab.payload)
+      }
     }
   }, [
     grab.state,
     grab.payload,
     grab.contextMenu,
     grabIntent,
+    guiAgentWorkspaceEnabled,
     recordFeatureInteraction,
     showGrabToast
   ])
@@ -3912,10 +4331,10 @@ function BrowserPagePane({
   useEffect(() => {
     return window.api.browser.onGrabModeToggle((tabId) => {
       if (tabId === browserTab.id) {
-        startGrabIntent('copy')
+        startGrabIntent(guiAgentWorkspaceEnabled ? 'annotate' : 'copy')
       }
     })
-  }, [browserTab.id, startGrabIntent])
+  }, [browserTab.id, guiAgentWorkspaceEnabled, startGrabIntent])
 
   // Why: single-key shortcuts (C / S) let the user copy the hovered element
   // without clicking. During 'armed'/'awaiting' state, the shortcut calls the
@@ -3927,15 +4346,18 @@ function BrowserPagePane({
   grabPayloadRef.current = grab.payload
   const handleGrabActionShortcut = useCallback(
     (key: 'c' | 's'): void => {
-      if (grabIntent === 'annotate') {
+      if (grabIntent === 'annotate' || (guiAgentWorkspaceEnabledRef.current && key === 'c')) {
         return
       }
       const copyFromPayload = (payload: BrowserGrabPayload): void => {
         if (key === 'c') {
-          const text = formatGrabPayloadAsText(payload)
-          void window.api.ui.writeClipboardText(text)
-          recordFeatureInteraction('browser-grab')
-          showGrabToast('Copied', 'success', payload)
+          if (guiAgentWorkspaceEnabledRef.current) {
+            return
+          }
+          if (copyBrowserGrabPayloadToClipboard(payload)) {
+            recordFeatureInteraction('browser-grab')
+            showGrabToast('Copied', 'success', payload)
+          }
         } else {
           const dataUrl = payload.screenshot?.dataUrl
           if (dataUrl?.startsWith('data:image/png;base64,')) {
@@ -4045,10 +4467,17 @@ function BrowserPagePane({
     if (!payload) {
       return
     }
-    const text = formatGrabPayloadAsText(payload)
-    void window.api.ui.writeClipboardText(text)
-    recordFeatureInteraction('browser-grab')
-    showGrabToast('Copied', 'success', payload)
+    if (guiAgentWorkspaceEnabledRef.current) {
+      setPendingAnnotationPayload(payload)
+      setGrabIntent('annotate')
+      setBrowserAnnotationTrayOpen(true)
+      grab.rearm()
+      return
+    }
+    if (copyBrowserGrabPayloadToClipboard(payload)) {
+      recordFeatureInteraction('browser-grab')
+      showGrabToast('Copied', 'success', payload)
+    }
     grab.rearm()
   }, [grab, recordFeatureInteraction, showGrabToast])
 

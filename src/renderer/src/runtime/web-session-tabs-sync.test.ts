@@ -1558,6 +1558,77 @@ describe('applyWebSessionTabsSnapshot', () => {
     expect(patch.activeTabTypeByWorktree?.[WT]).toBe('browser')
   })
 
+  it('retains locally staged browser tabs until the host snapshot mirrors them', () => {
+    const workspace: BrowserWorkspace = {
+      id: 'staged-browser-workspace',
+      worktreeId: WT,
+      activePageId: 'staged-browser-page',
+      pageIds: ['staged-browser-page'],
+      url: 'about:blank',
+      title: 'New Browser Tab',
+      loading: false,
+      faviconUrl: null,
+      canGoBack: false,
+      canGoForward: false,
+      loadError: null,
+      createdAt: NOW
+    }
+    const page: BrowserPage = {
+      id: 'staged-browser-page',
+      workspaceId: workspace.id,
+      worktreeId: WT,
+      url: 'about:blank',
+      title: 'New Browser Tab',
+      loading: false,
+      faviconUrl: null,
+      canGoBack: false,
+      canGoForward: false,
+      loadError: null,
+      createdAt: NOW
+    }
+
+    const initialState = makeState({
+      browserTabsByWorktree: { [WT]: [workspace] },
+      browserPagesByWorkspace: { [workspace.id]: [page] },
+      remoteBrowserPageHandlesByPageId: {
+        [page.id]: {
+          environmentId: ENV,
+          remotePageId: 'pending-host-browser-page',
+          pendingHostMirror: true
+        }
+      }
+    })
+    const patch = applyFreshWebSessionTabsSnapshot(
+      initialState,
+      makeSnapshot([
+        {
+          type: 'terminal',
+          id: HOST_SURFACE_ID,
+          title: 'host shell',
+          parentTabId: 'host-tab-1',
+          leafId: LEAF_ID,
+          isActive: true,
+          status: 'ready',
+          terminal: 'terminal-1'
+        }
+      ]),
+      ENV,
+      NOW
+    ) as Partial<WebSessionTabsSyncState>
+    const nextBrowserTabs =
+      patch.browserTabsByWorktree?.[WT] ?? initialState.browserTabsByWorktree[WT]
+
+    expect(nextBrowserTabs).toEqual([workspace])
+    expect(
+      patch.remoteBrowserPageHandlesByPageId?.[page.id] ??
+        initialState.remoteBrowserPageHandlesByPageId[page.id]
+    ).toEqual({
+      environmentId: ENV,
+      remotePageId: 'pending-host-browser-page',
+      pendingHostMirror: true
+    })
+  })
+
   it('keeps mirrored browser tabs in a rendered web layout group', () => {
     const visibleGroupId = 'visible-web-group'
     const hostOnlyGroupId = 'host-group-1'

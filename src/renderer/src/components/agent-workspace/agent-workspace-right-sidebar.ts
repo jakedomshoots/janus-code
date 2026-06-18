@@ -1,13 +1,16 @@
-// Why: the GUI agent panel and project explorer both occupy the right edge; only
-// one should be visible so users know where plan/diff/approval content lives.
+// Why: the GUI agent workspace and project explorer both compete for the right
+// edge. Keep explorer hidden until the user explicitly opens project files.
 export function shouldSuppressProjectRightSidebar(input: {
   guiAgentWorkspaceEnabled: boolean
   activeView: string
   agentWorkspaceRightPanelExpanded: boolean
+  rightSidebarOpen: boolean
 }): boolean {
-  return (
-    input.guiAgentWorkspaceEnabled === true &&
-    input.activeView === 'terminal' &&
-    input.agentWorkspaceRightPanelExpanded
-  )
+  if (input.guiAgentWorkspaceEnabled !== true || input.activeView !== 'terminal') {
+    return false
+  }
+  if (input.agentWorkspaceRightPanelExpanded) {
+    return true
+  }
+  return !input.rightSidebarOpen
 }

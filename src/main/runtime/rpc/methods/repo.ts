@@ -6,6 +6,7 @@ import { normalizeRepoBadgeColor } from '../../../../shared/repo-badge-color'
 import { normalizeRepoSourceControlAiOverrides } from '../../../../shared/source-control-ai'
 import { PROJECT_RUNTIME_METHODS } from './project-runtime-rpc-methods'
 import { FOLDER_WORKSPACE_METHODS } from './folder-workspace'
+import { REPO_PICK_FOLDER_METHODS } from './repo-pick-folder'
 
 const RepoSelector = z.object({
   repo: requiredString('Missing repo selector')
@@ -227,6 +228,7 @@ export const REPO_METHODS: RpcMethod[] = [
       repo: await runtime.addRepo(params.path, params.kind)
     })
   }),
+  ...REPO_PICK_FOLDER_METHODS,
   defineMethod({
     name: 'repo.create',
     params: RepoCreate,

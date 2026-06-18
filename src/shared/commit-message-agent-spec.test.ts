@@ -12,7 +12,10 @@ import {
   listCommitMessageAgentIds,
   parseAntigravityModels,
   parseCodexModels,
+  parseCommandCodeModels,
   parseCursorModels,
+  parseGrokModels,
+  parseKimiProviderModels,
   parseLineModels,
   parsePiModels,
   resolveCommitMessageAgentChoice
@@ -26,9 +29,13 @@ describe('COMMIT_MESSAGE_AGENT_SPECS', () => {
       'antigravity',
       'claude',
       'codex',
+      'command-code',
       'copilot',
       'cursor',
+      'grok',
+      'hermes',
       'kimi',
+      'omp',
       'opencode',
       'pi'
     ])
@@ -37,14 +44,44 @@ describe('COMMIT_MESSAGE_AGENT_SPECS', () => {
   it('uses the strongest available defaults for core agents', () => {
     expect(COMMIT_MESSAGE_AGENT_SPECS.claude?.defaultModelId).toBe('sonnet')
     expect(COMMIT_MESSAGE_AGENT_SPECS.codex?.defaultModelId).toBe('gpt-5.5')
-    expect(COMMIT_MESSAGE_AGENT_SPECS.pi?.defaultModelId).toBe('github-copilot/gpt-5.4-mini')
+    expect(COMMIT_MESSAGE_AGENT_SPECS.pi?.defaultModelId).toBe('kimi-coding/kimi-for-coding')
+    expect(COMMIT_MESSAGE_AGENT_SPECS.omp?.defaultModelId).toBe('opencode/deepseek-v4-flash-free')
   })
 
-  it('uses the provider-qualified Kimi model id accepted by the CLI', () => {
-    expect(COMMIT_MESSAGE_AGENT_SPECS.kimi?.models.map((m) => m.id)).toEqual([
-      'default',
-      'kimi-code/kimi-for-coding'
+  it('uses the provider-qualified Kimi model id accepted by the CLI with the current label', () => {
+    expect(COMMIT_MESSAGE_AGENT_SPECS.kimi?.models).toMatchObject([
+      { id: 'default', label: 'Config default' },
+      { id: 'kimi-code/kimi-for-coding', label: 'Kimi K2.7 Code' }
     ])
+    expect(COMMIT_MESSAGE_AGENT_SPECS.kimi?.modelSource).toBe('dynamic')
+  })
+
+  it('registers dynamic or model-aware specs for Grok, Command Code, and Hermes', () => {
+    expect(COMMIT_MESSAGE_AGENT_SPECS.grok).toMatchObject({
+      modelSource: 'dynamic',
+      defaultModelId: 'grok-composer-2.5-fast'
+    })
+    expect(COMMIT_MESSAGE_AGENT_SPECS['command-code']).toMatchObject({
+      modelSource: 'dynamic',
+      defaultModelId: 'claude-sonnet-4-6'
+    })
+    expect(COMMIT_MESSAGE_AGENT_SPECS.hermes).toMatchObject({
+      modelSource: 'static',
+      defaultModelId: 'moonshotai/kimi-k2.7-code'
+    })
+  })
+
+  it('exposes curated local CLI fallbacks for sparse model discovery states', () => {
+    expect(COMMIT_MESSAGE_AGENT_SPECS.pi?.models.map((m) => m.id)).toEqual([
+      'kimi-coding/kimi-for-coding',
+      'openai-codex/gpt-5.5',
+      'openai-codex/gpt-5.4',
+      'openai-codex/gpt-5.4-mini',
+      'minimax/MiniMax-M2.7'
+    ])
+    expect(COMMIT_MESSAGE_AGENT_SPECS.opencode?.models.map((m) => m.id)).toContain(
+      'kimi-for-coding/k2p7'
+    )
   })
 
   it('lists Copilot hosted CLI models even when account policy filters the picker', () => {
@@ -267,6 +304,75 @@ describe('model discovery parsers', () => {
     ])
   })
 
+  it('parses Grok model output', () => {
+    const output = [
+      'Default model: grok-composer-2.5-fast',
+      '',
+      'Available models:',
+      '  - grok-build',
+      '  * grok-composer-2.5-fast (default)'
+    ].join('\n')
+
+    expect(parseGrokModels(output)).toEqual([
+      { id: 'grok-build', label: 'Grok Build' },
+      {
+        id: 'grok-composer-2.5-fast',
+        label: 'Grok Composer 2.5 Fast',
+        thinkingLevels: [
+          { id: 'low', label: 'Low' },
+          { id: 'medium', label: 'Medium' },
+          { id: 'high', label: 'High' },
+          { id: 'xhigh', label: 'Extra High' },
+          { id: 'max', label: 'Max' }
+        ],
+        defaultThinkingLevel: 'low'
+      }
+    ])
+  })
+
+  it('parses Command Code grouped model output', () => {
+    const output = [
+      'Available models  ·  3 models',
+      '',
+      'Anthropic',
+      '',
+      'claude-sonnet-4-6             best combo of speed & intelligence (recommended)',
+      '',
+      'Open Source',
+      '',
+      'moonshotai/Kimi-K2.7-Code     long-horizon coding',
+      'MiniMaxAI/MiniMax-M2.7        end-to-end software engineering agent'
+    ].join('\n')
+
+    expect(parseCommandCodeModels(output).map((model) => [model.id, model.label])).toEqual([
+      ['claude-sonnet-4-6', 'Claude Sonnet 4 6'],
+      ['moonshotai/Kimi-K2.7-Code', 'Moonshotai Kimi K2.7 Code'],
+      ['MiniMaxAI/MiniMax-M2.7', 'MiniMaxAI MiniMax M2.7']
+    ])
+  })
+
+  it('parses Kimi provider list default model output', () => {
+    expect(
+      parseKimiProviderModels(
+        [
+          'managed:kimi-code  type=kimi  models=1  source=oauth',
+          '',
+          'Default model: kimi-code/kimi-for-coding'
+        ].join('\n')
+      )
+    ).toEqual([
+      {
+        id: 'kimi-code/kimi-for-coding',
+        label: 'Kimi K2.7 Code',
+        thinkingLevels: [
+          { id: 'on', label: 'On' },
+          { id: 'off', label: 'Off' }
+        ],
+        defaultThinkingLevel: 'on'
+      }
+    ])
+  })
+
   it('parses Antigravity model output', () => {
     const output = [
       'Gemini 3.5 Flash (Medium)',
@@ -382,6 +488,38 @@ describe('buildArgs (OpenCode)', () => {
     })
 
     expect(args).not.toContain('--variant')
+  })
+})
+
+describe('buildArgs (OMP)', () => {
+  const spec = getCommitMessageAgentSpec('omp')!
+
+  it('runs `omp --print` without passing the prompt via argv', () => {
+    const prompt = `PROMPT ${'x'.repeat(1024)}`
+    const args = spec.buildArgs({
+      prompt,
+      model: 'opencode/deepseek-v4-flash-free'
+    })
+
+    expect(args).toEqual([
+      '--print',
+      '--no-session',
+      '--no-tools',
+      '--no-extensions',
+      '--no-skills',
+      '--mode',
+      'text',
+      '--model',
+      'opencode/deepseek-v4-flash-free'
+    ])
+    expect(args).not.toContain(prompt)
+    expect(spec.promptDelivery).toBe('stdin')
+  })
+
+  it('discovers models with `omp models`', () => {
+    expect(spec.modelSource).toBe('dynamic')
+    expect(spec.modelDiscovery?.binary).toBe('omp')
+    expect(spec.modelDiscovery?.args).toEqual(['models'])
   })
 })
 

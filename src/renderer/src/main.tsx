@@ -4,29 +4,20 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import App from './App'
+import { DesktopShellRequired } from './components/DesktopShellRequired'
 import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
 import {
   installRendererCrashDiagnostics,
   recordRendererCrashBreadcrumb
 } from './lib/crash-diagnostics'
 import { applyDocumentTheme } from './lib/document-theme'
-import { shouldEnableReactGrab } from './lib/react-grab-dev-gate'
+import { installClipboardGrabDumpGuards } from './lib/clipboard-grab-dump-guard'
 import { I18nProvider } from './i18n/I18nProvider'
 import { translate } from './i18n/i18n'
 
 recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.env.DEV })
+installClipboardGrabDumpGuards()
 installRendererCrashDiagnostics()
-
-if (
-  import.meta.env.DEV &&
-  shouldEnableReactGrab({
-    dev: import.meta.env.DEV,
-    enableFlag: import.meta.env.VITE_ENABLE_REACT_GRAB
-  })
-) {
-  void import('react-grab').then(({ init }) => init())
-  void import('react-grab/styles.css')
-}
 
 applyDocumentTheme('system', { disableTransitions: false })
 
@@ -36,8 +27,15 @@ if (!rootElement) {
   throw new Error('Renderer root element not found.')
 }
 
+function isElectronDesktopShell(): boolean {
+  return typeof window.api?.ui?.writeClipboardText === 'function'
+}
+
 function RendererRoot(): React.JSX.Element {
   useTranslation()
+  if (!isElectronDesktopShell()) {
+    return <DesktopShellRequired />
+  }
   return (
     <RecoverableRenderErrorBoundary
       boundaryId="app.root"

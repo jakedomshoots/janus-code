@@ -7,17 +7,30 @@ describe('shouldSuppressProjectRightSidebar', () => {
       shouldSuppressProjectRightSidebar({
         guiAgentWorkspaceEnabled: true,
         activeView: 'terminal',
-        agentWorkspaceRightPanelExpanded: true
+        agentWorkspaceRightPanelExpanded: true,
+        rightSidebarOpen: false
       })
     ).toBe(true)
   })
 
-  it('keeps project controls when the agent panel is collapsed', () => {
+  it('suppresses project controls until the user explicitly opens explorer', () => {
     expect(
       shouldSuppressProjectRightSidebar({
         guiAgentWorkspaceEnabled: true,
         activeView: 'terminal',
-        agentWorkspaceRightPanelExpanded: false
+        agentWorkspaceRightPanelExpanded: false,
+        rightSidebarOpen: false
+      })
+    ).toBe(true)
+  })
+
+  it('shows project controls after the user opens explorer in GUI agent mode', () => {
+    expect(
+      shouldSuppressProjectRightSidebar({
+        guiAgentWorkspaceEnabled: true,
+        activeView: 'terminal',
+        agentWorkspaceRightPanelExpanded: false,
+        rightSidebarOpen: true
       })
     ).toBe(false)
   })
@@ -27,7 +40,8 @@ describe('shouldSuppressProjectRightSidebar', () => {
       shouldSuppressProjectRightSidebar({
         guiAgentWorkspaceEnabled: false,
         activeView: 'terminal',
-        agentWorkspaceRightPanelExpanded: true
+        agentWorkspaceRightPanelExpanded: true,
+        rightSidebarOpen: false
       })
     ).toBe(false)
   })
@@ -37,7 +51,8 @@ describe('shouldSuppressProjectRightSidebar', () => {
       shouldSuppressProjectRightSidebar({
         guiAgentWorkspaceEnabled: true,
         activeView: 'editor',
-        agentWorkspaceRightPanelExpanded: true
+        agentWorkspaceRightPanelExpanded: true,
+        rightSidebarOpen: false
       })
     ).toBe(false)
   })

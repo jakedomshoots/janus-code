@@ -2,6 +2,7 @@
    replacement for Electron preload, so the compatibility surface is necessarily
    centralized at this boundary. */
 import type { PreloadApi, PreflightStatus, RefreshAgentsResult } from '../../../preload/api-types'
+import { stripInjectedBrowserGrabDump } from '../../../shared/browser-grab-dump-strip'
 import type { RuntimeRpcResponse } from '../../../shared/runtime-rpc-envelope'
 import type {
   ComputerUsePermissionSetupResult,
@@ -85,6 +86,18 @@ import {
 import { normalizeContextualTourIds, type ContextualTourId } from '../../../shared/contextual-tours'
 import { translate } from '@/i18n/i18n'
 import { getDefaultCreateProjectParent } from '@/components/sidebar/create-project-defaults'
+import { resolveWebBrowserGrabRoute, type WebBrowserGrabRoute } from './web-browser-grab-routing'
+import type {
+  BrowserAwaitGrabSelectionArgs,
+  BrowserCancelGrabArgs,
+  BrowserCaptureSelectionScreenshotArgs,
+  BrowserCaptureSelectionScreenshotResult,
+  BrowserExtractHoverArgs,
+  BrowserExtractHoverResult,
+  BrowserGrabResult,
+  BrowserSetGrabModeArgs,
+  BrowserSetGrabModeResult
+} from '../../../shared/browser-grab-types'
 
 const SETTINGS_STORAGE_KEY = 'orca.web.settings.v1'
 const UI_STORAGE_KEY = 'orca.web.ui.v1'
@@ -99,6 +112,7 @@ const MAX_CLIPBOARD_IMAGE_BASE64_CHARS = 24 * 1024 * 1024
 export const CLIPBOARD_IMAGE_UPLOAD_CHUNK_BASE64_CHARS = 512 * 1024
 export const CLIPBOARD_IMAGE_SINGLE_FRAME_FALLBACK_BASE64_CHARS = 256 * 1024
 const CLIPBOARD_IMAGE_SAVE_TIMEOUT_MS = 30_000
+const BROWSER_GRAB_SELECTION_TIMEOUT_MS = 130_000
 
 let activeEnvironment: StoredWebRuntimeEnvironment | null = readStoredWebRuntimeEnvironment()
 let activeClient: WebRuntimeClient | null = null
@@ -432,6 +446,7 @@ function createWebPreloadApi(): Partial<PreloadApi> {
       getFloatingTerminalCwd: () => Promise.resolve(''),
       getFloatingMarkdownDirectory: () => Promise.resolve(''),
       pickFloatingMarkdownDocument: () => Promise.resolve(null),
+      pickMarkdownDocument: () => Promise.resolve(null),
       pickFloatingWorkspaceDirectory: () => Promise.resolve(null)
     },
     platform: {
@@ -1012,7 +1027,8 @@ function createReposApi(): NonNullable<Partial<PreloadApi>['repos']> {
     reorder: async ({ orderedIds }) => callRuntimeResult('repo.reorder', { orderedIds }),
     update: async ({ repoId, updates }) =>
       (await callRuntimeResult<{ repo: Repo }>('repo.update', { repo: repoId, updates })).repo,
-    pickFolder: () => Promise.resolve(null),
+    pickFolder: async () =>
+      (await callRuntimeResult<{ path: string | null }>('repo.pickFolder')).path,
     pickDirectory: () => Promise.resolve(null),
     clone: async ({ url, destination }) => {
       invalidateRuntimeWorktreeCaches()
@@ -1466,13 +1482,24 @@ function createGitApi(): NonNullable<Partial<PreloadApi>['git']> {
         'Commit message generation is unavailable in the web client.'
       )
     }),
-    discoverCommitMessageModels: async () => ({
-      success: false,
-      error: translate(
-        'auto.web.web.preload.api.e57c82d276',
-        'Commit message model discovery is unavailable in the web client.'
-      )
-    }),
+    discoverCommitMessageModels: async ({ agentId, worktreePath }) => {
+      if (!worktreePath) {
+        return {
+          success: false,
+          error: translate(
+            'auto.web.web.preload.api.modelDiscoveryRequiresWorktree',
+            'Model discovery needs an active worktree.'
+          )
+        }
+      }
+      const worktree = await resolveRuntimeWorktreeByPath(worktreePath)
+      const settings = getStoredSettings()
+      return callRuntimeResult('git.discoverCommitMessageModels', {
+        worktree: toRuntimeWorktreeSelector(worktree.id),
+        agentId,
+        ...(settings.agentCmdOverrides ? { agentCmdOverrides: settings.agentCmdOverrides } : {})
+      })
+    },
     cancelGenerateCommitMessage: () => Promise.resolve(),
     generatePullRequestFields: async () => ({
       success: false,
@@ -1507,6 +1534,14 @@ function createGitApi(): NonNullable<Partial<PreloadApi>['git']> {
   }
 }
 
+function requireWebBrowserGrabRoute(browserPageId: string): WebBrowserGrabRoute {
+  const route = resolveWebBrowserGrabRoute(browserPageId)
+  if (!route) {
+    throw new Error('Remote browser tab is not ready for grab mode.')
+  }
+  return route
+}
+
 function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
   return {
     registerGuest: () => Promise.resolve(),
@@ -1529,39 +1564,85 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
     acceptDownload: () =>
       Promise.resolve({ ok: false, reason: 'Downloads are handled by the server browser.' }),
     cancelDownload: () => Promise.resolve(false),
-    setGrabMode: () =>
-      Promise.resolve({
-        ok: false,
-        error: translate(
-          'auto.web.web.preload.api.31bea294d5',
-          'Grab mode is unavailable in the web client.'
+    setGrabMode: async (args: BrowserSetGrabModeArgs): Promise<BrowserSetGrabModeResult> => {
+      try {
+        const route = requireWebBrowserGrabRoute(args.browserPageId)
+        return await callRuntimeResult<BrowserSetGrabModeResult>('browser.setGrabMode', {
+          worktree: route.worktreeSelector,
+          page: route.remotePageId,
+          enabled: args.enabled
+        })
+      } catch {
+        return { ok: false, reason: 'not-ready' }
+      }
+    },
+    awaitGrabSelection: async (args: BrowserAwaitGrabSelectionArgs): Promise<BrowserGrabResult> => {
+      try {
+        const route = requireWebBrowserGrabRoute(args.browserPageId)
+        return await callRuntimeResult<BrowserGrabResult>(
+          'browser.awaitGrabSelection',
+          {
+            worktree: route.worktreeSelector,
+            page: route.remotePageId,
+            opId: args.opId
+          },
+          BROWSER_GRAB_SELECTION_TIMEOUT_MS
         )
-      }),
-    awaitGrabSelection: () =>
-      Promise.resolve({
-        ok: false,
-        error: translate(
-          'auto.web.web.preload.api.31bea294d5',
-          'Grab mode is unavailable in the web client.'
+      } catch (error) {
+        return {
+          opId: args.opId,
+          kind: 'error',
+          reason: error instanceof Error ? error.message : 'Grab selection failed'
+        }
+      }
+    },
+    cancelGrab: async (args: BrowserCancelGrabArgs): Promise<boolean> => {
+      try {
+        const route = requireWebBrowserGrabRoute(args.browserPageId)
+        return await callRuntimeResult<boolean>('browser.cancelGrab', {
+          worktree: route.worktreeSelector,
+          page: route.remotePageId
+        })
+      } catch {
+        return false
+      }
+    },
+    captureSelectionScreenshot: async (
+      args: BrowserCaptureSelectionScreenshotArgs
+    ): Promise<BrowserCaptureSelectionScreenshotResult> => {
+      try {
+        const route = requireWebBrowserGrabRoute(args.browserPageId)
+        return await callRuntimeResult<BrowserCaptureSelectionScreenshotResult>(
+          'browser.captureSelectionScreenshot',
+          {
+            worktree: route.worktreeSelector,
+            page: route.remotePageId,
+            rect: args.rect
+          }
         )
-      }),
-    cancelGrab: () => Promise.resolve(false),
-    captureSelectionScreenshot: () =>
-      Promise.resolve({
-        ok: false,
-        error: translate(
-          'auto.web.web.preload.api.8dfcb7a351',
-          'Selection screenshots are unavailable in the web client.'
-        )
-      }),
-    extractHoverPayload: () =>
-      Promise.resolve({
-        ok: false,
-        error: translate(
-          'auto.web.web.preload.api.275a776357',
-          'Hover extraction is unavailable in the web client.'
-        )
-      }),
+      } catch (error) {
+        return {
+          ok: false,
+          reason: error instanceof Error ? error.message : 'Screenshot capture failed'
+        }
+      }
+    },
+    extractHoverPayload: async (
+      args: BrowserExtractHoverArgs
+    ): Promise<BrowserExtractHoverResult> => {
+      try {
+        const route = requireWebBrowserGrabRoute(args.browserPageId)
+        return await callRuntimeResult<BrowserExtractHoverResult>('browser.extractHoverPayload', {
+          worktree: route.worktreeSelector,
+          page: route.remotePageId
+        })
+      } catch (error) {
+        return {
+          ok: false,
+          reason: error instanceof Error ? error.message : 'Hover extraction failed'
+        }
+      }
+    },
     onGrabModeToggle: () => noopUnsubscribe,
     onGrabActionShortcut: () => noopUnsubscribe,
     sessionListProfiles: () => Promise.resolve([]),
@@ -1946,7 +2027,8 @@ function createWebUiApi(): NonNullable<Partial<PreloadApi>['ui']> {
       }
       return saveClipboardImageAsTempFileInRuntime(contentBase64, args)
     },
-    writeClipboardText: (text) => navigator.clipboard?.writeText?.(text) ?? Promise.resolve(),
+    writeClipboardText: (text) =>
+      navigator.clipboard?.writeText?.(stripInjectedBrowserGrabDump(text)) ?? Promise.resolve(),
     writeSelectionClipboardText: () =>
       Promise.reject(new Error('Selection clipboard is unavailable in the web client')),
     writeClipboardImage: () => Promise.resolve(),

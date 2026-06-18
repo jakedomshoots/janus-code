@@ -151,6 +151,7 @@ describe('createWebRuntimeSessionBrowserTab', () => {
     expect(mocks.createBrowserTab).toHaveBeenCalledWith(WORKTREE_ID, 'https://example.com/', {
       title: 'https://example.com/',
       focusAddressBar: true,
+      activate: true,
       browserRuntimeEnvironmentId: ENVIRONMENT_ID
     })
     expect(mocks.setRemoteBrowserPageHandle).toHaveBeenCalledWith('local-page-1', {

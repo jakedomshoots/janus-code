@@ -53,7 +53,7 @@ export function getDefaultAgentWorkspaceRightPanelState({
   if (thread.phase === 'running' && hasStructuredPlan) {
     return { selectedTab: 'plan', collapsed: false }
   }
-  return { selectedTab: 'details', collapsed: true }
+  return { selectedTab: 'details', collapsed: false }
 }
 
 export function coerceAgentWorkspaceRightPanelTab(

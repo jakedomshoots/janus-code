@@ -6,20 +6,74 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
 
-const storeMocks = vi.hoisted(() => ({
-  setActiveWorktree: vi.fn(),
-  openDiff: vi.fn(),
-  openModal: vi.fn(),
-  setGitStatus: vi.fn(),
-  updateWorktreeGitIdentity: vi.fn(),
-  setUpstreamStatus: vi.fn(),
-  fetchUpstreamStatus: vi.fn().mockResolvedValue(undefined),
-  createBrowserTab: vi.fn(),
-  focusBrowserTabInWorktree: vi.fn(),
-  setAgentWorkspaceRightPanelExpanded: vi.fn(),
-  setRightSidebarOpen: vi.fn(),
-  showRightSidebarFiles: vi.fn()
-}))
+const storeMocks = vi.hoisted(() => {
+  const setActiveWorktree = vi.fn()
+  const openDiff = vi.fn()
+  const openModal = vi.fn()
+  const setGitStatus = vi.fn()
+  const updateWorktreeGitIdentity = vi.fn()
+  const setUpstreamStatus = vi.fn()
+  const fetchUpstreamStatus = vi.fn().mockResolvedValue(undefined)
+  const createBrowserTab = vi.fn()
+  const focusBrowserTabInWorktree = vi.fn()
+  const closeBrowserTab = vi.fn()
+  const setAgentWorkspaceRightPanelExpanded = vi.fn()
+  const setRightSidebarOpen = vi.fn()
+  const showRightSidebarFiles = vi.fn()
+  const state = {
+    setActiveWorktree,
+    openDiff,
+    openModal,
+    settings: { activeRuntimeEnvironmentId: 'focused-runtime', guiAgentWorkspaceEnabled: false },
+    repos: [
+      {
+        id: 'repo-janus',
+        path: '/Users/jakedom/janus-code',
+        displayName: 'Janus Code'
+      }
+    ],
+    setGitStatus,
+    updateWorktreeGitIdentity,
+    setUpstreamStatus,
+    fetchUpstreamStatus,
+    browserTabsByWorktree: {},
+    browserAnnotationsByPageId: {},
+    activeBrowserTabIdByWorktree: {},
+    activeGroupIdByWorktree: {
+      'worktree-1': 'group-1',
+      'worktree-2': 'group-2'
+    },
+    groupsByWorktree: {
+      'worktree-1': [{ id: 'group-1', activeTabId: null, tabOrder: [] }],
+      'worktree-2': [{ id: 'group-2', activeTabId: null, tabOrder: [] }]
+    },
+    unifiedTabsByWorktree: {},
+    worktreesByRepo: {},
+    remoteBrowserPageHandlesByPageId: {},
+    createBrowserTab,
+    focusBrowserTabInWorktree,
+    closeBrowserTab,
+    setAgentWorkspaceRightPanelExpanded,
+    setRightSidebarOpen,
+    showRightSidebarFiles
+  }
+
+  return {
+    state,
+    setActiveWorktree,
+    openDiff,
+    openModal,
+    setGitStatus,
+    updateWorktreeGitIdentity,
+    setUpstreamStatus,
+    fetchUpstreamStatus,
+    createBrowserTab,
+    focusBrowserTabInWorktree,
+    setAgentWorkspaceRightPanelExpanded,
+    setRightSidebarOpen,
+    showRightSidebarFiles
+  }
+})
 const deleteFlowMocks = vi.hoisted(() => ({
   runWorktreeDelete: vi.fn()
 }))
@@ -31,67 +85,10 @@ const runtimeGitMocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@/store', () => ({
-  useAppStore: (
-    selector: (state: {
-      setActiveWorktree: (worktreeId: string | null) => void
-      openDiff: (
-        worktreeId: string,
-        absolutePath: string,
-        displayPath: string,
-        language: string,
-        staged: boolean
-      ) => void
-      openModal: (modal: string, data?: Record<string, unknown>) => void
-      settings: { activeRuntimeEnvironmentId: string | null }
-      repos: {
-        id: string
-        path: string
-        displayName: string
-        connectionId?: string | null
-        executionHostId?: string | null
-      }[]
-      setGitStatus: (worktreeId: string, status: unknown) => void
-      updateWorktreeGitIdentity: (
-        worktreeId: string,
-        identity: { head?: string; branch?: string | null }
-      ) => void
-      setUpstreamStatus: (worktreeId: string, status: unknown) => void
-      fetchUpstreamStatus: () => Promise<void>
-      browserTabsByWorktree: Record<string, unknown[]>
-      browserAnnotationsByPageId: Record<string, unknown[]>
-      activeBrowserTabIdByWorktree: Record<string, string | null>
-      createBrowserTab: typeof storeMocks.createBrowserTab
-      focusBrowserTabInWorktree: typeof storeMocks.focusBrowserTabInWorktree
-      setAgentWorkspaceRightPanelExpanded: (expanded: boolean) => void
-      setRightSidebarOpen: (open: boolean) => void
-      showRightSidebarFiles: () => void
-    }) => unknown
-  ) =>
-    selector({
-      setActiveWorktree: storeMocks.setActiveWorktree,
-      openDiff: storeMocks.openDiff,
-      openModal: storeMocks.openModal,
-      settings: { activeRuntimeEnvironmentId: 'focused-runtime' },
-      repos: [
-        {
-          id: 'repo-janus',
-          path: '/Users/jakedom/janus-code',
-          displayName: 'Janus Code'
-        }
-      ],
-      setGitStatus: storeMocks.setGitStatus,
-      updateWorktreeGitIdentity: storeMocks.updateWorktreeGitIdentity,
-      setUpstreamStatus: storeMocks.setUpstreamStatus,
-      fetchUpstreamStatus: storeMocks.fetchUpstreamStatus,
-      browserTabsByWorktree: {},
-      browserAnnotationsByPageId: {},
-      activeBrowserTabIdByWorktree: {},
-      createBrowserTab: storeMocks.createBrowserTab,
-      focusBrowserTabInWorktree: storeMocks.focusBrowserTabInWorktree,
-      setAgentWorkspaceRightPanelExpanded: storeMocks.setAgentWorkspaceRightPanelExpanded,
-      setRightSidebarOpen: storeMocks.setRightSidebarOpen,
-      showRightSidebarFiles: storeMocks.showRightSidebarFiles
-    })
+  useAppStore: Object.assign(
+    (selector: (state: typeof storeMocks.state) => unknown) => selector(storeMocks.state),
+    { getState: () => storeMocks.state }
+  )
 }))
 
 vi.mock('../sidebar/delete-worktree-flow', () => ({
@@ -99,6 +96,52 @@ vi.mock('../sidebar/delete-worktree-flow', () => ({
 }))
 
 vi.mock('@/runtime/runtime-git-client', () => runtimeGitMocks)
+
+vi.mock('@/components/tab-group/useTabGroupWorkspaceModel', () => ({
+  useTabGroupWorkspaceModel: () => ({
+    commands: {
+      newTerminalTab: vi.fn(),
+      newTerminalWithShell: vi.fn(),
+      newBrowserTab: vi.fn(),
+      newFileTab: vi.fn(async () => undefined),
+      newSimulatorTab: vi.fn(),
+      openEntry: vi.fn(async () => undefined),
+      duplicateBrowserTab: vi.fn()
+    },
+    browserItems: [],
+    activeTab: null,
+    groupTabs: []
+  })
+}))
+
+vi.mock('./useAgentBrowserWorkbench', () => ({
+  useAgentBrowserWorkbench: () => ({
+    browserWorkbenchReady: true,
+    canOpenBrowserDrawer: true,
+    browserAvailable: true,
+    browserTabCount: 0,
+    browserAnnotationCount: 0,
+    browserAnnotationMarkdown: '',
+    canAttachBrowserContext: false,
+    openBrowserWorkbench: vi.fn()
+  })
+}))
+
+vi.mock('@/components/tab-bar/TabBarNewTabMenu', () => ({
+  TabBarNewTabMenu: () => (
+    <button type="button" aria-label="New tab">
+      New tab
+    </button>
+  )
+}))
+
+vi.mock('@/components/tab-group/TabGroupPaneActionChrome', () => ({
+  TabGroupPaneActionChrome: () => (
+    <button type="button" aria-label="Pane Actions">
+      Pane Actions
+    </button>
+  )
+}))
 
 const roots: Root[] = []
 
@@ -303,7 +346,7 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(runtimeGitMocks.stageRuntimeGitPath).toHaveBeenCalledWith(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
         worktreeId: 'worktree-1',
         worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
@@ -319,7 +362,7 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(runtimeGitMocks.discardRuntimeGitPath).toHaveBeenCalledWith(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
         worktreeId: 'worktree-1',
         worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined
@@ -347,7 +390,7 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(runtimeGitMocks.commitRuntimeGit).toHaveBeenCalledWith(
       {
-        settings: { activeRuntimeEnvironmentId: null },
+        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
         worktreeId: 'worktree-1',
         worktreePath: '/Users/jakedom/janus-one',
         connectionId: undefined

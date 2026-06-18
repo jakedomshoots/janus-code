@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatGrabPayloadAsText } from './GrabConfirmationSheet'
+import { formatGrabPayloadAsText } from './grab-payload-copy-text'
 import type { BrowserGrabPayload } from '../../../../shared/browser-grab-types'
 
 function makeTestPayload(overrides?: Partial<BrowserGrabPayload>): BrowserGrabPayload {
@@ -55,51 +55,7 @@ function makeTestPayload(overrides?: Partial<BrowserGrabPayload>): BrowserGrabPa
 }
 
 describe('formatGrabPayloadAsText', () => {
-  it('formats a complete payload with all sections', () => {
-    const text = formatGrabPayloadAsText(makeTestPayload())
-
-    expect(text).toContain('Attached browser context from https://example.com/pricing')
-    expect(text).toContain('Selected element:')
-    expect(text).toContain('button')
-    expect(text).toContain('Accessible name: "Start free trial"')
-    expect(text).toContain('Selector: main section:nth-of-type(2) button.primary')
-    expect(text).toContain('148x44')
-    expect(text).toContain('Nearby context:')
-    expect(text).toContain('- Pro')
-    expect(text).toContain('- $29/month')
-    expect(text).toContain('HTML:')
-    expect(text).toContain('<button class="primary">Start free trial</button>')
-  })
-
-  it('omits nearby context section when empty', () => {
-    const text = formatGrabPayloadAsText(makeTestPayload({ nearbyText: [] }))
-    expect(text).not.toContain('Nearby context:')
-  })
-
-  it('omits text content section when empty', () => {
-    const payload = makeTestPayload()
-    payload.target.textSnippet = ''
-    const text = formatGrabPayloadAsText(payload)
-    expect(text).not.toContain('Text content:')
-  })
-
-  it('includes computed styles that differ from defaults', () => {
-    const text = formatGrabPayloadAsText(makeTestPayload())
-    expect(text).toContain('Computed styles:')
-    expect(text).toContain('display: inline-flex')
-    expect(text).toContain('position: relative')
-    expect(text).toContain('font-size: 16px')
-  })
-
-  it('includes ancestor path', () => {
-    const text = formatGrabPayloadAsText(makeTestPayload())
-    expect(text).toContain('Ancestor path: section > main > body')
-  })
-
-  it('handles payload with no accessible name', () => {
-    const payload = makeTestPayload()
-    payload.target.accessibility.accessibleName = null
-    const text = formatGrabPayloadAsText(payload)
-    expect(text).not.toContain('Accessible name:')
+  it('returns an empty string so grab copy cannot leak DOM dumps', () => {
+    expect(formatGrabPayloadAsText(makeTestPayload())).toBe('')
   })
 })

@@ -338,6 +338,8 @@ export function EmulatorDeviceFrame({
     [frameKind, screenAspectRatio, paneSize]
   )
 
+  const frameReady = frameLayout !== null
+
   return (
     <div
       ref={paneRef}
@@ -346,9 +348,10 @@ export function EmulatorDeviceFrame({
       <div
         className="relative"
         style={{
-          width: frameLayout ? `${frameLayout.width}px` : '100%',
-          maxWidth: frameLayout ? undefined : '460px',
-          height: frameLayout ? `${frameLayout.height}px` : undefined
+          width: frameReady ? `${frameLayout.width}px` : undefined,
+          maxWidth: frameReady ? undefined : '460px',
+          height: frameReady ? `${frameLayout.height}px` : undefined,
+          visibility: frameReady ? 'visible' : 'hidden'
         }}
       >
         {frameLayout?.kind === 'phone' ? <PhoneHardwareButtons layout={frameLayout} /> : null}

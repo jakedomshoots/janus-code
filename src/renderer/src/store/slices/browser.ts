@@ -49,6 +49,7 @@ import {
   getExecutionHostIdForWorktree,
   getRuntimeEnvironmentIdForWorktree
 } from '@/lib/worktree-runtime-owner'
+import { stripInjectedBrowserGrabDump } from '@/components/browser-pane/strip-browser-grab-dump'
 
 type CreateBrowserTabOptions = {
   activate?: boolean
@@ -88,12 +89,13 @@ type ClosedBrowserWorkspaceSnapshot = {
 }
 
 function sanitizeBrowserPageAnnotation(annotation: BrowserPageAnnotation): BrowserPageAnnotation {
+  const strippedComment = stripInjectedBrowserGrabDump(annotation.comment)
   return {
     ...annotation,
     comment:
-      annotation.comment.length > GRAB_BUDGET.annotationCommentMaxLength
-        ? annotation.comment.slice(0, GRAB_BUDGET.annotationCommentMaxLength)
-        : annotation.comment,
+      strippedComment.length > GRAB_BUDGET.annotationCommentMaxLength
+        ? strippedComment.slice(0, GRAB_BUDGET.annotationCommentMaxLength)
+        : strippedComment,
     payload: {
       ...annotation.payload,
       // Why: annotations live in persisted renderer state; screenshots are
@@ -106,6 +108,9 @@ function sanitizeBrowserPageAnnotation(annotation: BrowserPageAnnotation): Brows
 export type RemoteBrowserPageHandle = {
   environmentId: string
   remotePageId: string
+  // Why: eager session refreshes can arrive before the host tab list includes a
+  // tab the web client just staged locally.
+  pendingHostMirror?: boolean
 }
 
 export type BrowserSlice = {
@@ -124,7 +129,10 @@ export type BrowserSlice = {
     url: string,
     options?: CreateBrowserTabOptions
   ) => BrowserWorkspace
-  openNewBrowserTabInActiveWorkspace: (groupId: string) => Promise<void>
+  openNewBrowserTabInActiveWorkspace: (
+    groupId: string,
+    options?: { activate?: boolean; worktreeId?: string }
+  ) => Promise<void>
   closeBrowserTab: (tabId: string) => void
   shutdownWorktreeBrowsers: (worktreeId: string) => Promise<void>
   reopenClosedBrowserTab: (worktreeId: string) => BrowserWorkspace | null
@@ -588,19 +596,21 @@ export const createBrowserSlice: StateCreator<AppState, [], [], BrowserSlice> = 
         entityId: workspaceId,
         label: browserTab.title,
         targetGroupId: options?.targetGroupId,
-        activate: options?.activate ?? true
+        activate: options?.activate ?? true,
+        insertAfterActiveTab: true
       })
     }
     return browserTab
   },
 
-  openNewBrowserTabInActiveWorkspace: async (groupId) => {
+  openNewBrowserTabInActiveWorkspace: async (groupId, options) => {
     const state = get()
-    const worktreeId = state.activeWorktreeId
+    const worktreeId = options?.worktreeId ?? state.activeWorktreeId
     if (!worktreeId) {
       return
     }
-    const defaultUrl = state.browserDefaultUrl ?? 'about:blank'
+    const shouldActivate = options?.activate !== false
+    const defaultUrl = state.browserDefaultUrl ?? ORCA_BROWSER_BLANK_URL
     const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(state, worktreeId)
     if (runtimeEnvironmentId) {
       const { createWebRuntimeSessionBrowserTab } = await import('@/runtime/web-runtime-session')
@@ -609,7 +619,8 @@ export const createBrowserSlice: StateCreator<AppState, [], [], BrowserSlice> = 
           worktreeId,
           environmentId: runtimeEnvironmentId,
           url: defaultUrl,
-          targetGroupId: groupId
+          targetGroupId: groupId,
+          activate: shouldActivate
         })
         if (created) {
           get().recordFeatureInteraction('browser-tab-created')
@@ -618,11 +629,17 @@ export const createBrowserSlice: StateCreator<AppState, [], [], BrowserSlice> = 
       } catch {
         // Fall through to the client-local fallback below.
       }
+      // Why: paired web clients cannot paint host-local browser shells — skip
+      // the desktop fallback so users do not get unusable blank tabs.
+      if ((globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ === true) {
+        return
+      }
       // Why: headless remote runtimes cannot host browser panes yet. Keep the
       // workspace remote-owned, but open this browser page on the desktop client.
       get().createBrowserTab(worktreeId, defaultUrl, {
         title: translate('auto.store.slices.browser.d175274b6d', 'New Browser Tab'),
-        focusAddressBar: true,
+        focusAddressBar: shouldActivate,
+        activate: shouldActivate,
         targetGroupId: groupId,
         browserRuntimeEnvironmentId: null
       })
@@ -631,7 +648,8 @@ export const createBrowserSlice: StateCreator<AppState, [], [], BrowserSlice> = 
     }
     get().createBrowserTab(worktreeId, defaultUrl, {
       title: translate('auto.store.slices.browser.d175274b6d', 'New Browser Tab'),
-      focusAddressBar: true,
+      focusAddressBar: shouldActivate,
+      activate: shouldActivate,
       targetGroupId: groupId
     })
     get().recordFeatureInteraction('browser-tab-created')

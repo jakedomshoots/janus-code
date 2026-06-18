@@ -13,7 +13,7 @@ import { translate } from '@/i18n/i18n'
 type BrowserToolbarProfileDialogsProps = {
   pendingSwitchProfileId: string | null | undefined
   onPendingSwitchChange: (open: boolean) => void
-  onConfirmSwitch: () => void
+  onConfirmSwitch: () => void | Promise<void>
   newProfileDialogOpen: boolean
   onNewProfileDialogOpenChange: (open: boolean) => void
   newProfileName: string
@@ -64,7 +64,7 @@ export function BrowserToolbarProfileDialogs({
             <Button variant="outline" size="sm" onClick={() => onPendingSwitchChange(false)}>
               {translate('auto.components.browser.pane.BrowserToolbarMenu.429ef481f9', 'Cancel')}
             </Button>
-            <Button size="sm" onClick={onConfirmSwitch}>
+            <Button size="sm" onClick={() => void onConfirmSwitch()}>
               {translate('auto.components.browser.pane.BrowserToolbarMenu.58f2c81542', 'Switch')}
             </Button>
           </DialogFooter>

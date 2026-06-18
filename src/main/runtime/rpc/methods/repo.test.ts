@@ -9,6 +9,22 @@ function makeRequest(method: string, params?: unknown): RpcRequest {
 }
 
 describe('repo RPC methods', () => {
+  it('picks a repo folder on the runtime server', async () => {
+    const runtime = {
+      getRuntimeId: () => 'test-runtime',
+      pickRepoFolder: vi.fn().mockResolvedValue('/srv/projects/orca')
+    } as unknown as OrcaRuntimeService
+    const dispatcher = new RpcDispatcher({ runtime, methods: REPO_METHODS })
+
+    const response = await dispatcher.dispatch(makeRequest('repo.pickFolder'))
+
+    expect(runtime.pickRepoFolder).toHaveBeenCalled()
+    expect(response).toMatchObject({
+      ok: true,
+      result: { path: '/srv/projects/orca' }
+    })
+  })
+
   it('creates a repo on the runtime server', async () => {
     const runtime = {
       getRuntimeId: () => 'test-runtime',

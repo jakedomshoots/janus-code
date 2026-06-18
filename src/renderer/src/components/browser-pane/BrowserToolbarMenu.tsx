@@ -18,6 +18,8 @@ type BrowserToolbarMenuProps = {
   browserPageId: string
   viewportPresetId: BrowserViewportPresetId | null
   onDestroyWebview: () => void
+  onApplyViewportPreset?: (nextId: BrowserViewportPresetId | null) => void
+  onSwitchRuntimeProfile?: (profileId: string | null) => Promise<boolean>
   isActive: boolean
 }
 
@@ -27,6 +29,8 @@ export function BrowserToolbarMenu({
   browserPageId,
   viewportPresetId,
   onDestroyWebview,
+  onApplyViewportPreset,
+  onSwitchRuntimeProfile,
   isActive
 }: BrowserToolbarMenuProps): React.JSX.Element {
   const browserSessionProfiles = useAppStore((s) => s.browserSessionProfiles)
@@ -52,6 +56,10 @@ export function BrowserToolbarMenu({
   const shouldForceMenuOpen = browserCookieTourStepActive && isActive && !importHintVisible
 
   const applyViewportPreset = (nextId: BrowserViewportPresetId | null): void => {
+    if (onApplyViewportPreset) {
+      onApplyViewportPreset(nextId)
+      return
+    }
     setBrowserPageViewportPreset(browserPageId, nextId)
     const preset = getBrowserViewportPreset(nextId)
     const override = preset ? browserViewportPresetToOverride(preset) : null
@@ -97,15 +105,29 @@ export function BrowserToolbarMenu({
     setPendingSwitchProfileId(profileId)
   }
 
-  const confirmSwitchProfile = (): void => {
+  const confirmSwitchProfile = async (): Promise<void> => {
     if (pendingSwitchProfileId === undefined) {
       return
     }
     const targetId = pendingSwitchProfileId ?? 'default'
+    const switched = onSwitchRuntimeProfile
+      ? await onSwitchRuntimeProfile(pendingSwitchProfileId)
+      : true
+    if (!switched) {
+      toast.error(
+        translate(
+          'auto.components.browser.pane.BrowserToolbarMenu.2499b61a46',
+          'Failed to switch browser profile.'
+        )
+      )
+      return
+    }
     // Why: Must destroy before store update. The webviewRegistry is keyed by
     // workspace ID (stable across switches). Without explicit destroy, the mount
     // effect would reclaim the old webview with the stale partition.
-    onDestroyWebview()
+    if (!onSwitchRuntimeProfile) {
+      onDestroyWebview()
+    }
     switchBrowserTabProfile(workspaceId, pendingSwitchProfileId)
     const profile = browserSessionProfiles.find((p) => p.id === targetId)
     toast.success(
@@ -146,7 +168,19 @@ export function BrowserToolbarMenu({
       setNewProfileDialogOpen(false)
       setNewProfileName('')
 
-      onDestroyWebview()
+      const switched = onSwitchRuntimeProfile ? await onSwitchRuntimeProfile(profile.id) : true
+      if (!switched) {
+        toast.error(
+          translate(
+            'auto.components.browser.pane.BrowserToolbarMenu.2499b61a46',
+            'Failed to switch browser profile.'
+          )
+        )
+        return
+      }
+      if (!onSwitchRuntimeProfile) {
+        onDestroyWebview()
+      }
       switchBrowserTabProfile(workspaceId, profile.id)
       toast.success(
         translate(

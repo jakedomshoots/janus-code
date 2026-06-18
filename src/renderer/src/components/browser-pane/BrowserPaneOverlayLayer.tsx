@@ -4,6 +4,10 @@ import { useAppStore } from '../../store'
 import type { BrowserTab as BrowserTabState, Tab, TabGroup } from '../../../../shared/types'
 import BrowserPane from './BrowserPane'
 import { tabGroupBodyAnchorName } from '../tab-group/tab-group-body-anchor'
+import {
+  buildTabGroupOverlayStyle,
+  useTabGroupBodyOverlayRect
+} from '../tab-group/tab-group-overlay-positioning'
 import { useBrowserAutomationVisibilityForAny } from './browser-automation-visibility'
 
 // Why: Electron `<webview>` destroys its guest contents whenever its DOM
@@ -59,40 +63,18 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
       : [browserTab.activePageId ?? browserTab.id]
   )
   const isPaintable = isActive || automationVisible
-  // Why: each overlay pins itself to the owning TabGroupPanel's body via CSS
-  // anchor positioning. `anchor()` resolves top/left relative to the viewport,
-  // and the overlay's own `position: absolute` inside a positioned ancestor
-  // (the worktree surface div) converts those to the surface's coordinate
-  // space. `anchor-size()` fills the slot exactly. When the tab moves between
-  // groups, only `positionAnchor` changes and the browser relayouts on its
-  // own — no measurement or state updates.
-  //
-  // The orphan branch (no anchorName) stays display:none until the tab is
-  // reassigned (e.g. mid-move) or explicitly destroyed via `closeBrowserTab`.
-  const style: React.CSSProperties = useMemo(
+  const { overlayRef, measuredRect } = useTabGroupBodyOverlayRect(groupId, isPaintable)
+  // Why: paired web clients cannot rely on CSS anchor positioning, so measure
+  // the owning tab-group body the same way TerminalPaneOverlayLayer does.
+  const style = useMemo(
     () =>
-      anchorName
-        ? {
-            position: 'absolute',
-            positionAnchor: anchorName,
-            top: `anchor(${anchorName} top)`,
-            left: `anchor(${anchorName} left)`,
-            width: `anchor-size(${anchorName} width)`,
-            height: `anchor-size(${anchorName} height)`,
-            display: isPaintable ? 'flex' : 'none',
-            pointerEvents: isActive ? 'auto' : 'none',
-            opacity: isActive ? 1 : 0
-          }
-        : {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: 0,
-            height: 0,
-            display: 'none',
-            pointerEvents: 'none'
-          },
-    [anchorName, isActive, isPaintable]
+      buildTabGroupOverlayStyle({
+        anchorName,
+        isPaintable,
+        isActive,
+        measuredRect
+      }),
+    [anchorName, isActive, isPaintable, measuredRect]
   )
   const handleFocus = useCallback(() => {
     if (groupId !== undefined && onFocusOwningGroup) {
@@ -102,6 +84,7 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
 
   return (
     <div
+      ref={overlayRef}
       style={style}
       data-browser-overlay-tab-id={browserTab.id}
       onPointerDown={handleFocus}

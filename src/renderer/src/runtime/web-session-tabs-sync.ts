@@ -1532,7 +1532,15 @@ export function applyWebSessionTabsSnapshot(
         if (!browserWorkspaceHasRemoteEnvironmentPage(state, tab, environmentId)) {
           return false
         }
-        return !(state.browserPagesByWorkspace[tab.id] ?? []).some((page) => {
+        const pages = state.browserPagesByWorkspace[tab.id] ?? []
+        if (
+          pages.some(
+            (page) => state.remoteBrowserPageHandlesByPageId[page.id]?.pendingHostMirror === true
+          )
+        ) {
+          return false
+        }
+        return !pages.some((page) => {
           const handle = state.remoteBrowserPageHandlesByPageId[page.id]
           return (
             handle?.environmentId === environmentId &&

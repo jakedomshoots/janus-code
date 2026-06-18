@@ -1,4 +1,6 @@
+import { useCallback } from 'react'
 import { AlertTriangle, Terminal } from 'lucide-react'
+import type { TuiAgent } from '../../../../shared/types'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { AgentApprovalBanner } from './AgentApprovalBanner'
@@ -12,6 +14,9 @@ import type {
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
+import { AgentBrowserWorkbenchSurface } from './AgentBrowserWorkbenchSurface'
+import { AgentTabGroupWorkbenchSurface } from './AgentTabGroupWorkbenchSurface'
 import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 
 function AgentFailureTerminalBanner({
@@ -64,12 +69,19 @@ export function AgentWorkspacePane({
   timeline,
   terminalAvailable,
   browserWorkbenchActive,
+  tabGroupWorkbenchActive,
   onFocusPane,
   onSelectThread,
   onCloseThread,
   onNewSession,
-  onSplitRight,
-  onSplitDown,
+  draftSessions,
+  selectedDraftSessionId,
+  activeDraftSession,
+  onSelectDraftSession,
+  onCloseDraftSession,
+  onUpdateDraftSessionAgent,
+  onBeginDraftAgentSession,
+  onSplitPane,
   onClosePane,
   onOpenTerminalDrawer
 }: {
@@ -84,19 +96,43 @@ export function AgentWorkspacePane({
   timeline: readonly AgentWorkspaceTimelineEntry[]
   terminalAvailable: boolean
   browserWorkbenchActive: boolean
+  tabGroupWorkbenchActive: boolean
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
   onCloseThread: (threadId: string) => void
   onNewSession: () => void
-  onSplitRight: () => void
-  onSplitDown: () => void
+  draftSessions: readonly AgentWorkspaceDraftSession[]
+  selectedDraftSessionId: string | null
+  activeDraftSession: AgentWorkspaceDraftSession | null
+  onSelectDraftSession: (draftSessionId: string) => void
+  onCloseDraftSession: (draftSessionId: string) => void
+  onUpdateDraftSessionAgent: (draftSessionId: string, agent: TuiAgent) => void
+  onBeginDraftAgentSession: (agent: TuiAgent) => void
+  onSplitPane: (direction: 'right' | 'down' | 'left' | 'up') => void
   onClosePane: () => void
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const browserWorkbench = useAgentBrowserWorkbench({
     activeWorktreeId,
+    browserWorkbenchActive,
     onOpenTerminalDrawer
   })
+  const workbenchSurfaceActive = browserWorkbenchActive || tabGroupWorkbenchActive
+  const handleDraftSessionAgentChange = useCallback(
+    (agent: TuiAgent) => {
+      if (!activeDraftSession) {
+        return
+      }
+      onUpdateDraftSessionAgent(activeDraftSession.id, agent)
+    },
+    [activeDraftSession, onUpdateDraftSessionAgent]
+  )
+
+  function dismissWorkbenchSurfaces(): void {
+    if (workbenchSurfaceActive) {
+      onOpenTerminalDrawer?.(null)
+    }
+  }
 
   return (
     <main
@@ -119,31 +155,66 @@ export function AgentWorkspacePane({
         />
       ) : null}
       <AgentWorkspaceThreadTabs
+        activeWorktreeId={activeWorktreeId}
         paneLabel={paneLabel}
         threads={threads}
         selectedThreadId={thread?.id ?? null}
+        draftSessions={draftSessions}
+        selectedDraftSessionId={selectedDraftSessionId}
         hasSplitPanes={hasSplitPanes}
         onFocusPane={onFocusPane}
-        onSelectThread={onSelectThread}
+        onSelectThread={(threadId) => {
+          dismissWorkbenchSurfaces()
+          onSelectThread(threadId)
+        }}
         onCloseThread={onCloseThread}
         onNewSession={onNewSession}
+        onSelectDraftSession={(draftSessionId) => {
+          dismissWorkbenchSurfaces()
+          onSelectDraftSession(draftSessionId)
+        }}
+        onCloseDraftSession={onCloseDraftSession}
         browserAvailable={browserWorkbench.browserAvailable}
         browserWorkbenchActive={browserWorkbenchActive}
-        browserTabCount={browserWorkbench.browserTabCount}
+        tabGroupWorkbenchActive={tabGroupWorkbenchActive}
         onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
-        onSplitRight={onSplitRight}
-        onSplitDown={onSplitDown}
+        onDismissWorkbenchSurface={dismissWorkbenchSurfaces}
+        onBeginDraftAgentSession={onBeginDraftAgentSession}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
+        onSplitPane={onSplitPane}
         onClosePane={onClosePane}
       />
-      <AgentTimeline thread={thread} timeline={timeline} />
-      <AgentComposer
-        activeWorktreeId={activeWorktreeId}
-        selectedProject={project}
-        selectedThread={thread}
-        terminalAvailable={terminalAvailable}
-        browserWorkbench={browserWorkbench}
-        onOpenTerminalDrawer={onOpenTerminalDrawer}
-      />
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        {browserWorkbenchActive && activeWorktreeId ? (
+          <AgentBrowserWorkbenchSurface worktreeId={activeWorktreeId} />
+        ) : tabGroupWorkbenchActive && activeWorktreeId ? (
+          <AgentTabGroupWorkbenchSurface worktreeId={activeWorktreeId} />
+        ) : (
+          <>
+            <AgentTimeline
+              thread={thread}
+              timeline={timeline}
+              onNewSession={onNewSession}
+              onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
+              onOpenTerminalDrawer={() => onOpenTerminalDrawer?.('debug-button')}
+              browserAvailable={browserWorkbench.browserAvailable}
+              terminalAvailable={terminalAvailable}
+            />
+            <AgentComposer
+              key={activeDraftSession?.id ?? 'thread-composer'}
+              activeWorktreeId={activeWorktreeId}
+              selectedProject={project}
+              selectedThread={thread}
+              draftSessionId={thread ? null : (activeDraftSession?.id ?? null)}
+              terminalAvailable={terminalAvailable}
+              browserWorkbench={browserWorkbench}
+              pendingDraftAgent={activeDraftSession?.preferredAgent ?? null}
+              onDraftSessionAgentChange={thread ? undefined : handleDraftSessionAgentChange}
+              onOpenTerminalDrawer={onOpenTerminalDrawer}
+            />
+          </>
+        )}
+      </div>
     </main>
   )
 }

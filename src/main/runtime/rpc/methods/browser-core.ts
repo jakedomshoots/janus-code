@@ -16,25 +16,27 @@ import {
   KeyboardInsert,
   Keypress,
   LimitParam,
-  ProfileCreate,
-  ProfileDelete,
-  ProfileImportFromBrowser,
   Screenshot,
   Scroll,
   Select,
   SelectorPath,
-  TabCurrent,
-  TabSetProfile,
-  TabClose,
-  TabCreate,
-  TabList,
-  TabProfileClone,
-  TabShow,
-  TabSwitch,
   Type,
   Upload,
   Wait
 } from './browser-schemas'
+import {
+  ProfileCreate,
+  ProfileDelete,
+  ProfileImportFromBrowser,
+  TabClose,
+  TabCreate,
+  TabCurrent,
+  TabList,
+  TabProfileClone,
+  TabSetProfile,
+  TabShow,
+  TabSwitch
+} from './browser-tab-profile-schemas'
 
 export const BROWSER_CORE_METHODS: RpcMethod[] = [
   defineMethod({

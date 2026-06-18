@@ -1563,7 +1563,13 @@ app.whenReady().then(async () => {
     ...(isE2E ? { wsPort: 0 } : {}),
     ...(devWsPort !== undefined ? { wsPort: devWsPort } : {}),
     ...(serveOptions?.wsPort !== undefined ? { wsPort: serveOptions.wsPort } : {}),
-    webClientRoot: getBundledWebClientRoot()
+    webClientRoot: getBundledWebClientRoot(),
+    ...(is.dev && !isServeMode
+      ? {
+          devWebClientOrigin: process.env.ORCA_DEV_WEB_CLIENT_ORIGIN ?? 'http://127.0.0.1:5175',
+          enableDevLocalPairing: true
+        }
+      : {})
   })
   registerMobileHandlers(runtimeRpc)
 

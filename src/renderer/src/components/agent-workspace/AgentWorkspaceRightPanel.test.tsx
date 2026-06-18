@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspaceApproval,
+  AgentWorkspaceProject,
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
@@ -28,6 +29,14 @@ const runningThread: AgentWorkspaceThread = {
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/janus-gui-workspace',
   cwd: '/Users/jakedom/janus-code'
+}
+
+const project: AgentWorkspaceProject = {
+  id: 'worktree-1',
+  label: 'janus-code',
+  path: '/Users/jakedom/janus-code',
+  hostKind: 'local',
+  branchName: 'feature/janus-gui-workspace'
 }
 
 const diffSummary: AgentWorkspaceDiffSummary = {
@@ -53,16 +62,6 @@ const approvalRequest: AgentWorkspaceApproval = {
   updatedAt: '2026-06-16T12:01:00.000Z'
 }
 
-function findTab(container: HTMLElement, label: string): HTMLButtonElement {
-  const tab = Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
-    (button) => button.textContent === label
-  )
-  if (!tab) {
-    throw new Error(`${label} tab not found`)
-  }
-  return tab
-}
-
 describe('AgentWorkspaceRightPanel', () => {
   let root: Root
   let container: HTMLDivElement
@@ -80,11 +79,13 @@ describe('AgentWorkspaceRightPanel', () => {
     document.body.replaceChildren()
   })
 
-  it('renders the selected controlled tab as active', async () => {
+  it('renders a live conversation info card', async () => {
     await act(async () => {
       root.render(
         <AgentWorkspaceRightPanel
+          project={project}
           thread={runningThread}
+          threads={[runningThread]}
           plan={null}
           approval={null}
           diffs={[diffSummary]}
@@ -96,51 +97,27 @@ describe('AgentWorkspaceRightPanel', () => {
       )
     })
 
-    expect(findTab(container, 'Plan').getAttribute('data-state')).toBe('inactive')
-    expect(findTab(container, 'Diff').getAttribute('data-state')).toBe('active')
-    expect(findTab(container, 'Review').getAttribute('data-state')).toBe('inactive')
-    expect(findTab(container, 'Details').getAttribute('data-state')).toBe('inactive')
-    expect(container.textContent).toContain(diffSummary.filePath)
+    expect(container.textContent).toContain('Outputs')
+    expect(container.textContent).toContain('AgentWorkspaceLayout.tsx')
+    expect(container.textContent).toContain('Subagents')
+    expect(container.textContent).toContain('Codex')
+    expect(container.textContent).toContain('Sources')
+    expect(container.textContent).toContain(project.path)
   })
 
-  it('reports tab changes through the controlled state callback', async () => {
-    const onSelectedTabChange = vi.fn()
-
-    await act(async () => {
-      root.render(
-        <AgentWorkspaceRightPanel
-          thread={runningThread}
-          plan={null}
-          approval={null}
-          diffs={[diffSummary]}
-          review={null}
-          terminalAvailable
-          selectedTab="plan"
-          onSelectedTabChange={onSelectedTabChange}
-        />
-      )
-    })
-
-    await act(async () => {
-      findTab(container, 'Details').dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' })
-      )
-    })
-
-    expect(onSelectedTabChange).toHaveBeenCalledWith('details')
-  })
-
-  it('sends approve and deny decisions from the details tab', async () => {
+  it('sends approve and deny decisions from the info card', async () => {
     const onOpenTerminalDrawer = vi.fn()
 
     await act(async () => {
       root.render(
         <AgentWorkspaceRightPanel
+          project={project}
           thread={{
             ...runningThread,
             phase: 'needs-approval',
             cwd: '/Users/jakedom/janus-code'
           }}
+          threads={[runningThread]}
           plan={null}
           approval={approvalRequest}
           diffs={[]}

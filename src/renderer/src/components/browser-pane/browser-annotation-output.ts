@@ -3,6 +3,7 @@ import type {
   BrowserGrabPayload,
   BrowserPageAnnotation
 } from '../../../../shared/browser-grab-types'
+import { stripInjectedBrowserGrabDump } from './strip-browser-grab-dump'
 
 function formatPageHeading(payload: BrowserGrabPayload): string {
   try {
@@ -163,4 +164,22 @@ export function formatBrowserAnnotationsAsMarkdown(annotations: BrowserPageAnnot
   })
 
   return lines.join('\n').trimEnd()
+}
+
+// Why: composer attach should only carry the user's annotation notes — browser
+// tab metadata and DOM targeting already live in the annotation store/CLI.
+export function formatBrowserAnnotationsForAgentPrompt(
+  annotations: BrowserPageAnnotation[]
+): string {
+  const comments = annotations
+    .map((annotation) => stripInjectedBrowserGrabDump(inlineText(annotation.comment)))
+    .filter((comment) => comment.length > 0)
+
+  if (comments.length === 0) {
+    return ''
+  }
+  if (comments.length === 1) {
+    return comments[0]
+  }
+  return comments.map((comment, index) => `${index + 1}. ${comment}`).join('\n\n')
 }

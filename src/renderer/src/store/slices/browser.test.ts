@@ -667,7 +667,8 @@ describe('createBrowserSlice runtime guard', () => {
       worktreeId: 'wt-remote',
       environmentId: 'env-1',
       url: 'about:blank',
-      targetGroupId: 'group-1'
+      targetGroupId: 'group-1',
+      activate: true
     })
     expect(store.getState().createUnifiedTab).not.toHaveBeenCalled()
     expect(store.getState().browserTabsByWorktree['wt-remote']).toBeUndefined()
@@ -688,7 +689,8 @@ describe('createBrowserSlice runtime guard', () => {
       worktreeId: 'wt-remote',
       environmentId: 'env-1',
       url: 'about:blank',
-      targetGroupId: 'group-1'
+      targetGroupId: 'group-1',
+      activate: true
     })
     expect(store.getState().createUnifiedTab).toHaveBeenCalledWith(
       'wt-remote',

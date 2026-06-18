@@ -678,6 +678,31 @@ describe('setActiveWorktree', () => {
     expect(mockApi.worktrees.updateMeta).not.toHaveBeenCalled()
   })
 
+  it('closes the project explorer when selecting a worktree in GUI agent mode', () => {
+    const store = createTestStore()
+    const worktreeId = 'repo1::/path/wt1'
+
+    seedStore(store, {
+      settings: { ...getDefaultSettings('/tmp'), guiAgentWorkspaceEnabled: true },
+      activeView: 'terminal',
+      rightSidebarOpen: true,
+      worktreesByRepo: {
+        repo1: [
+          makeWorktree({
+            id: worktreeId,
+            repoId: 'repo1'
+          })
+        ]
+      },
+      refreshGitHubForWorktree: vi.fn(),
+      refreshGitHubForWorktreeIfStale: vi.fn()
+    })
+
+    store.getState().setActiveWorktree(worktreeId)
+
+    expect(store.getState().rightSidebarOpen).toBe(false)
+  })
+
   it('clears unread on selection without manufacturing smart-sort activity', () => {
     const store = createTestStore()
     const worktreeId = 'repo1::/path/wt1'

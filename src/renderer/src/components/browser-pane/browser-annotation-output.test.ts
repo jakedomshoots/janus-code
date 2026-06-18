@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
-import { formatBrowserAnnotationsAsMarkdown } from './browser-annotation-output'
+import {
+  formatBrowserAnnotationsAsMarkdown,
+  formatBrowserAnnotationsForAgentPrompt
+} from './browser-annotation-output'
 
 function makeAnnotation(overrides?: Partial<BrowserPageAnnotation>): BrowserPageAnnotation {
   return {
@@ -128,6 +131,30 @@ describe('formatBrowserAnnotationsAsMarkdown', () => {
         })
       ])
     ).not.toThrow()
+  })
+
+  it('returns only annotation comments for agent composer attach output', () => {
+    const markdown = formatBrowserAnnotationsForAgentPrompt([makeAnnotation()])
+
+    expect(markdown).toBe('Make this primary action more obvious.')
+    expect(markdown).not.toContain('## Design Feedback:')
+    expect(markdown).not.toContain('**Selector:**')
+    expect(markdown).not.toContain('**Nearby text:**')
+  })
+
+  it('numbers multiple annotation comments for agent composer attach output', () => {
+    const annotation = makeAnnotation()
+    const markdown = formatBrowserAnnotationsForAgentPrompt([
+      annotation,
+      makeAnnotation({
+        id: 'annotation-2',
+        comment: 'Tighten spacing on the hero.'
+      })
+    ])
+
+    expect(markdown).toBe(
+      '1. Make this primary action more obvious.\n\n2. Tighten spacing on the hero.'
+    )
   })
 
   it('collapses page-controlled newlines before putting text in headings and lists', () => {
