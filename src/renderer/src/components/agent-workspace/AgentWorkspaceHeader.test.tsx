@@ -22,21 +22,21 @@ const thread: AgentWorkspaceThread = {
 }
 
 describe('AgentWorkspaceHeader', () => {
-  it('does not render workspace metadata in the header', () => {
+  it('renders workspace identity without legacy provider chrome', () => {
     const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={thread} />)
 
-    expect(markup).toBe('')
-    expect(markup).not.toContain('janus-code')
+    expect(markup).toContain('janus-code')
+    expect(markup).toContain('Implement provider parity')
     expect(markup).not.toContain('OpenCode')
     expect(markup).not.toContain('Codex')
     expect(markup).not.toContain('running')
     expect(markup).not.toContain('feature/provider-parity')
   })
 
-  it('does not render one-off pane chrome in the workspace header', () => {
+  it('renders a quiet ready state without one-off pane chrome', () => {
     const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={null} />)
 
-    expect(markup).toBe('')
+    expect(markup).toContain('Ready for Janus Code')
     expect(markup).not.toContain('Panes')
     expect(markup).not.toContain('Open panes')
   })
@@ -47,6 +47,7 @@ describe('AgentWorkspaceHeader', () => {
         project={project}
         thread={null}
         rightPanelCollapsed
+        onNewSession={() => undefined}
         onExpandRightPanel={() => undefined}
         onOpenProjectFiles={() => undefined}
       />
@@ -56,6 +57,7 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).not.toContain('Panel')
     expect(markup).not.toContain('Open project files')
     expect(markup).not.toContain('Files')
+    expect(markup).toContain('New session')
   })
 
   it('renders a right-panel expand affordance when the panel is collapsed', () => {

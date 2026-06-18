@@ -261,6 +261,12 @@ export function AgentWorkspaceLayout({
           project={selectedProject}
           thread={selectedThread}
           rightPanelCollapsed={selectedRightPanelState.collapsed}
+          terminalAvailable={snapshot.terminalAvailable}
+          browserAvailable={browserWorkbench.browserAvailable}
+          onNewSession={() => handleNewSession(activePaneId)}
+          onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
+          onOpenTerminalDrawer={() => onOpenTerminalDrawer?.('debug-button')}
+          onOpenWorkbench={() => onOpenTerminalDrawer?.('workbench')}
           onExpandRightPanel={handleExpandRightPanel}
           onOpenProjectFiles={() => {
             setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))

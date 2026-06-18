@@ -33,6 +33,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
         type="button"
         variant="ghost"
         size="icon-sm"
+        className="transition-transform active:scale-[0.94]"
         disabled={!canOpenBrowserWorkbench}
         aria-label={translate(
           'auto.components.agentWorkspace.composer.openBrowserWorkbench',
@@ -50,6 +51,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
         type="button"
         variant="ghost"
         size="icon-sm"
+        className="transition-transform active:scale-[0.94]"
         disabled={!canAttachBrowserContext}
         aria-label={translate(
           'auto.components.agentWorkspace.composer.attachBrowserContext',
@@ -75,6 +77,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
         type="button"
         variant="ghost"
         size="icon-sm"
+        className="transition-transform active:scale-[0.94]"
         disabled={!canOpenTerminalDrawer}
         aria-label={translate(
           'auto.components.agentWorkspace.composer.openTerminalDrawer',

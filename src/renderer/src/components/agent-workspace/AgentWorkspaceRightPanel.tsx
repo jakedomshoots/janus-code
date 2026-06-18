@@ -1,5 +1,6 @@
 import { Bot, Check, Folder, GitBranch, Globe, Info, Laptop, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type {
   AgentWorkspaceApproval,
   AgentWorkspaceDiffSummary,
@@ -27,6 +28,8 @@ export function AgentWorkspaceRightPanel({
   sourceControlBusy,
   sourceControlError,
   terminalAvailable,
+  selectedTab,
+  onSelectedTabChange,
   onStageDiff,
   onUnstageDiff,
   onDiscardDiff,
@@ -71,32 +74,68 @@ export function AgentWorkspaceRightPanel({
   return (
     <aside className="pointer-events-none relative z-10 w-[24rem] shrink-0">
       <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-[26px] border border-border bg-card/95 p-5 text-card-foreground shadow-xs">
-        <InfoSection title="Outputs" emptyLabel="No outputs yet">
-          <ItemList items={model.outputs} iconKind="output" />
-        </InfoSection>
-        {diffs.length > 0 ? (
+        <PanelTabs
+          selectedTab={selectedTab}
+          diffs={diffs.length}
+          hasPlan={plan !== null}
+          hasReview={review !== null}
+          onSelectedTabChange={onSelectedTabChange}
+        />
+        {selectedTab === 'plan' ? (
+          <InfoSection title="Outputs" emptyLabel="No outputs yet">
+            <ItemList items={model.outputs} iconKind="output" />
+          </InfoSection>
+        ) : null}
+        {selectedTab === 'diff' ? (
           <>
-            <SectionDivider />
-            <AgentWorkspaceRightPanelChanges
-              diffs={diffs}
-              sourceControlBusy={sourceControlBusy}
-              sourceControlError={sourceControlError}
-              onStageDiff={onStageDiff}
-              onUnstageDiff={onUnstageDiff}
-              onDiscardDiff={onDiscardDiff}
-              onCommitStaged={onCommitStaged}
-            />
+            {diffs.length > 0 ? (
+              <AgentWorkspaceRightPanelChanges
+                diffs={diffs}
+                sourceControlBusy={sourceControlBusy}
+                sourceControlError={sourceControlError}
+                onStageDiff={onStageDiff}
+                onUnstageDiff={onUnstageDiff}
+                onDiscardDiff={onDiscardDiff}
+                onCommitStaged={onCommitStaged}
+              />
+            ) : (
+              <EmptyPanelState
+                title="No changes"
+                detail="Git changes from Janus Code source control will appear here."
+              />
+            )}
           </>
         ) : null}
-        <SectionDivider />
-        <InfoSection title="Subagents" emptyLabel="No active subagents">
-          <ItemList items={model.subagents} iconKind="subagent" />
-        </InfoSection>
-        <SectionDivider />
-        <InfoSection title="Sources" emptyLabel="No sources attached">
-          <ItemList items={model.sources} iconKind="source" />
-          <SourceGlyphRow sources={model.sources} />
-        </InfoSection>
+        {selectedTab === 'review' ? (
+          <InfoSection title="Review" emptyLabel="No review yet">
+            <ItemList
+              items={
+                review
+                  ? [
+                      {
+                        id: review.id,
+                        label: review.title,
+                        detail: `${review.providerLabel} #${review.number} · ${review.state}`
+                      }
+                    ]
+                  : []
+              }
+              iconKind="output"
+            />
+          </InfoSection>
+        ) : null}
+        {selectedTab === 'details' ? (
+          <>
+            <InfoSection title="Subagents" emptyLabel="No active subagents">
+              <ItemList items={model.subagents} iconKind="subagent" />
+            </InfoSection>
+            <SectionDivider />
+            <InfoSection title="Sources" emptyLabel="No sources attached">
+              <ItemList items={model.sources} iconKind="source" />
+              <SourceGlyphRow sources={model.sources} />
+            </InfoSection>
+          </>
+        ) : null}
         <ApprovalActions
           approval={approval}
           canRespondInTerminal={canRespondInTerminal}
@@ -106,6 +145,59 @@ export function AgentWorkspaceRightPanel({
         />
       </div>
     </aside>
+  )
+}
+
+function PanelTabs({
+  selectedTab,
+  diffs,
+  hasPlan,
+  hasReview,
+  onSelectedTabChange
+}: {
+  selectedTab: AgentWorkspaceRightPanelTab
+  diffs: number
+  hasPlan: boolean
+  hasReview: boolean
+  onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
+}): React.JSX.Element {
+  const tabs: readonly {
+    id: AgentWorkspaceRightPanelTab
+    label: string
+    count?: number
+    available: boolean
+  }[] = [
+    { id: 'plan', label: 'Output', available: hasPlan },
+    { id: 'diff', label: 'Changes', count: diffs, available: diffs > 0 },
+    { id: 'review', label: 'Review', available: hasReview },
+    { id: 'details', label: 'Context', available: true }
+  ]
+
+  return (
+    <div className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          className={cn(
+            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-2 text-xs font-medium transition-colors active:scale-[0.98]',
+            selectedTab === tab.id
+              ? 'bg-card text-foreground shadow-xs'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          )}
+          aria-pressed={selectedTab === tab.id}
+          title={tab.available ? tab.label : `${tab.label} is empty`}
+          onClick={() => onSelectedTabChange(tab.id)}
+        >
+          <span className="truncate">{tab.label}</span>
+          {typeof tab.count === 'number' && tab.count > 0 ? (
+            <span className="rounded-full bg-muted px-1 text-[10px] text-muted-foreground">
+              {tab.count}
+            </span>
+          ) : null}
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -124,6 +216,15 @@ function InfoSection({
       <div className="min-w-0">{children}</div>
       <p className="hidden text-sm text-muted-foreground empty:block">{emptyLabel}</p>
     </section>
+  )
+}
+
+function EmptyPanelState({ title, detail }: { title: string; detail: string }): React.JSX.Element {
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm">
+      <div className="font-medium text-foreground">{title}</div>
+      <div className="mt-1 text-muted-foreground">{detail}</div>
+    </div>
   )
 }
 

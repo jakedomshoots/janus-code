@@ -218,9 +218,9 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('running')
     expect(markup).toContain('Build the first shell')
     expect(markup).toContain('Message the selected agent')
-    expect(markup).toContain('Outputs')
+    expect(markup).toContain('Changes')
     expect(markup).toContain('Terminal.tsx')
-    expect(markup).toContain('/Users/jakedom/janus-code')
+    expect(markup).toContain('modified')
   })
 
   it('does not render the empty workspace header when no thread is selected', () => {
@@ -243,7 +243,8 @@ describe('AgentWorkspacePage', () => {
     })
 
     expect(markup).toContain('Start a new agent session')
-    expect(markup).not.toContain('h-[52px]')
+    expect(markup).toContain('Ready for Janus Code')
+    expect(markup).toContain('New session')
     expect(markup).not.toContain('border-b border-border/60 bg-background px-4')
   })
 
@@ -584,7 +585,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
 
-    expect(container.textContent).toContain('Outputs')
+    expect(container.textContent).toContain('Changes')
     expect(container.textContent).toContain('first.tsx')
     expect(container.textContent).not.toContain('src/second.tsx')
 

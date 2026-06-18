@@ -88,8 +88,8 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
       >
         {statusMessage ?? ''}
       </p>
-      <div className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-3">
-        <div className="justify-self-start">
+      <div className="flex min-h-12 flex-wrap items-center gap-3">
+        <div className="min-w-0 shrink-0">
           <AgentComposerToolCluster
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
@@ -100,12 +100,11 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             onAttachBrowserContext={onAttachBrowserContext}
           />
         </div>
-        {canSendToSelectedThread ? (
-          <div />
-        ) : (
-          <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
-        )}
-        <div className="min-w-0 justify-self-end">
+        <div className="min-w-0 flex-1" />
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+          {canSendToSelectedThread ? null : (
+            <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
+          )}
           {canSendToSelectedThread ? (
             <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs text-muted-foreground">
               {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
@@ -132,7 +131,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         <Button
           type="submit"
           size="icon"
-          className="size-11 rounded-full"
+          className="size-11 shrink-0 rounded-full transition-transform active:scale-[0.96]"
           disabled={!canSubmit}
           aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
         >

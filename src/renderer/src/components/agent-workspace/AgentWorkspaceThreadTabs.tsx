@@ -1,5 +1,5 @@
 import type { TuiAgent } from '../../../../shared/types'
-import { MessageSquare, Plus } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TabBarNewTabMenu } from '@/components/tab-bar/TabBarNewTabMenu'
 import { TabGroupPaneActionChrome } from '@/components/tab-group/TabGroupPaneActionChrome'
@@ -31,7 +31,6 @@ export function AgentWorkspaceThreadTabs({
   onFocusPane,
   onSelectThread,
   onCloseThread,
-  onNewSession,
   onSelectDraftSession,
   onCloseDraftSession,
   browserAvailable,
@@ -54,7 +53,6 @@ export function AgentWorkspaceThreadTabs({
   onFocusPane: () => void
   onSelectThread: (threadId: string) => void
   onCloseThread: (threadId: string) => void
-  onNewSession: () => void
   onSelectDraftSession: (draftSessionId: string) => void
   onCloseDraftSession: (draftSessionId: string) => void
   browserAvailable: boolean
@@ -253,27 +251,6 @@ export function AgentWorkspaceThreadTabs({
             >
               <MessageSquare className="size-3.5" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.threadTabs.backToChat', 'Back to chat')}
-            </Button>
-          ) : null}
-          {!draftSessionActive && !workbenchSurfaceActive ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              aria-label={translate(
-                'auto.components.agentWorkspace.threadTabs.startNewSession',
-                'Start new session'
-              )}
-              title={translate(
-                'auto.components.agentWorkspace.threadTabs.startNewSession',
-                'Start new session'
-              )}
-              onClick={() => {
-                onFocusPane()
-                onNewSession()
-              }}
-            >
-              <Plus className="size-4" aria-hidden="true" />
             </Button>
           ) : null}
           {activeWorktreeId && focusedGroupId ? (

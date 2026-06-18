@@ -168,7 +168,6 @@ export function AgentWorkspacePane({
           onSelectThread(threadId)
         }}
         onCloseThread={onCloseThread}
-        onNewSession={onNewSession}
         onSelectDraftSession={(draftSessionId) => {
           dismissWorkbenchSurfaces()
           onSelectDraftSession(draftSessionId)

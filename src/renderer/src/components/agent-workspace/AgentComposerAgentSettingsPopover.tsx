@@ -58,6 +58,7 @@ export function AgentComposerAgentSettingsPopover({
 }): React.JSX.Element {
   const [view, setView] = useState<AgentSettingsMenuView>('main')
   const providerLabel = selectedAgent ? formatAgentTypeLabel(selectedAgent) : 'Agent'
+  const settingsBusy = detectingAgents || modelDiscoveryLoading
   const modelLabel =
     modelOptions.find((option) => option.id === selectedModel)?.label ??
     (selectedModel !== 'provider-default' ? selectedModel : null) ??
@@ -87,6 +88,12 @@ export function AgentComposerAgentSettingsPopover({
             <Settings2 className="size-3.5" aria-hidden="true" />
           )}
           <span className="truncate">{providerLabel}</span>
+          {settingsBusy ? (
+            <Loader2
+              className="ml-1 size-3.5 animate-spin text-muted-foreground"
+              aria-hidden="true"
+            />
+          ) : null}
           <ChevronDown className="ml-1 size-3.5 text-muted-foreground" aria-hidden="true" />
         </Button>
       </PopoverTrigger>

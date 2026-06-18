@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
+import { formatAgentWorkspaceDiffStatus } from './agent-workspace-labels'
 import type { AgentWorkspaceDiffSummary } from './agent-workspace-types'
 
 function formatDiffArea(area: AgentWorkspaceDiffSummary['area']): string {
@@ -96,6 +97,9 @@ export function AgentWorkspaceRightPanelChanges({
           >
             <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="min-w-0 flex-1 truncate">{diff.filePath}</span>
+            <span className="shrink-0 text-[11px] text-muted-foreground">
+              {formatAgentWorkspaceDiffStatus(diff.status)}
+            </span>
             {diff.area ? (
               <span className="shrink-0 text-[11px] text-muted-foreground">
                 {formatDiffArea(diff.area)}

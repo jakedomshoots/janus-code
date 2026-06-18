@@ -97,12 +97,11 @@ describe('AgentWorkspaceRightPanel', () => {
       )
     })
 
-    expect(container.textContent).toContain('Outputs')
+    expect(container.textContent).toContain('Output')
+    expect(container.textContent).toContain('Changes')
+    expect(container.textContent).toContain('Context')
     expect(container.textContent).toContain('AgentWorkspaceLayout.tsx')
-    expect(container.textContent).toContain('Subagents')
-    expect(container.textContent).toContain('Codex')
-    expect(container.textContent).toContain('Sources')
-    expect(container.textContent).toContain(project.path)
+    expect(container.textContent).toContain('modified')
   })
 
   it('sends approve and deny decisions from the info card', async () => {

@@ -252,7 +252,7 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelectorAll('[role="tab"]').length).toBe(1)
   })
 
-  it('shows one new-session affordance at a time in the tab strip', async () => {
+  it('starts a draft session from the command bar without a duplicate tab-strip control', async () => {
     const container = await renderLayout(
       baseSnapshot({
         threads: [
@@ -270,11 +270,11 @@ describe('AgentWorkspace pane workflow', () => {
       })
     )
 
-    expect(container.textContent).not.toContain('New session')
-    expect(hasButton(container, 'Start new session')).toBe(true)
+    expect(hasButton(container, 'New session')).toBe(true)
+    expect(hasButton(container, 'Start new session')).toBe(false)
 
     const newSessionButton = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Start new session'
+      (button) => button.getAttribute('aria-label') === 'New session'
     )
 
     await act(async () => {
