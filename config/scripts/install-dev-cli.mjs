@@ -1,18 +1,21 @@
 #!/usr/bin/env node
-// Symlinks the janus-dev wrapper into /usr/local/bin so the dev CLI is
-// available globally after `pnpm run build:cli`.
-import { existsSync, lstatSync, readlinkSync } from 'node:fs'
+// Symlinks the janus-dev wrapper into the first writable command directory so
+// the dev CLI is available after `pnpm run build:cli`.
+import { accessSync, constants, existsSync, lstatSync, mkdirSync, readlinkSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const source = path.join(scriptDir, 'janus-dev.mjs')
 
-const commandPath =
-  process.platform === 'darwin' || process.platform === 'linux' ? '/usr/local/bin/janus-dev' : null
+const commandPaths =
+  process.platform === 'darwin' || process.platform === 'linux'
+    ? ['/usr/local/bin/janus-dev', path.join(os.homedir(), '.local', 'bin', 'janus-dev')]
+    : []
 
-if (!commandPath) {
+if (commandPaths.length === 0) {
   console.log('[janus-dev] Skipping global symlink (unsupported platform).')
   process.exit(0)
 }
@@ -26,6 +29,42 @@ function isOwnedByUs(target) {
   } catch {
     return false
   }
+}
+
+function canWriteDirectory(directory) {
+  try {
+    if (!existsSync(directory)) {
+      mkdirSync(directory, { recursive: true })
+    }
+    accessSync(directory, constants.W_OK)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function selectCommandPath() {
+  for (const candidate of commandPaths) {
+    if (existsSync(candidate)) {
+      if (isOwnedByUs(candidate)) {
+        return candidate
+      }
+      continue
+    }
+    if (canWriteDirectory(path.dirname(candidate))) {
+      return candidate
+    }
+  }
+  return null
+}
+
+const commandPath = selectCommandPath()
+
+if (!commandPath) {
+  console.log(
+    '[janus-dev] Skipping dev CLI symlink because no writable command directory was found.'
+  )
+  process.exit(0)
 }
 
 if (existsSync(commandPath)) {
@@ -44,7 +83,7 @@ try {
   console.log(`[janus-dev] Symlinked ${commandPath} → ${source}`)
 } catch {
   console.log(
-    `[janus-dev] Could not create ${commandPath} (permission denied). Run once with:\n` +
-      `  sudo ln -s ${source} ${commandPath}`
+    `[janus-dev] Could not create ${commandPath}. Add this symlink manually if you need it:\n` +
+      `  ln -s ${source} ${commandPath}`
   )
 }
