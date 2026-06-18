@@ -1,6 +1,6 @@
 import type { CSSProperties, RefObject } from 'react'
-import { useMemo } from 'react'
-import { ArrowLeft, Search, Server } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ArrowLeft, ChevronDown, ChevronRight, Search, Server } from 'lucide-react'
 import type { RepoIcon } from '../../../../shared/repo-icon'
 import type { SettingsNavIcon, SettingsNavInstallStatus } from '@/lib/settings-navigation-types'
 import type { GitHubRepositoryIdentity, GlobalSettings } from '../../../../shared/types'
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { RepoIconGlyph } from '../repo/repo-icon'
 import { RepoForkIndicator } from '../repo/repo-fork-indicator'
 import { Button } from '../ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { Input } from '../ui/input'
 import { SetupGuideProgressRing } from '../setup-guide/SetupGuideProgressRing'
 import { useSettingsSetupGuideProgress } from './settings-setup-guide-progress'
@@ -133,6 +134,7 @@ export function SettingsSidebar({
     [settings, systemPrefersDark]
   ) as CSSProperties | undefined
   const setupActive = activeSectionId === 'setup-guide'
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
   // Why: "Hide from sidebar" only hides the top-left app sidebar prompt;
   // Settings should remain a stable place to reopen the checklist.
   const showSetupGuideTopRow =
@@ -167,6 +169,15 @@ export function SettingsSidebar({
           ? 'border-foreground/15 bg-foreground/10 text-foreground'
           : 'border-border/50 bg-muted/30 text-muted-foreground'
     )
+  const groupTriggerClassName =
+    'flex w-full items-center gap-1.5 rounded-md px-3 py-1 text-left text-[11px] font-medium uppercase tracking-[0.16em] text-worktree-sidebar-foreground/55 outline-none transition-colors hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50'
+  const isGroupOpen = (groupId: string, sections: readonly NavSection[]): boolean =>
+    searchQuery.trim().length > 0 ||
+    sections.some((section) => section.id === activeSectionId) ||
+    collapsedGroups[groupId] !== true
+  const toggleGroupOpen = (groupId: string, open: boolean): void => {
+    setCollapsedGroups((current) => ({ ...current, [groupId]: !open }))
+  }
 
   return (
     <aside
@@ -217,16 +228,26 @@ export function SettingsSidebar({
       ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-sleek px-3 py-4">
-        <div className="space-y-5">
-          {generalGroups.map((group) => (
-            <div key={group.id} className="space-y-2">
-              <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                {group.title}
-              </p>
-              <div className="space-y-1">
-                {group.sections
-                  .filter((section) => section.id !== 'setup-guide')
-                  .map((section) => {
+        <div className="space-y-2">
+          {generalGroups.map((group) => {
+            const sections = group.sections.filter((section) => section.id !== 'setup-guide')
+            const open = isGroupOpen(group.id, sections)
+            const GroupChevron = open ? ChevronDown : ChevronRight
+            return (
+              <Collapsible
+                key={group.id}
+                open={open}
+                onOpenChange={(nextOpen) => toggleGroupOpen(group.id, nextOpen)}
+                className="space-y-1"
+              >
+                <CollapsibleTrigger asChild>
+                  <button type="button" className={groupTriggerClassName}>
+                    <GroupChevron className="size-3.5 shrink-0" />
+                    <span className="truncate">{group.title}</span>
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-1">
+                  {sections.map((section) => {
                     const Icon = section.icon
                     const isActive = activeSectionId === section.id
 
@@ -259,18 +280,37 @@ export function SettingsSidebar({
                       </button>
                     )
                   })}
-              </div>
-            </div>
-          ))}
+                </CollapsibleContent>
+              </Collapsible>
+            )
+          })}
 
-          <div className="space-y-2">
-            <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              {translate('auto.components.settings.SettingsSidebar.5c9669ff9c', 'Projects')}
-            </p>
-
-            {repoSections.length > 0 ? (
-              <div className="space-y-1">
-                {repoSections.map((section) => {
+          <Collapsible
+            open={
+              searchQuery.trim().length > 0 ||
+              repoSections.some((section) => section.id === activeSectionId) ||
+              collapsedGroups.projects !== true
+            }
+            onOpenChange={(nextOpen) => toggleGroupOpen('projects', nextOpen)}
+            className="space-y-1"
+          >
+            <CollapsibleTrigger asChild>
+              <button type="button" className={groupTriggerClassName}>
+                {searchQuery.trim().length > 0 ||
+                repoSections.some((section) => section.id === activeSectionId) ||
+                collapsedGroups.projects !== true ? (
+                  <ChevronDown className="size-3.5 shrink-0" />
+                ) : (
+                  <ChevronRight className="size-3.5 shrink-0" />
+                )}
+                <span className="truncate">
+                  {translate('auto.components.settings.SettingsSidebar.5c9669ff9c', 'Projects')}
+                </span>
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1">
+              {repoSections.length > 0 ? (
+                repoSections.map((section) => {
                   const isActive = activeSectionId === section.id
 
                   return (
@@ -304,22 +344,22 @@ export function SettingsSidebar({
                       )}
                     </button>
                   )
-                })}
-              </div>
-            ) : (
-              <p className="px-3 text-xs text-muted-foreground">
-                {hasRepos
-                  ? translate(
-                      'auto.components.settings.SettingsSidebar.3e483e256b',
-                      'No matching project settings.'
-                    )
-                  : translate(
-                      'auto.components.settings.SettingsSidebar.df38d612b7',
-                      'No projects added yet.'
-                    )}
-              </p>
-            )}
-          </div>
+                })
+              ) : (
+                <p className="px-3 text-xs text-muted-foreground">
+                  {hasRepos
+                    ? translate(
+                        'auto.components.settings.SettingsSidebar.3e483e256b',
+                        'No matching project settings.'
+                      )
+                    : translate(
+                        'auto.components.settings.SettingsSidebar.df38d612b7',
+                        'No projects added yet.'
+                      )}
+                </p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </div>
     </aside>

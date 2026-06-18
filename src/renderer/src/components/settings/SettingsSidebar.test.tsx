@@ -1,4 +1,8 @@
+// @vitest-environment happy-dom
+
 import { renderToStaticMarkup } from 'react-dom/server'
+import { act } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { Bot, Mic, Network } from 'lucide-react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../../../shared/constants'
@@ -152,5 +156,59 @@ describe('SettingsSidebar', () => {
 
     expect(markup).toContain('aria-current="page"')
     expect(markup).toContain('Onboarding checklist')
+  })
+
+  it('collapses settings groups while keeping the active group open', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root: Root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <TooltipProvider>
+          <SettingsSidebar
+            activeSectionId="orchestration"
+            settings={getDefaultSettings('/tmp')}
+            generalGroups={[
+              {
+                id: 'capabilities',
+                title: 'AI Capabilities',
+                sections: [
+                  { id: 'agents', title: 'Agents', icon: Bot },
+                  { id: 'orchestration', title: 'Orchestration', icon: Network }
+                ]
+              },
+              {
+                id: 'setup',
+                title: 'Set Up',
+                sections: [{ id: 'accounts', title: 'AI Provider Accounts', icon: Bot }]
+              }
+            ]}
+            repoSections={[]}
+            hasRepos={false}
+            searchQuery=""
+            onBack={vi.fn()}
+            onSearchChange={vi.fn()}
+            onSelectSection={vi.fn()}
+          />
+        </TooltipProvider>
+      )
+    })
+
+    expect(container.textContent).toContain('AI Provider Accounts')
+
+    const setupTrigger = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Set Up')
+    )
+    expect(setupTrigger).toBeDefined()
+    await act(async () => {
+      setupTrigger?.click()
+    })
+
+    expect(container.textContent).toContain('Orchestration')
+    expect(container.textContent).not.toContain('AI Provider Accounts')
+
+    act(() => root.unmount())
+    document.body.removeChild(container)
   })
 })
