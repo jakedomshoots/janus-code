@@ -59,7 +59,8 @@ describe('runtime status porting contract', () => {
       domainId: 'runtime-status-diagnostics',
       method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
       params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
-      requiredFields: listRuntimeStatusPortingRequiredFields()
+      requiredFields: listRuntimeStatusPortingRequiredFields(),
+      invalidatableFields: listRuntimeStatusPortingInvalidatableFields()
     })
   })
 

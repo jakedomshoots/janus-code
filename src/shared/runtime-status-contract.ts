@@ -37,6 +37,7 @@ const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
 
 const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
 const VALID_RUNTIME_HOST_PLATFORMS = ['darwin', 'linux', 'win32'] as const
+const VALID_RUNTIME_HOST_PLATFORM_VALUES: readonly string[] = VALID_RUNTIME_HOST_PLATFORMS
 
 const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   ...VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
@@ -125,7 +126,10 @@ export function listInvalidRuntimeStatusPortingFields(
     invalidFields.push('authoritativeWindowId')
   }
 
-  if (!VALID_RUNTIME_HOST_PLATFORMS.includes(status.hostPlatform)) {
+  if (
+    typeof status.hostPlatform !== 'string' ||
+    !VALID_RUNTIME_HOST_PLATFORM_VALUES.includes(status.hostPlatform)
+  ) {
     invalidFields.push('hostPlatform')
   }
 
@@ -145,11 +149,13 @@ export function getRuntimeStatusPortingContractSummary(): {
   method: RuntimePortingFirstSliceMethod
   params: null
   requiredFields: (keyof RuntimeStatus)[]
+  invalidatableFields: (keyof RuntimeStatus)[]
 } {
   return {
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
     method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
     params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
-    requiredFields: listRuntimeStatusPortingRequiredFields()
+    requiredFields: listRuntimeStatusPortingRequiredFields(),
+    invalidatableFields: listRuntimeStatusPortingInvalidatableFields()
   }
 }
