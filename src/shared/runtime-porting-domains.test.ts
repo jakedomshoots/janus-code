@@ -16,6 +16,7 @@ import {
   RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH,
   RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE,
   RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION,
+  RUNTIME_PORTING_SOURCE_RUNTIME,
   RUNTIME_PORTING_TARGET_RUNTIME,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
@@ -43,6 +44,7 @@ describe('runtime porting domains', () => {
       artifactId: 'janus-runtime-porting-domain-summary',
       mediaType: 'application/vnd.janus.runtime-porting-domain-summary+json',
       schemaVersion: 1,
+      sourceRuntime: 'electron',
       targetRuntime: 'tauri',
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
@@ -93,6 +95,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
+    expect(doc).toContain(`sourceRuntime: ${RUNTIME_PORTING_SOURCE_RUNTIME}`)
     expect(doc).toContain(`targetRuntime: ${RUNTIME_PORTING_TARGET_RUNTIME}`)
     expect(doc).toContain('pnpm run verify:runtime-porting-summary-artifact')
   })
