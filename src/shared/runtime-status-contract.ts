@@ -65,6 +65,8 @@ export type RuntimeStatusPortingArrayConstraint = {
   itemType: 'string'
 }
 
+export type RuntimeStatusPortingField = keyof RuntimeStatus
+
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   runtimeProtocolVersion: { integer: true, minimum: 1 },
   minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
@@ -87,21 +89,25 @@ export type RuntimeStatusPortingContractSummary = {
   domainId: RuntimePortingDomainId
   method: RuntimePortingFirstSliceMethod
   params: null
-  requiredFields: (keyof RuntimeStatus)[]
-  invalidatableFields: (keyof RuntimeStatus)[]
+  requiredFields: RuntimeStatusPortingField[]
+  invalidatableFields: RuntimeStatusPortingField[]
   enumValues: {
     graphStatus: string[]
     hostPlatform: string[]
   }
-  numericConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
-  stringConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
-  arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
+  numericConstraints: Partial<
+    Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
+  >
+  stringConstraints: Partial<
+    Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
+  >
+  arrayConstraints: Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
 }
 
 export type RuntimeStatusPortingValidationResult =
   | { ok: true }
-  | { ok: false; missingFields: (keyof RuntimeStatus)[] }
-  | { ok: false; invalidFields: (keyof RuntimeStatus)[] }
+  | { ok: false; missingFields: RuntimeStatusPortingField[] }
+  | { ok: false; invalidFields: RuntimeStatusPortingField[] }
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
@@ -117,7 +123,7 @@ export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void 
 
 export function listMissingRuntimeStatusPortingFields(
   status: RuntimeStatus
-): (keyof RuntimeStatus)[] {
+): RuntimeStatusPortingField[] {
   return REQUIRED_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => status[field] === undefined)
 }
 
@@ -135,8 +141,8 @@ export function validateRuntimeStatusPortingContract(
 
 export function listInvalidRuntimeStatusPortingFields(
   status: RuntimeStatus
-): (keyof RuntimeStatus)[] {
-  const invalidFields: (keyof RuntimeStatus)[] = VERSIONED_RUNTIME_STATUS_PORTING_FIELDS.filter(
+): RuntimeStatusPortingField[] {
+  const invalidFields: RuntimeStatusPortingField[] = VERSIONED_RUNTIME_STATUS_PORTING_FIELDS.filter(
     (field) => {
       const value = status[field]
       return typeof value !== 'number' || !Number.isInteger(value) || value < 1
@@ -192,11 +198,11 @@ export function listInvalidRuntimeStatusPortingFields(
   return invalidFields
 }
 
-export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {
+export function listRuntimeStatusPortingRequiredFields(): RuntimeStatusPortingField[] {
   return [...REQUIRED_RUNTIME_STATUS_PORTING_FIELDS]
 }
 
-export function listRuntimeStatusPortingInvalidatableFields(): (keyof RuntimeStatus)[] {
+export function listRuntimeStatusPortingInvalidatableFields(): RuntimeStatusPortingField[] {
   return [...INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS]
 }
 

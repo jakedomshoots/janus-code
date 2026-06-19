@@ -70,6 +70,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain('export type RuntimeStatusPortingArrayConstraint')
   })
 
+  it('exports the runtime status field type for sidecar schema adapters', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain('export type RuntimeStatusPortingField')
+  })
+
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })
