@@ -152,6 +152,7 @@ function runJanusWorkflowSmoke() {
 
   state = clickElement(janusApp, findElementIndex(state, ['Changes']))
   expectTree(state, ['selected) Changes'])
+  state = runJanusSourceControlSmoke(state)
 
   state = clickElement(janusApp, findElementIndex(state, ['Review']))
   expectTree(state, ['selected) Review'])
@@ -165,6 +166,40 @@ function runJanusWorkflowSmoke() {
   expectTree(state, ['Agent chat composer', 'Message agent'])
 
   console.log('computer-use smoke: Janus workflow gate passed')
+}
+
+function runJanusSourceControlSmoke(state) {
+  expectTree(state, ['More commit and remote actions'])
+  const changedRowIndex = findSourceControlChangedRowIndex(state)
+  if (!changedRowIndex) {
+    expectAnyTree(state, ['No changes', 'No uncommitted changes', 'No changes on this branch'])
+    return state
+  }
+
+  const selectedState = clickElement(janusApp, changedRowIndex)
+  expectTree(selectedState, ['selected', 'Stage ('])
+
+  const menuState = clickElement(
+    janusApp,
+    findElementIndex(selectedState, ['More commit and remote actions'])
+  )
+  expectTree(menuState, ['Fetch'])
+  return menuState
+}
+
+function findSourceControlChangedRowIndex(state) {
+  const statusPattern = /\b(modified|added|deleted|renamed|untracked|copied|M|A|D|R|U|C)\b/
+  const nonFilePattern = /\b(button|tab|toolbar|menu|heading|text entry|container)\b/
+  for (const line of treeTextForState(state).split('\n')) {
+    if (nonFilePattern.test(line) || !statusPattern.test(line)) {
+      continue
+    }
+    const match = line.trim().match(/^(\d+)\b/)
+    if (match) {
+      return match[1]
+    }
+  }
+  return null
 }
 
 function getAppState(app) {
@@ -244,6 +279,14 @@ function setElementValueFromStdin(app, elementIndex, value) {
 }
 
 function findElementIndex(state, terms) {
+  const index = findOptionalElementIndex(state, terms)
+  if (index) {
+    return index
+  }
+  fail(`Janus workflow missing element matching: ${terms.join(' + ')}`)
+}
+
+function findOptionalElementIndex(state, terms) {
   const treeText = treeTextForState(state)
   for (const line of treeText.split('\n')) {
     if (!terms.every((term) => line.includes(term))) {
@@ -254,7 +297,7 @@ function findElementIndex(state, terms) {
       return match[1]
     }
   }
-  fail(`Janus workflow missing element matching: ${terms.join(' + ')}`)
+  return null
 }
 
 function expectTree(state, terms) {
@@ -263,6 +306,13 @@ function expectTree(state, terms) {
     if (!treeText.includes(term)) {
       fail(`Janus workflow expected tree text to include: ${term}`)
     }
+  }
+}
+
+function expectAnyTree(state, terms) {
+  const treeText = treeTextForState(state)
+  if (!terms.some((term) => treeText.includes(term))) {
+    fail(`Janus workflow expected tree text to include one of: ${terms.join(', ')}`)
   }
 }
 
