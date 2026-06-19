@@ -246,6 +246,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'integer'
       minimum: number
     }
+    minCompatibleRuntimeClientVersion: {
+      type: 'integer'
+      minimum: number
+    }
   }
 } {
   return {
@@ -269,6 +273,11 @@ export function getRuntimeStatusPortingJsonSchema(): {
       runtimeProtocolVersion: {
         type: 'integer',
         minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.runtimeProtocolVersion.minimum
+      },
+      minCompatibleRuntimeClientVersion: {
+        type: 'integer',
+        minimum:
+          RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.minCompatibleRuntimeClientVersion.minimum
       }
     }
   }

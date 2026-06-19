@@ -132,6 +132,10 @@ describe('runtime status porting contract', () => {
         runtimeProtocolVersion: {
           type: 'integer',
           minimum: 1
+        },
+        minCompatibleRuntimeClientVersion: {
+          type: 'integer',
+          minimum: 1
         }
       }
     })
@@ -174,6 +178,17 @@ describe('runtime status porting contract', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
       properties: {
         runtimeProtocolVersion: {
+          type: 'integer',
+          minimum: 1
+        }
+      }
+    })
+  })
+
+  it('describes the minimum compatible runtime client version JSON schema for sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        minCompatibleRuntimeClientVersion: {
           type: 'integer',
           minimum: 1
         }
