@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { useAppStore } from '@/store'
 import { resolveAgentPermissionModeSummary } from '../../../../shared/tui-agent-permissions'
-import {
-  isTuiAgentThinkingMode,
-  type TuiAgentThinkingMode
-} from '../../../../shared/tui-agent-thinking'
+import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import {
   resolveTuiAgentSelectedModel,
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
@@ -16,7 +13,6 @@ import { AgentComposerForm } from './AgentComposerForm'
 import type { AgentComposerProps } from './agent-composer-props'
 import { resolveAgentComposerSelection } from './agent-composer-agent-selection'
 import {
-  decodeAgentModelSelectionsKey,
   encodeAgentModelSelections,
   getAgentComposerReadinessMessage,
   isSelectedThreadReady
@@ -28,6 +24,7 @@ import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery
 import { handleAgentComposerPaste } from './agent-composer-paste'
 import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
 import { submitAgentComposerMessage } from './agent-composer-submit'
+import { launchCompletedThreadFallback } from './agent-composer-completed-thread-fallback'
 import { notifyAgentComposerMessageSent } from './agent-composer-message-sent'
 import {
   EMPTY_DISABLED_TUI_AGENTS,
@@ -39,6 +36,8 @@ import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 import { useAgentComposerBrowserContextAttachment } from './useAgentComposerBrowserContextAttachment'
 import { useAgentComposerRecoverablePromptActions } from './useAgentComposerRecoverablePromptActions'
 import { useAgentComposerSettingsActions } from './useAgentComposerSettingsActions'
+import { useAgentComposerStateSync } from './useAgentComposerStateSync'
+import { useCompletedThreadRecoveryCleanup } from './useCompletedThreadRecoveryCleanup'
 
 const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
 
@@ -127,8 +126,6 @@ export function AgentComposer({
   ].join(':')
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
-  const onDraftSessionAgentChangeRef = useRef(onDraftSessionAgentChange)
-  onDraftSessionAgentChangeRef.current = onDraftSessionAgentChange
   const composerDisabled = submitting
   const canSubmit = !submitting && readinessMessage === null && trimmedPrompt.length > 0
   const statusMessage = submitResult?.message ?? readinessMessage
@@ -143,45 +140,21 @@ export function AgentComposer({
     }
   }, [prompt])
 
-  useEffect(() => {
-    setSelectedAgent((current) => {
-      if (current && availableAgents.some((agent) => agent.id === current)) {
-        return current
-      }
-      return preferredAgent ?? availableAgents[0]?.id ?? null
-    })
-  }, [availableAgents, preferredAgent])
-
-  useEffect(() => {
-    if (!pendingDraftAgent) {
-      return
-    }
-    if (availableAgents.some((agent) => agent.id === pendingDraftAgent)) {
-      setSelectedAgent(pendingDraftAgent)
-    }
-    onPendingDraftAgentConsumed?.()
-  }, [availableAgents, onPendingDraftAgentConsumed, pendingDraftAgent])
-
-  useEffect(() => {
-    if (selectedThread || !draftSessionId || !selectedAgent) {
-      return
-    }
-    if (pendingDraftAgent === selectedAgent) {
-      return
-    }
-    onDraftSessionAgentChangeRef.current?.(selectedAgent)
-  }, [draftSessionId, pendingDraftAgent, selectedAgent, selectedThread])
-
-  useEffect(() => {
-    setComposerModelSelections(decodeAgentModelSelectionsKey(settingsModelSelectionsKey))
-  }, [settingsModelSelectionsKey])
-
-  useEffect(() => {
-    const nextMode = settings?.agentThinkingMode
-    if (nextMode && isTuiAgentThinkingMode(nextMode)) {
-      setThinkingMode(nextMode)
-    }
-  }, [settings?.agentThinkingMode])
+  useAgentComposerStateSync({
+    availableAgents,
+    preferredAgent,
+    pendingDraftAgent,
+    selectedAgent,
+    selectedThread,
+    draftSessionId,
+    settingsModelSelectionsKey,
+    settingsThinkingMode: settings?.agentThinkingMode,
+    onPendingDraftAgentConsumed,
+    onDraftSessionAgentChange,
+    setSelectedAgent,
+    setComposerModelSelections,
+    setThinkingMode
+  })
 
   const handleThinkingModeChange = useCallback(
     (mode: TuiAgentThinkingMode): void => {
@@ -245,6 +218,40 @@ export function AgentComposer({
       ) {
         return
       }
+      if (canSendToSelectedThread) {
+        const completedThreadSubmitResult = result as Awaited<
+          ReturnType<typeof submitAgentComposerMessage>
+        >
+        const fallbackResult = launchCompletedThreadFallback({
+          result: completedThreadSubmitResult,
+          selectedThread,
+          activeWorktreeId,
+          composerModelSelections,
+          thinkingMode,
+          prompt: trimmedPrompt,
+          onPromptDelivered: (agent) => {
+            if (
+              submitSequenceRef.current !== submitSequence ||
+              submitContextKeyRef.current !== requestContextKey
+            ) {
+              return
+            }
+            setSubmitResult(createPromptDeliveredFeedback(agent))
+            setPrompt((currentPrompt) =>
+              currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
+            )
+          }
+        })
+        if (fallbackResult) {
+          setSubmitResult(fallbackResult)
+          setSubmitting(false)
+          if (fallbackResult.status === 'launching') {
+            onPendingAgentLaunch?.()
+            setPrompt('')
+          }
+          return
+        }
+      }
       setSubmitResult(result)
       setSubmitting(false)
       if (launchingNewAgent && result.status === 'launching') {
@@ -269,6 +276,7 @@ export function AgentComposer({
     [
       activeWorktreeId,
       canSendToSelectedThread,
+      composerModelSelections,
       prompt,
       selectedAgent,
       selectedModel,
@@ -313,25 +321,12 @@ export function AgentComposer({
     [submitResult?.reason, submitResult?.status]
   )
 
-  useEffect(() => {
-    if (!recoverablePrompt) {
-      return
-    }
-    const recoveredUserEntryIndex = timeline.findLastIndex(
-      (entry) => entry.kind === 'user' && entry.text.trim() === recoverablePrompt.trim()
-    )
-    if (recoveredUserEntryIndex < 0) {
-      return
-    }
-    const hasAgentReply = timeline
-      .slice(recoveredUserEntryIndex + 1)
-      .some((entry) => entry.kind === 'agent')
-    if (!hasAgentReply) {
-      return
-    }
-    setRecoverablePrompt(null)
-    setSubmitResult(null)
-  }, [recoverablePrompt, timeline])
+  useCompletedThreadRecoveryCleanup({
+    recoverablePrompt,
+    timeline,
+    setRecoverablePrompt,
+    setSubmitResult
+  })
 
   const { restoreRecoverablePrompt, retryRecoverablePrompt } =
     useAgentComposerRecoverablePromptActions({

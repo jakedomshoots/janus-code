@@ -279,4 +279,65 @@ describe('AgentComposer completed-thread recovery', () => {
     expect(container.textContent).not.toContain('Restore message')
     expect(container.textContent).not.toContain('Send again')
   })
+
+  it('starts a fresh matching agent when a completed thread terminal is stale', async () => {
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['antigravity'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'no-agent'
+    } satisfies ActiveAgentNotesSendResult)
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-antigravity',
+      startupPlan: {
+        agent: 'antigravity',
+        launchCommand: 'agy',
+        expectedProcess: 'agy',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={{
+            ...completedThread,
+            agentKind: 'antigravity',
+            title: 'Terminal 1'
+          }}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'hello')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.sendNotesToActiveAgentSession).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'hello'
+    })
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agent: 'antigravity',
+        worktreeId: 'worktree-1',
+        prompt: 'hello',
+        promptDelivery: 'auto-submit'
+      })
+    )
+    expect(container.textContent).not.toContain('not a recognized agent session')
+    expect(textarea?.value).toBe('')
+  })
 })
