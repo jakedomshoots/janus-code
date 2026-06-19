@@ -12,6 +12,7 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
   VALID_RUNTIME_GRAPH_STATUSES,
   VALID_RUNTIME_HOST_PLATFORMS,
@@ -84,6 +85,7 @@ describe('runtime porting domains', () => {
       firstSliceContractInvalidatableFields: INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractNonNegativeIntegerFields:
         NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+      firstSliceContractNumericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
       firstSliceContractRequiredFields: REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractVersionedFields: VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceRationale: 'read-only-runtime-rpc',
@@ -152,6 +154,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractEnumValues')
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')
+    expect(doc).toContain('firstSliceContractNumericConstraints')
     expect(doc).toContain('firstSliceContractRequiredFields')
     expect(doc).toContain('firstSliceContractVersionedFields')
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)

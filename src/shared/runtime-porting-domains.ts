@@ -14,6 +14,10 @@ import {
   VALID_RUNTIME_HOST_PLATFORMS
 } from './runtime-status-enum-values'
 import {
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+  type RuntimeStatusPortingNumericConstraint
+} from './runtime-status-constraints'
+import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
@@ -73,6 +77,9 @@ export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractNonNegativeIntegerFields =
   readonly RuntimeStatusPortingField[]
+export type RuntimePortingFirstSliceContractNumericConstraints = Partial<
+  Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
+>
 export type RuntimePortingFirstSliceContractVersionedFields = readonly RuntimeStatusPortingField[]
 
 export type RuntimePortingDomainSummary = {
@@ -94,6 +101,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
+  firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
@@ -146,6 +154,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS: RuntimeP
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS: RuntimePortingFirstSliceContractNonNegativeIntegerFields =
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS: RuntimePortingFirstSliceContractNumericConstraints =
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS: RuntimePortingFirstSliceContractVersionedFields =
@@ -249,6 +259,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
     firstSliceContractNonNegativeIntegerFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
+    firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
     firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
