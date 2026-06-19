@@ -258,6 +258,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'integer'
       minimum: number
     }
+    liveLeafCount: {
+      type: 'integer'
+      minimum: number
+    }
   }
 } {
   return {
@@ -294,6 +298,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       liveTabCount: {
         type: 'integer',
         minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.liveTabCount.minimum
+      },
+      liveLeafCount: {
+        type: 'integer',
+        minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.liveLeafCount.minimum
       }
     }
   }

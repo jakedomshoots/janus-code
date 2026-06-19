@@ -144,6 +144,10 @@ describe('runtime status porting contract', () => {
         liveTabCount: {
           type: 'integer',
           minimum: 0
+        },
+        liveLeafCount: {
+          type: 'integer',
+          minimum: 0
         }
       }
     })
@@ -219,6 +223,17 @@ describe('runtime status porting contract', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
       properties: {
         liveTabCount: {
+          type: 'integer',
+          minimum: 0
+        }
+      }
+    })
+  })
+
+  it('describes the live leaf count JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        liveLeafCount: {
           type: 'integer',
           minimum: 0
         }
