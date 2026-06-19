@@ -328,6 +328,7 @@ describe('runtime status porting contract', () => {
   it('exposes a JSON schema shell for non-TypeScript sidecar adapters', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toEqual({
       $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $id: 'urn:janus:runtime-status-contract:json-schema:1',
       title: 'Janus Runtime status.get result',
       type: 'object',
       required: listRuntimeStatusPortingRequiredFields(),

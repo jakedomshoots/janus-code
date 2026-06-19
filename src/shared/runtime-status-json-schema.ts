@@ -12,6 +12,7 @@ import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingJsonSchema = {
   $schema: string
+  $id: string
   title: string
   type: 'object'
   required: RuntimeStatusPortingField[]
@@ -33,6 +34,7 @@ export type RuntimeStatusPortingJsonSchema = {
 export function getRuntimeStatusPortingJsonSchema(): RuntimeStatusPortingJsonSchema {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'urn:janus:runtime-status-contract:json-schema:1',
     title: 'Janus Runtime status.get result',
     type: 'object',
     required: listRuntimeStatusPortingRequiredFields(),
