@@ -109,6 +109,58 @@ export type RuntimeStatusPortingValidationResult =
   | { ok: false; missingFields: RuntimeStatusPortingField[] }
   | { ok: false; invalidFields: RuntimeStatusPortingField[] }
 
+export type RuntimeStatusPortingJsonSchema = {
+  $schema: string
+  title: string
+  type: 'object'
+  required: RuntimeStatusPortingField[]
+  additionalProperties: false
+  properties: {
+    runtimeId: {
+      type: 'string'
+      minLength: number
+    }
+    graphStatus: {
+      type: 'string'
+      enum: string[]
+    }
+    hostPlatform: {
+      type: 'string'
+      enum: string[]
+    }
+    runtimeProtocolVersion: {
+      type: 'integer'
+      minimum: number
+    }
+    minCompatibleRuntimeClientVersion: {
+      type: 'integer'
+      minimum: number
+    }
+    rendererGraphEpoch: {
+      type: 'integer'
+      minimum: number
+    }
+    liveTabCount: {
+      type: 'integer'
+      minimum: number
+    }
+    liveLeafCount: {
+      type: 'integer'
+      minimum: number
+    }
+    authoritativeWindowId: {
+      type: ['integer', 'null']
+      minimum: number
+    }
+    capabilities: {
+      type: 'array'
+      items: {
+        type: 'string'
+      }
+    }
+  }
+}
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -224,57 +276,7 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
   }
 }
 
-export function getRuntimeStatusPortingJsonSchema(): {
-  $schema: string
-  title: string
-  type: 'object'
-  required: RuntimeStatusPortingField[]
-  additionalProperties: false
-  properties: {
-    runtimeId: {
-      type: 'string'
-      minLength: number
-    }
-    graphStatus: {
-      type: 'string'
-      enum: string[]
-    }
-    hostPlatform: {
-      type: 'string'
-      enum: string[]
-    }
-    runtimeProtocolVersion: {
-      type: 'integer'
-      minimum: number
-    }
-    minCompatibleRuntimeClientVersion: {
-      type: 'integer'
-      minimum: number
-    }
-    rendererGraphEpoch: {
-      type: 'integer'
-      minimum: number
-    }
-    liveTabCount: {
-      type: 'integer'
-      minimum: number
-    }
-    liveLeafCount: {
-      type: 'integer'
-      minimum: number
-    }
-    authoritativeWindowId: {
-      type: ['integer', 'null']
-      minimum: number
-    }
-    capabilities: {
-      type: 'array'
-      items: {
-        type: 'string'
-      }
-    }
-  }
-} {
+export function getRuntimeStatusPortingJsonSchema(): RuntimeStatusPortingJsonSchema {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     title: 'Janus Runtime status.get result',
