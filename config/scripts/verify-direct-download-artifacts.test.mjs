@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   parseSha256Sums,
+  readArgs,
   requiredDirectDownloadArtifacts,
   verifyDirectDownloadArtifacts,
   verifyDirectDownloadReleaseNotes
@@ -79,5 +80,13 @@ describe('verifyDirectDownloadArtifacts', () => {
       'release notes must include right-click Open launch guidance for macOS',
       'release notes must mention SHA-256 checksums'
     ])
+  })
+
+  it('ignores pnpm argument separators before release-note options', () => {
+    expect(readArgs(['--', '--release-notes=RELEASE_NOTES.md'])).toEqual({
+      baseDir: 'dist',
+      releaseNotesPath: 'RELEASE_NOTES.md',
+      version: '0.0.1-rc.8'
+    })
   })
 })

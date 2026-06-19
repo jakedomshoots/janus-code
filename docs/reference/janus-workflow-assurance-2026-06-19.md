@@ -24,6 +24,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control, Checks panel, Add Project, Settings, Computer Use metadata, and direct-download artifact checks into one pre-release command.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Sidebar Add Project/New workspace header regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/SidebarHeader.test.tsx`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
@@ -118,5 +119,6 @@ Recommended public-download path without paying Apple:
 To keep the app at **100/100** as features move:
 
 1. Run `pnpm run smoke:janus-workflow` before release after the macOS helper permission is granted.
-2. Add/adjust tests for any mismatch found in future manual or automated sweeps.
-3. Keep branch actions and multi-select bulk git workflows in the pre-release SSH smoke path.
+2. Run `pnpm run verify:janus-workflow-assurance` after release artifacts are built and before publishing GitHub downloads.
+3. Add/adjust tests for any mismatch found in future manual or automated sweeps.
+4. Keep branch actions and multi-select bulk git workflows in the pre-release SSH smoke path.

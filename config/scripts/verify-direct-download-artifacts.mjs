@@ -69,13 +69,16 @@ export function verifyDirectDownloadReleaseNotes(content) {
   return failures
 }
 
-function readArgs(argv) {
+export function readArgs(argv) {
   const args = {
     baseDir: 'dist',
     releaseNotesPath: null,
     version: packageJson.version
   }
   for (const arg of argv) {
+    if (arg === '--') {
+      continue
+    }
     if (arg.startsWith('--release-notes=')) {
       args.releaseNotesPath = arg.slice('--release-notes='.length)
       continue
