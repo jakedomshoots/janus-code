@@ -172,6 +172,13 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('labels the checked-in contract artifact for non-TypeScript consumers', () => {
+    expect(runtimeStatusContract.getRuntimeStatusPortingContractArtifact()).toMatchObject({
+      artifactId: 'janus-runtime-status-contract',
+      artifactVersion: 1
+    })
+  })
+
   it('keeps the validation result type in a dedicated diagnostics module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
@@ -291,6 +298,8 @@ describe('runtime status porting contract', () => {
         }
       ).getRuntimeStatusPortingContractArtifact?.()
     ).toEqual({
+      artifactId: 'janus-runtime-status-contract',
+      artifactVersion: 1,
       summary: getRuntimeStatusPortingContractSummary(),
       jsonSchema: getRuntimeStatusPortingJsonSchema()
     })
@@ -305,6 +314,8 @@ describe('runtime status porting contract', () => {
 
     expect(artifactJson).toBe(
       JSON.stringify({
+        artifactId: 'janus-runtime-status-contract',
+        artifactVersion: 1,
         summary: getRuntimeStatusPortingContractSummary(),
         jsonSchema: getRuntimeStatusPortingJsonSchema()
       })

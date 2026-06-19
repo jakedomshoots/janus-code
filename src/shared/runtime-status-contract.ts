@@ -3,7 +3,9 @@ export { getRuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 export {
   getRuntimeStatusPortingContractArtifact,
-  getRuntimeStatusPortingContractArtifactJson
+  getRuntimeStatusPortingContractArtifactJson,
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'

@@ -1,4 +1,6 @@
 {
+  "artifactId": "janus-runtime-status-contract",
+  "artifactVersion": 1,
   "summary": {
     "schemaVersion": 1,
     "domainId": "runtime-status-diagnostics",

@@ -7,13 +7,20 @@ import {
   type RuntimeStatusPortingJsonSchema
 } from './runtime-status-json-schema'
 
+export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID = 'janus-runtime-status-contract'
+export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION = 1
+
 export type RuntimeStatusPortingContractArtifact = {
+  artifactId: typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
+  artifactVersion: typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
   summary: RuntimeStatusPortingContractSummary
   jsonSchema: RuntimeStatusPortingJsonSchema
 }
 
 export function getRuntimeStatusPortingContractArtifact(): RuntimeStatusPortingContractArtifact {
   return {
+    artifactId: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
+    artifactVersion: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION,
     summary: getRuntimeStatusPortingContractSummary(),
     jsonSchema: getRuntimeStatusPortingJsonSchema()
   }
