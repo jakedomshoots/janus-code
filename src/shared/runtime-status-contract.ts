@@ -82,6 +82,22 @@ const RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS = {
   capabilities: { itemType: 'string' }
 } as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 
+export type RuntimeStatusPortingContractSummary = {
+  schemaVersion: typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
+  domainId: RuntimePortingDomainId
+  method: RuntimePortingFirstSliceMethod
+  params: null
+  requiredFields: (keyof RuntimeStatus)[]
+  invalidatableFields: (keyof RuntimeStatus)[]
+  enumValues: {
+    graphStatus: string[]
+    hostPlatform: string[]
+  }
+  numericConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
+  stringConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
+  arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
+}
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -182,21 +198,7 @@ export function listRuntimeStatusPortingInvalidatableFields(): (keyof RuntimeSta
   return [...INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS]
 }
 
-export function getRuntimeStatusPortingContractSummary(): {
-  schemaVersion: typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
-  domainId: RuntimePortingDomainId
-  method: RuntimePortingFirstSliceMethod
-  params: null
-  requiredFields: (keyof RuntimeStatus)[]
-  invalidatableFields: (keyof RuntimeStatus)[]
-  enumValues: {
-    graphStatus: string[]
-    hostPlatform: string[]
-  }
-  numericConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
-  stringConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
-  arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
-} {
+export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingContractSummary {
   return {
     schemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,

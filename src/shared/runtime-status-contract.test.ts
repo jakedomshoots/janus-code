@@ -50,6 +50,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain('RUNTIME_PORTING_FIRST_SLICE_METHOD')
   })
 
+  it('exports the contract summary type for sidecar schema adapters', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain('export type RuntimeStatusPortingContractSummary')
+  })
+
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })
