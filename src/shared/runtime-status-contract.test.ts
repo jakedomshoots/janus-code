@@ -188,6 +188,12 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('exports the checked-in contract artifact JSON path for tooling', () => {
+    expect(runtimeStatusContract.RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH).toBe(
+      'src/shared/runtime-status-contract-artifact.json'
+    )
+  })
+
   it('keeps the validation result type in a dedicated diagnostics module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
