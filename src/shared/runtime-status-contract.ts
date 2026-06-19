@@ -10,6 +10,7 @@ import type {
   RuntimeStatusPortingStringConstraint
 } from './runtime-status-constraints'
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
+import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 
@@ -77,28 +78,9 @@ const RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS = {
   capabilities: { itemType: 'string' }
 } as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 
-export type RuntimeStatusPortingContractSummary = {
-  schemaVersion: typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
-  domainId: RuntimePortingDomainId
-  method: RuntimePortingFirstSliceMethod
-  params: null
-  requiredFields: RuntimeStatusPortingField[]
-  invalidatableFields: RuntimeStatusPortingField[]
-  enumValues: {
-    graphStatus: string[]
-    hostPlatform: string[]
-  }
-  numericConstraints: Partial<
-    Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
-  >
-  stringConstraints: Partial<
-    Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
-  >
-  arrayConstraints: Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
-}
-
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
+export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 export type {
   RuntimeStatusPortingArrayConstraint,

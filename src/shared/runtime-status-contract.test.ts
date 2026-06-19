@@ -55,7 +55,13 @@ describe('runtime status porting contract', () => {
   it('exports the contract summary type for sidecar schema adapters', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
-    expect(source).toContain('export type RuntimeStatusPortingContractSummary')
+    expect(source).toContain('RuntimeStatusPortingContractSummary')
+  })
+
+  it('keeps the contract summary type in a dedicated summary module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-contract-summary'")
   })
 
   it('exports the validation result type for sidecar diagnostics', () => {

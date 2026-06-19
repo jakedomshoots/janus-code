@@ -1,4 +1,4 @@
-import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract'
+import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 
 export type RuntimeStatusPortingContractArtifact = {
