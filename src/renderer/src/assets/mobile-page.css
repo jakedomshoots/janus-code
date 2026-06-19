@@ -1735,6 +1735,325 @@
   stroke-width: 2.2;
 }
 
+/* ── Chat-first workspace screen ───────────────────────────────── */
+
+.mobile-page-root .mp-chat-chrome {
+  background: var(--m-bg-panel);
+  border-bottom: 1px solid var(--m-border);
+}
+
+.mobile-page-root .mp-chat-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 7px;
+  min-height: 50px;
+}
+
+.mobile-page-root .mp-chat-icon-button {
+  display: grid;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: var(--m-text-secondary);
+}
+
+.mobile-page-root .mp-chat-icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mobile-page-root .mp-chat-title-block {
+  min-width: 0;
+  flex: 1;
+}
+
+.mobile-page-root .mp-chat-title {
+  overflow: hidden;
+  color: var(--m-text-primary);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-page-root .mp-chat-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--m-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.mobile-page-root .mp-chat-meta span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-page-root .mp-chat-status-strip {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  padding: 0 12px 8px;
+  color: var(--m-text-secondary);
+  font-size: 11px;
+}
+
+.mobile-page-root .mp-chat-status-strip span {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--m-border);
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: var(--m-bg-base);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-page-root .mp-chat-scroll {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+  overflow: hidden;
+  padding: 12px;
+  background: var(--m-bg-base);
+}
+
+.mobile-page-root .mp-chat-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 88%;
+  gap: 5px;
+}
+
+.mobile-page-root .mp-chat-message.is-user {
+  align-self: flex-end;
+}
+
+.mobile-page-root .mp-chat-message.is-agent {
+  align-self: flex-start;
+}
+
+.mobile-page-root .mp-chat-bubble {
+  border: 1px solid var(--m-border);
+  border-radius: 14px;
+  padding: 9px 10px;
+  background: var(--m-bg-panel);
+  color: var(--m-text-primary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mobile-page-root .mp-chat-message.is-user .mp-chat-bubble {
+  background: var(--m-bg-raised);
+}
+
+.mobile-page-root .mp-chat-agent-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m-text-secondary);
+  font-size: 11px;
+}
+
+.mobile-page-root .mp-chat-agent-avatar,
+.mobile-page-root .mp-chat-agent-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-page-root .mp-chat-agent-avatar {
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--m-bg-raised);
+  color: var(--m-text-primary);
+}
+
+.mobile-page-root .mp-chat-agent-avatar svg,
+.mobile-page-root .mp-chat-agent-state svg {
+  width: 12px;
+  height: 12px;
+}
+
+.mobile-page-root .mp-chat-agent-state {
+  color: var(--m-status-green);
+}
+
+.mobile-page-root .mp-mobile-artifact-card,
+.mobile-page-root .mp-mobile-change-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  border: 1px solid var(--m-border);
+  border-radius: 12px;
+  padding: 9px;
+  background: var(--m-bg-panel);
+  text-align: left;
+}
+
+.mobile-page-root .mp-mobile-change-card {
+  background: color-mix(in srgb, var(--m-bg-raised) 72%, var(--m-bg-panel));
+}
+
+.mobile-page-root .mp-mobile-artifact-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--m-bg-raised);
+  color: var(--m-text-primary);
+}
+
+.mobile-page-root .mp-mobile-artifact-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mobile-page-root .mp-mobile-artifact-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobile-page-root .mp-mobile-artifact-title {
+  overflow: hidden;
+  color: var(--m-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-page-root .mp-mobile-artifact-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m-text-secondary);
+  font-size: 11px;
+}
+
+.mobile-page-root .mp-mobile-artifact-action {
+  border: 1px solid var(--m-border);
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--m-text-primary);
+  font-size: 11px;
+}
+
+.mobile-page-root .mp-change-added {
+  color: var(--m-status-green);
+}
+
+.mobile-page-root .mp-change-deleted {
+  color: var(--m-status-red);
+}
+
+.mobile-page-root .mp-mobile-tabbar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--m-border);
+  background: var(--m-bg-panel);
+}
+
+.mobile-page-root .mp-mobile-tabbar button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px 5px;
+  color: var(--m-text-secondary);
+  font-size: 10px;
+}
+
+.mobile-page-root .mp-mobile-tabbar button.is-active {
+  color: var(--m-text-primary);
+}
+
+.mobile-page-root .mp-mobile-tabbar svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mobile-page-root .mp-mobile-tabbar span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-page-root .mp-mobile-composer {
+  border-top: 1px solid var(--m-border);
+  padding: 7px 10px 10px;
+  background: var(--m-bg-panel);
+}
+
+.mobile-page-root .mp-mobile-composer-tools,
+.mobile-page-root .mp-mobile-composer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobile-page-root .mp-mobile-composer-tools {
+  margin-bottom: 6px;
+}
+
+.mobile-page-root .mp-mobile-composer button {
+  display: grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--m-bg-raised);
+  color: var(--m-text-secondary);
+}
+
+.mobile-page-root .mp-mobile-composer button.is-send {
+  background: var(--m-text-primary);
+  color: var(--m-bg-base);
+}
+
+.mobile-page-root .mp-mobile-composer svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mobile-page-root .mp-mobile-command-chip {
+  border: 1px solid var(--m-border);
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--m-text-primary);
+  font-family: var(--m-mono);
+  font-size: 11px;
+}
+
+.mobile-page-root .mp-mobile-input {
+  min-width: 0;
+  flex: 1;
+  border-radius: 999px;
+  padding: 8px 11px;
+  background: var(--m-bg-raised);
+  color: var(--m-text-secondary);
+  font-size: 12px;
+}
+
 /* Tokyonight terminal */
 .mobile-page-root .mp-terminal {
   flex: 1;

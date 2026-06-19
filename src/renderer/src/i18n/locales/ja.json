@@ -11389,5 +11389,48 @@
         }
       }
     }
+  },
+  "mobile": {
+    "phoneCarousel": {
+      "chatWorkspace": "Chat-first mobile workspace"
+    },
+    "chatWorkspace": {
+      "tabs": {
+        "chat": "Chat",
+        "files": "Files",
+        "changes": "Changes",
+        "preview": "Preview",
+        "terminal": "Terminal"
+      },
+      "back": "Back",
+      "title": "Fix composer chat UI",
+      "agent": "Claude Opus 4.8",
+      "branch": "codex/janus-porting-safe-runtime",
+      "more": "More actions",
+      "status": {
+        "ready": "Ready for review",
+        "files": "5 files",
+        "tests": "41 tests"
+      },
+      "userPrompt": "Make the mobile composer feel like the new desktop workflow.",
+      "agentLabel": "Janus",
+      "agentState": "done",
+      "agentReply": "Mobile now opens with chat first, then keeps files, changes, preview, and terminal one tap away.",
+      "markdownFile": "janus-direct-download-release-handoff-2026-06-19.md",
+      "markdownMeta": "Markdown · opens reader",
+      "openAction": "Open",
+      "changedFiles": "Edited 5 files",
+      "changedFilesAdded": "+133",
+      "changedFilesDeleted": "-24",
+      "changedFilesMeta": "review card",
+      "reviewAction": "Review",
+      "attach": "Attach context",
+      "commands": "Slash commands",
+      "commandChip": "/review",
+      "inputPlaceholder": "Message Janus…",
+      "dictate": "Dictate",
+      "send": "Send",
+      "tabsLabel": "Workspace tabs"
+    }
   }
 }

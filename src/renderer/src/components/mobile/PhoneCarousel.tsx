@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '../../lib/utils'
+import { ChatWorkspaceSlide } from './slides/ChatWorkspaceSlide'
 import { HomeSlide } from './slides/HomeSlide'
 import { WorktreeListSlide } from './slides/WorktreeListSlide'
 import { TerminalSlide } from './slides/TerminalSlide'
@@ -37,7 +38,7 @@ export function PhoneCarousel(): React.JSX.Element {
           return
         }
         // Pulse the tap target on the current slide, then advance.
-        if (idx < 2) {
+        if (idx < 3) {
           setTappingSlide(idx)
           tapTimer = setTimeout(() => {
             if (cancelled) {
@@ -118,21 +119,31 @@ export function PhoneCarousel(): React.JSX.Element {
           className={slideClass(0)}
           role="img"
           aria-label={translate(
-            'auto.components.mobile.PhoneCarousel.89c7713645',
-            'Janus Code Mobile home screen'
+            'mobile.phoneCarousel.chatWorkspace',
+            'Chat-first mobile workspace'
           )}
         >
-          <HomeSlide tapping={tappingSlide === 0} />
+          <ChatWorkspaceSlide />
         </div>
         <div
           className={slideClass(1)}
           role="img"
-          aria-label={translate('auto.components.mobile.PhoneCarousel.93217b41c1', 'Worktree list')}
+          aria-label={translate(
+            'auto.components.mobile.PhoneCarousel.89c7713645',
+            'Janus Code Mobile home screen'
+          )}
         >
-          <WorktreeListSlide tapping={tappingSlide === 1} />
+          <HomeSlide tapping={tappingSlide === 1} />
         </div>
         <div
           className={slideClass(2)}
+          role="img"
+          aria-label={translate('auto.components.mobile.PhoneCarousel.93217b41c1', 'Worktree list')}
+        >
+          <WorktreeListSlide tapping={tappingSlide === 2} />
+        </div>
+        <div
+          className={slideClass(3)}
           role="img"
           aria-label={translate(
             'auto.components.mobile.PhoneCarousel.96d651cb87',
