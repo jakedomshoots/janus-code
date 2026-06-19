@@ -17,6 +17,10 @@ export type RuntimePortingDomain = {
   disposition: RuntimePortingDomainDisposition
 }
 
+export type RuntimePortingFirstSliceMethod = 'status.get'
+
+export const RUNTIME_PORTING_FIRST_SLICE_METHOD: RuntimePortingFirstSliceMethod = 'status.get'
+
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
 export const RUNTIME_PORTING_DOMAINS = [
@@ -63,4 +67,8 @@ export function getRuntimePortingDomain(id: RuntimePortingDomainId): RuntimePort
 
 export function isFirstRuntimePortingSlice(domain: RuntimePortingDomain): boolean {
   return domain.disposition === 'first-slice'
+}
+
+export function getRuntimePortingFirstSliceMethod(): RuntimePortingFirstSliceMethod {
+  return RUNTIME_PORTING_FIRST_SLICE_METHOD
 }

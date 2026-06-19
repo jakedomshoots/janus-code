@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getRuntimePortingDomain,
   isFirstRuntimePortingSlice,
+  getRuntimePortingFirstSliceMethod,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -32,5 +33,9 @@ describe('runtime porting domains', () => {
     const ids = RUNTIME_PORTING_DOMAINS.map((domain) => domain.id)
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('maps the first runtime slice to the existing status RPC method', () => {
+    expect(getRuntimePortingFirstSliceMethod()).toBe('status.get')
   })
 })
