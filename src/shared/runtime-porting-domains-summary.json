@@ -1,4 +1,5 @@
 {
+  "artifactId": "janus-runtime-porting-domain-summary",
   "firstSlice": {
     "id": "runtime-status-diagnostics",
     "boundary": "runtime-rpc",

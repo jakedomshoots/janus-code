@@ -17,7 +17,10 @@ export type RuntimePortingDomain = {
   disposition: RuntimePortingDomainDisposition
 }
 
+export type RuntimePortingDomainSummaryArtifactId = 'janus-runtime-porting-domain-summary'
+
 export type RuntimePortingDomainSummary = {
+  artifactId: RuntimePortingDomainSummaryArtifactId
   firstSlice: RuntimePortingDomain
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -30,6 +33,8 @@ export type RuntimePortingDomainSummary = {
 export type RuntimePortingFirstSliceMethod = 'status.get'
 
 export const RUNTIME_PORTING_FIRST_SLICE_METHOD: RuntimePortingFirstSliceMethod = 'status.get'
+export const RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID: RuntimePortingDomainSummaryArtifactId =
+  'janus-runtime-porting-domain-summary'
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH =
   'src/shared/runtime-porting-domains-summary.json'
 
@@ -110,6 +115,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
   const retainedElectron = listRetainedElectronRuntimeDomains()
 
   return {
+    artifactId: RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID,
     firstSlice: getRuntimePortingFirstSliceDomain(),
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,
