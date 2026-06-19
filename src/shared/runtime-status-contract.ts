@@ -1,6 +1,11 @@
 import type { RuntimeStatus } from './runtime-types'
+import {
+  RUNTIME_PORTING_FIRST_SLICE_METHOD,
+  type RuntimePortingFirstSliceMethod
+} from './runtime-porting-domains'
 
-export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD = 'status.get'
+export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD: RuntimePortingFirstSliceMethod =
+  RUNTIME_PORTING_FIRST_SLICE_METHOD
 export const RUNTIME_STATUS_PORTING_CONTRACT_PARAMS = null
 
 const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [

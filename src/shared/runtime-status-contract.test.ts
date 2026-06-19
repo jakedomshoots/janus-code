@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
@@ -10,6 +12,7 @@ import {
   RUNTIME_CAPABILITIES,
   RUNTIME_PROTOCOL_VERSION
 } from './protocol-version'
+import { getRuntimePortingFirstSliceMethod } from './runtime-porting-domains'
 import type { RuntimeStatus } from './runtime-types'
 
 function makeRuntimeStatus(overrides: Partial<RuntimeStatus> = {}): RuntimeStatus {
@@ -31,6 +34,16 @@ function makeRuntimeStatus(overrides: Partial<RuntimeStatus> = {}): RuntimeStatu
 describe('runtime status porting contract', () => {
   it('uses the existing status.get runtime RPC method as the compatibility target', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_METHOD).toBe('status.get')
+  })
+
+  it('matches the first runtime porting slice method', () => {
+    expect(RUNTIME_STATUS_PORTING_CONTRACT_METHOD).toBe(getRuntimePortingFirstSliceMethod())
+  })
+
+  it('uses the porting first-slice method as its source of truth', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain('RUNTIME_PORTING_FIRST_SLICE_METHOD')
   })
 
   it('documents that status.get accepts null params', () => {
