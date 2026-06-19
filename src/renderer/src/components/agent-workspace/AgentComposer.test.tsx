@@ -201,7 +201,7 @@ describe('AgentComposer', () => {
     expect(form?.className).toContain('bg-background/95')
     expect(textarea?.className).toContain('min-h-24')
     expect(textarea?.getAttribute('rows')).toBe('2')
-    expect(panel?.className).toContain('rounded-2xl')
+    expect(panel?.className).toContain('rounded-xl')
     expect(footerLayout?.className).toContain('flex min-h-10 flex-wrap items-center gap-2')
     expect(footerLayout?.className).not.toContain('justify-between')
     expect(container.querySelector('select[aria-label="Thinking mode"]')).toBeNull()

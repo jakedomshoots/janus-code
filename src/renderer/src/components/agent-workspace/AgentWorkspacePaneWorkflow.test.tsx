@@ -379,7 +379,9 @@ describe('AgentWorkspace pane workflow', () => {
 
     expect(container.textContent).toContain('hello')
     expect(container.textContent).toContain('Old completed output')
-    expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
+    expect(container.querySelector('textarea')?.placeholder).toBe(
+      'Ask a follow-up in this thread...'
+    )
   })
 
   it('keeps waiting-thread chat history visible when sending an answer', async () => {

@@ -11157,7 +11157,8 @@
           "openBrowser": "Browser",
           "openTerminal": "Terminal",
           "oneChange": "1 change",
-          "changeCount": "{{count}} changes"
+          "changeCount": "{{count}} changes",
+          "completedThreadFollowUp": "This conversation is complete, but you can keep chatting in the same thread."
         },
         "composer": {
           "enterMessageBeforeSending": "보내기 전에 메시지를 입력하세요.",
@@ -11227,7 +11228,9 @@
           "setPermissionMode": "Set permission mode: {{label}}",
           "searchModelsLabel": "Search models",
           "projectlessLaunchFailed": "Could not start a planning agent.",
-          "projectlessAgentLaunching": "Starting a planning agent."
+          "projectlessAgentLaunching": "Starting a planning agent.",
+          "continueWith": "Continue with",
+          "followUpPlaceholder": "Ask a follow-up in this thread..."
         },
         "page": {
           "agentWorkspace": "에이전트 작업 공간"
@@ -11341,6 +11344,10 @@
           "environment": "Environment",
           "branch": "Branch",
           "workingDirectory": "Working directory"
+        },
+        "timelineRole": {
+          "you": "You",
+          "agent": "Agent"
         }
       },
       "DesktopShellRequired": {

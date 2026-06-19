@@ -8,7 +8,7 @@ import {
   Wrench
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import {
   formatAgentWorkspaceTimelineKind,
@@ -23,8 +23,10 @@ export function AgentTimelineEntry({
 }): React.JSX.Element {
   const Icon = getTimelineEntryIcon(entry.kind)
   const isUser = entry.kind === 'user'
+  const isAgent = entry.kind === 'agent'
   const statusLabel = entry.status ? formatAgentWorkspaceTimelineStatus(entry.status) : null
   const timestamp = formatAgentTimelineTimestamp(entry.createdAt)
+  const roleLabel = getTimelineEntryRoleLabel(entry.kind)
 
   return (
     <article
@@ -34,8 +36,10 @@ export function AgentTimelineEntry({
     >
       <div
         className={cn(
-          'flex min-w-0 max-w-[82%] gap-3 rounded-2xl border border-border/80 px-4 py-3 shadow-xs',
-          isUser ? 'bg-primary text-primary-foreground' : 'bg-card text-card-foreground',
+          'flex min-w-0 max-w-[78%] gap-3 rounded-xl border px-4 py-3',
+          isUser
+            ? 'border-border bg-accent text-accent-foreground'
+            : 'border-border/80 bg-card text-card-foreground shadow-xs',
           entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
             ? 'bg-muted/40'
             : null,
@@ -44,10 +48,10 @@ export function AgentTimelineEntry({
       >
         <span
           className={cn(
-            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border',
-            isUser
-              ? 'border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground'
-              : 'border-border bg-background text-muted-foreground',
+            'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border',
+            isUser ? 'border-border bg-background text-foreground' : null,
+            isAgent ? 'border-border bg-muted text-foreground' : null,
+            !isUser && !isAgent ? 'border-border bg-background text-muted-foreground' : null,
             entry.kind === 'error' ? 'text-destructive' : null
           )}
           aria-hidden="true"
@@ -56,46 +60,41 @@ export function AgentTimelineEntry({
         </span>
         <div className={cn('min-w-0 flex-1', entry.kind === 'error' ? 'text-destructive' : null)}>
           <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">
-            <Badge
-              variant={entry.kind === 'error' ? 'destructive' : 'outline'}
-              className="h-5 px-1.5 text-[11px] font-medium"
-            >
-              {formatAgentWorkspaceTimelineKind(entry.kind)}
-            </Badge>
+            <span className="text-xs font-semibold text-foreground">{roleLabel}</span>
             {statusLabel ? (
-              <span
-                className={cn(
-                  'text-[11px]',
-                  isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                )}
-              >
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-muted-foreground/50" aria-hidden="true" />
                 {statusLabel}
               </span>
             ) : null}
             {timestamp ? (
-              <span
-                className={cn(
-                  'inline-flex items-center gap-1 text-[11px] tabular-nums',
-                  isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                )}
-              >
+              <span className="inline-flex items-center gap-1 text-[11px] tabular-nums text-muted-foreground">
                 <Clock3 className="size-3" aria-hidden="true" />
                 <time dateTime={entry.createdAt ?? undefined}>{timestamp}</time>
               </span>
             ) : null}
           </div>
-          <p
-            className={cn(
-              'whitespace-pre-wrap break-words text-sm leading-relaxed',
-              isUser ? 'text-primary-foreground' : 'text-foreground'
-            )}
-          >
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
             {entry.text}
           </p>
         </div>
       </div>
     </article>
   )
+}
+
+function getTimelineEntryRoleLabel(kind: AgentWorkspaceTimelineEntry['kind']): string {
+  switch (kind) {
+    case 'user':
+      return translate('auto.components.agentWorkspace.timelineRole.you', 'You')
+    case 'agent':
+      return translate('auto.components.agentWorkspace.timelineRole.agent', 'Agent')
+    case 'system':
+    case 'tool':
+    case 'approval':
+    case 'error':
+      return formatAgentWorkspaceTimelineKind(kind)
+  }
 }
 
 function getTimelineEntryIcon(kind: AgentWorkspaceTimelineEntry['kind']): LucideIcon {

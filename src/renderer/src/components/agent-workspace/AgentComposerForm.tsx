@@ -83,7 +83,7 @@ export function AgentComposerForm({
       onSubmit={(event) => void onSubmit(event)}
     >
       <div className="mx-auto w-full max-w-[860px]">
-        <div className="agent-composer-shell rounded-2xl border border-border/80 bg-card shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
+        <div className="agent-composer-shell rounded-xl border border-border/80 bg-card shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <AgentComposerTextarea
             value={prompt}
             activeWorktreeId={activeWorktreeId}

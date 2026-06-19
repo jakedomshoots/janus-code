@@ -1,8 +1,20 @@
 import { useEffect, useRef } from 'react'
-import { Clock3, GitBranch, Globe, MessageSquareText, PanelBottom, Plus } from 'lucide-react'
+import {
+  Bot,
+  CheckCircle2,
+  Clock3,
+  GitBranch,
+  Globe,
+  MessageSquareText,
+  PanelBottom,
+  Plus
+} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { AgentTimelineEntry } from './AgentTimelineEntry'
+import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 
 export function AgentTimeline({
@@ -131,13 +143,25 @@ function WorkbenchEmptyState({
 }
 
 function ThreadSummary({ thread }: { thread: AgentWorkspaceThread }): React.JSX.Element {
+  const isFollowUpReady = thread.phase === 'completed'
+
   return (
-    <div className="rounded-2xl border border-border bg-card/70 p-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <MessageSquareText className="size-4" aria-hidden="true" />
-        {thread.title}
+    <div className="rounded-xl border border-border bg-card/80 px-4 py-3 shadow-xs">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <MessageSquareText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <h2 className="truncate text-sm font-semibold text-foreground">{thread.title}</h2>
+        </div>
+        <Badge variant="outline" className="h-6 gap-1.5 px-2 text-[11px] font-medium">
+          {isFollowUpReady ? <CheckCircle2 className="size-3" aria-hidden="true" /> : null}
+          {formatAgentWorkspacePhase(thread.phase)}
+        </Badge>
       </div>
-      <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <Bot className="size-3" aria-hidden="true" />
+          {formatAgentTypeLabel(thread.agentKind)}
+        </span>
         <span className="flex items-center gap-1">
           <GitBranch className="size-3" aria-hidden="true" />
           {thread.branchName ??
@@ -149,6 +173,14 @@ function ThreadSummary({ thread }: { thread: AgentWorkspaceThread }): React.JSX.
             translate('auto.components.agentWorkspace.layout.noUpdatesYet', 'No updates yet')}
         </span>
       </div>
+      {isFollowUpReady ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {translate(
+            'auto.components.agentWorkspace.layout.completedThreadFollowUp',
+            'This conversation is complete, but you can keep chatting in the same thread.'
+          )}
+        </p>
+      ) : null}
     </div>
   )
 }

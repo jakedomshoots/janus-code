@@ -22,7 +22,9 @@ describe('agent composer readiness', () => {
       const thread = makeThread(phase)
       expect(isSelectedThreadReady(thread, 'worktree-1')).toBe(true)
       expect(getAgentComposerPlaceholder(thread, 'worktree-1')).toBe(
-        'Message the selected agent...'
+        phase === 'completed'
+          ? 'Ask a follow-up in this thread...'
+          : 'Message the selected agent...'
       )
     }
   )

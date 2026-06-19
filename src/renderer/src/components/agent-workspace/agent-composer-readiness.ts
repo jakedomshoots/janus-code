@@ -84,6 +84,12 @@ export function getAgentComposerPlaceholder(
       'Switch to this worktree'
     )
   }
+  if (thread.phase === 'completed') {
+    return translate(
+      'auto.components.agentWorkspace.composer.followUpPlaceholder',
+      'Ask a follow-up in this thread...'
+    )
+  }
   return translate(
     'auto.components.agentWorkspace.composer.messageSelectedAgent',
     'Message the selected agent...'
