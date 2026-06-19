@@ -37,6 +37,7 @@ describe('runtime porting domains', () => {
   it('summarizes first, native, and retained runtime porting domains', () => {
     expect(getRuntimePortingDomainSummary()).toEqual({
       artifactId: 'janus-runtime-porting-domain-summary',
+      schemaVersion: 1,
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
