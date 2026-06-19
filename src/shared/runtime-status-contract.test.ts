@@ -7,7 +7,8 @@ import {
   listMissingRuntimeStatusPortingFields,
   listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
-  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
+  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  validateRuntimeStatusPortingContract
 } from './runtime-status-contract'
 import {
   MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
@@ -93,6 +94,21 @@ describe('runtime status porting contract', () => {
       'capabilities',
       'hostPlatform'
     ])
+  })
+
+  it('validates runtime status without throwing for sidecar diagnostics', () => {
+    expect(validateRuntimeStatusPortingContract(makeRuntimeStatus())).toEqual({ ok: true })
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          capabilities: undefined,
+          hostPlatform: undefined
+        })
+      )
+    ).toEqual({
+      ok: false,
+      missingFields: ['capabilities', 'hostPlatform']
+    })
   })
 
   it('requires host platform so native runtime parity stays cross-platform', () => {

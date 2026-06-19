@@ -37,6 +37,13 @@ export function listMissingRuntimeStatusPortingFields(
   return REQUIRED_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => status[field] === undefined)
 }
 
+export function validateRuntimeStatusPortingContract(
+  status: RuntimeStatus
+): { ok: true } | { ok: false; missingFields: (keyof RuntimeStatus)[] } {
+  const missingFields = listMissingRuntimeStatusPortingFields(status)
+  return missingFields.length === 0 ? { ok: true } : { ok: false, missingFields }
+}
+
 export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {
   return [...REQUIRED_RUNTIME_STATUS_PORTING_FIELDS]
 }
