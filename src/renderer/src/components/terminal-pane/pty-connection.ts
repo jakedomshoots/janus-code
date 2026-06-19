@@ -1969,7 +1969,21 @@ export function connectPanePty(
       }
       const state = useAppStore.getState()
       const entry = state.agentStatusByPaneKey[cacheKey]
-      const sleepingRecord = state.sleepingAgentSessionsByPaneKey[cacheKey]
+      const exactSleepingRecord = state.sleepingAgentSessionsByPaneKey[cacheKey]
+      const sleepingRecord =
+        exactSleepingRecord ??
+        (() => {
+          const tabPrefix = `${deps.tabId}:`
+          const records = Object.values(state.sleepingAgentSessionsByPaneKey).filter(
+            (record) =>
+              record.worktreeId === deps.worktreeId &&
+              (record.tabId === deps.tabId || record.paneKey.startsWith(tabPrefix))
+          )
+          // Why: restored single-pane terminals can receive a new leaf id after
+          // restart. Fall back only when one same-tab record exists so split
+          // panes never guess which agent session belongs to the new pane.
+          return records.length === 1 ? records[0] : undefined
+        })()
       const useLiveEntry = entry && entry.state !== 'done'
       const agent = useLiveEntry ? entry.agentType : sleepingRecord?.agent
       if (!agent || !isResumableTuiAgent(agent)) {
@@ -1996,7 +2010,7 @@ export function connectPanePty(
       // session is still resumable, so the replacement shell must launch it.
       pendingStartupCommand = startupPlan.launchCommand
       if (!useLiveEntry && sleepingRecord) {
-        state.clearSleepingAgentSession(cacheKey)
+        state.clearSleepingAgentSession(sleepingRecord.paneKey)
       }
       return true
     }

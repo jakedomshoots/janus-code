@@ -54,7 +54,7 @@ test.describe('Create Workspace', () => {
 
     const drawer = orcaPage.locator('[data-agent-terminal-drawer="true"][data-state="open"]')
     await expect(drawer).toBeVisible()
-    await expect(drawer).toContainText('Terminal drawer')
+    await expect(drawer).toHaveAttribute('aria-label', 'Terminal drawer')
   })
 
   test('creates a worktree through the composer UI and activates it', async ({ orcaPage }) => {

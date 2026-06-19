@@ -283,6 +283,30 @@ test.describe('Tab Close Navigation', () => {
     await setActiveFile(orcaPage, editorIds[0])
     await expect.poll(async () => getActiveFileId(orcaPage), { timeout: 3_000 }).toBe(editorIds[0])
 
+    await orcaPage.evaluate((wId) => {
+      const store = window.__store
+      if (!store) {
+        return
+      }
+
+      const state = store.getState()
+      for (const tab of state.tabsByWorktree[wId] ?? []) {
+        state.closeTab(tab.id)
+      }
+      for (const bt of state.browserTabsByWorktree[wId] ?? []) {
+        state.closeBrowserTab(bt.id)
+      }
+      store.setState({
+        activeWorktreeId: wId,
+        activeWorkspaceKey: wId,
+        activeTabType: 'editor',
+        activeTabTypeByWorktree: {
+          ...store.getState().activeTabTypeByWorktree,
+          [wId]: 'editor'
+        }
+      })
+    }, worktreeId)
+
     // Sanity: confirm the worktree has no backing terminal/browser surfaces
     // before we close the last editor. Otherwise the deactivate branch would
     // not trigger for reasons unrelated to this regression.

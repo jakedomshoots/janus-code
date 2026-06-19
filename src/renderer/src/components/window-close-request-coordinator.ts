@@ -69,5 +69,9 @@ export async function dispatchWindowCloseRequest(data: { isQuitting: boolean }):
     activeHandler(data)
     return
   }
+  // Why: GUI-agent and no-workspace surfaces can close through this fallback
+  // without Terminal's richer handler. Fire the same synthetic unload first so
+  // App-level session capture persists terminal/agent resume metadata.
+  window.dispatchEvent(new Event('beforeunload'))
   window.api.ui.confirmWindowClose()
 }

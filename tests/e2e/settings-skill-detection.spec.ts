@@ -69,7 +69,6 @@ async function openOrchestrationSettings(page: Page): Promise<void> {
     ({ enabledKey }) => {
       localStorage.removeItem(enabledKey)
       const state = window.__store!.getState()
-      state.setSettingsSearchQuery('orchestration')
       state.openSettingsPage()
     },
     {
@@ -77,6 +76,7 @@ async function openOrchestrationSettings(page: Page): Promise<void> {
     }
   )
   await expect(page.getByPlaceholder('Search settings')).toBeVisible({ timeout: 10_000 })
+  await page.getByPlaceholder('Search settings').fill('orchestration')
   await page.getByRole('button', { name: /^Orchestration\b/ }).click()
   await expect(
     page
@@ -108,7 +108,9 @@ test.describe('Settings skill detection', () => {
 
     await expect(section.getByText('Not installed', { exact: true })).toBeVisible()
     await expect(
-      section.getByText('Enables agents to hand off context and coordinate work through Orca.')
+      section.getByText(
+        'Enables agents to hand off context and coordinate work through Janus Code.'
+      )
     ).toBeVisible()
 
     await setMockSkillDiscovery(
@@ -119,7 +121,9 @@ test.describe('Settings skill detection', () => {
 
     await expect(section.getByText('Installed', { exact: true })).toBeVisible()
     await expect(
-      section.getByText('Enables agents to hand off context and coordinate work through Orca.')
+      section.getByText(
+        'Enables agents to hand off context and coordinate work through Janus Code.'
+      )
     ).toBeVisible()
   })
 })

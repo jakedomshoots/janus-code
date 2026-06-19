@@ -17,10 +17,12 @@ describe('window-close-request-coordinator', () => {
   beforeEach(() => {
     confirmWindowClose.mockClear()
     // Why: dispatch falls back to the preload bridge when no rich handler is
-    // registered; stub just the surface it touches.
+    // registered; use EventTarget so beforeunload dispatch is testable in Node.
     ;(
-      globalThis as unknown as { window: { api: { ui: { confirmWindowClose: () => void } } } }
-    ).window = { api: { ui: { confirmWindowClose } } }
+      globalThis as unknown as {
+        window: EventTarget & { api: { ui: { confirmWindowClose: () => void } } }
+      }
+    ).window = Object.assign(new EventTarget(), { api: { ui: { confirmWindowClose } } })
   })
 
   afterEach(() => {
@@ -51,6 +53,17 @@ describe('window-close-request-coordinator', () => {
     await dispatchWindowCloseRequest({ isQuitting: true })
 
     expect(confirmWindowClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('fires beforeunload before fallback confirmation', async () => {
+    const beforeUnload = vi.fn()
+    window.addEventListener('beforeunload', beforeUnload)
+
+    await dispatchWindowCloseRequest({ isQuitting: true })
+
+    expect(beforeUnload).toHaveBeenCalledTimes(1)
+    expect(confirmWindowClose).toHaveBeenCalledTimes(1)
+    window.removeEventListener('beforeunload', beforeUnload)
   })
 
   it('delegates to the rich handler and does NOT confirm directly when one is registered', async () => {

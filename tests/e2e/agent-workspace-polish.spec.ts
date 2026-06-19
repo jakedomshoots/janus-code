@@ -2,6 +2,7 @@ import type { Page } from '@stablyai/playwright-test'
 import { test, expect } from './helpers/orca-app'
 import {
   agentWorkspaceRegion,
+  agentWorkspaceRightPanel,
   clearPtyWriteLog,
   enableGuiAgentWorkspace,
   waitForAgentRightPanelActions,
@@ -104,11 +105,13 @@ test.describe('Agent workspace polish', () => {
     await waitForAgentRightPanelActions(orcaPage, 'Approve')
 
     await clearPtyWriteLog(electronApp)
-    await workspace.getByRole('button', { name: 'Approve', exact: true }).click()
+    await agentWorkspaceRightPanel(orcaPage)
+      .getByRole('button', { name: 'Approve', exact: true })
+      .click()
 
     const drawer = orcaPage.locator('[data-agent-terminal-drawer="true"][data-state="open"]')
     await expect(drawer).toBeVisible()
-    await expect(drawer).toContainText(/Respond to the agent approval prompt here/i)
+    await expect(drawer).toHaveAttribute('aria-label', 'Terminal drawer')
     await expect(workspace.getByText(/Approval sent to the agent terminal/i)).toBeVisible()
     await expect
       .poll(async () => (await getPtyWrites(electronApp)).some((data) => data.includes('\r')))
@@ -141,11 +144,13 @@ test.describe('Agent workspace polish', () => {
     await waitForAgentRightPanelActions(orcaPage, 'Deny')
 
     await clearPtyWriteLog(electronApp)
-    await workspace.getByRole('button', { name: 'Deny', exact: true }).click()
+    await agentWorkspaceRightPanel(orcaPage)
+      .getByRole('button', { name: 'Deny', exact: true })
+      .click()
 
     const drawer = orcaPage.locator('[data-agent-terminal-drawer="true"][data-state="open"]')
     await expect(drawer).toBeVisible()
-    await expect(drawer).toContainText(/Respond to the agent approval prompt here/i)
+    await expect(drawer).toHaveAttribute('aria-label', 'Terminal drawer')
     await expect
       .poll(async () => (await getPtyWrites(electronApp)).some((data) => data.includes('n\r')), {
         timeout: 15_000
@@ -154,11 +159,11 @@ test.describe('Agent workspace polish', () => {
   })
 
   test('persists thinking mode across GUI workspace remount', async ({ orcaPage }) => {
-    await prepareGuiWorkspaceTerminal(orcaPage)
+    const { worktreeId } = await prepareGuiWorkspaceTerminal(orcaPage)
     const workspace = agentWorkspaceRegion(orcaPage)
-    const thinkingSelect = workspace.getByLabel(/Thinking mode/i)
 
-    await thinkingSelect.selectOption('deep')
+    await workspace.getByRole('button', { name: 'Agent settings' }).click()
+    await orcaPage.getByRole('option', { name: 'Set reasoning: High' }).click()
     await expect
       .poll(() =>
         orcaPage.evaluate(() => window.__store?.getState().settings.agentThinkingMode ?? null)
@@ -174,15 +179,20 @@ test.describe('Agent workspace polish', () => {
     })
     await expect(agentWorkspaceRegion(orcaPage)).not.toBeVisible()
 
-    await orcaPage.evaluate(async () => {
+    await orcaPage.evaluate(async (targetWorktreeId) => {
       const store = window.__store
       if (!store) {
         throw new Error('window.__store is not available')
       }
       await store.getState().updateSettings({ guiAgentWorkspaceEnabled: true })
+      store.getState().setActiveWorktree(targetWorktreeId)
       store.getState().setActiveView('terminal')
-    })
+    }, worktreeId)
     await expect(agentWorkspaceRegion(orcaPage)).toBeVisible({ timeout: 30_000 })
-    await expect(agentWorkspaceRegion(orcaPage).getByLabel(/Thinking mode/i)).toHaveValue('deep')
+    await agentWorkspaceRegion(orcaPage).getByRole('button', { name: 'Agent settings' }).click()
+    await expect(orcaPage.getByRole('option', { name: 'Set reasoning: High' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
   })
 })

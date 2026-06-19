@@ -6,10 +6,10 @@ async function openFeatureTourFromMenu(electronApp: ElectronApplication): Promis
   await electronApp.evaluate(({ BrowserWindow, Menu }) => {
     const featureTourItem = Menu.getApplicationMenu()
       ?.items.find((item) => item.label === 'Help')
-      ?.submenu?.items.find((item) => item.label === 'Explore Orca')
+      ?.submenu?.items.find((item) => item.label === 'Explore Janus Code')
 
     if (!featureTourItem) {
-      throw new Error('Explore Orca menu item was not registered')
+      throw new Error('Explore Janus Code menu item was not registered')
     }
 
     const window = BrowserWindow.getAllWindows()[0]
@@ -34,10 +34,12 @@ test.describe('Feature tour modal', () => {
   }) => {
     await openFeatureTourFromMenu(electronApp)
 
-    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Orca' })).toBeVisible({
+    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Janus Code' })).toBeVisible({
       timeout: 10_000
     })
-    await expect(orcaPage.getByText('Reopen any time from Help > Explore Orca.')).toBeVisible()
+    await expect(
+      orcaPage.getByText('Reopen any time from Help > Explore Janus Code.')
+    ).toBeVisible()
 
     // Five workflow rows in the rail.
     const rail = orcaPage.getByRole('navigation', { name: 'Workflows' })
@@ -68,7 +70,7 @@ test.describe('Feature tour modal', () => {
     ).toBeVisible()
     await expect(orcaPage.getByRole('heading', { name: 'Browser Use skill' })).toBeVisible()
     await expect(
-      orcaPage.getByText("Enables agents to navigate and verify pages in Orca's browser.")
+      orcaPage.getByText("Enables agents to navigate and verify pages in Janus Code's browser.")
     ).toBeVisible()
     await expect(orcaPage.getByRole('heading', { name: 'CLI skill' })).toHaveCount(0)
     await expect(orcaPage.getByText('With the Orca CLI skill', { exact: false })).toHaveCount(0)
@@ -109,7 +111,7 @@ test.describe('Feature tour modal', () => {
       store.getState().openModal('feature-wall', { source: 'help_menu' })
     })
 
-    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Orca' })).toBeVisible({
+    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Janus Code' })).toBeVisible({
       timeout: 10_000
     })
     await orcaPage
@@ -118,7 +120,7 @@ test.describe('Feature tour modal', () => {
       .click()
     await expect(orcaPage.getByText('Start work directly from GitHub or Linear.')).toBeVisible()
     await expect(orcaPage.getByText('Connect GitHub or Linear once')).toHaveCount(0)
-    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Orca' })).toBeVisible()
+    await expect(orcaPage.getByRole('dialog', { name: 'Get to know Janus Code' })).toBeVisible()
     await expect
       .poll(async () => getStoreState<string>(orcaPage, 'activeView'))
       .not.toBe('settings')
@@ -183,14 +185,14 @@ test.describe('Feature tour modal', () => {
   }) => {
     await orcaPage.evaluate(() => {
       for (const key of [
-        'orca.featureWall.visitedWorkflows.v1',
-        'orca.featureWall.visitedAgentSteps.v1',
-        'orca.featureWall.visitedWorkbenchSteps.v1',
-        'orca.featureWall.visitedReviewSteps.v1',
-        'orca.featureWall.completedWorkflows.v1',
-        'orca.featureWall.completedAgentSteps.v1',
-        'orca.featureWall.completedWorkbenchSteps.v1',
-        'orca.featureWall.completedReviewSteps.v1'
+        'janus.featureWall.visitedWorkflows.v1',
+        'janus.featureWall.visitedAgentSteps.v1',
+        'janus.featureWall.visitedWorkbenchSteps.v1',
+        'janus.featureWall.visitedReviewSteps.v1',
+        'janus.featureWall.completedWorkflows.v1',
+        'janus.featureWall.completedAgentSteps.v1',
+        'janus.featureWall.completedWorkbenchSteps.v1',
+        'janus.featureWall.completedReviewSteps.v1'
       ]) {
         localStorage.removeItem(key)
       }
@@ -242,11 +244,11 @@ test.describe('Feature tour modal', () => {
   }) => {
     await orcaPage.evaluate(() => {
       localStorage.setItem(
-        'orca.featureWall.completedAgentSteps.v1',
+        'janus.featureWall.completedAgentSteps.v1',
         JSON.stringify(['orchestration'])
       )
       localStorage.setItem(
-        'orca.featureWall.completedWorkbenchSteps.v1',
+        'janus.featureWall.completedWorkbenchSteps.v1',
         JSON.stringify(['browser'])
       )
       const store = window.__store

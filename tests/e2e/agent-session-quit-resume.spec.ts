@@ -14,8 +14,27 @@ import {
 import { ensureTerminalVisible, waitForActiveWorktree, waitForSessionReady } from './helpers/store'
 import { attachRepoAndOpenTerminal, createRestartSession } from './helpers/orca-restart'
 import { PROTOCOL_VERSION } from '../../src/main/daemon/types'
+import { getPtyWrites, installMainProcessPtyWriteSpy } from './helpers/agent-workspace'
 
 const PROVIDER_SESSION_ID = 'e2e-quit-resume-session'
+
+function readPersistedSleepingSessions(userDataDir: string): Record<string, unknown> {
+  const raw = readFileSync(path.join(userDataDir, 'orca-data.json'), 'utf8')
+  const parsed = JSON.parse(raw) as {
+    workspaceSession?: { sleepingAgentSessionsByPaneKey?: Record<string, unknown> }
+    workspaceSessionsByHostId?: Record<
+      string,
+      { sleepingAgentSessionsByPaneKey?: Record<string, unknown> }
+    >
+  }
+  return Object.assign(
+    {},
+    parsed.workspaceSession?.sleepingAgentSessionsByPaneKey ?? {},
+    ...Object.values(parsed.workspaceSessionsByHostId ?? {}).map(
+      (session) => session.sleepingAgentSessionsByPaneKey ?? {}
+    )
+  ) as Record<string, unknown>
+}
 
 function readDaemonPid(userDataDir: string): number {
   const raw = readFileSync(
@@ -72,7 +91,7 @@ test('resumes an agent session after quit when its daemon PTY died while the app
             paneKey,
             { state: 'working', prompt: 'finish the task', agentType: 'codex' },
             'Codex',
-            undefined,
+            { updatedAt: Date.now() + 60_000, stateStartedAt: Date.now() },
             { worktreeId: wtId },
             { providerSession: { key: 'session_id', id: providerSessionId } }
           )
@@ -83,11 +102,50 @@ test('resumes an agent session after quit when its daemon PTY died while the app
         providerSessionId: PROVIDER_SESSION_ID
       }
     )
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (paneKey) =>
+            window.__store?.getState().agentStatusByPaneKey[paneKey]?.providerSession?.id ?? null,
+          descriptor.paneKey
+        )
+      )
+      .toBe(PROVIDER_SESSION_ID)
+    await page.evaluate(() => {
+      window.__store?.getState().captureAllSleepingAgentSessions()
+    })
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (providerSessionId) =>
+            Object.values(window.__store?.getState().sleepingAgentSessionsByPaneKey ?? {}).some(
+              (record) => record.providerSession.id === providerSessionId
+            ),
+          PROVIDER_SESSION_ID
+        )
+      )
+      .toBe(true)
 
     const daemonPid = readDaemonPid(session.userDataDir)
 
     await session.close(firstApp)
     firstApp = null
+    await expect
+      .poll(
+        () =>
+          Object.values(readPersistedSleepingSessions(session.userDataDir)).some(
+            (record) =>
+              typeof record === 'object' &&
+              record !== null &&
+              'providerSession' in record &&
+              (record.providerSession as { id?: unknown }).id === PROVIDER_SESSION_ID
+          ),
+        {
+          timeout: 5_000,
+          message: 'quit close should persist a sleeping agent session for cold resume'
+        }
+      )
+      .toBe(true)
 
     // Why: simulates the daemon (and the agent CLI inside it) dying while the
     // app is closed — reboot, crash, or update kill. SIGKILL leaves history
@@ -96,6 +154,7 @@ test('resumes an agent session after quit when its daemon PTY died while the app
 
     const secondLaunch = await session.launch()
     secondApp = secondLaunch.app
+    await installMainProcessPtyWriteSpy(secondApp)
     await waitForSessionReady(secondLaunch.page)
     await expect
       .poll(
@@ -106,10 +165,17 @@ test('resumes an agent session after quit when its daemon PTY died while the app
     await ensureTerminalVisible(secondLaunch.page)
     await waitForActiveTerminalManager(secondLaunch.page, 30_000)
     await waitForPaneCount(secondLaunch.page, 1, 30_000)
+    await expect
+      .poll(
+        async () =>
+          (await getPtyWrites(secondLaunch.app)).some((data) => data.includes(PROVIDER_SESSION_ID)),
+        { timeout: 15_000 }
+      )
+      .toBe(true)
 
     // The quit-captured provider session id must drive a resume command into
-    // the cold-restored pane (the command text echoes in the terminal).
-    await waitForTerminalOutput(secondLaunch.page, PROVIDER_SESSION_ID, 30_000)
+    // the cold-restored pane. Assert the PTY write directly because shells do
+    // not consistently echo startup input during cold restore.
 
     // No duplicate resume tab: the quit-origin record must not be consumed by
     // worktree activation on top of the pane-level cold-restore.

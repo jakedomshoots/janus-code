@@ -5,6 +5,10 @@ export function agentWorkspaceRegion(page: Page) {
   return page.getByRole('region', { name: /Agent workspace/i })
 }
 
+export function agentWorkspaceRightPanel(page: Page) {
+  return agentWorkspaceRegion(page).getByRole('complementary')
+}
+
 export async function selectAgentThreadTab(page: Page, threadTitle: string): Promise<void> {
   const workspace = agentWorkspaceRegion(page)
   await workspace.getByRole('tab', { name: new RegExp(threadTitle) }).click()
@@ -15,7 +19,10 @@ export async function waitForAgentRightPanelActions(
   buttonName: 'Approve' | 'Deny'
 ): Promise<void> {
   const workspace = agentWorkspaceRegion(page)
-  const actionButton = workspace.getByRole('button', { name: buttonName, exact: true })
+  const actionButton = agentWorkspaceRightPanel(page).getByRole('button', {
+    name: buttonName,
+    exact: true
+  })
   await expect
     .poll(
       async () => {

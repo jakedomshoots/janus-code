@@ -17,6 +17,7 @@ test.describe('usage overview', () => {
     await expect
       .poll(async () => getStoreState<string>(orcaPage, 'activeView'), { timeout: 5_000 })
       .toBe('settings')
+    await orcaPage.getByRole('button', { name: 'Interface' }).click()
     await orcaPage.getByRole('button', { name: 'Stats & Usage' }).click()
     await expect(orcaPage.getByRole('heading', { name: 'Usage Analytics' })).toBeVisible()
     const providerDropdown = orcaPage.getByTestId('usage-provider-select')
