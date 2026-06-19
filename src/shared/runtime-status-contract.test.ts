@@ -125,6 +125,20 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects impossible protocol compatibility windows for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          runtimeProtocolVersion: 3,
+          minCompatibleRuntimeClientVersion: 4
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['minCompatibleRuntimeClientVersion']
+    })
+  })
+
   it('rejects invalid capabilities without throwing for sidecar diagnostics', () => {
     expect(
       validateRuntimeStatusPortingContract(

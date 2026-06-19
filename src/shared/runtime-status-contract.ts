@@ -75,6 +75,14 @@ export function listInvalidRuntimeStatusPortingFields(
     }
   )
 
+  if (
+    !invalidFields.includes('runtimeProtocolVersion') &&
+    !invalidFields.includes('minCompatibleRuntimeClientVersion') &&
+    status.minCompatibleRuntimeClientVersion! > status.runtimeProtocolVersion!
+  ) {
+    invalidFields.push('minCompatibleRuntimeClientVersion')
+  }
+
   invalidFields.push(
     ...NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => {
       const value = status[field]
