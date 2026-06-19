@@ -180,6 +180,20 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('documents the runtime status artifact entry point for sidecar implementers', () => {
+    const docPath = resolve(__dirname, '../../docs/reference/runtime-status-contract-artifact.md')
+
+    expect(existsSync(docPath)).toBe(true)
+    if (!existsSync(docPath)) {
+      return
+    }
+
+    const doc = readFileSync(docPath, 'utf8')
+    expect(doc).toContain('src/shared/runtime-status-contract-artifact.json')
+    expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
+    expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
+  })
+
   it('labels the checked-in contract artifact for non-TypeScript consumers', () => {
     expect(runtimeStatusContract.getRuntimeStatusPortingContractArtifact()).toMatchObject({
       artifactId: 'janus-runtime-status-contract',
