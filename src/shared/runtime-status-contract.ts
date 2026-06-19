@@ -16,6 +16,12 @@ import {
   VALID_RUNTIME_HOST_PLATFORMS,
   VALID_RUNTIME_HOST_PLATFORM_VALUES
 } from './runtime-status-enum-values'
+import {
+  INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
+  NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
+} from './runtime-status-field-groups'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
@@ -26,40 +32,6 @@ export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD: RuntimePortingFirstSliceMet
   RUNTIME_PORTING_FIRST_SLICE_METHOD
 export const RUNTIME_STATUS_PORTING_CONTRACT_PARAMS = null
 export const RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION = 1
-
-const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
-  'runtimeId',
-  'rendererGraphEpoch',
-  'graphStatus',
-  'authoritativeWindowId',
-  'liveTabCount',
-  'liveLeafCount',
-  'runtimeProtocolVersion',
-  'minCompatibleRuntimeClientVersion',
-  'capabilities',
-  'hostPlatform'
-] as const satisfies readonly RuntimeStatusPortingField[]
-
-const VERSIONED_RUNTIME_STATUS_PORTING_FIELDS = [
-  'runtimeProtocolVersion',
-  'minCompatibleRuntimeClientVersion'
-] as const satisfies readonly RuntimeStatusPortingField[]
-
-const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
-  'rendererGraphEpoch',
-  'liveTabCount',
-  'liveLeafCount'
-] as const satisfies readonly RuntimeStatusPortingField[]
-
-const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
-  ...VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
-  ...NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
-  'capabilities',
-  'graphStatus',
-  'runtimeId',
-  'authoritativeWindowId',
-  'hostPlatform'
-] as const satisfies readonly RuntimeStatusPortingField[]
 
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   runtimeProtocolVersion: { integer: true, minimum: 1 },
