@@ -55,6 +55,15 @@ type RuntimeStatusPortingNumericConstraint = {
   nullable?: true
 }
 
+type RuntimeStatusPortingStringConstraint = {
+  minLength: number
+  trim?: true
+}
+
+type RuntimeStatusPortingArrayConstraint = {
+  itemType: 'string'
+}
+
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   runtimeProtocolVersion: { integer: true, minimum: 1 },
   minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
@@ -63,6 +72,14 @@ const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   liveLeafCount: { integer: true, minimum: 0 },
   authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
 } as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
+
+const RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS = {
+  runtimeId: { minLength: 1, trim: true }
+} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
+
+const RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS = {
+  capabilities: { itemType: 'string' }
+} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
@@ -175,6 +192,8 @@ export function getRuntimeStatusPortingContractSummary(): {
     hostPlatform: string[]
   }
   numericConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
+  stringConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
+  arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 } {
   return {
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
@@ -186,6 +205,8 @@ export function getRuntimeStatusPortingContractSummary(): {
       graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
       hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
     },
-    numericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
+    numericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+    stringConstraints: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
+    arrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
   }
 }

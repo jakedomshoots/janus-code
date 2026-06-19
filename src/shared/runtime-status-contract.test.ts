@@ -72,6 +72,12 @@ describe('runtime status porting contract', () => {
         liveTabCount: { integer: true, minimum: 0 },
         liveLeafCount: { integer: true, minimum: 0 },
         authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
+      },
+      stringConstraints: {
+        runtimeId: { minLength: 1, trim: true }
+      },
+      arrayConstraints: {
+        capabilities: { itemType: 'string' }
       }
     })
   })
