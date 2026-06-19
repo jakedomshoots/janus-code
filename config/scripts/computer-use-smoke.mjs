@@ -11,9 +11,12 @@ const cliPath =
 const args = new Set(process.argv.slice(2))
 const requestedApps = valueFlag('--apps')
 const includeScreenshot = args.has('--screenshot')
+const janusWorkflow = args.has('--janus-workflow')
 const launchRuntime = args.has('--launch')
 const requireTarget = args.has('--require-target')
 const session = valueFlag('--session') ?? `computer-smoke-${process.pid}`
+const janusApp =
+  valueFlag('--janus-app') ?? process.env.JANUS_COMPUTER_SMOKE_APP ?? 'com.jakedom.januscode'
 const preferredApps = (
   requestedApps ??
   process.env.ORCA_COMPUTER_SMOKE_APPS ??
@@ -32,6 +35,11 @@ if (launchRuntime) {
   console.log(
     `computer-use smoke: runtime ${opened.runtime?.state ?? 'unknown'} (${opened.runtime?.runtimeId ?? 'unknown'})`
   )
+}
+
+if (janusWorkflow) {
+  runJanusWorkflowSmoke()
+  process.exit(0)
 }
 
 const list = unwrapResult(runCli(['computer', 'list-apps', '--json']))
@@ -121,6 +129,147 @@ function runSnapshotSmoke(app) {
   return initial
 }
 
+function runJanusWorkflowSmoke() {
+  let state = getAppState(janusApp)
+  expectTree(state, ['Agent chat composer', 'Message agent'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Settings']))
+  const settingsSearchIndex = findElementIndex(state, ['Search settings'])
+  state = setElementValue(janusApp, settingsSearchIndex, 'voice')
+  expectTree(state, ['Voice', 'Shortcuts', 'macOS Permissions'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Back to app']))
+  expectTree(state, ['Agent chat composer', 'Message agent'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Open browser workbench']))
+  expectTree(state, ['Browser workbench', 'New Tab'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Back to chat']))
+  expectTree(state, ['Agent chat composer', 'Message agent'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Output']))
+  expectTree(state, ['selected) Output'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Changes']))
+  expectTree(state, ['selected) Changes'])
+
+  state = clickElement(janusApp, findElementIndex(state, ['Review']))
+  expectTree(state, ['selected) Review'])
+
+  const composerIndex = findElementIndex(state, ['Message agent'])
+  state = setElementValue(janusApp, composerIndex, '/')
+  expectTree(state, ['Slash commands', '/commands'])
+
+  const slashComposerIndex = findElementIndex(state, ['Message agent'])
+  state = setElementValueFromStdin(janusApp, slashComposerIndex, '')
+  expectTree(state, ['Agent chat composer', 'Message agent'])
+
+  console.log('computer-use smoke: Janus workflow gate passed')
+}
+
+function getAppState(app) {
+  return unwrapResult(
+    runCli([
+      'computer',
+      'get-app-state',
+      '--session',
+      session,
+      '--app',
+      app,
+      '--restore-window',
+      ...(includeScreenshot ? [] : ['--no-screenshot']),
+      '--json'
+    ])
+  )
+}
+
+function clickElement(app, elementIndex) {
+  return unwrapResult(
+    runCli([
+      'computer',
+      'click',
+      '--session',
+      session,
+      '--app',
+      app,
+      '--element-index',
+      elementIndex,
+      '--restore-window',
+      ...(includeScreenshot ? [] : ['--no-screenshot']),
+      '--json'
+    ])
+  )
+}
+
+function setElementValue(app, elementIndex, value) {
+  return unwrapResult(
+    runCli([
+      'computer',
+      'set-value',
+      '--session',
+      session,
+      '--app',
+      app,
+      '--element-index',
+      elementIndex,
+      '--value',
+      value,
+      '--restore-window',
+      ...(includeScreenshot ? [] : ['--no-screenshot']),
+      '--json'
+    ])
+  )
+}
+
+function setElementValueFromStdin(app, elementIndex, value) {
+  return unwrapResult(
+    runCli(
+      [
+        'computer',
+        'set-value',
+        '--session',
+        session,
+        '--app',
+        app,
+        '--element-index',
+        elementIndex,
+        '--value-stdin',
+        '--restore-window',
+        ...(includeScreenshot ? [] : ['--no-screenshot']),
+        '--json'
+      ],
+      { input: value }
+    )
+  )
+}
+
+function findElementIndex(state, terms) {
+  const treeText = treeTextForState(state)
+  for (const line of treeText.split('\n')) {
+    if (!terms.every((term) => line.includes(term))) {
+      continue
+    }
+    const match = line.trim().match(/^(\d+)\b/)
+    if (match) {
+      return match[1]
+    }
+  }
+  fail(`Janus workflow missing element matching: ${terms.join(' + ')}`)
+}
+
+function expectTree(state, terms) {
+  const treeText = treeTextForState(state)
+  for (const term of terms) {
+    if (!treeText.includes(term)) {
+      fail(`Janus workflow expected tree text to include: ${term}`)
+    }
+  }
+}
+
+function treeTextForState(state) {
+  return String(state?.snapshot?.treeText ?? '')
+}
+
 function parseCliFailure(raw) {
   if (!raw) {
     return null
@@ -142,19 +291,15 @@ function valueFlag(name) {
 }
 
 function runCli(cliArgs, options = {}) {
+  const userDataPath = smokeUserDataPath()
   const child = spawnSync(process.execPath, [cliPath, ...cliArgs], {
     cwd: repoRoot,
     encoding: 'utf8',
+    input: options.input,
     env: {
       ...process.env,
-      JANUS_USER_DATA_PATH:
-        process.env.JANUS_COMPUTER_SMOKE_USER_DATA_PATH ??
-        process.env.ORCA_COMPUTER_SMOKE_USER_DATA_PATH ??
-        defaultDevUserDataPath(),
-      ORCA_USER_DATA_PATH:
-        process.env.JANUS_COMPUTER_SMOKE_USER_DATA_PATH ??
-        process.env.ORCA_COMPUTER_SMOKE_USER_DATA_PATH ??
-        defaultDevUserDataPath()
+      JANUS_USER_DATA_PATH: userDataPath,
+      ORCA_USER_DATA_PATH: userDataPath
     }
   })
   if (child.status !== 0) {
@@ -172,6 +317,29 @@ function runCli(cliArgs, options = {}) {
     const detail = error instanceof Error ? error.message : String(error)
     fail(`Could not parse CLI JSON for ${cliArgs.join(' ')}: ${detail}\n${child.stdout}`)
   }
+}
+
+function smokeUserDataPath() {
+  return (
+    nonEmptyEnv('JANUS_COMPUTER_SMOKE_USER_DATA_PATH') ??
+    nonEmptyEnv('ORCA_COMPUTER_SMOKE_USER_DATA_PATH') ??
+    (janusWorkflow ? defaultInstalledUserDataPath() : defaultDevUserDataPath())
+  )
+}
+
+function nonEmptyEnv(name) {
+  const value = process.env[name]?.trim()
+  return value ? value : null
+}
+
+function defaultInstalledUserDataPath() {
+  if (process.platform === 'darwin') {
+    return resolve(homedir(), 'Library', 'Application Support', 'janus-code')
+  }
+  if (process.platform === 'win32') {
+    return resolve(process.env.APPDATA ?? resolve(homedir(), 'AppData', 'Roaming'), 'janus-code')
+  }
+  return resolve(process.env.XDG_CONFIG_HOME ?? resolve(homedir(), '.config'), 'janus-code')
 }
 
 function defaultDevUserDataPath() {

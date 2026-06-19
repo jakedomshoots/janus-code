@@ -8,6 +8,183 @@ const projectDir = path.resolve(import.meta.dirname, '../..')
 const smokeScript = path.join(projectDir, 'config', 'scripts', 'computer-use-smoke.mjs')
 
 describe('computer-use smoke script', () => {
+  it('drives the Janus workflow gate without sending a prompt', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root)
+    const callsPath = path.join(root, 'calls.jsonl')
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: '',
+        ORCA_COMPUTER_SMOKE_USER_DATA_PATH: '',
+        JANUS_USER_DATA_PATH: '',
+        ORCA_USER_DATA_PATH: ''
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+    expect(
+      readFileSync(callsPath, 'utf8')
+        .trim()
+        .split('\n')
+        .map((line) => JSON.parse(line))
+    ).toEqual([
+      [
+        'computer',
+        'get-app-state',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '33',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'set-value',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '7',
+        '--value',
+        'voice',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '6',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '76',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '62',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '89',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '90',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '91',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'set-value',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '74',
+        '--value',
+        '/',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'set-value',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '141',
+        '--value-stdin',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ]
+    ])
+    expect(path.basename(readFileSync(path.join(root, 'user-data-path.txt'), 'utf8'))).toBe(
+      'janus-code'
+    )
+  })
+
   it('can launch a runtime before checking apps', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
     const cliPath = path.join(root, 'fake-cli.cjs')
@@ -133,6 +310,69 @@ describe('computer-use smoke script', () => {
     expect(result.stdout).toContain('computer-use smoke: Notepad')
   })
 })
+
+function writeFakeJanusWorkflowCli(root) {
+  const cliPath = path.join(root, 'fake-cli.cjs')
+  const callsPath = path.join(root, 'calls.jsonl')
+  const statePath = path.join(root, 'state.txt')
+  writeFileSync(statePath, 'workspace', 'utf8')
+  writeFileSync(
+    cliPath,
+    [
+      'const fs = require("node:fs");',
+      `const callsPath = ${JSON.stringify(callsPath)};`,
+      `const statePath = ${JSON.stringify(statePath)};`,
+      'const args = process.argv.slice(2);',
+      'fs.appendFileSync(callsPath, JSON.stringify(args) + "\\n");',
+      'const command = args.slice(0, 2).join(" ");',
+      'const elementIndex = readFlag("--element-index");',
+      `fs.writeFileSync(${JSON.stringify(path.join(root, 'user-data-path.txt'))}, process.env.ORCA_USER_DATA_PATH || "");`,
+      'if (command === "computer get-app-state") {',
+      '  printState(fs.readFileSync(statePath, "utf8"));',
+      '} else if (command === "computer click") {',
+      '  if (elementIndex === "33") fs.writeFileSync(statePath, "settings");',
+      '  if (elementIndex === "6") fs.writeFileSync(statePath, "workspace");',
+      '  if (elementIndex === "76") fs.writeFileSync(statePath, "browser");',
+      '  if (elementIndex === "62") fs.writeFileSync(statePath, "workspace");',
+      '  if (elementIndex === "89") fs.writeFileSync(statePath, "output");',
+      '  if (elementIndex === "90") fs.writeFileSync(statePath, "changes");',
+      '  if (elementIndex === "91") fs.writeFileSync(statePath, "review");',
+      '  printState(fs.readFileSync(statePath, "utf8"));',
+      '} else if (command === "computer set-value") {',
+      '  if (elementIndex === "7") fs.writeFileSync(statePath, "settings-search");',
+      '  if (elementIndex === "74") fs.writeFileSync(statePath, "slash");',
+      '  if (elementIndex === "141") fs.writeFileSync(statePath, "workspace");',
+      '  printState(fs.readFileSync(statePath, "utf8"));',
+      '} else {',
+      '  console.error("unexpected args: " + args.join(" "));',
+      '  process.exit(1);',
+      '}',
+      'function readFlag(name) {',
+      '  const index = args.indexOf(name);',
+      '  return index === -1 ? null : args[index + 1];',
+      '}',
+      'function printState(state) {',
+      '  console.log(JSON.stringify({ result: { snapshot: { app: { name: "Janus Code" }, elementCount: 20, treeText: treeText(state), window: { title: "Janus Code" } }, screenshot: null } }));',
+      '}',
+      'function treeText(state) {',
+      '  const states = {',
+      '    workspace: ["33 button Settings", "72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "76 button Open browser workbench", "78 button Open terminal drawer", "79 text Completed thread Codex", "80 button disabled Send", "89 tab Output", "90 tab Changes", "91 tab Review", "92 tab Context", "102 container Terminal drawer"].join("\\n"),',
+      '    settings: ["6 button Back to app", "7 text field Placeholder: Search settings", "12 button Voice Not installed"].join("\\n"),',
+      '    "settings-search": ["6 button Back to app", "7 text field Value: voice, Placeholder: Search settings", "23 heading Voice", "40 heading Shortcuts", "72 heading macOS Permissions"].join("\\n"),',
+      '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container Browser workbench"].join("\\n"),',
+      '    output: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab (selected) Output", "90 tab Changes", "91 tab Review", "94 container Outputs"].join("\\n"),',
+      '    changes: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 text No changes"].join("\\n"),',
+      '    review: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab Changes", "91 tab (selected) Review", "94 container Review", "97 text None"].join("\\n"),',
+      '    slash: ["78 list box Slash commands", "89 /commands Commands Refresh the live slash-command list from the selected agent.", "141 text entry area Description: Message agent, Value: /, Placeholder: Ask a follow-up in this thread..."].join("\\n")',
+      '  };',
+      '  return states[state] || states.workspace;',
+      '}'
+    ].join('\n'),
+    'utf8'
+  )
+  chmodSync(cliPath, 0o755)
+  return cliPath
+}
 
 function writeFakeListAppsCli(root, apps) {
   const cliPath = path.join(root, 'fake-cli.cjs')

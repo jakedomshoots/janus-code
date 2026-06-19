@@ -48,6 +48,7 @@
     "build:computer-macos": "node config/scripts/build-computer-macos.mjs",
     "build:native": "node config/scripts/build-native-for-platform.mjs",
     "smoke:computer": "node config/scripts/computer-use-smoke.mjs",
+    "smoke:janus-workflow": "node config/scripts/computer-use-smoke.mjs --janus-workflow",
     "verify:computer-native": "node config/scripts/verify-computer-native.mjs",
     "verify:cli-bin": "node config/scripts/verify-cli-bin.mjs",
     "verify:localization-catalog": "node config/scripts/verify-localization-catalog.mjs",
