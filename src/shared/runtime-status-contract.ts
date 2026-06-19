@@ -48,6 +48,12 @@ export {
   VALID_RUNTIME_HOST_PLATFORMS,
   VALID_RUNTIME_HOST_PLATFORM_VALUES
 } from './runtime-status-enum-values'
+export {
+  INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
+  NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
+} from './runtime-status-field-groups'
 export type {
   RuntimeStatusPortingArrayConstraint,
   RuntimeStatusPortingNumericConstraint,

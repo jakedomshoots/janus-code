@@ -180,6 +180,33 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-field-groups'")
   })
 
+  it('exports runtime status field groups for sidecar schema adapters', () => {
+    expect(runtimeStatusContract).toMatchObject({
+      REQUIRED_RUNTIME_STATUS_PORTING_FIELDS: [
+        'runtimeId',
+        'rendererGraphEpoch',
+        'graphStatus',
+        'authoritativeWindowId',
+        'liveTabCount',
+        'liveLeafCount',
+        'runtimeProtocolVersion',
+        'minCompatibleRuntimeClientVersion',
+        'capabilities',
+        'hostPlatform'
+      ],
+      VERSIONED_RUNTIME_STATUS_PORTING_FIELDS: [
+        'runtimeProtocolVersion',
+        'minCompatibleRuntimeClientVersion'
+      ],
+      NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS: [
+        'rendererGraphEpoch',
+        'liveTabCount',
+        'liveLeafCount'
+      ],
+      INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS: listRuntimeStatusPortingInvalidatableFields()
+    })
+  })
+
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })
