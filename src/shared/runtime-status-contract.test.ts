@@ -147,6 +147,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-validation-result'")
   })
 
+  it('keeps runtime status validation functions in a dedicated validation module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-contract-validation'")
+  })
+
   it('keeps constraint metadata types in a dedicated constraints module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
