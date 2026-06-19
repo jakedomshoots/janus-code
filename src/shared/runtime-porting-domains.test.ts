@@ -13,6 +13,7 @@ import {
   listNativeRuntimePortingCandidates,
   listRetainedElectronRuntimeDomains,
   RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID,
+  RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
   RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH,
   RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE,
   RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION,
@@ -52,6 +53,7 @@ describe('runtime porting domains', () => {
       verificationCommand:
         'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts',
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
+      firstSliceRationale: 'read-only-runtime-rpc',
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
       retainedElectron: listRetainedElectronRuntimeDomains(),
@@ -99,6 +101,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE)
+    expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
     expect(doc).toContain(`migrationStrategy: ${RUNTIME_PORTING_MIGRATION_STRATEGY}`)
     expect(doc).toContain(`sourceRuntime: ${RUNTIME_PORTING_SOURCE_RUNTIME}`)

@@ -11,6 +11,7 @@
     "boundary": "runtime-rpc",
     "disposition": "first-slice"
   },
+  "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",
   "nativeCandidates": [
     {
