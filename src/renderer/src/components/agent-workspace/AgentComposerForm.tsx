@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import { AgentComposerFooter } from './AgentComposerFooter'
 import { AgentComposerSlashCommandMenu } from './AgentComposerSlashCommandMenu'
@@ -99,6 +99,9 @@ export function AgentComposerForm({
   onRestoreRecoverablePrompt: () => void
   onRetryRecoverablePrompt: () => void
 }): React.JSX.Element {
+  const slashCommandsId = useId()
+  const slashCommandsListId = `${slashCommandsId}-listbox`
+  const slashCommandOptionIdPrefix = `${slashCommandsId}-option`
   const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0)
   const activeAgent = selectedThread
     ? isTuiAgent(selectedThread.agentKind)
@@ -122,6 +125,11 @@ export function AgentComposerForm({
     [activeAgent, availableSlashCommands, prompt]
   )
   const slashMenuOpen = slashCommands.length > 0
+  const boundedActiveSlashCommandIndex =
+    slashCommands.length > 0 ? Math.min(activeSlashCommandIndex, slashCommands.length - 1) : 0
+  const activeSlashCommandOptionId = slashMenuOpen
+    ? `${slashCommandOptionIdPrefix}-${boundedActiveSlashCommandIndex}`
+    : undefined
 
   const handleSlashCommandSelect = useCallback(
     (command: { command: string }): void => {
@@ -153,7 +161,7 @@ export function AgentComposerForm({
       }
 
       if (event.key === 'Enter' || event.key === 'Tab') {
-        const selectedCommand = slashCommands[activeSlashCommandIndex] ?? slashCommands[0]
+        const selectedCommand = slashCommands[boundedActiveSlashCommandIndex] ?? slashCommands[0]
         if (selectedCommand) {
           event.preventDefault()
           handleSlashCommandSelect(selectedCommand)
@@ -163,7 +171,13 @@ export function AgentComposerForm({
 
       onKeyDown(event)
     },
-    [activeSlashCommandIndex, handleSlashCommandSelect, onKeyDown, slashCommands, slashMenuOpen]
+    [
+      boundedActiveSlashCommandIndex,
+      handleSlashCommandSelect,
+      onKeyDown,
+      slashCommands,
+      slashMenuOpen
+    ]
   )
 
   return (
@@ -178,8 +192,10 @@ export function AgentComposerForm({
       <div className="mx-auto w-full max-w-[860px]">
         <div className="agent-composer-shell rounded-xl border border-border/80 bg-card shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <AgentComposerSlashCommandMenu
+            id={slashCommandsListId}
+            optionIdPrefix={slashCommandOptionIdPrefix}
             commands={slashCommands}
-            activeIndex={Math.min(activeSlashCommandIndex, slashCommands.length - 1)}
+            activeIndex={boundedActiveSlashCommandIndex}
             onActiveIndexChange={setActiveSlashCommandIndex}
             onSelect={handleSlashCommandSelect}
           />
@@ -189,6 +205,9 @@ export function AgentComposerForm({
             selectedThread={selectedThread}
             disabled={composerDisabled}
             statusMessage={statusMessage}
+            slashMenuOpen={slashMenuOpen}
+            slashCommandsListId={slashCommandsListId}
+            activeSlashCommandOptionId={activeSlashCommandOptionId}
             onChange={onPromptChange}
             onPaste={onPaste}
             onKeyDown={handleTextareaKeyDown}

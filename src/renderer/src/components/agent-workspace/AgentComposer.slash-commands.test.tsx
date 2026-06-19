@@ -228,6 +228,40 @@ describe('AgentComposer slash commands', () => {
     expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
   })
 
+  it('keyboard-selects the visually highlighted slash command after the list narrows', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/')
+    })
+    await act(async () => {
+      for (let index = 0; index < 8; index += 1) {
+        textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+      }
+    })
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/log')
+    })
+
+    const selectedOption = container.querySelector<HTMLElement>(
+      '[role="option"][aria-selected="true"]'
+    )
+    expect(selectedOption?.dataset.command).toBe('/logout')
+    expect(textarea?.getAttribute('aria-activedescendant')).toBe(selectedOption?.id)
+
+    await act(async () => {
+      textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    })
+
+    expect(textarea?.value).toBe('/logout')
+  })
+
   it('offers a live command discovery slash command', async () => {
     await act(async () => {
       root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)

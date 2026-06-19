@@ -4,11 +4,15 @@ import { cn } from '@/lib/utils'
 import type { AgentComposerSlashCommand } from './agent-composer-slash-command-model'
 
 export function AgentComposerSlashCommandMenu({
+  id,
+  optionIdPrefix,
   commands,
   activeIndex,
   onActiveIndexChange,
   onSelect
 }: {
+  id: string
+  optionIdPrefix: string
   commands: readonly AgentComposerSlashCommand[]
   activeIndex: number
   onActiveIndexChange: (index: number) => void
@@ -21,6 +25,7 @@ export function AgentComposerSlashCommandMenu({
   return (
     <div className="px-3 pt-3">
       <div
+        id={id}
         className="rounded-lg border border-border bg-popover text-popover-foreground shadow-xs"
         role="listbox"
         aria-label={translate(
@@ -36,6 +41,7 @@ export function AgentComposerSlashCommandMenu({
           {commands.map((item, index) => (
             <button
               key={item.command}
+              id={`${optionIdPrefix}-${index}`}
               type="button"
               role="option"
               aria-selected={index === activeIndex}

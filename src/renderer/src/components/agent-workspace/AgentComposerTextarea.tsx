@@ -19,6 +19,9 @@ export function AgentComposerTextarea({
   selectedThread,
   disabled,
   statusMessage,
+  slashMenuOpen = false,
+  slashCommandsListId,
+  activeSlashCommandOptionId,
   onChange,
   onPaste,
   onKeyDown
@@ -28,6 +31,9 @@ export function AgentComposerTextarea({
   selectedThread: AgentWorkspaceThread | null
   disabled: boolean
   statusMessage: string | null
+  slashMenuOpen?: boolean
+  slashCommandsListId?: string
+  activeSlashCommandOptionId?: string
   onChange: (value: string) => void
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void
   onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void
@@ -68,6 +74,9 @@ export function AgentComposerTextarea({
         'Message agent'
       )}
       aria-describedby={statusMessage ? 'agent-workspace-composer-status' : undefined}
+      aria-expanded={slashMenuOpen}
+      aria-controls={slashMenuOpen ? slashCommandsListId : undefined}
+      aria-activedescendant={slashMenuOpen ? activeSlashCommandOptionId : undefined}
       rows={2}
       onChange={(event) => onChange(event.target.value)}
       onPaste={onPaste}
