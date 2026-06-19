@@ -223,3 +223,17 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
     arrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
   }
 }
+
+export function getRuntimeStatusPortingJsonSchema(): {
+  $schema: string
+  title: string
+  type: 'object'
+  required: RuntimeStatusPortingField[]
+} {
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    title: 'Janus Runtime status.get result',
+    type: 'object',
+    required: listRuntimeStatusPortingRequiredFields()
+  }
+}

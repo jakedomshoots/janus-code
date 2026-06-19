@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
+  getRuntimeStatusPortingJsonSchema,
   getRuntimeStatusPortingContractSummary,
   listMissingRuntimeStatusPortingFields,
   listRuntimeStatusPortingInvalidatableFields,
@@ -106,6 +107,15 @@ describe('runtime status porting contract', () => {
       arrayConstraints: {
         capabilities: { itemType: 'string' }
       }
+    })
+  })
+
+  it('exposes a JSON schema shell for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toEqual({
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      title: 'Janus Runtime status.get result',
+      type: 'object',
+      required: listRuntimeStatusPortingRequiredFields()
     })
   })
 
