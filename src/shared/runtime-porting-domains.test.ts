@@ -75,6 +75,16 @@ describe('runtime porting domains', () => {
     )
   })
 
+  it('documents the runtime porting summary artifact for non-TypeScript tools', () => {
+    const doc = readFileSync(
+      resolve(__dirname, '../../docs/reference/runtime-status-contract-artifact.md'),
+      'utf8'
+    )
+
+    expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH)
+    expect(doc).toContain('pnpm run verify:runtime-porting-summary-artifact')
+  })
+
   it('keeps the embedded browser workbench out of the first native porting wave', () => {
     const domain = getRuntimePortingDomain('browser-workbench')
 

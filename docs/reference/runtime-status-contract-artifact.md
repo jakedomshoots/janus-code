@@ -14,3 +14,13 @@ pnpm run verify:runtime-status-contract-artifact
 ```
 
 The TypeScript builders in `src/shared/runtime-status-contract.ts` remain the source of truth. The verifier ensures the checked-in JSON artifact stays in sync with those builders and the runtime porting domain mapping.
+
+## Runtime Porting Summary
+
+Use `src/shared/runtime-porting-domains-summary.json` as the checked-in summary of the current porting domains for non-TypeScript planning tools.
+
+Run this verifier after changing runtime porting domain metadata:
+
+```sh
+pnpm run verify:runtime-porting-summary-artifact
+```
