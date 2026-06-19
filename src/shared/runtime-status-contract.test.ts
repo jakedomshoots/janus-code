@@ -60,7 +60,11 @@ describe('runtime status porting contract', () => {
       method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
       params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       requiredFields: listRuntimeStatusPortingRequiredFields(),
-      invalidatableFields: listRuntimeStatusPortingInvalidatableFields()
+      invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
+      enumValues: {
+        graphStatus: ['ready', 'reloading', 'unavailable'],
+        hostPlatform: ['darwin', 'linux', 'win32']
+      }
     })
   })
 

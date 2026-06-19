@@ -155,12 +155,20 @@ export function getRuntimeStatusPortingContractSummary(): {
   params: null
   requiredFields: (keyof RuntimeStatus)[]
   invalidatableFields: (keyof RuntimeStatus)[]
+  enumValues: {
+    graphStatus: string[]
+    hostPlatform: string[]
+  }
 } {
   return {
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
     method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
     params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
     requiredFields: listRuntimeStatusPortingRequiredFields(),
-    invalidatableFields: listRuntimeStatusPortingInvalidatableFields()
+    invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
+    enumValues: {
+      graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
+      hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
+    }
   }
 }
