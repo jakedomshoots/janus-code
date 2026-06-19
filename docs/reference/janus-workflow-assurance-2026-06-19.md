@@ -25,7 +25,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, file explorer, quick-open/search, Cmd+J palette, editor tab/content, notes-send, agent review/diff, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
@@ -121,6 +121,24 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Terminal/browser drawer shell   | preserves mounted content, labels browser workbench distinctly, closes safely | Verified by test |
 | Terminal focus event            | focus/ack/scroll only resolves against the current leaf owner              | Verified by test |
 | Terminal quick commands         | shell commands dispatch to PTY, while agent-prompt actions avoid raw pane writes | Verified by test |
+
+## File, Search, Editor, And Review Matrix
+
+| Control                         | Expected behavior                                                         | Status           |
+| ------------------------------- | ------------------------------------------------------------------------- | ---------------- |
+| File Explorer toolbar           | refresh, search, collapse, filters, and open-in actions expose the right affordances | Verified by test |
+| File Explorer runtime owner     | file/git requests use selected worktree owner settings, including remote contexts | Verified by test |
+| Add folder as project           | directory rows pass the selected node into the add-as-project handler      | Verified by test |
+| Search result rows              | file result badges match the navigable result count                        | Verified by test |
+| Quick-open search               | file ranking handles empty queries, large lists, and Windows-style paths   | Verified by test |
+| Quick-open file list            | quick-open rows route through the selected worktree context                | Verified by test |
+| Cmd+J palette                   | common action/settings queries rank the intended visible command first     | Verified by test |
+| Worktree jump palette           | typed hosted-review lookups preserve source host context                   | Verified by test |
+| Editor content                  | load errors surface before file-specific renderers try to parse content    | Verified by test |
+| Notes send menu                 | note-send target mode and launch menus stay scoped to the active note set  | Verified by test |
+| Editor file tab                 | tab actions, labels, and local-open guards preserve file identity          | Verified by test |
+| Agent review panel              | hosted review labels stay provider-specific for GitHub and GitLab          | Verified by test |
+| Agent diff panel                | diff selection, staging, discard, and commit actions target the selected diff | Verified by test |
 
 ## Workspace And Sidebar Matrix
 
