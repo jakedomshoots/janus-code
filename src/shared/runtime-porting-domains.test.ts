@@ -8,7 +8,8 @@ import {
 } from './runtime-status-contract-artifact'
 import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
-  RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 } from './runtime-status-contract'
 import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
 import {
@@ -69,6 +70,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
+      firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
       firstSliceRationale: 'read-only-runtime-rpc',
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
@@ -128,6 +130,9 @@ describe('runtime porting domains', () => {
     )
     expect(doc).toContain(
       `firstSliceContractJsonSchemaId: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID}`
+    )
+    expect(doc).toContain(
+      `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
