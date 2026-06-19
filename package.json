@@ -29,6 +29,7 @@
     "verify:release-perf-scorecard": "node config/scripts/release-perf-scorecard.mjs",
     "verify:janus-workflow-assurance": "node config/scripts/run-janus-workflow-assurance.mjs",
     "verify:runtime-status-contract-artifact": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts src/shared/runtime-porting-domains.test.ts",
+    "verify:runtime-porting-summary-artifact": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts",
     "vendor:feature-wall-assets": "node config/scripts/vendor-feature-wall-assets.mjs",
     "tc:node": "pnpm run typecheck:node",
     "tc:cli": "pnpm run typecheck:cli",

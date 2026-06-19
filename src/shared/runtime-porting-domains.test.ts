@@ -67,6 +67,14 @@ describe('runtime porting domains', () => {
     expect(readFileSync(artifactPath, 'utf8')).toBe(getRuntimePortingDomainSummaryJson())
   })
 
+  it('exposes a package script for verifying the checked-in porting summary artifact', () => {
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf8'))
+
+    expect(packageJson.scripts['verify:runtime-porting-summary-artifact']).toBe(
+      'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
+    )
+  })
+
   it('keeps the embedded browser workbench out of the first native porting wave', () => {
     const domain = getRuntimePortingDomain('browser-workbench')
 
