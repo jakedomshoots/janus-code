@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import * as runtimeStatusContract from './runtime-status-contract'
 import {
   assertRuntimeStatusPortingContract,
   getRuntimeStatusPortingJsonSchema,
@@ -113,6 +114,19 @@ describe('runtime status porting contract', () => {
       arrayConstraints: {
         capabilities: { itemType: 'string' }
       }
+    })
+  })
+
+  it('exposes one bundled contract artifact for non-TypeScript sidecar adapters', () => {
+    expect(
+      (
+        runtimeStatusContract as typeof runtimeStatusContract & {
+          getRuntimeStatusPortingContractArtifact?: () => unknown
+        }
+      ).getRuntimeStatusPortingContractArtifact?.()
+    ).toEqual({
+      summary: getRuntimeStatusPortingContractSummary(),
+      jsonSchema: getRuntimeStatusPortingJsonSchema()
     })
   })
 
