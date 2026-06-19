@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**100/100 for the audited release-readiness gate.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, the first manual audit findings now have repeatable checks, and the installed app passed the final non-destructive runtime sweep for settings, composer, browser, terminal, and right-panel workflows.
+**100/100 for the audited repo-side release-readiness gate.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The installed-app smoke runner is ready, but the current machine still needs macOS Accessibility and Screen Recording permission for the bundled Janus Computer Use helper before that live sweep can be counted as passed.
 
 ## First-Principles Standard
 
@@ -25,15 +25,15 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Sidebar Add Project/New workspace header regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/SidebarHeader.test.tsx`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
 - Settings sidebar control regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/settings/SettingsSidebar.test.tsx`
-- Installed-app Computer Use runtime sweep: Settings search/back, completed-thread composer state, slash-command picker, browser workbench launch, terminal drawer presence, and Output/Changes/Review right-panel tabs.
-- Repeatable installed-app smoke gate: `pnpm run smoke:janus-workflow`. This replays the same non-destructive flow through Janus Computer Use and defaults to the production `janus-code` runtime data path, including Source Control changed-row selection and remote-action menu visibility when changed files are present.
+- Installed-app Computer Use runtime sweep: runner implemented for Settings search/back, completed-thread composer state, slash-command picker, browser workbench launch, terminal drawer presence, and Output/Changes/Review right-panel tabs; current execution is blocked by helper Accessibility and Screen Recording permissions.
+- Repeatable installed-app smoke gate: `pnpm run smoke:janus-workflow`. This replays the same non-destructive flow through Janus Computer Use and defaults to the production `janus-code` runtime data path, including Source Control changed-row selection and remote-action menu visibility when changed files are present. It should be rerun after granting the bundled helper permissions.
 - SSH composer-adjacent parity checks: model discovery forwards `worktreePath` plus `connectionId`, and the terminal drawer route remains available for SSH selected projects.
 - SSH source-control/file parity checks: PR field generation and file explorer drag-move mutations use the selected SSH worktree context instead of ambient host state.
 - SSH discard/source-control action parity checks: Source Control discard now quiesces editor saves against the worktree owner boundary, and Agent Workspace Stage, Unstage, Discard, and Commit actions carry the selected SSH project context.
@@ -105,6 +105,22 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | SSH target forms                | pasted hosts/ports/config aliases parse into valid editable drafts        | Verified by test |
 | SSH target removal              | removes targets even when relay cleanup needs reconnect/retry fallback    | Verified by test |
 | Provider account scope          | account-scoped settings do not leak across provider/host boundaries       | Verified by test |
+
+## Browser And Terminal Matrix
+
+| Control                         | Expected behavior                                                         | Status           |
+| ------------------------------- | ------------------------------------------------------------------------- | ---------------- |
+| Agent launch delivery           | created tabs receive provider metadata, prompt delivery, and failure state | Verified by test |
+| Browser workbench surface       | mounts tab-group chrome and the browser overlay layer together             | Verified by test |
+| Browser overlay layer           | keeps inactive browser panes mounted while routing active state correctly  | Verified by test |
+| Browser address suggestions     | previewed suggestions restore the typed query when dismissed               | Verified by test |
+| Browser tab favicon/menu        | tab UI renders favicon and actions without replacing the browser identity  | Verified by test |
+| Agent browser tab tracking      | tracked browser tabs survive remote handle hydration                       | Verified by test |
+| Browser tab consolidation       | stale/duplicate agent browser tabs are pruned without closing the keeper   | Verified by test |
+| Terminal visibility state       | terminal, browser, and workbench reveal reasons route to the right surface | Verified by test |
+| Terminal/browser drawer shell   | preserves mounted content, labels browser workbench distinctly, closes safely | Verified by test |
+| Terminal focus event            | focus/ack/scroll only resolves against the current leaf owner              | Verified by test |
+| Terminal quick commands         | shell commands dispatch to PTY, while agent-prompt actions avoid raw pane writes | Verified by test |
 
 ## Workspace And Sidebar Matrix
 
