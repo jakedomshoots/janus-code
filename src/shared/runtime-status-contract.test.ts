@@ -128,6 +128,10 @@ describe('runtime status porting contract', () => {
         hostPlatform: {
           type: 'string',
           enum: ['darwin', 'linux', 'win32']
+        },
+        runtimeProtocolVersion: {
+          type: 'integer',
+          minimum: 1
         }
       }
     })
@@ -161,6 +165,17 @@ describe('runtime status porting contract', () => {
         hostPlatform: {
           type: 'string',
           enum: ['darwin', 'linux', 'win32']
+        }
+      }
+    })
+  })
+
+  it('describes the runtime protocol version JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        runtimeProtocolVersion: {
+          type: 'integer',
+          minimum: 1
         }
       }
     })

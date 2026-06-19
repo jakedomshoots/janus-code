@@ -242,6 +242,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'string'
       enum: string[]
     }
+    runtimeProtocolVersion: {
+      type: 'integer'
+      minimum: number
+    }
   }
 } {
   return {
@@ -261,6 +265,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       hostPlatform: {
         type: 'string',
         enum: [...VALID_RUNTIME_HOST_PLATFORMS]
+      },
+      runtimeProtocolVersion: {
+        type: 'integer',
+        minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.runtimeProtocolVersion.minimum
       }
     }
   }
