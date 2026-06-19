@@ -20,6 +20,7 @@ Every workflow was checked against this chain:
 - Local installed slash-menu smoke evidence: `docs/audits/evidence/janus-workflow-assurance-2026-06-19/02-installed-slash-menu.png`
 - Red/green regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "selected project backend context"`
 - Keyboard slash-command selection regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "keyboard-selects slash commands"`
+- Composer permission-mode regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.permission-mode.test.tsx`
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
