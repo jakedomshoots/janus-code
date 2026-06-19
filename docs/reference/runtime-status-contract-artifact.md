@@ -19,6 +19,8 @@ The TypeScript builders in `src/shared/runtime-status-contract.ts` remain the so
 
 Use `src/shared/runtime-porting-domains-summary.json` as the checked-in summary of the current porting domains for non-TypeScript planning tools.
 
+The summary artifact is labeled with `artifactId: janus-runtime-porting-domain-summary` and `schemaVersion: 1` so external readers can reject unknown formats before using the domain plan.
+
 Run this verifier after changing runtime porting domain metadata:
 
 ```sh

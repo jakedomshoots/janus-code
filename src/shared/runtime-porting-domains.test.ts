@@ -12,7 +12,9 @@ import {
   listRuntimePortingDomainsByDisposition,
   listNativeRuntimePortingCandidates,
   listRetainedElectronRuntimeDomains,
+  RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID,
   RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH,
+  RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -84,6 +86,8 @@ describe('runtime porting domains', () => {
     )
 
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH)
+    expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID)
+    expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
     expect(doc).toContain('pnpm run verify:runtime-porting-summary-artifact')
   })
 
