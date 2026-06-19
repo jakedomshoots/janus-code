@@ -5,6 +5,7 @@ import {
   getRuntimePortingDomain,
   getRuntimePortingFirstSliceDomain,
   getRuntimePortingDomainSummary,
+  getRuntimePortingDomainSummaryJson,
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
   listRuntimePortingDomainsByBoundary,
@@ -42,6 +43,12 @@ describe('runtime porting domains', () => {
       nativeCandidateCount: 3,
       retainedElectronCount: 3
     })
+  })
+
+  it('serializes the runtime porting domain summary as stable JSON', () => {
+    expect(getRuntimePortingDomainSummaryJson()).toBe(
+      `${JSON.stringify(getRuntimePortingDomainSummary(), null, 2)}\n`
+    )
   })
 
   it('keeps the embedded browser workbench out of the first native porting wave', () => {

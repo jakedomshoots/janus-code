@@ -118,6 +118,10 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
   }
 }
 
+export function getRuntimePortingDomainSummaryJson(): string {
+  return `${JSON.stringify(getRuntimePortingDomainSummary(), null, 2)}\n`
+}
+
 export function getRuntimePortingFirstSliceMethod(): RuntimePortingFirstSliceMethod {
   return RUNTIME_PORTING_FIRST_SLICE_METHOD
 }
