@@ -10,6 +10,8 @@ import {
 } from './runtime-status-enum-values'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
+export const RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI =
+  'https://json-schema.org/draft/2020-12/schema'
 export const RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID =
   'urn:janus:runtime-status-contract:json-schema:1'
 
@@ -36,7 +38,7 @@ export type RuntimeStatusPortingJsonSchema = {
 
 export function getRuntimeStatusPortingJsonSchema(): RuntimeStatusPortingJsonSchema {
   return {
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $schema: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
     $id: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
     title: 'Janus Runtime status.get result',
     type: 'object',

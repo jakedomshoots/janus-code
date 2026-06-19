@@ -386,6 +386,12 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('exports the JSON schema draft URI for sidecar validators', () => {
+    expect(runtimeStatusContract.RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI).toBe(
+      'https://json-schema.org/draft/2020-12/schema'
+    )
+  })
+
   it('closes the JSON schema so sidecar adapters catch runtime status drift', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
       additionalProperties: false

@@ -1,6 +1,7 @@
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export {
   getRuntimeStatusPortingJsonSchema,
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
