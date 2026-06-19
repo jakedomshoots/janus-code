@@ -30,3 +30,5 @@ pnpm run verify:runtime-porting-summary-artifact
 External tools can run the artifact's `verificationCommand` value, `pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts`, when they need the direct checked-in artifact contract check.
 
 The `firstSliceRationale` value is `read-only-runtime-rpc` because `status.get` exercises the runtime RPC boundary without moving process control, filesystem scanning, terminal lifecycle, or Electron-owned browser surfaces.
+
+The first slice points at `firstSliceContractArtifactPath: src/shared/runtime-status-contract-artifact.json`, which is the checked-in `status.get` contract that Rust or Tauri-side readers must preserve.

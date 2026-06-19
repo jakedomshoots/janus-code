@@ -1,3 +1,5 @@
+import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
+
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
 
 export type RuntimePortingDomainDisposition = 'first-slice' | 'native-candidate' | 'retain-electron'
@@ -27,6 +29,8 @@ export type RuntimePortingTargetRuntime = 'tauri'
 export type RuntimePortingVerificationCommand =
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export type RuntimePortingFirstSliceRationale = 'read-only-runtime-rpc'
+export type RuntimePortingFirstSliceContractArtifactPath =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
@@ -37,6 +41,7 @@ export type RuntimePortingDomainSummary = {
   targetRuntime: RuntimePortingTargetRuntime
   verificationCommand: RuntimePortingVerificationCommand
   firstSlice: RuntimePortingDomain
+  firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -64,6 +69,8 @@ export const RUNTIME_PORTING_VERIFICATION_COMMAND: RuntimePortingVerificationCom
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export const RUNTIME_PORTING_FIRST_SLICE_RATIONALE: RuntimePortingFirstSliceRationale =
   'read-only-runtime-rpc'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
@@ -150,6 +157,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     targetRuntime: RUNTIME_PORTING_TARGET_RUNTIME,
     verificationCommand: RUNTIME_PORTING_VERIFICATION_COMMAND,
     firstSlice: getRuntimePortingFirstSliceDomain(),
+    firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,

@@ -11,6 +11,7 @@
     "boundary": "runtime-rpc",
     "disposition": "first-slice"
   },
+  "firstSliceContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",
   "nativeCandidates": [

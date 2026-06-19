@@ -6,13 +6,14 @@ import {
   getRuntimeStatusPortingJsonSchema,
   type RuntimeStatusPortingJsonSchema
 } from './runtime-status-json-schema'
+import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
+
+export { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH }
 
 export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID = 'janus-runtime-status-contract'
 export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION = 1
 export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE =
   'application/vnd.janus.runtime-status-contract+json'
-export const RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH =
-  'src/shared/runtime-status-contract-artifact.json'
 
 export type RuntimeStatusPortingContractArtifact = {
   artifactId: typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
