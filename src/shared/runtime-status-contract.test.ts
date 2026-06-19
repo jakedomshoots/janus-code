@@ -176,7 +176,7 @@ describe('runtime status porting contract', () => {
     const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf8'))
 
     expect(packageJson.scripts['verify:runtime-status-contract-artifact']).toBe(
-      'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts'
+      'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts src/shared/runtime-porting-domains.test.ts'
     )
   })
 
