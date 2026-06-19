@@ -140,6 +140,10 @@ describe('runtime status porting contract', () => {
         rendererGraphEpoch: {
           type: 'integer',
           minimum: 0
+        },
+        liveTabCount: {
+          type: 'integer',
+          minimum: 0
         }
       }
     })
@@ -204,6 +208,17 @@ describe('runtime status porting contract', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
       properties: {
         rendererGraphEpoch: {
+          type: 'integer',
+          minimum: 0
+        }
+      }
+    })
+  })
+
+  it('describes the live tab count JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        liveTabCount: {
           type: 'integer',
           minimum: 0
         }

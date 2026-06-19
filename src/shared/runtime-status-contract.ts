@@ -254,6 +254,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'integer'
       minimum: number
     }
+    liveTabCount: {
+      type: 'integer'
+      minimum: number
+    }
   }
 } {
   return {
@@ -286,6 +290,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       rendererGraphEpoch: {
         type: 'integer',
         minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.rendererGraphEpoch.minimum
+      },
+      liveTabCount: {
+        type: 'integer',
+        minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.liveTabCount.minimum
       }
     }
   }
