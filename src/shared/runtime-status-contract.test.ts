@@ -152,6 +152,12 @@ describe('runtime status porting contract', () => {
         authoritativeWindowId: {
           type: ['integer', 'null'],
           minimum: 0
+        },
+        capabilities: {
+          type: 'array',
+          items: {
+            type: 'string'
+          }
         }
       }
     })
@@ -251,6 +257,19 @@ describe('runtime status porting contract', () => {
         authoritativeWindowId: {
           type: ['integer', 'null'],
           minimum: 0
+        }
+      }
+    })
+  })
+
+  it('describes the capabilities JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        capabilities: {
+          type: 'array',
+          items: {
+            type: 'string'
+          }
         }
       }
     })

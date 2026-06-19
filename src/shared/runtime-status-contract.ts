@@ -266,6 +266,12 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: ['integer', 'null']
       minimum: number
     }
+    capabilities: {
+      type: 'array'
+      items: {
+        type: 'string'
+      }
+    }
   }
 } {
   return {
@@ -310,6 +316,12 @@ export function getRuntimeStatusPortingJsonSchema(): {
       authoritativeWindowId: {
         type: ['integer', 'null'],
         minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.authoritativeWindowId.minimum
+      },
+      capabilities: {
+        type: 'array',
+        items: {
+          type: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS.capabilities.itemType
+        }
       }
     }
   }
