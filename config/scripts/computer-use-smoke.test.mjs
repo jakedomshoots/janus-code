@@ -259,6 +259,47 @@ describe('computer-use smoke script', () => {
     ])
   })
 
+  it('returns from Settings before driving the Janus workflow gate', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root, { initialState: 'settings' })
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+    const calls = readJsonl(path.join(root, 'calls.jsonl'))
+    expect(calls[0].slice(0, 2)).toEqual(['computer', 'get-app-state'])
+    expect(calls[1]).toEqual(expect.arrayContaining(['click', '--element-index', '6']))
+  })
+
+  it('opens the sidebar before entering Settings when the workspace sidebar is collapsed', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root, { initialState: 'workspace-collapsed' })
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+    const calls = readJsonl(path.join(root, 'calls.jsonl'))
+    expect(calls[0].slice(0, 2)).toEqual(['computer', 'get-app-state'])
+    expect(calls[1]).toEqual(expect.arrayContaining(['click', '--element-index', '6']))
+    expect(calls[2]).toEqual(expect.arrayContaining(['click', '--element-index', '33']))
+  })
+
   it('accepts the selected Changes panel when source control has no changed rows', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
     const cliPath = writeFakeJanusWorkflowCli(root, { noChanges: true })
@@ -471,6 +512,7 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
       'function treeText(state) {',
       '  const states = {',
       '    workspace: ["33 button Settings", "72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "76 button Open browser workbench", "78 button Open terminal drawer", "79 text Completed thread Codex", "80 button disabled Send", "89 tab Output", "90 tab Changes", "91 tab Review", "92 tab Context", "102 container Terminal drawer"].join("\\n"),',
+      '    "workspace-collapsed": ["6 button Toggle sidebar", "72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "76 button Open browser workbench", "89 tab Output", "90 tab Changes", "91 tab Review"].join("\\n"),',
       '    settings: ["6 button Back to app", "7 text field Placeholder: Search settings", "12 button Voice Not installed"].join("\\n"),',
       '    "settings-search": ["6 button Back to app", "7 text field Value: voice, Placeholder: Search settings", "23 heading Voice", "40 heading Shortcuts", "72 heading macOS Permissions"].join("\\n"),',
       '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container"].join("\\n"),',
@@ -489,6 +531,13 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
   )
   chmodSync(cliPath, 0o755)
   return cliPath
+}
+
+function readJsonl(filePath) {
+  return readFileSync(filePath, 'utf8')
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line))
 }
 
 function writePermissionDeniedJanusWorkflowCli(root) {

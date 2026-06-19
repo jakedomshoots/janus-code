@@ -11,10 +11,12 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import type {
   AgentWorkspaceApproval,
+  AgentWorkspaceDiffSummary,
   AgentWorkspaceProject,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
 import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
 import { AgentBrowserWorkbenchSurface } from './AgentBrowserWorkbenchSurface'
 import { AgentTabGroupWorkbenchSurface } from './AgentTabGroupWorkbenchSurface'
@@ -68,6 +70,7 @@ export function AgentWorkspacePane({
   thread,
   approval,
   timeline,
+  diffs,
   terminalAvailable,
   browserWorkbenchActive,
   tabGroupWorkbenchActive,
@@ -84,6 +87,8 @@ export function AgentWorkspacePane({
   onBeginDraftAgentSession,
   onPendingAgentLaunch,
   onMessageSent,
+  onOpenMarkdownArtifact,
+  onReviewDiffs,
   onSplitPane,
   onClosePane,
   onOpenTerminalDrawer
@@ -97,6 +102,7 @@ export function AgentWorkspacePane({
   thread: AgentWorkspaceThread | null
   approval: AgentWorkspaceApproval | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
+  diffs: readonly AgentWorkspaceDiffSummary[]
   terminalAvailable: boolean
   browserWorkbenchActive: boolean
   tabGroupWorkbenchActive: boolean
@@ -113,6 +119,8 @@ export function AgentWorkspacePane({
   onBeginDraftAgentSession: (agent: TuiAgent) => void
   onPendingAgentLaunch: () => void
   onMessageSent: AgentComposerMessageSentHandler
+  onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
+  onReviewDiffs?: () => void
   onSplitPane: (direction: 'right' | 'down' | 'left' | 'up') => void
   onClosePane: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
@@ -203,6 +211,9 @@ export function AgentWorkspacePane({
               onOpenTerminalDrawer={() => onOpenTerminalDrawer?.('debug-button')}
               browserAvailable={browserWorkbench.browserAvailable}
               terminalAvailable={terminalAvailable}
+              diffs={diffs}
+              onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+              onReviewDiffs={onReviewDiffs}
             />
             <AgentComposer
               key={activeDraftSession?.id ?? 'thread-composer'}

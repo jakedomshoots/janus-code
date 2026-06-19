@@ -15,11 +15,20 @@ import {
   formatAgentWorkspaceTimelineStatus
 } from './agent-workspace-labels'
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import { AgentMarkdownArtifactCard } from './AgentTimelineArtifactCards'
+import {
+  getAgentTimelineMarkdownArtifacts,
+  type AgentTimelineMarkdownArtifact
+} from './agent-timeline-artifacts'
 
 export function AgentTimelineEntry({
-  entry
+  entry,
+  cwd = null,
+  onOpenMarkdownArtifact
 }: {
   entry: AgentWorkspaceTimelineEntry
+  cwd?: string | null
+  onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
 }): React.JSX.Element {
   const Icon = getTimelineEntryIcon(entry.kind)
   const isUser = entry.kind === 'user'
@@ -30,6 +39,8 @@ export function AgentTimelineEntry({
   const slashCommand = getTimelineSlashCommand(entry)
   const isLive = entry.status === 'pending' || entry.status === 'running'
   const entryLabel = [roleLabel, statusLabel, slashCommand].filter(Boolean).join(', ')
+  const markdownArtifacts =
+    entry.kind === 'agent' ? getAgentTimelineMarkdownArtifacts({ text: entry.text, cwd }) : []
 
   return (
     <article
@@ -91,6 +102,13 @@ export function AgentTimelineEntry({
           <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
             {entry.text}
           </p>
+          {markdownArtifacts.map((artifact) => (
+            <AgentMarkdownArtifactCard
+              key={artifact.id}
+              artifact={artifact}
+              onOpen={onOpenMarkdownArtifact}
+            />
+          ))}
         </div>
       </div>
     </article>

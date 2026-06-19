@@ -14,8 +14,16 @@ import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { AgentTimelineEntry } from './AgentTimelineEntry'
+import { AgentEditedFilesCard } from './AgentTimelineArtifactCards'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
-import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspaceThread,
+  AgentWorkspaceTimelineEntry
+} from './agent-workspace-types'
+import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
+
+const EMPTY_DIFFS: readonly AgentWorkspaceDiffSummary[] = []
 
 export function AgentTimeline({
   thread,
@@ -23,6 +31,9 @@ export function AgentTimeline({
   onNewSession,
   onOpenBrowserWorkbench,
   onOpenTerminalDrawer,
+  onOpenMarkdownArtifact,
+  onReviewDiffs,
+  diffs = EMPTY_DIFFS,
   browserAvailable = false,
   terminalAvailable = false
 }: {
@@ -31,6 +42,9 @@ export function AgentTimeline({
   onNewSession?: () => void
   onOpenBrowserWorkbench?: () => void
   onOpenTerminalDrawer?: () => void
+  onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
+  onReviewDiffs?: () => void
+  diffs?: readonly AgentWorkspaceDiffSummary[]
   browserAvailable?: boolean
   terminalAvailable?: boolean
 }): React.JSX.Element {
@@ -60,7 +74,7 @@ export function AgentTimeline({
         {thread ? (
           <>
             <ThreadSummary thread={thread} />
-            {timeline.length === 0 ? (
+            {timeline.length === 0 && diffs.length === 0 ? (
               <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
                 {translate(
                   'auto.components.agentWorkspace.layout.timelineEventsWillAppear',
@@ -70,8 +84,14 @@ export function AgentTimeline({
             ) : (
               <div className="flex flex-col gap-4 pb-2">
                 {timeline.map((entry) => (
-                  <AgentTimelineEntry key={entry.id} entry={entry} />
+                  <AgentTimelineEntry
+                    key={entry.id}
+                    entry={entry}
+                    cwd={thread.cwd}
+                    onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+                  />
                 ))}
+                <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
               </div>
             )}
           </>

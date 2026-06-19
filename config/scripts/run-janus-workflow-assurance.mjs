@@ -31,6 +31,7 @@ const vitestFiles = [
   'src/renderer/src/components/status-bar/status-bar-provider-menu-focus.test.tsx',
   'src/renderer/src/components/agent-workspace/agent-terminal-visibility.test.ts',
   'src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx',
+  'src/renderer/src/components/agent-workspace/agent-timeline-artifacts.test.ts',
   'src/renderer/src/components/agent-workspace/agent-workspace-browser-tab-session.test.ts',
   'src/renderer/src/components/agent-workspace/agent-browser-workbench-tabs.test.ts',
   'src/renderer/src/components/agent-workspace/AgentBrowserWorkbenchSurface.test.tsx',

@@ -34,6 +34,7 @@ import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import { compareAgentTimelineEntries } from './agent-timeline-order'
+import { openAgentMarkdownArtifact } from './open-agent-markdown-artifact'
 import {
   getProjectThreads,
   getSelectedProject,
@@ -328,6 +329,7 @@ export function AgentWorkspaceLayout({
             : null
           const activeDraftSession = getActiveAgentWorkspaceDraftSession(pane)
           const paneApproval = getThreadApproval(snapshot, paneThread)
+          const paneDiffs = getThreadDiffs(snapshot, paneThread)
           const backendTimeline = getThreadTimeline(snapshot, paneThread)
           const backendUserPromptKeys = new Set(
             backendTimeline
@@ -376,6 +378,7 @@ export function AgentWorkspaceLayout({
                 activeDraftSession={activeDraftSession}
                 approval={paneApproval}
                 timeline={paneTimeline}
+                diffs={paneDiffs}
                 terminalAvailable={snapshot.terminalAvailable}
                 browserWorkbenchActive={terminalDrawerReason === 'browser'}
                 tabGroupWorkbenchActive={terminalDrawerReason === 'workbench'}
@@ -395,6 +398,10 @@ export function AgentWorkspaceLayout({
                 onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
                 onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
                 onMessageSent={handleMessageSent}
+                onOpenMarkdownArtifact={(artifact) =>
+                  openAgentMarkdownArtifact({ thread: paneThread, artifact, openDiff })
+                }
+                onReviewDiffs={() => (setActivePaneId(pane.id), handleRightPanelTabChange('diff'))}
                 onSplitPane={(direction) => {
                   const splitDirection =
                     direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'

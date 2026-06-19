@@ -2,9 +2,13 @@
 
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AgentTimeline } from './AgentTimeline'
-import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspaceThread,
+  AgentWorkspaceTimelineEntry
+} from './agent-workspace-types'
 
 const thread: AgentWorkspaceThread = {
   id: 'thread-1',
@@ -73,4 +77,95 @@ describe('AgentTimeline', () => {
     expect(runningEntry?.getAttribute('aria-busy')).toBe('true')
     expect(runningEntry?.getAttribute('aria-label')).toContain('Agent')
   })
+
+  it('renders markdown artifact cards that open the document preview', () => {
+    const onOpenMarkdownArtifact = vi.fn()
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'Created docs/reference/handoff.md for the release.',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline
+          thread={thread}
+          timeline={timeline}
+          onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+        />
+      )
+    })
+
+    const card = container.querySelector(
+      '[data-agent-markdown-artifact="docs/reference/handoff.md"]'
+    )
+    const openButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Open'
+    )
+
+    expect(card?.textContent).toContain('handoff.md')
+    expect(card?.textContent).toContain('Document · MD')
+
+    act(() => {
+      openButton?.click()
+    })
+
+    expect(onOpenMarkdownArtifact).toHaveBeenCalledWith({
+      id: 'docs/reference/handoff.md',
+      fileName: 'handoff.md',
+      filePath: 'docs/reference/handoff.md',
+      absolutePath: '/Users/jakedom/janus-code/docs/reference/handoff.md'
+    })
+  })
+
+  it('renders an edited files card with review routing', () => {
+    const onReviewDiffs = vi.fn()
+    const diffs: AgentWorkspaceDiffSummary[] = [
+      diff({ id: 'diff-1', filePath: 'docs/handoff.md', additions: 12, deletions: 2 }),
+      diff({ id: 'diff-2', filePath: 'src/app.ts', additions: 5, deletions: 0 }),
+      diff({ id: 'diff-3', filePath: 'src/app.test.ts', additions: 9, deletions: 1 }),
+      diff({ id: 'diff-4', filePath: 'README.md', additions: 2, deletions: 4 })
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline thread={thread} timeline={[]} diffs={diffs} onReviewDiffs={onReviewDiffs} />
+      )
+    })
+
+    const card = container.querySelector('[data-agent-edited-files-card="true"]')
+    const reviewButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Review'
+    )
+
+    expect(card?.textContent).toContain('Edited 4 files')
+    expect(card?.textContent).toContain('+28 -7')
+    expect(card?.textContent).toContain('docs/handoff.md')
+    expect(card?.textContent).toContain('src/app.ts')
+    expect(card?.textContent).toContain('src/app.test.ts')
+    expect(card?.textContent).toContain('Show 1 more file')
+
+    act(() => {
+      reviewButton?.click()
+    })
+
+    expect(onReviewDiffs).toHaveBeenCalledTimes(1)
+  })
 })
+
+function diff(overrides: Partial<AgentWorkspaceDiffSummary>): AgentWorkspaceDiffSummary {
+  return {
+    id: 'diff',
+    threadId: thread.id,
+    filePath: 'file.ts',
+    additions: 0,
+    deletions: 0,
+    status: 'modified',
+    ...overrides
+  }
+}

@@ -446,6 +446,75 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
   })
 
+  it('opens markdown artifact cards and routes edited files to the changes panel', async () => {
+    const thread = {
+      id: 'thread-artifacts',
+      worktreeId: 'worktree-1',
+      title: 'Release handoff',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [thread],
+        timeline: [
+          {
+            id: 'timeline-artifact',
+            threadId: thread.id,
+            kind: 'agent',
+            text: 'Created docs/reference/handoff.md for review.',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ],
+        diffs: [
+          {
+            id: 'diff-1',
+            threadId: thread.id,
+            filePath: 'docs/reference/handoff.md',
+            additions: 12,
+            deletions: 2,
+            status: 'modified'
+          },
+          {
+            id: 'diff-2',
+            threadId: thread.id,
+            filePath: 'src/app.ts',
+            additions: 5,
+            deletions: 0,
+            status: 'modified'
+          }
+        ]
+      })
+    )
+
+    const openButton = buttons(container).find((button) => button.textContent === 'Open')
+
+    await act(async () => {
+      openButton?.click()
+    })
+
+    expect(storeMocks.openDiff).toHaveBeenCalledWith(
+      'worktree-1',
+      '/Users/jakedom/janus-code/docs/reference/handoff.md',
+      'docs/reference/handoff.md',
+      'markdown',
+      false
+    )
+
+    await act(async () => {
+      buttons(container)
+        .find((button) => button.textContent === 'Review')
+        ?.click()
+    })
+
+    expect(container.textContent).toContain('Changes')
+    expect(container.textContent).toContain('docs/reference/handoff.md')
+  })
+
   it('splits and closes agent workspace panes from the tab strip', async () => {
     const container = await renderLayout(baseSnapshot())
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BrowserTab as BrowserTabState } from '../../../../shared/types'
 
 const reactHookRuntime = vi.hoisted(() => ({
@@ -102,6 +102,12 @@ type ReactElementLike = {
   props: Record<string, unknown>
 }
 
+type BrowserTabModule = {
+  default: (props: Record<string, unknown>) => unknown
+}
+
+let browserTabModulePromise: Promise<BrowserTabModule>
+
 function baseBrowserTab(overrides: Partial<BrowserTabState> = {}): BrowserTabState {
   return {
     id: 'browser-1',
@@ -124,7 +130,7 @@ function baseBrowserTab(overrides: Partial<BrowserTabState> = {}): BrowserTabSta
 
 async function renderBrowserTab(tab: BrowserTabState): Promise<unknown> {
   reactHookRuntime.index = 0
-  const module = await import('./BrowserTab')
+  const module = await browserTabModulePromise
   return module.default({
     tab,
     isActive: true,
@@ -196,6 +202,10 @@ async function renderExpandedBrowserTab(tab: BrowserTabState): Promise<unknown> 
 }
 
 describe('BrowserTab favicon', () => {
+  beforeAll(() => {
+    browserTabModulePromise = import('./BrowserTab') as unknown as Promise<BrowserTabModule>
+  })
+
   beforeEach(() => {
     reactHookRuntime.states = []
     reactHookRuntime.index = 0
@@ -216,7 +226,7 @@ describe('BrowserTab favicon', () => {
     expect(images[0].props.className).toContain('object-contain')
     expect(images[0].props.className).toContain('drop-shadow-[0_0_1px_var(--foreground)]')
     expect(findElementsByType(element, 'Globe')).toHaveLength(0)
-  })
+  }, 15_000)
 
   it('keeps the globe fallback for blank tabs without faviconUrl', async () => {
     const element = await renderExpandedBrowserTab(

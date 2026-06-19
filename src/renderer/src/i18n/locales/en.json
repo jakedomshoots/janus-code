@@ -11358,7 +11358,16 @@
           "agent": "Agent"
         },
         "timeline": {
-          "command": "Command"
+          "command": "Command",
+          "documentMd": "Document · MD",
+          "open": "Open",
+          "editedFiles": "Edited files",
+          "editedOneFile": "Edited 1 file",
+          "editedFileCount": "Edited {{count}} files",
+          "review": "Review",
+          "showFewerFiles": "Show fewer",
+          "showOneMoreFile": "Show 1 more file",
+          "showMoreFiles": "Show {{count}} more files"
         }
       },
       "DesktopShellRequired": {
