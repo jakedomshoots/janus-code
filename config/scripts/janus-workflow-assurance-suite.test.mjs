@@ -49,6 +49,7 @@ describe('Janus workflow assurance suite', () => {
         'src/renderer/src/components/right-sidebar/source-control-dropdown-items.test.ts',
         'src/renderer/src/components/right-sidebar/ChecksPanel.context-builders.test.ts',
         'src/renderer/src/components/right-sidebar/checks-panel-review-creation.test.ts',
+        'src/renderer/src/components/right-sidebar/checks-panel-git-status-snapshot.test.ts',
         'src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts',
         'src/renderer/src/components/sidebar/SidebarHeader.test.tsx',
         'src/renderer/src/components/settings/SettingsSidebar.test.tsx'

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildChecksPanelCreateHostedReviewInput,
   buildChecksPanelHostedReviewCreationEligibilityArgs,
+  buildChecksPanelLinkedGitHubReviewRefreshContext,
   buildChecksPanelRefreshGitHubReviewOptions,
   buildChecksPanelRefreshHostedReviewArgs,
   resolveChecksPanelHostedReviewBaseRef,
@@ -254,6 +255,51 @@ describe('Checks panel hosted review request builders', () => {
       draft: true,
       worktreePath: '/home/jake/repo',
       useTemplate: false
+    })
+  })
+
+  it('keeps linked GitHub PR refresh calls aligned to the selected worktree context', () => {
+    expect(
+      buildChecksPanelLinkedGitHubReviewRefreshContext({
+        repoPath: '/ssh/repo',
+        repoId: 'repo-ssh',
+        worktreeId: 'wt-ssh',
+        branch: 'feature/checks',
+        linkedPRNumber: 77,
+        linkedGitLabMR: 22,
+        linkedBitbucketPR: null,
+        linkedAzureDevOpsPR: null,
+        linkedGiteaPR: null
+      })
+    ).toEqual({
+      fetchPRForBranch: {
+        repoPath: '/ssh/repo',
+        branch: 'feature/checks',
+        options: {
+          force: true,
+          repoId: 'repo-ssh',
+          worktreeId: 'wt-ssh',
+          linkedPRNumber: 77
+        }
+      },
+      hostedReview: {
+        repoPath: '/ssh/repo',
+        repoId: 'repo-ssh',
+        branch: 'feature/checks',
+        linkedGitHubPR: 77,
+        linkedGitLabMR: 22,
+        linkedBitbucketPR: null,
+        linkedAzureDevOpsPR: null,
+        linkedGiteaPR: null
+      },
+      fetchPRChecks: {
+        force: true,
+        repoId: 'repo-ssh'
+      },
+      fetchPRComments: {
+        force: true,
+        repoId: 'repo-ssh'
+      }
     })
   })
 })

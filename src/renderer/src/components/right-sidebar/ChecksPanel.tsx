@@ -132,6 +132,7 @@ import { CreateHostedReviewComposer } from './CreateHostedReviewComposer'
 import {
   buildChecksPanelCreateHostedReviewInput,
   buildChecksPanelHostedReviewCreationEligibilityArgs,
+  buildChecksPanelLinkedGitHubReviewRefreshContext,
   buildChecksPanelRefreshGitHubReviewOptions,
   buildChecksPanelRefreshHostedReviewArgs
 } from './checks-panel-review-creation'
@@ -2425,25 +2426,26 @@ export default function ChecksPanel(): React.JSX.Element {
       setCommentsLoading(true)
       let requestKey: string | null = null
       try {
-        const refreshedPR = await fetchPRForBranch(repo.path, branch, {
-          force: true,
-          repoId: repo.id,
-          worktreeId: activeWorktreeId ?? undefined,
-          linkedPRNumber
-        })
-        if (!isCurrentRequestContext()) {
-          return
-        }
-        await refreshHostedReviewCard(fetchHostedReviewForBranch, {
+        const refreshContext = buildChecksPanelLinkedGitHubReviewRefreshContext({
           repoPath: repo.path,
           repoId: repo.id,
+          worktreeId: activeWorktreeId,
           branch,
-          linkedGitHubPR: linkedPRNumber,
+          linkedPRNumber,
           linkedGitLabMR,
           linkedBitbucketPR,
           linkedAzureDevOpsPR,
           linkedGiteaPR
         })
+        const refreshedPR = await fetchPRForBranch(
+          refreshContext.fetchPRForBranch.repoPath,
+          refreshContext.fetchPRForBranch.branch,
+          refreshContext.fetchPRForBranch.options
+        )
+        if (!isCurrentRequestContext()) {
+          return
+        }
+        await refreshHostedReviewCard(fetchHostedReviewForBranch, refreshContext.hostedReview)
         if (!isCurrentRequestContext()) {
           return
         }
@@ -2469,10 +2471,7 @@ export default function ChecksPanel(): React.JSX.Element {
             branch,
             refreshedPR.headSha,
             refreshedPR.prRepo,
-            {
-              force: true,
-              repoId: repo.id
-            }
+            refreshContext.fetchPRChecks
           )
             .then(
               (result) => {
@@ -2494,8 +2493,7 @@ export default function ChecksPanel(): React.JSX.Element {
               }
             }),
           fetchPRComments(repo.path, refreshedPR.number, {
-            force: true,
-            repoId: repo.id,
+            ...refreshContext.fetchPRComments,
             prRepo: refreshedPR.prRepo
           })
             .then(

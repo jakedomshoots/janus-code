@@ -83,3 +83,66 @@ export function buildChecksPanelCreateHostedReviewInput(
 ): CreateHostedReviewInput & { repoId: string } {
   return { ...input }
 }
+
+export function buildChecksPanelLinkedGitHubReviewRefreshContext(input: {
+  repoPath: string
+  repoId: string
+  worktreeId?: string | null
+  branch: string
+  linkedPRNumber: number
+  linkedGitLabMR?: number | null
+  linkedBitbucketPR?: number | null
+  linkedAzureDevOpsPR?: number | null
+  linkedGiteaPR?: number | null
+}): {
+  fetchPRForBranch: {
+    repoPath: string
+    branch: string
+    options: {
+      force: true
+      repoId: string
+      worktreeId?: string
+      linkedPRNumber: number
+    }
+  }
+  hostedReview: RefreshHostedReviewCardArgs
+  fetchPRChecks: {
+    force: true
+    repoId: string
+  }
+  fetchPRComments: {
+    force: true
+    repoId: string
+  }
+} {
+  return {
+    fetchPRForBranch: {
+      repoPath: input.repoPath,
+      branch: input.branch,
+      options: {
+        force: true,
+        repoId: input.repoId,
+        ...(input.worktreeId ? { worktreeId: input.worktreeId } : {}),
+        linkedPRNumber: input.linkedPRNumber
+      }
+    },
+    hostedReview: buildChecksPanelRefreshHostedReviewArgs({
+      repoPath: input.repoPath,
+      repoId: input.repoId,
+      branch: input.branch,
+      linkedGitHubPR: input.linkedPRNumber,
+      linkedGitLabMR: input.linkedGitLabMR ?? null,
+      linkedBitbucketPR: input.linkedBitbucketPR ?? null,
+      linkedAzureDevOpsPR: input.linkedAzureDevOpsPR ?? null,
+      linkedGiteaPR: input.linkedGiteaPR ?? null
+    }),
+    fetchPRChecks: {
+      force: true,
+      repoId: input.repoId
+    },
+    fetchPRComments: {
+      force: true,
+      repoId: input.repoId
+    }
+  }
+}

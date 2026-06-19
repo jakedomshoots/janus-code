@@ -35,6 +35,7 @@ Every workflow was checked against this chain:
 - SSH source-control/file parity checks: PR field generation and file explorer drag-move mutations use the selected SSH worktree context instead of ambient host state.
 - SSH discard/source-control action parity checks: Source Control discard now quiesces editor saves against the worktree owner boundary, and Agent Workspace Stage, Unstage, Discard, and Commit actions carry the selected SSH project context.
 - Checks panel context checks: creation eligibility, manual refresh, and create-review submissions now route through shared builders that preserve repo, worktree, hosted-review, PR head, and selected worktree path context.
+- Checks panel linked-PR refresh checks: selecting a different GitHub PR now uses a shared builder that keeps branch lookup, hosted-review refresh, checks, and comments aligned to the selected repo/worktree context.
 - Branch/bulk Source Control context checks: branch remote actions and multi-select Stage, Unstage, and Discard routes now use shared owner-context builders for selected worktree, path, connection, push target, and runtime owner settings.
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
