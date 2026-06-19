@@ -161,4 +161,58 @@ describe('AgentComposer completed-thread recovery', () => {
 
     expect(textarea?.value).toBe('Check status again.')
   })
+
+  it('can resend a recovered completed-thread prompt and open the terminal drawer', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    } satisfies ActiveAgentNotesSendResult)
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={completedThread}
+          terminalAvailable={true}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Please answer this follow-up.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    const sendAgainButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((candidate) => candidate.textContent?.includes('Send again'))
+    const openTerminalButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((candidate) => candidate.textContent?.includes('Open terminal'))
+    expect(sendAgainButton).not.toBeNull()
+    expect(openTerminalButton).not.toBeNull()
+
+    await act(async () => {
+      sendAgainButton?.click()
+    })
+
+    expect(mocks.sendNotesToActiveAgentSession).toHaveBeenCalledTimes(2)
+    expect(mocks.sendNotesToActiveAgentSession).toHaveBeenLastCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'Please answer this follow-up.'
+    })
+
+    await act(async () => {
+      openTerminalButton?.click()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
+  })
 })

@@ -195,4 +195,28 @@ describe('AgentComposer slash commands', () => {
 
     expect(textarea?.value).toBe('/model')
   })
+
+  it('offers a live command discovery slash command', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/com')
+    })
+
+    const commandsOption = container.querySelector<HTMLElement>(
+      '[role="option"][data-command="/commands"]'
+    )
+    expect(commandsOption?.textContent).toContain('/commands')
+
+    await act(async () => {
+      commandsOption?.click()
+    })
+
+    expect(textarea?.value).toBe('/commands')
+  })
 })

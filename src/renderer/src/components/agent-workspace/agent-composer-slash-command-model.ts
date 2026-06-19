@@ -18,6 +18,13 @@ const COMMON_AGENT_COMPOSER_SLASH_COMMANDS: readonly AgentComposerSlashCommand[]
     descriptionFallback: 'Show the selected agent commands and shortcuts.'
   },
   {
+    command: '/commands',
+    titleKey: 'auto.components.agentWorkspace.composer.slashCommand.commands.title',
+    titleFallback: 'Commands',
+    descriptionKey: 'auto.components.agentWorkspace.composer.slashCommand.commands.description',
+    descriptionFallback: 'Refresh the live slash-command list from the selected agent.'
+  },
+  {
     command: '/model',
     titleKey: 'auto.components.agentWorkspace.composer.slashCommand.model.title',
     titleFallback: 'Model',

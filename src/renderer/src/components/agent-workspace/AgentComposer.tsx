@@ -1,17 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { useAppStore } from '@/store'
-import {
-  applyAgentPermissionMode,
-  resolveAgentPermissionModeSummary,
-  type AgentPermissionMode
-} from '../../../../shared/tui-agent-permissions'
+import { resolveAgentPermissionModeSummary } from '../../../../shared/tui-agent-permissions'
 import {
   isTuiAgentThinkingMode,
   type TuiAgentThinkingMode
 } from '../../../../shared/tui-agent-thinking'
 import {
-  isTuiAgentModelSelection,
   resolveTuiAgentSelectedModel,
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
 } from '../../../../shared/tui-agent-models'
@@ -42,6 +37,8 @@ import {
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 import { useAgentComposerBrowserContextAttachment } from './useAgentComposerBrowserContextAttachment'
+import { useAgentComposerRecoverablePromptActions } from './useAgentComposerRecoverablePromptActions'
+import { useAgentComposerSettingsActions } from './useAgentComposerSettingsActions'
 
 const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
 
@@ -316,47 +313,31 @@ export function AgentComposer({
     [submitResult?.reason, submitResult?.status]
   )
 
-  const handleRestoreRecoverablePrompt = useCallback((): void => {
-    if (!recoverablePrompt) {
-      return
-    }
-    setPrompt(recoverablePrompt)
-    setRecoverablePrompt(null)
-    setSubmitResult(null)
-  }, [recoverablePrompt])
+  const { restoreRecoverablePrompt, retryRecoverablePrompt } =
+    useAgentComposerRecoverablePromptActions({
+      activeWorktreeId,
+      selectedThread,
+      recoverablePrompt,
+      submitting,
+      canSendToSelectedThread,
+      onMessageSent,
+      setPrompt,
+      setRecoverablePrompt,
+      setSubmitResult,
+      setSubmitting
+    })
 
-  const handleSelectedModelChange = useCallback(
-    (modelId: string): void => {
-      if (!selectedAgent || !isTuiAgentModelSelection(selectedAgent, modelId)) {
-        return
-      }
-      const nextSelections = { ...composerModelSelections }
-      if (modelId === TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID) {
-        delete nextSelections[selectedAgent]
-      } else {
-        nextSelections[selectedAgent] = modelId
-      }
-      setComposerModelSelections(nextSelections)
-      void updateSettings({ agentModelSelections: nextSelections })
-    },
-    [composerModelSelections, selectedAgent, updateSettings]
-  )
+  const handleRetryRecoverablePrompt = useCallback((): void => {
+    void retryRecoverablePrompt()
+  }, [retryRecoverablePrompt])
 
-  const handlePermissionModeChange = useCallback(
-    (mode: AgentPermissionMode): void => {
-      if (mode === 'mixed') {
-        return
-      }
-      void updateSettings(
-        applyAgentPermissionMode({
-          mode,
-          agentDefaultArgs: settings?.agentDefaultArgs,
-          agentDefaultEnv: settings?.agentDefaultEnv
-        })
-      )
-    },
-    [settings?.agentDefaultArgs, settings?.agentDefaultEnv, updateSettings]
-  )
+  const { changeSelectedModel, changePermissionMode } = useAgentComposerSettingsActions({
+    selectedAgent,
+    composerModelSelections,
+    settings,
+    updateSettings,
+    setComposerModelSelections
+  })
 
   const handleAttachBrowserContext = useAgentComposerBrowserContextAttachment({
     browserAnnotationMarkdown: browserWorkbench.browserAnnotationMarkdown,
@@ -403,12 +384,13 @@ export function AgentComposer({
       onPromptChange={handlePromptChange}
       onPaste={handlePaste}
       onKeyDown={handleKeyDown}
-      onPermissionModeChange={handlePermissionModeChange}
+      onPermissionModeChange={changePermissionMode}
       onThinkingModeChange={handleThinkingModeChange}
       onSelectedAgentChange={handleSelectedAgentChange}
-      onSelectedModelChange={handleSelectedModelChange}
+      onSelectedModelChange={changeSelectedModel}
       recoverablePrompt={recoverablePrompt}
-      onRestoreRecoverablePrompt={handleRestoreRecoverablePrompt}
+      onRestoreRecoverablePrompt={restoreRecoverablePrompt}
+      onRetryRecoverablePrompt={handleRetryRecoverablePrompt}
     />
   )
 }

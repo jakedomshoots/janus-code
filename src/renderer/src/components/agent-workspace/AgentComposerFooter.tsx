@@ -1,4 +1,4 @@
-import { ArrowUp, ChevronDown, Loader2, ShieldCheck } from 'lucide-react'
+import { ArrowUp, ChevronDown, Loader2, RotateCcw, ShieldCheck, Terminal } from 'lucide-react'
 import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
@@ -48,6 +48,7 @@ type AgentComposerFooterProps = {
   canSubmit: boolean
   recoverablePrompt: string | null
   onRestoreRecoverablePrompt: () => void
+  onRetryRecoverablePrompt: () => void
 }
 
 export const AgentComposerFooter = memo(function AgentComposerFooter({
@@ -78,8 +79,12 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
   submitting,
   canSubmit,
   recoverablePrompt,
-  onRestoreRecoverablePrompt
+  onRestoreRecoverablePrompt,
+  onRetryRecoverablePrompt
 }: AgentComposerFooterProps): React.JSX.Element {
+  const showTerminalRecovery =
+    (statusTone === 'error' || recoverablePrompt) && canOpenTerminalDrawer
+
   return (
     <div className="px-4 pb-4">
       <p
@@ -92,14 +97,42 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
       >
         {statusMessage ?? ''}
         {recoverablePrompt ? (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="ml-2 h-5 px-1.5 text-[11px]"
+              onClick={onRestoreRecoverablePrompt}
+            >
+              {translate(
+                'auto.components.agentWorkspace.composer.restoreMessage',
+                'Restore message'
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="ml-1 h-5 px-1.5 text-[11px]"
+              disabled={submitting}
+              onClick={onRetryRecoverablePrompt}
+            >
+              <RotateCcw className="size-3" aria-hidden="true" />
+              {translate('auto.components.agentWorkspace.composer.sendAgain', 'Send again')}
+            </Button>
+          </>
+        ) : null}
+        {showTerminalRecovery ? (
           <Button
             type="button"
             variant="ghost"
             size="xs"
-            className="ml-2 h-5 px-1.5 text-[11px]"
-            onClick={onRestoreRecoverablePrompt}
+            className="ml-1 h-5 px-1.5 text-[11px]"
+            onClick={() => onOpenTerminalDrawer?.('debug-button')}
           >
-            {translate('auto.components.agentWorkspace.composer.restoreMessage', 'Restore message')}
+            <Terminal className="size-3" aria-hidden="true" />
+            {translate('auto.components.agentWorkspace.composer.openTerminal', 'Open terminal')}
           </Button>
         ) : null}
       </p>

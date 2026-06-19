@@ -54,7 +54,8 @@ export function AgentComposerForm({
   onSelectedAgentChange,
   onSelectedModelChange,
   recoverablePrompt,
-  onRestoreRecoverablePrompt
+  onRestoreRecoverablePrompt,
+  onRetryRecoverablePrompt
 }: {
   prompt: string
   activeWorktreeId: string | null
@@ -92,6 +93,7 @@ export function AgentComposerForm({
   onSelectedModelChange: (modelId: string) => void
   recoverablePrompt: string | null
   onRestoreRecoverablePrompt: () => void
+  onRetryRecoverablePrompt: () => void
 }): React.JSX.Element {
   const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0)
   const activeAgent = selectedThread
@@ -208,6 +210,7 @@ export function AgentComposerForm({
             canSubmit={canSubmit}
             recoverablePrompt={recoverablePrompt}
             onRestoreRecoverablePrompt={onRestoreRecoverablePrompt}
+            onRetryRecoverablePrompt={onRetryRecoverablePrompt}
           />
         </div>
       </div>

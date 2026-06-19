@@ -11235,7 +11235,9 @@
           "slashCommands": "Slash commands",
           "agentChatComposer": "Agent chat composer",
           "sentToCompletedThreadRecovery": "Sent to {{agent}}. If nothing changes, restore this message and try again or open the terminal drawer.",
-          "restoreMessage": "Restore message"
+          "restoreMessage": "Restore message",
+          "sendAgain": "Send again",
+          "openTerminal": "Open terminal"
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"
