@@ -1,10 +1,5 @@
 import type { RuntimeStatus } from './runtime-types'
 import {
-  RUNTIME_PORTING_FIRST_SLICE_METHOD,
-  type RuntimePortingDomainId,
-  type RuntimePortingFirstSliceMethod
-} from './runtime-porting-domains'
-import {
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
@@ -25,19 +20,24 @@ import {
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
-
-export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
-  'runtime-status-diagnostics'
-export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD: RuntimePortingFirstSliceMethod =
-  RUNTIME_PORTING_FIRST_SLICE_METHOD
-export const RUNTIME_STATUS_PORTING_CONTRACT_PARAMS = null
-export const RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION = 1
+import {
+  RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
+} from './runtime-status-contract-metadata'
 
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 export type { RuntimeStatusPortingField } from './runtime-status-porting-field'
+export {
+  RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
+} from './runtime-status-contract-metadata'
 export {
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,

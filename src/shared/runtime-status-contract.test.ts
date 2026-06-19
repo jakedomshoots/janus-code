@@ -47,9 +47,15 @@ describe('runtime status porting contract', () => {
   })
 
   it('uses the porting first-slice method as its source of truth', () => {
-    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract-metadata.ts'), 'utf8')
 
     expect(source).toContain('RUNTIME_PORTING_FIRST_SLICE_METHOD')
+  })
+
+  it('keeps contract identity metadata in a dedicated metadata module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-contract-metadata'")
   })
 
   it('exports the contract summary type for sidecar schema adapters', () => {
