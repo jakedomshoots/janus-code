@@ -9,6 +9,8 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 } from './runtime-status-json-schema'
+import { REQUIRED_RUNTIME_STATUS_PORTING_FIELDS } from './runtime-status-field-groups'
+import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
 
@@ -53,6 +55,7 @@ export type RuntimePortingFirstSliceContractJsonSchemaId =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export type RuntimePortingFirstSliceContractJsonSchemaTitle =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export type RuntimePortingFirstSliceContractRequiredFields = readonly RuntimeStatusPortingField[]
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
@@ -70,6 +73,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -111,6 +115,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
+  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
@@ -205,6 +211,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,
