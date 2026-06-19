@@ -29,6 +29,7 @@ Every workflow was checked against this chain:
 - Installed-app Computer Use runtime sweep: Settings search/back, completed-thread composer state, slash-command picker, browser workbench launch, terminal drawer presence, and Output/Changes/Review right-panel tabs.
 - Repeatable installed-app smoke gate: `pnpm run smoke:janus-workflow`. This replays the same non-destructive flow through Janus Computer Use and defaults to the production `janus-code` runtime data path.
 - SSH composer-adjacent parity checks: model discovery forwards `worktreePath` plus `connectionId`, and the terminal drawer route remains available for SSH selected projects.
+- SSH source-control/file parity checks: PR field generation and file explorer drag-move mutations use the selected SSH worktree context instead of ambient host state.
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -102,10 +103,10 @@ Recommended public-download path without paying Apple:
 
 ## Hardening After 100/100
 
-| Priority | Risk                                                                                                                                                                              | Recommended next check                                                                    |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution requires macOS Accessibility/Screen Recording grants for `Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release. |
-| P2       | SSH composer parity now covers slash discovery, model discovery, and terminal reveal affordance; source-control side panels still deserve the same audit depth.                   | Add SSH/local parity tests around PR generation, checks, and file explorer write actions. |
+| Priority | Risk                                                                                                                                                                              | Recommended next check                                                                     |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution requires macOS Accessibility/Screen Recording grants for `Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release.  |
+| P2       | SSH parity now covers composer discovery, PR generation, and file drag-move mutations; checks and deeper git bulk actions still deserve the same audit depth.                     | Add SSH/local parity tests around Checks, bulk stage/unstage, discard, and branch actions. |
 
 ## Next Score Plan
 
@@ -113,4 +114,4 @@ To keep the app at **100/100** as features move:
 
 1. Run `pnpm run smoke:janus-workflow` before release after the macOS helper permission is granted.
 2. Add/adjust tests for any mismatch found in future manual or automated sweeps.
-3. Keep expanding SSH/local parity checks around source-control and file-workflow providers.
+3. Keep expanding SSH/local parity checks around Checks, bulk git actions, and branch workflows.
