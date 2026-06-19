@@ -115,7 +115,24 @@ describe('runtime status porting contract', () => {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       title: 'Janus Runtime status.get result',
       type: 'object',
-      required: listRuntimeStatusPortingRequiredFields()
+      required: listRuntimeStatusPortingRequiredFields(),
+      properties: {
+        runtimeId: {
+          type: 'string',
+          minLength: 1
+        }
+      }
+    })
+  })
+
+  it('describes the runtime id JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        runtimeId: {
+          type: 'string',
+          minLength: 1
+        }
+      }
     })
   })
 

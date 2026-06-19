@@ -229,11 +229,23 @@ export function getRuntimeStatusPortingJsonSchema(): {
   title: string
   type: 'object'
   required: RuntimeStatusPortingField[]
+  properties: {
+    runtimeId: {
+      type: 'string'
+      minLength: number
+    }
+  }
 } {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     title: 'Janus Runtime status.get result',
     type: 'object',
-    required: listRuntimeStatusPortingRequiredFields()
+    required: listRuntimeStatusPortingRequiredFields(),
+    properties: {
+      runtimeId: {
+        type: 'string',
+        minLength: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS.runtimeId.minLength
+      }
+    }
   }
 }
