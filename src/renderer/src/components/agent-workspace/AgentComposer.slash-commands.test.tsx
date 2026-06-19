@@ -386,4 +386,39 @@ describe('AgentComposer slash commands', () => {
     expect(openBrowserWorkbench).toHaveBeenCalledTimes(1)
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
   })
+
+  it('keeps the terminal drawer route available for SSH selected projects', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-remote"
+          selectedThread={{ ...runningThread, worktreeId: 'worktree-remote' }}
+          selectedProject={{
+            id: 'worktree-remote',
+            label: 'Remote Janus',
+            path: '/home/jake/janus-code',
+            hostKind: 'ssh',
+            agentDetectionTarget: { kind: 'ssh', connectionId: 'ssh-1' }
+          }}
+          terminalAvailable={true}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
+      )
+    })
+
+    const openTerminalButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((candidate) => candidate.getAttribute('aria-label') === 'Open terminal drawer')
+
+    expect(openTerminalButton).not.toBeNull()
+    expect(openTerminalButton?.disabled).toBe(false)
+
+    await act(async () => {
+      openTerminalButton?.click()
+    })
+
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
+  })
 })

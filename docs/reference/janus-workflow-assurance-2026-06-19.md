@@ -28,6 +28,7 @@ Every workflow was checked against this chain:
 - Settings sidebar control regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/settings/SettingsSidebar.test.tsx`
 - Installed-app Computer Use runtime sweep: Settings search/back, completed-thread composer state, slash-command picker, browser workbench launch, terminal drawer presence, and Output/Changes/Review right-panel tabs.
 - Repeatable installed-app smoke gate: `pnpm run smoke:janus-workflow`. This replays the same non-destructive flow through Janus Computer Use and defaults to the production `janus-code` runtime data path.
+- SSH composer-adjacent parity checks: model discovery forwards `worktreePath` plus `connectionId`, and the terminal drawer route remains available for SSH selected projects.
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -104,7 +105,7 @@ Recommended public-download path without paying Apple:
 | Priority | Risk                                                                                                                                                                              | Recommended next check                                                                    |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution requires macOS Accessibility/Screen Recording grants for `Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release. |
-| P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests.                                  | Add tests around terminal reveal and model discovery for SSH projects.                    |
+| P2       | SSH composer parity now covers slash discovery, model discovery, and terminal reveal affordance; source-control side panels still deserve the same audit depth.                   | Add SSH/local parity tests around PR generation, checks, and file explorer write actions. |
 
 ## Next Score Plan
 
@@ -112,4 +113,4 @@ To keep the app at **100/100** as features move:
 
 1. Run `pnpm run smoke:janus-workflow` before release after the macOS helper permission is granted.
 2. Add/adjust tests for any mismatch found in future manual or automated sweeps.
-3. Keep expanding SSH/local parity checks around composer-adjacent context providers.
+3. Keep expanding SSH/local parity checks around source-control and file-workflow providers.
