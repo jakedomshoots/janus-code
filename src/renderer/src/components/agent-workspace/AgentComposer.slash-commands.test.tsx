@@ -260,4 +260,38 @@ describe('AgentComposer slash commands', () => {
     )
     expect(runtimeOption?.textContent).toContain('/runtime-only')
   })
+
+  it('discovers slash commands through the selected project backend context', async () => {
+    mocks.discoverAgentSlashCommands.mockResolvedValue({
+      success: true,
+      agentId: 'codex',
+      commands: []
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={runningThread}
+          selectedProject={{
+            id: 'worktree-1',
+            label: 'Remote Janus',
+            path: '/home/jake/janus-code',
+            hostKind: 'ssh',
+            agentDetectionTarget: { kind: 'ssh', connectionId: 'ssh-1' }
+          }}
+        />
+      )
+    })
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(mocks.discoverAgentSlashCommands).toHaveBeenCalledWith({
+      agentId: 'codex',
+      worktreePath: '/home/jake/janus-code',
+      connectionId: 'ssh-1'
+    })
+  })
 })

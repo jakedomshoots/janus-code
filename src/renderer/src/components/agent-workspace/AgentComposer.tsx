@@ -356,6 +356,7 @@ export function AgentComposer({
     <AgentComposerForm
       prompt={prompt}
       activeWorktreeId={activeWorktreeId}
+      selectedProject={selectedProject}
       selectedThread={selectedThread}
       timeline={timeline}
       composerDisabled={composerDisabled}

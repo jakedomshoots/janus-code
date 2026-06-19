@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { AgentComposerSlashCommand } from './agent-composer-slash-command-model'
 import type { TuiAgent } from '../../../../shared/types'
+import type { AgentWorkspaceProject } from './agent-workspace-types'
 
 type AgentSlashCommandDiscoveryState = {
   readonly commands: readonly AgentComposerSlashCommand[]
@@ -21,9 +22,15 @@ function toAgentComposerSlashCommand(command: {
 }
 
 export function useAgentComposerSlashCommandDiscovery(
-  selectedAgent: TuiAgent | null
+  selectedAgent: TuiAgent | null,
+  selectedProject: AgentWorkspaceProject | null
 ): AgentSlashCommandDiscoveryState {
   const [commands, setCommands] = useState<readonly AgentComposerSlashCommand[]>([])
+  const selectedProjectPath = selectedProject?.path
+  const selectedProjectConnectionId =
+    selectedProject?.agentDetectionTarget?.kind === 'ssh'
+      ? selectedProject.agentDetectionTarget.connectionId
+      : undefined
 
   useEffect(() => {
     if (!selectedAgent || typeof window.api?.git?.discoverAgentSlashCommands !== 'function') {
@@ -32,7 +39,11 @@ export function useAgentComposerSlashCommandDiscovery(
     }
     let canceled = false
     void window.api.git
-      .discoverAgentSlashCommands({ agentId: selectedAgent })
+      .discoverAgentSlashCommands({
+        agentId: selectedAgent,
+        ...(selectedProjectPath ? { worktreePath: selectedProjectPath } : {}),
+        ...(selectedProjectConnectionId ? { connectionId: selectedProjectConnectionId } : {})
+      })
       .then((result) => {
         if (canceled) {
           return
@@ -51,7 +62,7 @@ export function useAgentComposerSlashCommandDiscovery(
     return () => {
       canceled = true
     }
-  }, [selectedAgent])
+  }, [selectedAgent, selectedProjectConnectionId, selectedProjectPath])
 
   return { commands }
 }

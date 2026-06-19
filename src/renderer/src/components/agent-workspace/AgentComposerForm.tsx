@@ -11,6 +11,7 @@ import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import type { AgentWorkspaceProject } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
 import { learnAgentComposerSlashCommandsFromTimeline } from './agent-composer-learned-slash-commands'
 import { useAgentComposerSlashCommandDiscovery } from './agent-composer-slash-command-discovery'
@@ -22,6 +23,7 @@ import {
 export function AgentComposerForm({
   prompt,
   activeWorktreeId,
+  selectedProject,
   selectedThread,
   timeline,
   composerDisabled,
@@ -60,6 +62,7 @@ export function AgentComposerForm({
 }: {
   prompt: string
   activeWorktreeId: string | null
+  selectedProject: AgentWorkspaceProject | null
   selectedThread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   composerDisabled: boolean
@@ -106,7 +109,10 @@ export function AgentComposerForm({
     () => learnAgentComposerSlashCommandsFromTimeline(timeline),
     [timeline]
   )
-  const discoveredSlashCommands = useAgentComposerSlashCommandDiscovery(activeAgent)
+  const discoveredSlashCommands = useAgentComposerSlashCommandDiscovery(
+    activeAgent,
+    selectedProject
+  )
   const availableSlashCommands = useMemo(
     () => [...discoveredSlashCommands.commands, ...learnedSlashCommands],
     [discoveredSlashCommands.commands, learnedSlashCommands]
