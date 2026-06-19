@@ -238,6 +238,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'string'
       enum: string[]
     }
+    hostPlatform: {
+      type: 'string'
+      enum: string[]
+    }
   }
 } {
   return {
@@ -253,6 +257,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       graphStatus: {
         type: 'string',
         enum: [...VALID_RUNTIME_GRAPH_STATUSES]
+      },
+      hostPlatform: {
+        type: 'string',
+        enum: [...VALID_RUNTIME_HOST_PLATFORMS]
       }
     }
   }

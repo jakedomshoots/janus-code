@@ -124,6 +124,10 @@ describe('runtime status porting contract', () => {
         graphStatus: {
           type: 'string',
           enum: ['ready', 'reloading', 'unavailable']
+        },
+        hostPlatform: {
+          type: 'string',
+          enum: ['darwin', 'linux', 'win32']
         }
       }
     })
@@ -146,6 +150,17 @@ describe('runtime status porting contract', () => {
         graphStatus: {
           type: 'string',
           enum: ['ready', 'reloading', 'unavailable']
+        }
+      }
+    })
+  })
+
+  it('describes the host platform JSON schema enum for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        hostPlatform: {
+          type: 'string',
+          enum: ['darwin', 'linux', 'win32']
         }
       }
     })
