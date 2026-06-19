@@ -9,6 +9,8 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const vitestFiles = [
   'config/scripts/computer-use-smoke.test.mjs',
   'config/scripts/computer-e2e-workflow.test.mjs',
+  'config/scripts/janus-workflow-assurance-suite.test.mjs',
+  'config/scripts/verify-direct-download-artifacts.test.mjs',
   'src/renderer/src/components/agent-workspace/AgentComposer.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.permission-mode.test.tsx',
