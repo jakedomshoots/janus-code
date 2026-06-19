@@ -63,6 +63,7 @@ describe('Janus workflow assurance suite', () => {
         'src/renderer/src/components/right-sidebar/checks-panel-review-creation.test.ts',
         'src/renderer/src/components/right-sidebar/checks-panel-git-status-snapshot.test.ts',
         'src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts',
+        'src/renderer/src/components/sidebar/useAddRepoCloneFlow.test.ts',
         'src/renderer/src/components/sidebar/SidebarHeader.test.tsx',
         'src/renderer/src/components/settings/SettingsSidebar.test.tsx'
       ])
