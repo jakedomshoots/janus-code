@@ -151,6 +151,21 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid runtime counters without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          rendererGraphEpoch: -1,
+          liveTabCount: 1.5,
+          liveLeafCount: Number.NaN
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['rendererGraphEpoch', 'liveTabCount', 'liveLeafCount']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))

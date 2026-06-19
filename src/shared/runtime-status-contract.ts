@@ -29,6 +29,12 @@ const VERSIONED_RUNTIME_STATUS_PORTING_FIELDS = [
   'minCompatibleRuntimeClientVersion'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
+const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
+  'rendererGraphEpoch',
+  'liveTabCount',
+  'liveLeafCount'
+] as const satisfies readonly (keyof RuntimeStatus)[]
+
 const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
@@ -67,6 +73,13 @@ export function listInvalidRuntimeStatusPortingFields(
       const value = status[field]
       return typeof value !== 'number' || !Number.isInteger(value) || value < 1
     }
+  )
+
+  invalidFields.push(
+    ...NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => {
+      const value = status[field]
+      return typeof value !== 'number' || !Number.isInteger(value) || value < 0
+    })
   )
 
   if (
