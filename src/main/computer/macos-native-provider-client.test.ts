@@ -6,6 +6,7 @@ const {
   chmodSyncMock,
   connectMacOSProviderSocketMock,
   mkdtempSyncMock,
+  resolveMacOSComputerUseAppPathMock,
   resolveMacOSComputerUseExecutablePathMock,
   rmSyncMock,
   spawnMock,
@@ -14,6 +15,7 @@ const {
   chmodSyncMock: vi.fn(),
   connectMacOSProviderSocketMock: vi.fn(),
   mkdtempSyncMock: vi.fn(),
+  resolveMacOSComputerUseAppPathMock: vi.fn(),
   resolveMacOSComputerUseExecutablePathMock: vi.fn(),
   rmSyncMock: vi.fn(),
   spawnMock: vi.fn(),
@@ -32,6 +34,7 @@ vi.mock('fs', () => ({
 }))
 
 vi.mock('./macos-native-provider-paths', () => ({
+  resolveMacOSComputerUseAppPath: resolveMacOSComputerUseAppPathMock,
   resolveMacOSComputerUseExecutablePath: resolveMacOSComputerUseExecutablePathMock
 }))
 
@@ -91,6 +94,7 @@ describe('MacOSNativeProviderClient', () => {
     sockets.length = 0
     providers.length = 0
     mkdtempSyncMock.mockImplementation((prefix: string) => `${prefix}${sockets.length}`)
+    resolveMacOSComputerUseAppPathMock.mockReturnValue('/Applications/Janus Computer Use.app')
     resolveMacOSComputerUseExecutablePathMock.mockReturnValue(
       '/Applications/Janus Computer Use.app/Contents/MacOS/orca-computer-use-macos'
     )
@@ -110,6 +114,7 @@ describe('MacOSNativeProviderClient', () => {
     chmodSyncMock.mockReset()
     connectMacOSProviderSocketMock.mockReset()
     mkdtempSyncMock.mockReset()
+    resolveMacOSComputerUseAppPathMock.mockReset()
     resolveMacOSComputerUseExecutablePathMock.mockReset()
     rmSyncMock.mockReset()
     spawnMock.mockReset()

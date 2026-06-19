@@ -142,9 +142,19 @@ function waitForProviderLaunchFailure(provider: ChildProcess): {
         )
       )
     }
+    const failExit = (code: number | null) => {
+      reject(
+        new RuntimeClientError(
+          'accessibility_error',
+          `native macOS helper app exited before connecting: code ${code ?? 'unknown'}`
+        )
+      )
+    }
     provider.once('error', fail)
+    provider.once('exit', failExit)
     cleanup = () => {
       provider.off('error', fail)
+      provider.off('exit', failExit)
     }
   })
   return { promise, cleanup }

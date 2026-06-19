@@ -427,7 +427,7 @@ describe('source-control AI action recipes', () => {
     ).toEqual({
       ok: false,
       error:
-        'Agent "aider" does not support Source Control AI commit messages. Supported agents: Claude, Codex, OpenCode, Pi, OMP, Amp, Cursor, Kimi, GitHub Copilot, Antigravity, or Custom command.'
+        'Agent "aider" does not support Source Control AI commit messages. Supported agents: Claude, Codex, OpenCode, Pi, OMP, Amp, Cursor, Grok, Command Code, Kimi, Hermes, GitHub Copilot, Antigravity, or Custom command.'
     })
   })
 })

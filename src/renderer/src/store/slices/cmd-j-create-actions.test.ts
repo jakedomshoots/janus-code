@@ -5,9 +5,9 @@ import { createTestStore, makeWorktree, seedStore, TEST_REPO } from './store-tes
 const createWebRuntimeSessionBrowserTabMock = vi.hoisted(() => vi.fn())
 const createWebRuntimeSessionTerminalMock = vi.hoisted(() => vi.fn())
 
-vi.mock('@/runtime/web-runtime-session', () => ({
-  createWebRuntimeSessionBrowserTab: createWebRuntimeSessionBrowserTabMock,
-  createWebRuntimeSessionTerminal: createWebRuntimeSessionTerminalMock
+vi.mock('@/runtime/web-runtime-session-actions', () => ({
+  createRegisteredWebRuntimeSessionBrowserTab: createWebRuntimeSessionBrowserTabMock,
+  createRegisteredWebRuntimeSessionTerminal: createWebRuntimeSessionTerminalMock
 }))
 
 vi.mock('@/lib/focus-terminal-tab-surface', () => ({
