@@ -32,6 +32,7 @@ import {
   setWorktreeNavActivator,
   setWorktreeNavViewActivator
 } from '@/store/slices/worktree-nav-history'
+import { setAddedFolderWorktreeActivator } from './worktree-activation-registry'
 import {
   resolveTuiAgentLaunchArgs,
   resolveTuiAgentLaunchEnv
@@ -573,6 +574,10 @@ setWorktreeNavActivator((workspaceId) => {
   }
   return activateAndRevealWorktree(workspaceId)
 })
+
+// Why: repo slice cannot import this module without recreating the store cycle;
+// register the concrete activation path from the owner module instead.
+setAddedFolderWorktreeActivator(activateAndRevealWorktree)
 
 // Why: page entries in nav history replay through setActiveView(...)
 // (not open*Page) so back/forward does not mutate previousViewBefore* or

@@ -3,11 +3,11 @@ import { getDefaultOnboardingState, getDefaultSettings } from '../../../../share
 import { createTestStore, makeWorktree } from './store-test-helpers'
 
 const worktreeActivation = vi.hoisted(() => ({
-  activateAndRevealWorktree: vi.fn()
+  activateAddedFolderWorktree: vi.fn()
 }))
 
-vi.mock('../../lib/worktree-activation', () => ({
-  activateAndRevealWorktree: worktreeActivation.activateAndRevealWorktree
+vi.mock('../../lib/worktree-activation-registry', () => ({
+  activateAddedFolderWorktree: worktreeActivation.activateAddedFolderWorktree
 }))
 
 const reposAdd = vi.fn()
@@ -18,7 +18,7 @@ beforeEach(() => {
   reposAdd.mockReset()
   worktreesList.mockReset()
   onboardingGet.mockReset()
-  worktreeActivation.activateAndRevealWorktree.mockReset()
+  worktreeActivation.activateAddedFolderWorktree.mockReset()
   vi.stubGlobal('window', {
     api: {
       repos: { add: reposAdd },
@@ -52,7 +52,7 @@ describe('repo slice skipped-onboarding folder startup', () => {
     await store.getState().addNonGitFolder('/first')
     await store.getState().addNonGitFolder('/second')
 
-    expect(worktreeActivation.activateAndRevealWorktree).toHaveBeenNthCalledWith(
+    expect(worktreeActivation.activateAddedFolderWorktree).toHaveBeenNthCalledWith(
       1,
       'folder-1::/folder',
       {
@@ -68,7 +68,7 @@ describe('repo slice skipped-onboarding folder startup', () => {
         }
       }
     )
-    expect(worktreeActivation.activateAndRevealWorktree).toHaveBeenNthCalledWith(
+    expect(worktreeActivation.activateAddedFolderWorktree).toHaveBeenNthCalledWith(
       2,
       'folder-2::/folder',
       { sidebarRevealBehavior: 'auto' }

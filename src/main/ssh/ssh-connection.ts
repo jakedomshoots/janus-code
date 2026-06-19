@@ -31,6 +31,7 @@ import {
   type SshConnectionCallbacks
 } from './ssh-connection-utils'
 import type { RemoteHostPlatform } from './ssh-remote-platform'
+import { uploadDirectory } from './sftp-upload'
 export type { SshConnectionCallbacks } from './ssh-connection-utils'
 
 type SshRemoteFileOptions = {
@@ -177,7 +178,6 @@ export class SshConnection {
     if (!this.useSystemSshTransport) {
       const sftp = await this.sftp()
       try {
-        const { uploadDirectory } = await import('./ssh-relay-deploy-helpers')
         await uploadDirectory(sftp, localDir, remoteDir)
       } finally {
         sftp.end()

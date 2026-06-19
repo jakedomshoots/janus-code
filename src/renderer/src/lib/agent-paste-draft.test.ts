@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   getSettingsForAgentTabRuntimeOwner,
   pasteDraftWhenAgentReady,
+  registerAgentPasteDraftStoreAccessor,
   sendBracketedPasteToRunningAgent
 } from './agent-paste-draft'
 
@@ -35,8 +36,11 @@ vi.mock('@/components/terminal-pane/pty-dispatcher', () => ({
 
 vi.mock('@/runtime/runtime-terminal-inspection', () => ({
   isRemoteRuntimePtyId: testState.isRemoteRuntimePtyId,
-  sendRuntimePtyInputVerified: testState.sendRuntimePtyInputVerified,
   inspectRuntimeTerminalProcess: testState.inspectRuntimeTerminalProcess
+}))
+
+vi.mock('@/runtime/runtime-terminal-input-registry', () => ({
+  sendRegisteredRuntimePtyInputVerified: testState.sendRuntimePtyInputVerified
 }))
 
 vi.mock('@/runtime/runtime-terminal-stream', () => ({
@@ -55,6 +59,7 @@ describe('pasteDraftWhenAgentReady', () => {
       setTimeout: globalThis.setTimeout,
       clearTimeout: globalThis.clearTimeout
     })
+    registerAgentPasteDraftStoreAccessor(() => testState.appState as never)
     testState.appState.settings = {}
     testState.appState.ptyIdsByTabId = { 'tab-1': ['pty-1'] }
     testState.appState.runtimePaneTitlesByTabId = {}
@@ -85,6 +90,7 @@ describe('pasteDraftWhenAgentReady', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.useRealTimers()
+    registerAgentPasteDraftStoreAccessor(null)
   })
 
   it('pastes into Codex as soon as its composer prompt renders after bracketed paste is enabled', async () => {
@@ -348,22 +354,24 @@ describe('pasteDraftWhenAgentReady', () => {
       PASTED_ISSUE_URL
     )
 
-    await flushMicrotasks()
-    await vi.advanceTimersByTimeAsync(49)
-    expect(testState.sendRuntimePtyInputVerified).toHaveBeenCalledTimes(1)
-    await vi.advanceTimersByTimeAsync(1)
-
+    await vi.advanceTimersByTimeAsync(50)
     await expect(promise).resolves.toBe(true)
+    expect(testState.sendRuntimePtyInputVerified).toHaveBeenCalledTimes(2)
     expect(testState.sendRuntimePtyInputVerified).toHaveBeenNthCalledWith(2, {}, 'pty-1', '\r')
   })
 })
 
 describe('getSettingsForAgentTabRuntimeOwner', () => {
   beforeEach(() => {
+    registerAgentPasteDraftStoreAccessor(() => testState.appState as never)
     testState.appState.settings = { activeRuntimeEnvironmentId: 'focused-runtime' }
     testState.appState.tabsByWorktree = {}
     testState.appState.repos = []
     testState.appState.worktreesByRepo = {}
+  })
+
+  afterEach(() => {
+    registerAgentPasteDraftStoreAccessor(null)
   })
 
   it('falls back to focused settings when the tab is not mapped to a worktree', () => {

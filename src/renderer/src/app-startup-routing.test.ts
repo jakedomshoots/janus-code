@@ -180,4 +180,72 @@ describe('renderer startup runtime routing', () => {
     expect(source).toContain('statusBarVisible ? (')
     expect(source).toContain('h-6 min-h-[24px] shrink-0 border-t border-border')
   })
+
+  it('keeps web runtime session imports explicit once the sync graph owns startup loading', () => {
+    const browserSliceSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/store/slices/browser.ts'),
+      'utf8'
+    )
+    const terminalSliceSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/store/slices/terminals.ts'),
+      'utf8'
+    )
+    const runtimeSessionSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/runtime/web-runtime-session.ts'),
+      'utf8'
+    )
+    const tabsSyncSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/runtime/web-session-tabs-sync.ts'),
+      'utf8'
+    )
+    const runtimeActionsSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/runtime/web-runtime-session-actions.ts'),
+      'utf8'
+    )
+
+    expect(tabsSyncSource).toContain("from './web-runtime-session'")
+    expect(browserSliceSource).toContain("from '@/runtime/web-runtime-session-actions'")
+    expect(terminalSliceSource).toContain("from '@/runtime/web-runtime-session-actions'")
+    expect(browserSliceSource).not.toContain("from '@/runtime/web-runtime-session'")
+    expect(terminalSliceSource).not.toContain("from '@/runtime/web-runtime-session'")
+    expect(runtimeActionsSource).not.toContain("from './web-runtime-session'")
+    expect(runtimeSessionSource).not.toContain("import('./web-session-tabs-sync')")
+    expect(runtimeSessionSource).toContain(
+      'setWebRuntimeSessionTerminalCreator(createWebRuntimeSessionTerminal)'
+    )
+    expect(runtimeSessionSource).toContain(
+      'setWebRuntimeSessionBrowserTabCreator(createWebRuntimeSessionBrowserTab)'
+    )
+  })
+
+  it('routes folder-add activation through an explicit store-safe activator', () => {
+    const reposSliceSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/store/slices/repos.ts'),
+      'utf8'
+    )
+    const activationSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/lib/worktree-activation.ts'),
+      'utf8'
+    )
+
+    expect(reposSliceSource).toContain("from '@/lib/worktree-activation-registry'")
+    expect(reposSliceSource).toContain('activateAddedFolderWorktree')
+    expect(reposSliceSource).not.toContain("import('../../lib/worktree-activation')")
+    expect(activationSource).toContain('setAddedFolderWorktreeActivator(activateAndRevealWorktree)')
+  })
+
+  it('keeps agent paste delivery store-safe during slice construction', () => {
+    const pasteDraftSource = readFileSync(
+      join(process.cwd(), 'src/renderer/src/lib/agent-paste-draft.ts'),
+      'utf8'
+    )
+    const storeSource = readFileSync(join(process.cwd(), 'src/renderer/src/store/index.ts'), 'utf8')
+
+    expect(pasteDraftSource).not.toContain("from '@/store'")
+    expect(pasteDraftSource).not.toContain('runtime-terminal-inspection')
+    expect(pasteDraftSource).toContain('registerAgentPasteDraftStoreAccessor')
+    expect(storeSource).toContain(
+      'registerAgentPasteDraftStoreAccessor(() => useAppStore.getState())'
+    )
+  })
 })

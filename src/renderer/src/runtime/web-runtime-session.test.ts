@@ -156,7 +156,8 @@ describe('createWebRuntimeSessionBrowserTab', () => {
     })
     expect(mocks.setRemoteBrowserPageHandle).toHaveBeenCalledWith('local-page-1', {
       environmentId: ENVIRONMENT_ID,
-      remotePageId: 'remote-browser-page-1'
+      remotePageId: 'remote-browser-page-1',
+      pendingHostMirror: true
     })
   })
 

@@ -7,6 +7,7 @@ import {
   getRemoteRuntimePtyEnvironmentId,
   getRemoteRuntimeTerminalHandle
 } from './runtime-terminal-stream'
+import { setRuntimePtyInputSender } from './runtime-terminal-input-registry'
 
 export type RuntimeTerminalProcessInspection = {
   foregroundProcess: string | null
@@ -168,3 +169,5 @@ export async function sendRuntimePtyInputVerified(
     throw error
   }
 }
+
+setRuntimePtyInputSender(sendRuntimePtyInputVerified)

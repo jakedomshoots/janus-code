@@ -53,6 +53,7 @@ import {
 import { toRuntimeWorktreeSelector } from '../../runtime/runtime-worktree-selector'
 import { buildDismissedOnboardingFolderAgentStartup } from '@/lib/onboarding-folder-agent-startup'
 import { markOnboardingProjectAdded } from '@/lib/onboarding-project-checklist'
+import { activateAddedFolderWorktree } from '@/lib/worktree-activation-registry'
 import { filterSetupScriptPromptDismissalsToValidRepos } from '@/lib/setup-script-prompt'
 import { translate } from '@/i18n/i18n'
 import {
@@ -1487,12 +1488,10 @@ export const createRepoSlice: StateCreator<AppState, [], [], RepoSlice> = (set, 
       // the dialog closes and users think nothing happened. Fetch the
       // synthetic folder worktree and route through the standard activation
       // sequence so the sidebar reveals and opens the folder the same way
-      // clicking a worktree card does. Lazy-imported to avoid a circular
-      // module load (worktree-activation imports the store root).
+      // clicking a worktree card does.
       await get().fetchWorktrees(repo.id)
       const folderWorktree = get().worktreesByRepo[repo.id]?.[0]
       if (folderWorktree) {
-        const { activateAndRevealWorktree } = await import('../../lib/worktree-activation')
         const onboarding = await window.api.onboarding.get().catch(() => null)
         // Why: a new user can dismiss the wizard, then immediately add their
         // first folder from Landing. That path skips onboarding's completeRepo
@@ -1502,7 +1501,7 @@ export const createRepoSlice: StateCreator<AppState, [], [], RepoSlice> = (set, 
           onboarding,
           hadProjectBeforeAdd
         )
-        activateAndRevealWorktree(folderWorktree.id, {
+        activateAddedFolderWorktree(folderWorktree.id, {
           sidebarRevealBehavior: 'auto',
           ...(startup ? { startup } : {})
         })

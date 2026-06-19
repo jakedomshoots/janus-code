@@ -5,8 +5,10 @@ import {
   resolveTuiAgentLaunchArgs,
   resolveTuiAgentLaunchEnv
 } from '../../../shared/tui-agent-launch-defaults'
-import type { AgentStartedTelemetry } from '@/lib/worktree-activation'
+import type { EventProps } from '../../../shared/telemetry-events'
 import type { GlobalSettings, OnboardingState } from '../../../shared/types'
+
+type AgentStartedTelemetry = EventProps<'agent_started'>
 
 export type OnboardingFolderAgentStartup = {
   command: string

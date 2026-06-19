@@ -22,7 +22,7 @@ import { parseLegacyNumericPaneKey, parsePaneKey } from '../../../../shared/stab
 import { isValidHostTerminalTabId, isValidTerminalTabId } from '../../../../shared/terminal-tab-id'
 import { getRepoIdFromWorktreeId, splitWorktreeId } from '../../../../shared/worktree-id'
 import { isWslUncPath } from '../../../../shared/wsl-paths'
-import type { AgentStartedTelemetry } from '../../lib/worktree-activation'
+import type { EventProps } from '../../../../shared/telemetry-events'
 import { scheduleRuntimeGraphSync } from '@/runtime/sync-runtime-graph'
 import { clearTransientTerminalState, emptyLayoutSnapshot } from './terminal-helpers'
 import { isClaudeAgent, detectAgentStatusFromTitle } from '@/lib/agent-status'
@@ -50,6 +50,9 @@ import { hasWorktreeSleepIntent } from '@/lib/worktree-sleep-intent'
 import { sanitizeTerminalLayoutPaneTitles } from '@/lib/terminal-pane-title-sanitization'
 import { focusTerminalTabSurface } from '@/lib/focus-terminal-tab-surface'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
+import { createRegisteredWebRuntimeSessionTerminal } from '@/runtime/web-runtime-session-actions'
+
+type AgentStartedTelemetry = EventProps<'agent_started'>
 
 function getNextTerminalOrdinal(tabs: TerminalTab[]): number {
   const usedOrdinals = new Set<number>()
@@ -784,8 +787,7 @@ export const createTerminalSlice: StateCreator<AppState, [], [], TerminalSlice> 
     }
     const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(state, worktreeId)
     if (runtimeEnvironmentId) {
-      const { createWebRuntimeSessionTerminal } = await import('@/runtime/web-runtime-session')
-      await createWebRuntimeSessionTerminal({
+      await createRegisteredWebRuntimeSessionTerminal({
         worktreeId,
         environmentId: runtimeEnvironmentId,
         targetGroupId: groupId,

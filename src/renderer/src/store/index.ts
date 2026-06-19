@@ -34,6 +34,7 @@ import { createPullRequestGenerationSlice } from './slices/pull-request-generati
 import { createCommitMessageGenerationSlice } from './slices/commit-message-generation'
 import { e2eConfig } from '@/lib/e2e-config'
 import { registerHttpLinkStoreAccessor } from '@/lib/http-link-routing'
+import { registerAgentPasteDraftStoreAccessor } from '@/lib/agent-paste-draft'
 
 export const useAppStore = create<AppState>()((...a) => ({
   ...createRepoSlice(...a),
@@ -71,6 +72,7 @@ export const useAppStore = create<AppState>()((...a) => ({
 }))
 
 registerHttpLinkStoreAccessor(() => useAppStore.getState())
+registerAgentPasteDraftStoreAccessor(() => useAppStore.getState())
 
 export type { AppState } from './types'
 

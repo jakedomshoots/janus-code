@@ -15,8 +15,8 @@ const createWebRuntimeSessionBrowserTabMock = vi.hoisted(() => vi.fn())
 const runtimeEnvironmentCall = vi.fn()
 const runtimeEnvironmentTransportCall = vi.fn()
 
-vi.mock('@/runtime/web-runtime-session', () => ({
-  createWebRuntimeSessionBrowserTab: createWebRuntimeSessionBrowserTabMock
+vi.mock('@/runtime/web-runtime-session-actions', () => ({
+  createRegisteredWebRuntimeSessionBrowserTab: createWebRuntimeSessionBrowserTabMock
 }))
 
 const mockApi = {

@@ -958,7 +958,8 @@ export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get)
     const label = formatAgentTypeLabel(target.entry.agentType)
     const delivered = await sendBracketedPasteToRunningAgent({
       ptyId: target.ptyId,
-      content: mode.prompt
+      content: mode.prompt,
+      settings: get().settings
     }).catch(() => false)
 
     if (!delivered) {

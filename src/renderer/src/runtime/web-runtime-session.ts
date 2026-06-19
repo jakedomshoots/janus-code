@@ -17,6 +17,14 @@ import { unwrapRuntimeRpcResult } from './runtime-rpc-client'
 import { parseRemoteRuntimePtyId } from './runtime-terminal-stream'
 import { toRuntimeWorktreeSelector } from './runtime-worktree-selector'
 import { isWebTerminalSurfaceTabId, toHostSessionTabId } from './web-terminal-surface-id'
+import {
+  applyFreshWebSessionTabsSnapshot,
+  resolveHostSessionTabIdForWebSessionTab
+} from './web-session-tabs-sync'
+import {
+  setWebRuntimeSessionBrowserTabCreator,
+  setWebRuntimeSessionTerminalCreator
+} from './web-runtime-session-actions'
 
 export {
   HOST_TERMINAL_SURFACE_SEPARATOR,
@@ -148,6 +156,9 @@ export async function createWebRuntimeSessionBrowserTab(args: {
   }
 }
 
+setWebRuntimeSessionTerminalCreator(createWebRuntimeSessionTerminal)
+setWebRuntimeSessionBrowserTabCreator(createWebRuntimeSessionBrowserTab)
+
 function stageWebRuntimeBrowserTab(args: {
   environmentId: string
   worktreeId: string
@@ -239,7 +250,6 @@ async function refreshWebRuntimeSessionTabsSnapshot(
     const snapshot = unwrapRuntimeRpcResult(
       response as RuntimeRpcResponse<RuntimeMobileSessionTabsResult>
     )
-    const { applyFreshWebSessionTabsSnapshot } = await import('./web-session-tabs-sync')
     useAppStore.setState((state) => {
       // Why: eager refreshes can resolve after the user has selected another
       // worktree; session parity should update tabs without stealing focus.
@@ -319,7 +329,6 @@ export async function moveWebRuntimeSessionTab(
   }
 
   try {
-    const { resolveHostSessionTabIdForWebSessionTab } = await import('./web-session-tabs-sync')
     const state = useAppStore.getState()
     const resolveHostBackedTabId = (tabId: string): string | null =>
       resolveHostSessionTabIdForWebSessionTab(state, {
@@ -414,7 +423,6 @@ async function callWebRuntimeSessionTabMethod(
   }
 
   try {
-    const { resolveHostSessionTabIdForWebSessionTab } = await import('./web-session-tabs-sync')
     const state = useAppStore.getState()
     const hostTabId =
       resolveHostSessionTabIdForWebSessionTab(state, {

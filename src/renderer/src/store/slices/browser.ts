@@ -50,6 +50,7 @@ import {
   getRuntimeEnvironmentIdForWorktree
 } from '@/lib/worktree-runtime-owner'
 import { stripInjectedBrowserGrabDump } from '@/components/browser-pane/strip-browser-grab-dump'
+import { createRegisteredWebRuntimeSessionBrowserTab } from '@/runtime/web-runtime-session-actions'
 
 type CreateBrowserTabOptions = {
   activate?: boolean
@@ -613,9 +614,8 @@ export const createBrowserSlice: StateCreator<AppState, [], [], BrowserSlice> = 
     const defaultUrl = state.browserDefaultUrl ?? ORCA_BROWSER_BLANK_URL
     const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(state, worktreeId)
     if (runtimeEnvironmentId) {
-      const { createWebRuntimeSessionBrowserTab } = await import('@/runtime/web-runtime-session')
       try {
-        const created = await createWebRuntimeSessionBrowserTab({
+        const created = await createRegisteredWebRuntimeSessionBrowserTab({
           worktreeId,
           environmentId: runtimeEnvironmentId,
           url: defaultUrl,
