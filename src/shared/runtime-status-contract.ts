@@ -11,7 +11,8 @@ const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
   'liveLeafCount',
   'runtimeProtocolVersion',
   'minCompatibleRuntimeClientVersion',
-  'capabilities'
+  'capabilities',
+  'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {

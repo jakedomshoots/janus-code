@@ -46,4 +46,10 @@ describe('runtime status porting contract', () => {
       )
     ).toThrow('runtimeProtocolVersion')
   })
+
+  it('requires host platform so native runtime parity stays cross-platform', () => {
+    expect(() =>
+      assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))
+    ).toThrow('hostPlatform')
+  })
 })
