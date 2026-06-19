@@ -2,6 +2,7 @@
   "artifactId": "janus-runtime-porting-domain-summary",
   "mediaType": "application/vnd.janus.runtime-porting-domain-summary+json",
   "schemaVersion": 1,
+  "targetRuntime": "tauri",
   "firstSlice": {
     "id": "runtime-status-diagnostics",
     "boundary": "runtime-rpc",
