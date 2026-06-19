@@ -42,6 +42,10 @@
     "capabilities",
     "hostPlatform"
   ],
+  "firstSliceContractVersionedFields": [
+    "runtimeProtocolVersion",
+    "minCompatibleRuntimeClientVersion"
+  ],
   "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",
   "nativeCandidates": [

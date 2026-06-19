@@ -11,7 +11,8 @@ import {
 } from './runtime-status-json-schema'
 import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
-  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
+  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 } from './runtime-status-field-groups'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
@@ -61,6 +62,7 @@ export type RuntimePortingFirstSliceContractJsonSchemaTitle =
 export type RuntimePortingFirstSliceContractRequiredFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
+export type RuntimePortingFirstSliceContractVersionedFields = readonly RuntimeStatusPortingField[]
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
@@ -80,6 +82,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
+  firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -125,6 +128,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS: RuntimeP
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS: RuntimePortingFirstSliceContractVersionedFields =
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
@@ -222,6 +227,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractInvalidatableFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
+    firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,

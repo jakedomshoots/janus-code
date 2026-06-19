@@ -11,7 +11,8 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
-  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
+  REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 } from './runtime-status-contract'
 import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
 import {
@@ -75,6 +76,7 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
       firstSliceContractInvalidatableFields: INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractRequiredFields: REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+      firstSliceContractVersionedFields: VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceRationale: 'read-only-runtime-rpc',
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
@@ -140,6 +142,7 @@ describe('runtime porting domains', () => {
     )
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractRequiredFields')
+    expect(doc).toContain('firstSliceContractVersionedFields')
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
     expect(doc).toContain(`migrationStrategy: ${RUNTIME_PORTING_MIGRATION_STRATEGY}`)
