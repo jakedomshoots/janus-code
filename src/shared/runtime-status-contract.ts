@@ -10,6 +10,7 @@ export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
 export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD: RuntimePortingFirstSliceMethod =
   RUNTIME_PORTING_FIRST_SLICE_METHOD
 export const RUNTIME_STATUS_PORTING_CONTRACT_PARAMS = null
+export const RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION = 1
 
 const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
   'runtimeId',
@@ -182,6 +183,7 @@ export function listRuntimeStatusPortingInvalidatableFields(): (keyof RuntimeSta
 }
 
 export function getRuntimeStatusPortingContractSummary(): {
+  schemaVersion: typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
   domainId: RuntimePortingDomainId
   method: RuntimePortingFirstSliceMethod
   params: null
@@ -196,6 +198,7 @@ export function getRuntimeStatusPortingContractSummary(): {
   arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 } {
   return {
+    schemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
     method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
     params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
