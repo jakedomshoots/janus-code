@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
@@ -49,6 +49,17 @@ describe('runtime porting domains', () => {
     expect(getRuntimePortingDomainSummaryJson()).toBe(
       `${JSON.stringify(getRuntimePortingDomainSummary(), null, 2)}\n`
     )
+  })
+
+  it('keeps a checked-in JSON summary for non-TypeScript porting tools', () => {
+    const artifactPath = resolve(__dirname, './runtime-porting-domains-summary.json')
+
+    expect(existsSync(artifactPath)).toBe(true)
+    if (!existsSync(artifactPath)) {
+      return
+    }
+
+    expect(readFileSync(artifactPath, 'utf8')).toBe(getRuntimePortingDomainSummaryJson())
   })
 
   it('keeps the embedded browser workbench out of the first native porting wave', () => {

@@ -1,0 +1,45 @@
+{
+  "firstSlice": {
+    "id": "runtime-status-diagnostics",
+    "boundary": "runtime-rpc",
+    "disposition": "first-slice"
+  },
+  "firstSliceMethod": "status.get",
+  "nativeCandidates": [
+    {
+      "id": "pty-lifecycle",
+      "boundary": "host-service",
+      "disposition": "native-candidate"
+    },
+    {
+      "id": "process-supervision",
+      "boundary": "host-service",
+      "disposition": "native-candidate"
+    },
+    {
+      "id": "filesystem-workspace-scanning",
+      "boundary": "host-service",
+      "disposition": "native-candidate"
+    }
+  ],
+  "retainedElectron": [
+    {
+      "id": "browser-workbench",
+      "boundary": "electron-host",
+      "disposition": "retain-electron"
+    },
+    {
+      "id": "app-shell",
+      "boundary": "electron-host",
+      "disposition": "retain-electron"
+    },
+    {
+      "id": "provider-review-integrations",
+      "boundary": "runtime-rpc",
+      "disposition": "retain-electron"
+    }
+  ],
+  "totalDomainCount": 7,
+  "nativeCandidateCount": 3,
+  "retainedElectronCount": 3
+}
