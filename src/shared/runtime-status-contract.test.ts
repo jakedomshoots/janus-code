@@ -116,6 +116,7 @@ describe('runtime status porting contract', () => {
       title: 'Janus Runtime status.get result',
       type: 'object',
       required: listRuntimeStatusPortingRequiredFields(),
+      additionalProperties: false,
       properties: {
         runtimeId: {
           type: 'string',
@@ -160,6 +161,12 @@ describe('runtime status porting contract', () => {
           }
         }
       }
+    })
+  })
+
+  it('closes the JSON schema so sidecar adapters catch runtime status drift', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      additionalProperties: false
     })
   })
 

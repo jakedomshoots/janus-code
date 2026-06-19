@@ -229,6 +229,7 @@ export function getRuntimeStatusPortingJsonSchema(): {
   title: string
   type: 'object'
   required: RuntimeStatusPortingField[]
+  additionalProperties: false
   properties: {
     runtimeId: {
       type: 'string'
@@ -279,6 +280,7 @@ export function getRuntimeStatusPortingJsonSchema(): {
     title: 'Janus Runtime status.get result',
     type: 'object',
     required: listRuntimeStatusPortingRequiredFields(),
+    additionalProperties: false,
     properties: {
       runtimeId: {
         type: 'string',
