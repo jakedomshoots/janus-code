@@ -5,6 +5,7 @@
   "artifactJsonPath": "src/shared/runtime-status-contract-artifact.json",
   "jsonSchemaDraftUri": "https://json-schema.org/draft/2020-12/schema",
   "jsonSchemaId": "urn:janus:runtime-status-contract:json-schema:1",
+  "jsonSchemaTitle": "Janus Runtime status.get result",
   "summary": {
     "schemaVersion": 1,
     "domainId": "runtime-status-diagnostics",
