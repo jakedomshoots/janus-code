@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**98/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible settings/workbench control can be called proven.
+**99/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a final whole-app runtime sweep before every visible workflow can be called proven.
 
 ## First-Principles Standard
 
@@ -25,6 +25,7 @@ Every workflow was checked against this chain:
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Sidebar Add Project/New workspace header regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/SidebarHeader.test.tsx`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
+- Settings sidebar control regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/settings/SettingsSidebar.test.tsx`
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -98,20 +99,14 @@ Recommended public-download path without paying Apple:
 
 ## Remaining Risks Before A True 100/100
 
-| Priority | Risk                                                                                                                                             | Recommended next check                                                                            |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible settings/workbench control.                        | Add Playwright/Computer Use smoke scripts for settings, terminal, and browser workbench controls. |
-| P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                            |
+| Priority | Risk                                                                                                                                             | Recommended next check                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through one whole-app runtime sweep.                                     | Add one Playwright/Computer Use smoke script for the installed app covering settings, terminal, and browser workbench. |
+| P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                 |
 
 ## Next Score Plan
 
-To move from **98/100 to 99/100**, complete the scripted workflow sweep:
+To move from **99/100 to 100/100**, complete the final runtime sweep:
 
-1. Use Computer Use or Playwright to exercise visible settings, terminal, and browser workbench controls without sending destructive prompts.
+1. Use Computer Use or Playwright to exercise the installed app settings, terminal, browser workbench, and composer controls without sending destructive prompts.
 2. Add/adjust tests for any mismatch found.
-
-To move from **99/100 to 100/100**, add durable automation:
-
-1. A headless or headful Electron smoke test for the full composer happy path.
-2. A remote-context parity suite for SSH project workflows.
-3. A release artifact verification gate for unsigned public downloads and signed release builds.

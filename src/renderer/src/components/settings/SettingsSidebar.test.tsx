@@ -93,6 +93,12 @@ function renderSidebar(
   )
 }
 
+function setTextControlValue(control: HTMLInputElement, value: string): void {
+  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(control), 'value')?.set
+  valueSetter?.call(control, value)
+  control.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 describe('SettingsSidebar', () => {
   beforeEach(() => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -225,6 +231,88 @@ describe('SettingsSidebar', () => {
     })
 
     expect(container.textContent).not.toContain('AI Provider Accounts')
+
+    act(() => root.unmount())
+    document.body.removeChild(container)
+  })
+
+  it('routes back, search, setup, and section controls through their handlers', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root: Root = createRoot(container)
+    const onBack = vi.fn()
+    const onSearchChange = vi.fn()
+    const onSelectSection = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <TooltipProvider>
+          <SettingsSidebar
+            activeSectionId="agents"
+            settings={getDefaultSettings('/tmp')}
+            generalGroups={[
+              {
+                id: 'capabilities',
+                title: 'AI Capabilities',
+                sections: [
+                  { id: 'agents', title: 'Agents', icon: Bot },
+                  { id: 'orchestration', title: 'Orchestration', icon: Network }
+                ]
+              }
+            ]}
+            repoSections={[]}
+            hasRepos={false}
+            searchQuery="agent"
+            onBack={onBack}
+            onSearchChange={onSearchChange}
+            onSelectSection={onSelectSection}
+          />
+        </TooltipProvider>
+      )
+    })
+
+    const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('button'))
+    const backButton = buttons.find((button) => button.textContent?.includes('Back to app'))
+    const setupButton = buttons.find((button) =>
+      button.getAttribute('aria-label')?.includes('Onboarding checklist')
+    )
+    const orchestrationButton = buttons.find((button) =>
+      button.textContent?.includes('Orchestration')
+    )
+    const searchInput = container.querySelector<HTMLInputElement>('input')
+
+    expect(backButton).toBeDefined()
+    expect(setupButton).toBeDefined()
+    expect(orchestrationButton).toBeDefined()
+    expect(searchInput).not.toBeNull()
+
+    await act(async () => {
+      backButton?.click()
+    })
+    await act(async () => {
+      setTextControlValue(searchInput!, 'voice')
+    })
+    await act(async () => {
+      setupButton?.dispatchEvent(new MouseEvent('click', { bubbles: true, metaKey: true }))
+    })
+    await act(async () => {
+      orchestrationButton?.dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }))
+    })
+
+    expect(onBack).toHaveBeenCalledTimes(1)
+    expect(onSearchChange).toHaveBeenCalledWith('voice')
+    expect(onSelectSection).toHaveBeenCalledWith('setup-guide', {
+      metaKey: true,
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false
+    })
+    expect(onSelectSection).toHaveBeenCalledWith('orchestration', {
+      metaKey: false,
+      ctrlKey: false,
+      shiftKey: true,
+      altKey: false
+    })
 
     act(() => root.unmount())
     document.body.removeChild(container)
