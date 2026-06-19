@@ -98,6 +98,11 @@ export type RuntimeStatusPortingContractSummary = {
   arrayConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
 }
 
+export type RuntimeStatusPortingValidationResult =
+  | { ok: true }
+  | { ok: false; missingFields: (keyof RuntimeStatus)[] }
+  | { ok: false; invalidFields: (keyof RuntimeStatus)[] }
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -118,10 +123,7 @@ export function listMissingRuntimeStatusPortingFields(
 
 export function validateRuntimeStatusPortingContract(
   status: RuntimeStatus
-):
-  | { ok: true }
-  | { ok: false; missingFields: (keyof RuntimeStatus)[] }
-  | { ok: false; invalidFields: (keyof RuntimeStatus)[] } {
+): RuntimeStatusPortingValidationResult {
   const missingFields = listMissingRuntimeStatusPortingFields(status)
   if (missingFields.length > 0) {
     return { ok: false, missingFields }
