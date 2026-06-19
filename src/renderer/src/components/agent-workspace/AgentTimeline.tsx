@@ -49,7 +49,7 @@ export function AgentTimeline({
   terminalAvailable?: boolean
 }): React.JSX.Element {
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
-  const editedFilesOwnerId = getEditedFilesOwnerId(timeline, diffs)
+  const editedFilesCard = getEditedFilesCardPlacement(timeline, diffs)
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current
@@ -94,8 +94,11 @@ export function AgentTimeline({
                       cwd={thread.cwd}
                       onOpenMarkdownArtifact={onOpenMarkdownArtifact}
                     />
-                    {entry.id === editedFilesOwnerId ? (
-                      <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
+                    {entry.id === editedFilesCard?.ownerId ? (
+                      <AgentEditedFilesCard
+                        diffs={editedFilesCard.diffs}
+                        onReview={onReviewDiffs}
+                      />
                     ) : null}
                   </div>
                 ))}
@@ -116,10 +119,10 @@ export function AgentTimeline({
   )
 }
 
-function getEditedFilesOwnerId(
+function getEditedFilesCardPlacement(
   timeline: readonly AgentWorkspaceTimelineEntry[],
   diffs: readonly AgentWorkspaceDiffSummary[]
-): string | null {
+): { readonly ownerId: string; readonly diffs: readonly AgentWorkspaceDiffSummary[] } | null {
   if (diffs.length === 0) {
     return null
   }
@@ -129,19 +132,13 @@ function getEditedFilesOwnerId(
     (entry) => entry.kind === 'agent' && doesAgentTextMentionAnyDiff(entry.text, diffs)
   )
 
-  if (matchingAgent !== -1) {
-    return timeline[matchingAgent]?.id ?? null
-  }
-
-  const latestAgent = findLastTimelineEntryIndex(timeline, (entry) => entry.kind === 'agent')
-  const latestUser = findLastTimelineEntryIndex(timeline, (entry) => entry.kind === 'user')
-
-  // Avoid re-attaching stale workspace diffs below no-op follow-up turns.
-  if (latestAgent === -1 || latestUser > latestAgent) {
+  const owner = matchingAgent === -1 ? null : timeline[matchingAgent]
+  if (!owner) {
     return null
   }
 
-  return timeline[latestAgent]?.id ?? null
+  const matchingDiffs = getDiffsMentionedByAgentText(owner.text, diffs)
+  return matchingDiffs.length > 0 ? { ownerId: owner.id, diffs: matchingDiffs } : null
 }
 
 function findLastTimelineEntryIndex(
@@ -161,8 +158,15 @@ function doesAgentTextMentionAnyDiff(
   text: string,
   diffs: readonly AgentWorkspaceDiffSummary[]
 ): boolean {
+  return getDiffsMentionedByAgentText(text, diffs).length > 0
+}
+
+function getDiffsMentionedByAgentText(
+  text: string,
+  diffs: readonly AgentWorkspaceDiffSummary[]
+): readonly AgentWorkspaceDiffSummary[] {
   const normalizedText = text.replaceAll('\\', '/')
-  return diffs.some((diff) => {
+  return diffs.filter((diff) => {
     const filePath = diff.filePath.replaceAll('\\', '/')
     const fileName = filePath.split('/').filter(Boolean).at(-1)
     return (

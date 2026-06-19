@@ -211,6 +211,71 @@ describe('AgentTimeline', () => {
       text.indexOf('Thanks. Confirm follow-up chat works.')
     )
   })
+
+  it('does not show an edited files card when an agent reply does not mention changed files', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'user',
+        text: 'Say hello.',
+        status: 'done',
+        createdAt: '2026-06-18T14:01:00.000Z'
+      },
+      {
+        id: 'entry-2',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'Hello.',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline
+          thread={thread}
+          timeline={timeline}
+          diffs={[diff({ id: 'diff-1', filePath: 'src/unrelated.ts', additions: 4 })]}
+        />
+      )
+    })
+
+    expect(container.querySelector('[data-agent-edited-files-card="true"]')).toBeNull()
+  })
+
+  it('shows only changed files mentioned by the owning agent reply', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'Created docs/handoff.md for the release.',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline
+          thread={thread}
+          timeline={timeline}
+          diffs={[
+            diff({ id: 'diff-1', filePath: 'docs/handoff.md', additions: 12 }),
+            diff({ id: 'diff-2', filePath: 'src/unrelated.ts', additions: 99 })
+          ]}
+        />
+      )
+    })
+
+    const card = container.querySelector('[data-agent-edited-files-card="true"]')
+
+    expect(card?.textContent).toContain('Edited 1 file')
+    expect(card?.textContent).toContain('docs/handoff.md')
+    expect(card?.textContent).not.toContain('src/unrelated.ts')
+  })
 })
 
 function diff(overrides: Partial<AgentWorkspaceDiffSummary>): AgentWorkspaceDiffSummary {
