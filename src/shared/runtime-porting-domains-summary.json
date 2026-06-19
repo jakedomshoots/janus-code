@@ -13,6 +13,7 @@
   },
   "firstSliceContractArtifactId": "janus-runtime-status-contract",
   "firstSliceContractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
+  "firstSliceContractArtifactVersion": 1,
   "firstSliceContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",

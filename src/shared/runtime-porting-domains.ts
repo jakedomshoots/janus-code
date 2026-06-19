@@ -1,7 +1,8 @@
 import {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
-  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact-metadata'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
@@ -37,6 +38,8 @@ export type RuntimePortingFirstSliceContractArtifactId =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export type RuntimePortingFirstSliceContractArtifactMediaType =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE
+export type RuntimePortingFirstSliceContractArtifactVersion =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export type RuntimePortingFirstSliceContractArtifactPath =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
@@ -51,6 +54,7 @@ export type RuntimePortingDomainSummary = {
   firstSlice: RuntimePortingDomain
   firstSliceContractArtifactId: RuntimePortingFirstSliceContractArtifactId
   firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
+  firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
@@ -83,6 +87,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID: RuntimePortingFir
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE: RuntimePortingFirstSliceContractArtifactMediaType =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION: RuntimePortingFirstSliceContractArtifactVersion =
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
@@ -173,6 +179,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSlice: getRuntimePortingFirstSliceDomain(),
     firstSliceContractArtifactId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
     firstSliceContractArtifactMediaType: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
+    firstSliceContractArtifactVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION,
     firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),

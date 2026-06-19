@@ -31,4 +31,4 @@ External tools can run the artifact's `verificationCommand` value, `pnpm vitest 
 
 The `firstSliceRationale` value is `read-only-runtime-rpc` because `status.get` exercises the runtime RPC boundary without moving process control, filesystem scanning, terminal lifecycle, or Electron-owned browser surfaces.
 
-The first slice points at `firstSliceContractArtifactId: janus-runtime-status-contract`, `firstSliceContractArtifactMediaType: application/vnd.janus.runtime-status-contract+json`, and `firstSliceContractArtifactPath: src/shared/runtime-status-contract-artifact.json`, which identify the checked-in `status.get` contract that Rust or Tauri-side readers must preserve.
+The first slice points at `firstSliceContractArtifactId: janus-runtime-status-contract`, `firstSliceContractArtifactMediaType: application/vnd.janus.runtime-status-contract+json`, `firstSliceContractArtifactVersion: 1`, and `firstSliceContractArtifactPath: src/shared/runtime-status-contract-artifact.json`, which identify the checked-in `status.get` contract that Rust or Tauri-side readers must preserve.
