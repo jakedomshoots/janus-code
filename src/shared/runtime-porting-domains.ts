@@ -30,6 +30,8 @@ export type RuntimePortingDomainSummary = {
 export type RuntimePortingFirstSliceMethod = 'status.get'
 
 export const RUNTIME_PORTING_FIRST_SLICE_METHOD: RuntimePortingFirstSliceMethod = 'status.get'
+export const RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH =
+  'src/shared/runtime-porting-domains-summary.json'
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.

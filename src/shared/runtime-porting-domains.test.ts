@@ -12,6 +12,7 @@ import {
   listRuntimePortingDomainsByDisposition,
   listNativeRuntimePortingCandidates,
   listRetainedElectronRuntimeDomains,
+  RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -52,7 +53,11 @@ describe('runtime porting domains', () => {
   })
 
   it('keeps a checked-in JSON summary for non-TypeScript porting tools', () => {
-    const artifactPath = resolve(__dirname, './runtime-porting-domains-summary.json')
+    expect(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH).toBe(
+      'src/shared/runtime-porting-domains-summary.json'
+    )
+
+    const artifactPath = resolve(__dirname, '../../', RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH)
 
     expect(existsSync(artifactPath)).toBe(true)
     if (!existsSync(artifactPath)) {
