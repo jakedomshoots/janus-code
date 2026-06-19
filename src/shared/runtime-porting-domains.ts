@@ -21,6 +21,8 @@ export type RuntimePortingDomainSummary = {
   firstSlice: RuntimePortingDomain
   nativeCandidates: readonly RuntimePortingDomain[]
   retainedElectron: readonly RuntimePortingDomain[]
+  nativeCandidateCount: number
+  retainedElectronCount: number
 }
 
 export type RuntimePortingFirstSliceMethod = 'status.get'
@@ -100,10 +102,15 @@ export function listRetainedElectronRuntimeDomains(): readonly RuntimePortingDom
 }
 
 export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
+  const nativeCandidates = listNativeRuntimePortingCandidates()
+  const retainedElectron = listRetainedElectronRuntimeDomains()
+
   return {
     firstSlice: getRuntimePortingFirstSliceDomain(),
-    nativeCandidates: listNativeRuntimePortingCandidates(),
-    retainedElectron: listRetainedElectronRuntimeDomains()
+    nativeCandidates,
+    retainedElectron,
+    nativeCandidateCount: nativeCandidates.length,
+    retainedElectronCount: retainedElectron.length
   }
 }
 
