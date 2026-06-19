@@ -212,6 +212,19 @@ describe('runtime status porting contract', () => {
     ).toThrow('hostPlatform')
   })
 
+  it('rejects unsupported host platform values for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          hostPlatform: 'freebsd'
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['hostPlatform']
+    })
+  })
+
   it('exposes the required fields for future sidecar schema generation', () => {
     expect(listRuntimeStatusPortingRequiredFields()).toEqual([
       'runtimeId',

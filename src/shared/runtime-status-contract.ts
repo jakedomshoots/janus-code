@@ -36,6 +36,7 @@ const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
 const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
+const VALID_RUNTIME_HOST_PLATFORMS = ['darwin', 'linux', 'win32'] as const
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
@@ -112,6 +113,10 @@ export function listInvalidRuntimeStatusPortingFields(
       status.authoritativeWindowId < 0)
   ) {
     invalidFields.push('authoritativeWindowId')
+  }
+
+  if (!VALID_RUNTIME_HOST_PLATFORMS.includes(status.hostPlatform)) {
+    invalidFields.push('hostPlatform')
   }
 
   return invalidFields
