@@ -4,6 +4,7 @@ import {
   type RuntimePortingDomainId,
   type RuntimePortingFirstSliceMethod
 } from './runtime-porting-domains'
+import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 
 export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
   'runtime-status-diagnostics'
@@ -109,25 +110,7 @@ export type RuntimeStatusPortingValidationResult =
   | { ok: false; missingFields: RuntimeStatusPortingField[] }
   | { ok: false; invalidFields: RuntimeStatusPortingField[] }
 
-export type RuntimeStatusPortingJsonSchema = {
-  $schema: string
-  title: string
-  type: 'object'
-  required: RuntimeStatusPortingField[]
-  additionalProperties: false
-  properties: {
-    runtimeId: { type: 'string'; minLength: number }
-    graphStatus: { type: 'string'; enum: string[] }
-    hostPlatform: { type: 'string'; enum: string[] }
-    runtimeProtocolVersion: { type: 'integer'; minimum: number }
-    minCompatibleRuntimeClientVersion: { type: 'integer'; minimum: number }
-    rendererGraphEpoch: { type: 'integer'; minimum: number }
-    liveTabCount: { type: 'integer'; minimum: number }
-    liveLeafCount: { type: 'integer'; minimum: number }
-    authoritativeWindowId: { type: ['integer', 'null']; minimum: number }
-    capabilities: { type: 'array'; items: { type: 'string' } }
-  }
-}
+export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 
 export type RuntimeStatusPortingContractArtifact = {
   summary: RuntimeStatusPortingContractSummary

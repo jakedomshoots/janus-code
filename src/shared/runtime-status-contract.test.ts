@@ -81,7 +81,13 @@ describe('runtime status porting contract', () => {
   it('exports the JSON schema type for sidecar schema adapters', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
-    expect(source).toContain('export type RuntimeStatusPortingJsonSchema')
+    expect(source).toContain('RuntimeStatusPortingJsonSchema')
+  })
+
+  it('keeps the JSON schema type in a dedicated schema module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-json-schema'")
   })
 
   it('documents that status.get accepts null params', () => {
