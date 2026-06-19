@@ -10,7 +10,9 @@ import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
+import { learnAgentComposerSlashCommandsFromTimeline } from './agent-composer-learned-slash-commands'
 import {
   completeAgentComposerSlashCommand,
   getAgentComposerSlashCommandMatches
@@ -20,6 +22,7 @@ export function AgentComposerForm({
   prompt,
   activeWorktreeId,
   selectedThread,
+  timeline,
   composerDisabled,
   statusMessage,
   statusTone,
@@ -49,11 +52,14 @@ export function AgentComposerForm({
   onPermissionModeChange,
   onThinkingModeChange,
   onSelectedAgentChange,
-  onSelectedModelChange
+  onSelectedModelChange,
+  recoverablePrompt,
+  onRestoreRecoverablePrompt
 }: {
   prompt: string
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
+  timeline: readonly AgentWorkspaceTimelineEntry[]
   composerDisabled: boolean
   statusMessage: string | null
   statusTone: AgentComposerSubmitResult['status'] | 'launching' | 'blocked' | null
@@ -84,6 +90,8 @@ export function AgentComposerForm({
   onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
   onSelectedAgentChange: (agent: TuiAgent | null) => void
   onSelectedModelChange: (modelId: string) => void
+  recoverablePrompt: string | null
+  onRestoreRecoverablePrompt: () => void
 }): React.JSX.Element {
   const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0)
   const activeAgent = selectedThread
@@ -91,9 +99,13 @@ export function AgentComposerForm({
       ? selectedThread.agentKind
       : null
     : selectedAgent
+  const learnedSlashCommands = useMemo(
+    () => learnAgentComposerSlashCommandsFromTimeline(timeline),
+    [timeline]
+  )
   const slashCommands = useMemo(
-    () => getAgentComposerSlashCommandMatches(prompt, activeAgent),
-    [activeAgent, prompt]
+    () => getAgentComposerSlashCommandMatches(prompt, activeAgent, learnedSlashCommands),
+    [activeAgent, learnedSlashCommands, prompt]
   )
   const slashMenuOpen = slashCommands.length > 0
 
@@ -194,6 +206,8 @@ export function AgentComposerForm({
             onSelectedModelChange={onSelectedModelChange}
             submitting={submitting}
             canSubmit={canSubmit}
+            recoverablePrompt={recoverablePrompt}
+            onRestoreRecoverablePrompt={onRestoreRecoverablePrompt}
           />
         </div>
       </div>

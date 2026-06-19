@@ -209,6 +209,7 @@ export function AgentWorkspacePane({
               activeWorktreeId={activeWorktreeId}
               selectedProject={project}
               selectedThread={thread}
+              timeline={timeline}
               draftSessionId={thread ? null : (activeDraftSession?.id ?? null)}
               terminalAvailable={terminalAvailable}
               browserWorkbench={browserWorkbench}

@@ -158,13 +158,14 @@ export function getAgentComposerSlashQuery(prompt: string): string | null {
 
 export function getAgentComposerSlashCommandMatches(
   prompt: string,
-  agentId?: TuiAgent | null
+  agentId?: TuiAgent | null,
+  learnedCommands: readonly AgentComposerSlashCommand[] = []
 ): readonly AgentComposerSlashCommand[] {
   const query = getAgentComposerSlashQuery(prompt)
   if (query === null) {
     return []
   }
-  const commands = getAgentComposerSlashCommandsForAgent(agentId)
+  const commands = getAgentComposerSlashCommandsForAgent(agentId, learnedCommands)
   if (!query) {
     return commands
   }
@@ -180,10 +181,17 @@ export function completeAgentComposerSlashCommand(command: string): string {
 }
 
 function getAgentComposerSlashCommandsForAgent(
-  agentId: TuiAgent | null | undefined
+  agentId: TuiAgent | null | undefined,
+  learnedCommands: readonly AgentComposerSlashCommand[]
 ): readonly AgentComposerSlashCommand[] {
-  const commands = AGENT_COMPOSER_SLASH_COMMANDS.filter(
-    (item) => !item.agentIds || (agentId ? item.agentIds.includes(agentId) : false)
-  )
-  return [...commands].sort((left, right) => left.command.localeCompare(right.command))
+  const commands = new Map<string, AgentComposerSlashCommand>()
+  for (const item of AGENT_COMPOSER_SLASH_COMMANDS) {
+    if (!item.agentIds || (agentId ? item.agentIds.includes(agentId) : false)) {
+      commands.set(item.command, item)
+    }
+  }
+  for (const item of learnedCommands) {
+    commands.set(item.command, item)
+  }
+  return [...commands.values()].sort((left, right) => left.command.localeCompare(right.command))
 }

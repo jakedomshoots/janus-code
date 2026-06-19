@@ -11233,7 +11233,9 @@
           "continueWith": "Continue with",
           "followUpPlaceholder": "Ask a follow-up in this thread...",
           "slashCommands": "Slash commands",
-          "agentChatComposer": "Agent chat composer"
+          "agentChatComposer": "Agent chat composer",
+          "sentToCompletedThreadRecovery": "Sent to {{agent}}. If nothing changes, restore this message and try again or open the terminal drawer.",
+          "restoreMessage": "Restore message"
         },
         "page": {
           "agentWorkspace": "에이전트 작업 공간"

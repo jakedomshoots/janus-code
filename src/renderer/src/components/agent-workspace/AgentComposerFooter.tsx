@@ -46,6 +46,8 @@ type AgentComposerFooterProps = {
   onSelectedModelChange: (modelId: string) => void
   submitting: boolean
   canSubmit: boolean
+  recoverablePrompt: string | null
+  onRestoreRecoverablePrompt: () => void
 }
 
 export const AgentComposerFooter = memo(function AgentComposerFooter({
@@ -74,7 +76,9 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
   onSelectedAgentChange,
   onSelectedModelChange,
   submitting,
-  canSubmit
+  canSubmit,
+  recoverablePrompt,
+  onRestoreRecoverablePrompt
 }: AgentComposerFooterProps): React.JSX.Element {
   return (
     <div className="px-4 pb-4">
@@ -87,6 +91,17 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         aria-live="polite"
       >
         {statusMessage ?? ''}
+        {recoverablePrompt ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            className="ml-2 h-5 px-1.5 text-[11px]"
+            onClick={onRestoreRecoverablePrompt}
+          >
+            {translate('auto.components.agentWorkspace.composer.restoreMessage', 'Restore message')}
+          </Button>
+        ) : null}
       </p>
       <div className="flex min-h-10 flex-wrap items-center gap-2">
         <div className="min-w-0 shrink-0">

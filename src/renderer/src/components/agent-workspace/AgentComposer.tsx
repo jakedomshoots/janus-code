@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
-import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import {
   applyAgentPermissionMode,
@@ -19,6 +18,7 @@ import {
 import type { TuiAgent } from '../../../../shared/types'
 import { stripInjectedBrowserGrabDump } from '../browser-pane/strip-browser-grab-dump'
 import { AgentComposerForm } from './AgentComposerForm'
+import type { AgentComposerProps } from './agent-composer-props'
 import { resolveAgentComposerSelection } from './agent-composer-agent-selection'
 import {
   decodeAgentModelSelectionsKey,
@@ -28,29 +28,27 @@ import {
 } from './agent-composer-readiness'
 import { createPromptDeliveredFeedback } from './agent-composer-delivery-feedback'
 import { launchSelectedAgent } from './agent-composer-launch'
+import { getCompletedThreadRecoveryFeedback } from './agent-composer-completed-thread-recovery'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
 import { handleAgentComposerPaste } from './agent-composer-paste'
 import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
 import { submitAgentComposerMessage } from './agent-composer-submit'
-import {
-  notifyAgentComposerMessageSent,
-  type AgentComposerMessageSentHandler
-} from './agent-composer-message-sent'
+import { notifyAgentComposerMessageSent } from './agent-composer-message-sent'
 import {
   EMPTY_DISABLED_TUI_AGENTS,
   getAgentComposerDetectionTarget,
   type AgentComposerFeedback
 } from './agent-composer-state'
-import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
-import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
-import {
-  useAgentBrowserWorkbench,
-  type AgentBrowserWorkbenchState
-} from './useAgentBrowserWorkbench'
+import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
+import { useAgentComposerBrowserContextAttachment } from './useAgentComposerBrowserContextAttachment'
+
+const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
 
 export function AgentComposer({
   activeWorktreeId,
   selectedThread,
+  timeline = EMPTY_AGENT_TIMELINE,
   selectedProject = null,
   terminalAvailable = false,
   browserWorkbench: browserWorkbenchProp,
@@ -61,22 +59,10 @@ export function AgentComposer({
   onPendingAgentLaunch,
   onMessageSent,
   onOpenTerminalDrawer
-}: {
-  activeWorktreeId: string | null
-  selectedThread: AgentWorkspaceThread | null
-  selectedProject?: AgentWorkspaceProject | null
-  draftSessionId?: string | null
-  terminalAvailable?: boolean
-  browserWorkbench?: AgentBrowserWorkbenchState
-  pendingDraftAgent?: TuiAgent | null
-  onPendingDraftAgentConsumed?: () => void
-  onDraftSessionAgentChange?: (agent: TuiAgent) => void
-  onPendingAgentLaunch?: () => void
-  onMessageSent?: AgentComposerMessageSentHandler
-  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
-}): React.JSX.Element {
+}: AgentComposerProps): React.JSX.Element {
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
+  const [recoverablePrompt, setRecoverablePrompt] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
   const settings = useAppStore((state) => state.settings)
@@ -273,6 +259,15 @@ export function AgentComposer({
       if ((canSendToSelectedThread && result.status === 'sent') || result.status === 'launching') {
         setPrompt('')
       }
+      if (canSendToSelectedThread && result.status === 'sent') {
+        const recoveryFeedback = getCompletedThreadRecoveryFeedback({ result, selectedThread })
+        if (recoveryFeedback) {
+          setRecoverablePrompt(result.prompt)
+          setSubmitResult(recoveryFeedback)
+        } else {
+          setRecoverablePrompt(null)
+        }
+      }
     },
     [
       activeWorktreeId,
@@ -313,12 +308,22 @@ export function AgentComposer({
   const handlePromptChange = useCallback(
     (value: string): void => {
       setPrompt(stripInjectedBrowserGrabDump(value))
+      setRecoverablePrompt(null)
       if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
         setSubmitResult(null)
       }
     },
     [submitResult?.reason, submitResult?.status]
   )
+
+  const handleRestoreRecoverablePrompt = useCallback((): void => {
+    if (!recoverablePrompt) {
+      return
+    }
+    setPrompt(recoverablePrompt)
+    setRecoverablePrompt(null)
+    setSubmitResult(null)
+  }, [recoverablePrompt])
 
   const handleSelectedModelChange = useCallback(
     (modelId: string): void => {
@@ -353,23 +358,11 @@ export function AgentComposer({
     [settings?.agentDefaultArgs, settings?.agentDefaultEnv, updateSettings]
   )
 
-  const handleAttachBrowserContext = useCallback((): void => {
-    if (!browserWorkbench.browserAnnotationMarkdown) {
-      return
-    }
-    setPrompt((currentPrompt) => {
-      const cleanedCurrent = stripInjectedBrowserGrabDump(currentPrompt)
-      const attachment = browserWorkbench.browserAnnotationMarkdown
-      return cleanedCurrent ? `${cleanedCurrent}\n\n${attachment}` : attachment
-    })
-    setSubmitResult({
-      status: 'sent',
-      message: translate(
-        'auto.components.agentWorkspace.composer.browserContextAttached',
-        'Browser context attached.'
-      )
-    })
-  }, [browserWorkbench.browserAnnotationMarkdown])
+  const handleAttachBrowserContext = useAgentComposerBrowserContextAttachment({
+    browserAnnotationMarkdown: browserWorkbench.browserAnnotationMarkdown,
+    setPrompt,
+    setSubmitResult
+  })
 
   function handleSelectedAgentChange(agent: TuiAgent | null): void {
     setSelectedAgent(agent)
@@ -383,6 +376,7 @@ export function AgentComposer({
       prompt={prompt}
       activeWorktreeId={activeWorktreeId}
       selectedThread={selectedThread}
+      timeline={timeline}
       composerDisabled={composerDisabled}
       statusMessage={statusMessage}
       statusTone={statusTone}
@@ -413,6 +407,8 @@ export function AgentComposer({
       onThinkingModeChange={handleThinkingModeChange}
       onSelectedAgentChange={handleSelectedAgentChange}
       onSelectedModelChange={handleSelectedModelChange}
+      recoverablePrompt={recoverablePrompt}
+      onRestoreRecoverablePrompt={handleRestoreRecoverablePrompt}
     />
   )
 }
