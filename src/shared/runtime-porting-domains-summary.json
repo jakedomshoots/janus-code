@@ -78,6 +78,12 @@
     "capabilities",
     "hostPlatform"
   ],
+  "firstSliceContractStringConstraints": {
+    "runtimeId": {
+      "minLength": 1,
+      "trim": true
+    }
+  },
   "firstSliceContractVersionedFields": [
     "runtimeProtocolVersion",
     "minCompatibleRuntimeClientVersion"

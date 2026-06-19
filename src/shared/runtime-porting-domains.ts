@@ -15,7 +15,9 @@ import {
 } from './runtime-status-enum-values'
 import {
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
-  type RuntimeStatusPortingNumericConstraint
+  RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
+  type RuntimeStatusPortingNumericConstraint,
+  type RuntimeStatusPortingStringConstraint
 } from './runtime-status-constraints'
 import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
@@ -80,6 +82,9 @@ export type RuntimePortingFirstSliceContractNonNegativeIntegerFields =
 export type RuntimePortingFirstSliceContractNumericConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
 >
+export type RuntimePortingFirstSliceContractStringConstraints = Partial<
+  Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
+>
 export type RuntimePortingFirstSliceContractVersionedFields = readonly RuntimeStatusPortingField[]
 
 export type RuntimePortingDomainSummary = {
@@ -103,6 +108,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
+  firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
   firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
@@ -158,6 +164,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS: RuntimePo
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS: RuntimePortingFirstSliceContractStringConstraints =
+  RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS: RuntimePortingFirstSliceContractVersionedFields =
   VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 
@@ -261,6 +269,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
     firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
+    firstSliceContractStringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
     firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
