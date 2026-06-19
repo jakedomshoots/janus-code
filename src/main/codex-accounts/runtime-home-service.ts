@@ -40,7 +40,10 @@ import {
   syncSystemCodexResourcesIntoManagedHome
 } from '../codex/codex-home-paths'
 import { syncSystemCodexSessionsIntoManagedHome } from '../codex/codex-session-bridge'
-import { syncSystemConfigIntoManagedCodexHome } from '../codex/codex-config-mirror'
+import {
+  normalizeManagedCodexConfig,
+  syncSystemConfigIntoManagedCodexHome
+} from '../codex/codex-config-mirror'
 import { parseWslUncPath } from '../../shared/wsl-paths'
 import {
   getSelectedCodexAccountIdForTarget,
@@ -636,7 +639,10 @@ export class CodexRuntimeHomeService {
     for (const homePath of candidateHomes) {
       const configPath = join(homePath, 'config.toml')
       if (existsSync(configPath)) {
-        copyFileSync(configPath, runtimeConfigPath)
+        writeFileAtomically(
+          runtimeConfigPath,
+          normalizeManagedCodexConfig(readFileSync(configPath, 'utf-8'))
+        )
         return
       }
     }

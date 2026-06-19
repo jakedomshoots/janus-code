@@ -11,6 +11,7 @@
     "../src/main/claude/hook-settings.ts",
     "../src/main/claude/hook-service.ts",
     "../src/main/codex/codex-config-mirror.ts",
+    "../src/main/codex/codex-config-toml-sections.ts",
     "../src/main/codex/codex-home-paths.ts",
     "../src/main/codex/config-toml-trust.ts",
     "../src/main/codex/hook-service.ts",

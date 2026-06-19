@@ -125,6 +125,7 @@ export function AgentWorkspaceLayout({
     ? (projectThreads.find((thread) => thread.id === activePane.selectedThreadId) ?? null)
     : null
   const openDiff = useAppStore((state) => state.openDiff)
+  const openFile = useAppStore((state) => state.openFile)
   const setAgentWorkspaceRightPanelExpanded = useAppStore(
     (state) => state.setAgentWorkspaceRightPanelExpanded
   )
@@ -399,7 +400,7 @@ export function AgentWorkspaceLayout({
                 onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
                 onMessageSent={handleMessageSent}
                 onOpenMarkdownArtifact={(artifact) =>
-                  openAgentMarkdownArtifact({ thread: paneThread, artifact, openDiff })
+                  openAgentMarkdownArtifact({ thread: paneThread, artifact, openFile })
                 }
                 onReviewDiffs={() => (setActivePaneId(pane.id), handleRightPanelTabChange('diff'))}
                 onSplitPane={(direction) => {

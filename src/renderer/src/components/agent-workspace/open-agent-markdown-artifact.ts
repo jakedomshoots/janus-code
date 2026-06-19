@@ -5,28 +5,34 @@ import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
 export function openAgentMarkdownArtifact({
   thread,
   artifact,
-  openDiff
+  openFile
 }: {
   readonly thread: AgentWorkspaceThread | null
   readonly artifact: AgentTimelineMarkdownArtifact
-  readonly openDiff:
+  readonly openFile:
     | ((
-        worktreeId: string,
-        filePath: string,
-        relativePath: string,
-        language: string,
-        staged: boolean
+        file: {
+          filePath: string
+          relativePath: string
+          worktreeId: string
+          language: string
+          mode: 'edit'
+        },
+        options?: { preview?: boolean }
       ) => void)
     | undefined
 }): void {
-  if (!thread || typeof openDiff !== 'function') {
+  if (!thread || typeof openFile !== 'function') {
     return
   }
-  openDiff(
-    thread.worktreeId,
-    artifact.absolutePath,
-    artifact.filePath,
-    detectLanguage(artifact.filePath),
-    false
+  openFile(
+    {
+      filePath: artifact.absolutePath,
+      relativePath: artifact.filePath,
+      worktreeId: thread.worktreeId,
+      language: detectLanguage(artifact.filePath),
+      mode: 'edit'
+    },
+    { preview: false }
   )
 }

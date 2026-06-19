@@ -225,4 +225,58 @@ describe('AgentComposer completed-thread recovery', () => {
 
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
   })
+
+  it('clears completed-thread recovery controls after the timeline receives an agent reply', async () => {
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    } satisfies ActiveAgentNotesSendResult)
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Confirm follow-up works.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(container.textContent).toContain('Restore message')
+    expect(container.textContent).toContain('Send again')
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={completedThread}
+          timeline={[
+            {
+              id: 'user-1',
+              threadId: 'thread-1',
+              kind: 'user',
+              text: 'Confirm follow-up works.',
+              createdAt: '2026-06-16T12:01:00.000Z',
+              status: 'done'
+            },
+            {
+              id: 'agent-1',
+              threadId: 'thread-1',
+              kind: 'agent',
+              text: 'Follow-up works.',
+              createdAt: '2026-06-16T12:01:02.000Z',
+              status: 'done'
+            }
+          ]}
+        />
+      )
+    })
+
+    expect(container.textContent).not.toContain('Restore message')
+    expect(container.textContent).not.toContain('Send again')
+  })
 })

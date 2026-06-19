@@ -313,6 +313,26 @@ export function AgentComposer({
     [submitResult?.reason, submitResult?.status]
   )
 
+  useEffect(() => {
+    if (!recoverablePrompt) {
+      return
+    }
+    const recoveredUserEntryIndex = timeline.findLastIndex(
+      (entry) => entry.kind === 'user' && entry.text.trim() === recoverablePrompt.trim()
+    )
+    if (recoveredUserEntryIndex < 0) {
+      return
+    }
+    const hasAgentReply = timeline
+      .slice(recoveredUserEntryIndex + 1)
+      .some((entry) => entry.kind === 'agent')
+    if (!hasAgentReply) {
+      return
+    }
+    setRecoverablePrompt(null)
+    setSubmitResult(null)
+  }, [recoverablePrompt, timeline])
+
   const { restoreRecoverablePrompt, retryRecoverablePrompt } =
     useAgentComposerRecoverablePromptActions({
       activeWorktreeId,

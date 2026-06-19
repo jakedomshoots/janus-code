@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { writeFileAtomically } from '../codex-accounts/fs-utils'
 import { getOrcaManagedCodexHomePath, getSystemCodexHomePath } from './codex-home-paths'
+import { getTomlSections, type TomlSection } from './codex-config-toml-sections'
 
 function getRuntimeCodexConfigTomlPath(): string {
   return join(getOrcaManagedCodexHomePath(), 'config.toml')
@@ -28,7 +29,7 @@ function syncSystemConfigIntoManagedCodexHomeUnsafe(): void {
     return
   }
 
-  const systemConfig = normalizeDeprecatedCodexHookFeatureFlag(
+  const systemConfig = normalizeManagedCodexConfig(
     systemConfigExists ? readFileSync(systemConfigPath, 'utf-8') : ''
   )
   if (!runtimeConfigExists) {
@@ -74,6 +75,50 @@ function normalizeDeprecatedCodexHookFeatureFlag(config: string): string {
     normalizeFeatureSectionLines(lines, section.start + 1, section.end)
   }
   return lines.join('\n')
+}
+
+export function normalizeManagedCodexConfig(config: string): string {
+  return disableBundledComputerUsePlugin(normalizeDeprecatedCodexHookFeatureFlag(config))
+}
+
+function disableBundledComputerUsePlugin(config: string): string {
+  const lines = config.split('\n')
+  const sections = getTomlSections(config)
+  for (const section of sections) {
+    if (!isBundledComputerUsePluginSection(section.header)) {
+      continue
+    }
+
+    const nextSectionStart = getNextSectionStart(sections, section.start, lines.length)
+    const enabledLineIndex = findEnabledLineIndex(lines, section.start + 1, nextSectionStart)
+    if (enabledLineIndex === null) {
+      continue
+    }
+    // Why: Janus ships its own native computer-use bridge; mirroring Codex
+    // Desktop's bundled plugin can hang Janus-launched Codex startup.
+    lines[enabledLineIndex] = lines[enabledLineIndex]!.replace(
+      /^([ \t]*enabled[ \t]*=[ \t]*)(?:true|false)(.*)$/i,
+      '$1false$2'
+    )
+  }
+  return lines.join('\n')
+}
+
+function isBundledComputerUsePluginSection(header: string): boolean {
+  return header.trim() === '[plugins."computer-use@openai-bundled"]'
+}
+
+function getNextSectionStart(sections: TomlSection[], start: number, fallback: number): number {
+  return sections.find((section) => section.start > start)?.start ?? fallback
+}
+
+function findEnabledLineIndex(lines: string[], start: number, end: number): number | null {
+  for (let index = start; index < end; index += 1) {
+    if (/^[ \t]*enabled[ \t]*=/.test(lines[index] ?? '')) {
+      return index
+    }
+  }
+  return null
 }
 
 function normalizeFeatureSectionLines(lines: string[], start: number, end: number): void {
@@ -139,19 +184,6 @@ function mergeSystemCodexConfigIntoRuntime(runtimeConfig: string, systemConfig: 
   ])
 }
 
-type TomlSection = {
-  header: string
-  block: string
-  start: number
-}
-
-type TomlMultilineState = {
-  basic: boolean
-  literal: boolean
-}
-
-type TomlMultilineMode = 'basic' | 'literal' | null
-
 function stripRuntimeOwnedTomlSections(
   config: string,
   runtimeProjectHeaders = new Set<string>()
@@ -172,44 +204,6 @@ function stripRuntimeOwnedTomlSections(
       )
       .map((section) => section.block)
   ])
-}
-
-function getTomlSections(config: string): TomlSection[] {
-  const lines = config.split('\n')
-  const sections: TomlSection[] = []
-  let sectionStart = -1
-  let sectionHeader: string | null = null
-  let multilineState: TomlMultilineState = { basic: false, literal: false }
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const header = isInsideTomlMultilineString(multilineState)
-      ? null
-      : getTomlTableHeader(lines[index] ?? '')
-    if (!header) {
-      multilineState = updateTomlMultilineState(multilineState, lines[index] ?? '')
-      continue
-    }
-
-    if (sectionStart !== -1) {
-      sections.push({
-        header: sectionHeader ?? '',
-        block: lines.slice(sectionStart, index).join('\n'),
-        start: sectionStart
-      })
-    }
-    sectionStart = index
-    sectionHeader = header
-    multilineState = updateTomlMultilineState(multilineState, lines[index] ?? '')
-  }
-
-  if (sectionStart !== -1) {
-    sections.push({
-      header: sectionHeader ?? '',
-      block: lines.slice(sectionStart).join('\n'),
-      start: sectionStart
-    })
-  }
-  return sections
 }
 
 function isRuntimePreservedTomlSection(header: string): boolean {
@@ -240,88 +234,4 @@ function getProjectTrustLevel(block: string): 'trusted' | 'untrusted' | null {
 function joinTomlBlocks(blocks: string[]): string {
   const normalizedBlocks = blocks.map((block) => block.trim()).filter((block) => block.length > 0)
   return normalizedBlocks.length === 0 ? '' : `${normalizedBlocks.join('\n\n')}\n`
-}
-
-function getTomlTableHeader(line: string): string | null {
-  const match = /^(\s*\[\[?.+\]\]?\s*)(?:#.*)?$/.exec(line)
-  return match?.[1] ?? null
-}
-
-function isInsideTomlMultilineString(state: TomlMultilineState): boolean {
-  return state.basic || state.literal
-}
-
-function updateTomlMultilineState(state: TomlMultilineState, line: string): TomlMultilineState {
-  let mode: TomlMultilineMode = state.basic ? 'basic' : state.literal ? 'literal' : null
-  let index = 0
-  while (index < line.length) {
-    if (mode === 'basic') {
-      if (line[index] === '\\') {
-        index += 2
-        continue
-      }
-      if (line.startsWith('"""', index)) {
-        mode = null
-        index += 3
-        continue
-      }
-      index += 1
-      continue
-    }
-    if (mode === 'literal') {
-      if (line.startsWith("'''", index)) {
-        mode = null
-        index += 3
-        continue
-      }
-      index += 1
-      continue
-    }
-
-    const char = line[index]
-    if (char === '#') {
-      break
-    }
-    if (line.startsWith('"""', index)) {
-      mode = 'basic'
-      index += 3
-      continue
-    }
-    if (line.startsWith("'''", index)) {
-      mode = 'literal'
-      index += 3
-      continue
-    }
-    if (char === '"') {
-      index = skipTomlBasicString(line, index + 1)
-      continue
-    }
-    if (char === "'") {
-      index = skipTomlLiteralString(line, index + 1)
-      continue
-    }
-    index += 1
-  }
-  return { basic: mode === 'basic', literal: mode === 'literal' }
-}
-
-function skipTomlBasicString(line: string, startIndex: number): number {
-  let index = startIndex
-  while (index < line.length) {
-    const char = line[index]
-    if (char === '\\') {
-      index += 2
-      continue
-    }
-    if (char === '"') {
-      return index + 1
-    }
-    index += 1
-  }
-  return index
-}
-
-function skipTomlLiteralString(line: string, startIndex: number): number {
-  const endIndex = line.indexOf("'", startIndex)
-  return endIndex === -1 ? line.length : endIndex + 1
 }

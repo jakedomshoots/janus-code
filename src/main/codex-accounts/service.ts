@@ -16,6 +16,7 @@ import type {
 import type { CodexRuntimeHomeService } from './runtime-home-service'
 import { writeFileAtomically } from './fs-utils'
 import { resolveCodexCommand } from '../codex-cli/command'
+import { normalizeManagedCodexConfig } from '../codex/codex-config-mirror'
 import type { Store } from '../persistence'
 import type { RateLimitService } from '../rate-limits/service'
 import { parseWslUncPath } from '../../shared/wsl-paths'
@@ -455,7 +456,7 @@ export class CodexAccountService {
     // identity, not silently fork the user's sandbox/config defaults. Syncing
     // one canonical config into every managed home keeps auth isolated per
     // account while preserving consistent Codex behavior.
-    this.writeManagedConfig(trustedManagedHomePath, canonicalConfig)
+    this.writeManagedConfig(trustedManagedHomePath, normalizeManagedCodexConfig(canonicalConfig))
   }
 
   private readCanonicalConfig(): string | null {
@@ -490,7 +491,7 @@ export class CodexAccountService {
     }
 
     try {
-      return readFileSync(configPath, 'utf-8')
+      return normalizeManagedCodexConfig(readFileSync(configPath, 'utf-8'))
     } catch (error) {
       console.warn('[codex-accounts] Failed to read WSL canonical config:', error)
       return null

@@ -33,6 +33,7 @@ const storeMocks = vi.hoisted(() => {
     repos: [],
     worktreesByRepo: {},
     openDiff: vi.fn(),
+    openFile: vi.fn(),
     openModal: vi.fn(),
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
@@ -54,6 +55,7 @@ const storeMocks = vi.hoisted(() => {
   return {
     state,
     openDiff: state.openDiff,
+    openFile: state.openFile,
     openModal: state.openModal,
     createBrowserTab,
     focusBrowserTabInWorktree
@@ -257,6 +259,7 @@ afterEach(() => {
     act(() => root.unmount())
   })
   storeMocks.openDiff.mockClear()
+  storeMocks.openFile.mockClear()
   storeMocks.openModal.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
@@ -497,12 +500,16 @@ describe('AgentWorkspace pane workflow', () => {
       openButton?.click()
     })
 
-    expect(storeMocks.openDiff).toHaveBeenCalledWith(
-      'worktree-1',
-      '/Users/jakedom/janus-code/docs/reference/handoff.md',
-      'docs/reference/handoff.md',
-      'markdown',
-      false
+    expect(storeMocks.openDiff).not.toHaveBeenCalled()
+    expect(storeMocks.openFile).toHaveBeenCalledWith(
+      {
+        filePath: '/Users/jakedom/janus-code/docs/reference/handoff.md',
+        relativePath: 'docs/reference/handoff.md',
+        worktreeId: 'worktree-1',
+        language: 'markdown',
+        mode: 'edit'
+      },
+      { preview: false }
     )
 
     await act(async () => {

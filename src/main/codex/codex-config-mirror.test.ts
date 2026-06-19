@@ -108,6 +108,32 @@ describe('syncSystemConfigIntoManagedCodexHome', () => {
     expect(readFileSync(getSystemConfigPath(), 'utf-8')).toContain('codex_hooks = true')
   })
 
+  it('disables the bundled Codex computer-use plugin only in runtime config', () => {
+    writeFileSync(
+      getSystemConfigPath(),
+      [
+        'model = "system-model"',
+        '',
+        '[plugins."computer-use@openai-bundled"]',
+        'enabled = true',
+        '',
+        '[plugins."browser@openai-bundled"]',
+        'enabled = true',
+        ''
+      ].join('\n'),
+      'utf-8'
+    )
+
+    syncSystemConfigIntoManagedCodexHome()
+
+    const runtimeConfig = readFileSync(getRuntimeConfigPath(), 'utf-8')
+    expect(runtimeConfig).toContain('[plugins."computer-use@openai-bundled"]\nenabled = false')
+    expect(runtimeConfig).toContain('[plugins."browser@openai-bundled"]\nenabled = true')
+    expect(readFileSync(getSystemConfigPath(), 'utf-8')).toContain(
+      '[plugins."computer-use@openai-bundled"]\nenabled = true'
+    )
+  })
+
   it('drops deprecated codex_hooks when the new hooks flag already exists', () => {
     writeFileSync(
       getSystemConfigPath(),
@@ -153,6 +179,9 @@ describe('syncSystemConfigIntoManagedCodexHome', () => {
         '[projects."/system-only"]',
         'trust_level = "trusted"',
         '',
+        '[plugins."computer-use@openai-bundled"]',
+        'enabled = true',
+        '',
         '[hooks.state."system-hooks:stop:0:0"]',
         'enabled = true',
         'trusted_hash = "sha256:system"',
@@ -171,6 +200,7 @@ describe('syncSystemConfigIntoManagedCodexHome', () => {
     expect(runtimeConfig).toContain('[projects."/system-only"]')
     expect(runtimeConfig).toContain('[hooks.state."runtime-hooks:stop:0:0"]')
     expect(runtimeConfig).not.toContain('[hooks.state."system-hooks:stop:0:0"]')
+    expect(runtimeConfig).toContain('[plugins."computer-use@openai-bundled"]\nenabled = false')
     expect(runtimeConfig).toContain('trust_level = "untrusted"')
     expect(runtimeConfig.match(/\[projects\."\/repo"\]/g)?.length).toBe(1)
   })
