@@ -33,18 +33,18 @@ const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
   'minCompatibleRuntimeClientVersion',
   'capabilities',
   'hostPlatform'
-] as const satisfies readonly (keyof RuntimeStatus)[]
+] as const satisfies readonly RuntimeStatusPortingField[]
 
 const VERSIONED_RUNTIME_STATUS_PORTING_FIELDS = [
   'runtimeProtocolVersion',
   'minCompatibleRuntimeClientVersion'
-] as const satisfies readonly (keyof RuntimeStatus)[]
+] as const satisfies readonly RuntimeStatusPortingField[]
 
 const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
   'rendererGraphEpoch',
   'liveTabCount',
   'liveLeafCount'
-] as const satisfies readonly (keyof RuntimeStatus)[]
+] as const satisfies readonly RuntimeStatusPortingField[]
 
 const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
 const VALID_RUNTIME_HOST_PLATFORMS = ['darwin', 'linux', 'win32'] as const
@@ -58,7 +58,7 @@ const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   'runtimeId',
   'authoritativeWindowId',
   'hostPlatform'
-] as const satisfies readonly (keyof RuntimeStatus)[]
+] as const satisfies readonly RuntimeStatusPortingField[]
 
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   runtimeProtocolVersion: { integer: true, minimum: 1 },
@@ -67,15 +67,19 @@ const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   liveTabCount: { integer: true, minimum: 0 },
   liveLeafCount: { integer: true, minimum: 0 },
   authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
-} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
+} as const satisfies Partial<
+  Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
+>
 
 const RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS = {
   runtimeId: { minLength: 1, trim: true }
-} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingStringConstraint>>
+} as const satisfies Partial<
+  Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
+>
 
 const RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS = {
   capabilities: { itemType: 'string' }
-} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingArrayConstraint>>
+} as const satisfies Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
 
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
