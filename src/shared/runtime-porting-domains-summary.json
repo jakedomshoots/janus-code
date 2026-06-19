@@ -5,6 +5,7 @@
   "migrationStrategy": "incremental-slice",
   "sourceRuntime": "electron",
   "targetRuntime": "tauri",
+  "verificationCommand": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts",
   "firstSlice": {
     "id": "runtime-status-diagnostics",
     "boundary": "runtime-rpc",

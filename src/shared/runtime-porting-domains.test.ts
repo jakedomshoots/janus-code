@@ -19,6 +19,7 @@ import {
   RUNTIME_PORTING_MIGRATION_STRATEGY,
   RUNTIME_PORTING_SOURCE_RUNTIME,
   RUNTIME_PORTING_TARGET_RUNTIME,
+  RUNTIME_PORTING_VERIFICATION_COMMAND,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -48,6 +49,8 @@ describe('runtime porting domains', () => {
       migrationStrategy: 'incremental-slice',
       sourceRuntime: 'electron',
       targetRuntime: 'tauri',
+      verificationCommand:
+        'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts',
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
@@ -100,6 +103,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(`migrationStrategy: ${RUNTIME_PORTING_MIGRATION_STRATEGY}`)
     expect(doc).toContain(`sourceRuntime: ${RUNTIME_PORTING_SOURCE_RUNTIME}`)
     expect(doc).toContain(`targetRuntime: ${RUNTIME_PORTING_TARGET_RUNTIME}`)
+    expect(doc).toContain(RUNTIME_PORTING_VERIFICATION_COMMAND)
     expect(doc).toContain('pnpm run verify:runtime-porting-summary-artifact')
   })
 

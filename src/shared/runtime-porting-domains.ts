@@ -24,6 +24,8 @@ export type RuntimePortingDomainSummarySchemaVersion = 1
 export type RuntimePortingMigrationStrategy = 'incremental-slice'
 export type RuntimePortingSourceRuntime = 'electron'
 export type RuntimePortingTargetRuntime = 'tauri'
+export type RuntimePortingVerificationCommand =
+  'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
@@ -32,6 +34,7 @@ export type RuntimePortingDomainSummary = {
   migrationStrategy: RuntimePortingMigrationStrategy
   sourceRuntime: RuntimePortingSourceRuntime
   targetRuntime: RuntimePortingTargetRuntime
+  verificationCommand: RuntimePortingVerificationCommand
   firstSlice: RuntimePortingDomain
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -55,6 +58,8 @@ export const RUNTIME_PORTING_MIGRATION_STRATEGY: RuntimePortingMigrationStrategy
   'incremental-slice'
 export const RUNTIME_PORTING_SOURCE_RUNTIME: RuntimePortingSourceRuntime = 'electron'
 export const RUNTIME_PORTING_TARGET_RUNTIME: RuntimePortingTargetRuntime = 'tauri'
+export const RUNTIME_PORTING_VERIFICATION_COMMAND: RuntimePortingVerificationCommand =
+  'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
@@ -139,6 +144,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     migrationStrategy: RUNTIME_PORTING_MIGRATION_STRATEGY,
     sourceRuntime: RUNTIME_PORTING_SOURCE_RUNTIME,
     targetRuntime: RUNTIME_PORTING_TARGET_RUNTIME,
+    verificationCommand: RUNTIME_PORTING_VERIFICATION_COMMAND,
     firstSlice: getRuntimePortingFirstSliceDomain(),
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,

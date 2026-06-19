@@ -26,3 +26,5 @@ Run this verifier after changing runtime porting domain metadata:
 ```sh
 pnpm run verify:runtime-porting-summary-artifact
 ```
+
+External tools can run the artifact's `verificationCommand` value, `pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts`, when they need the direct checked-in artifact contract check.
