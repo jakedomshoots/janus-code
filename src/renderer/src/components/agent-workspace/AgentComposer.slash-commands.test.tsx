@@ -203,6 +203,31 @@ describe('AgentComposer slash commands', () => {
     expect(textarea?.value).toBe('/model')
   })
 
+  it('keyboard-selects slash commands without sending the partial query', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/mo')
+    })
+
+    const modelOption = container.querySelector<HTMLElement>(
+      '[role="option"][data-command="/model"]'
+    )
+    expect(modelOption?.getAttribute('aria-selected')).toBe('true')
+
+    await act(async () => {
+      textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    })
+
+    expect(textarea?.value).toBe('/model')
+    expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
+  })
+
   it('offers a live command discovery slash command', async () => {
     await act(async () => {
       root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
