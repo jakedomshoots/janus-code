@@ -54,6 +54,11 @@ export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void 
   if (firstMissingField) {
     throw new Error(`Runtime status porting contract missing ${firstMissingField}`)
   }
+
+  const [firstInvalidField] = listInvalidRuntimeStatusPortingFields(status)
+  if (firstInvalidField) {
+    throw new Error(`Runtime status porting contract invalid ${firstInvalidField}`)
+  }
 }
 
 export function listMissingRuntimeStatusPortingFields(

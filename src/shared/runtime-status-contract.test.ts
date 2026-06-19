@@ -80,6 +80,16 @@ describe('runtime status porting contract', () => {
     ).toThrow('runtimeProtocolVersion')
   })
 
+  it('rejects invalid protocol values when asserting the porting contract', () => {
+    expect(() =>
+      assertRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          runtimeProtocolVersion: 0
+        })
+      )
+    ).toThrow('runtimeProtocolVersion')
+  })
+
   it('lists every missing required field for sidecar diagnostics', () => {
     expect(
       listMissingRuntimeStatusPortingFields(
