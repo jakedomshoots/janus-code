@@ -16,9 +16,11 @@ Measured locally on 2026-06-19:
 The current hot spot is startup and first-interaction weight, not idle CPU or terminal typing latency.
 
 - Initial renderer chunk is multi-megabyte and should stay under the scorecard budget.
-- `scroll-cache` is a large renderer asset and should be split or deferred if it grows.
+- `scroll-cache` should stay below 3 MiB; diagram, Monaco, and PDF vendors are split away from the editor/preview path.
 - Monaco workers, Settings, TerminalPane, TaskPage, image/PDF viewers, diagram engines, and editor surfaces are large enough that accidental eager imports should be treated as release risk.
 - Vite warnings show several modules are both statically and dynamically imported, which defeats intended lazy-loading.
+
+On 2026-06-19, renderer manual chunks moved Mermaid/Cytoscape/Dagre into `vendor-diagrams`, Monaco into `vendor-monaco`, and PDF.js into `vendor-pdf`. That reduced the generated `scroll-cache` asset from about 9.86 MiB to about 1.90 MiB while keeping the diagram libraries together to avoid Rollup circular chunk warnings.
 
 ## Release Use
 

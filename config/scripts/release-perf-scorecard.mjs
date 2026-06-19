@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const DEFAULT_BUDGETS = {
   initialRendererJsBytes: 8.5 * 1024 * 1024,
   largestRendererAssetBytes: 13 * 1024 * 1024,
-  scrollCacheBytes: 11 * 1024 * 1024,
+  scrollCacheBytes: 3 * 1024 * 1024,
   idleMeanCpuPercent: 2,
   terminalWorstTypingMs: 300,
   terminalRestoreMs: 2000

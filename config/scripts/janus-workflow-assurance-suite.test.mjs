@@ -35,6 +35,7 @@ describe('Janus workflow assurance suite', () => {
       expect.arrayContaining([
         'config/scripts/computer-use-smoke.test.mjs',
         'config/scripts/computer-e2e-workflow.test.mjs',
+        'config/scripts/electron-vite-renderer-chunks.test.mjs',
         'config/scripts/janus-workflow-assurance-suite.test.mjs',
         'config/scripts/release-perf-scorecard.test.mjs',
         'config/scripts/verify-direct-download-artifacts.test.mjs',

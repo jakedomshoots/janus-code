@@ -164,6 +164,31 @@ function createStartupDiagnosticsBootstrapPlugin() {
   }
 }
 
+export function getRendererManualChunk(id: string): string | undefined {
+  const normalizedId = id.replaceAll('\\', '/')
+  if (!normalizedId.includes('/node_modules/')) {
+    return undefined
+  }
+
+  if (
+    normalizedId.includes('/node_modules/mermaid/') ||
+    normalizedId.includes('/node_modules/@mermaid-js/') ||
+    normalizedId.includes('/node_modules/cytoscape/') ||
+    normalizedId.includes('/node_modules/cytoscape-') ||
+    normalizedId.includes('/node_modules/dagre/')
+  ) {
+    return 'vendor-diagrams'
+  }
+  if (normalizedId.includes('/node_modules/monaco-editor/')) {
+    return 'vendor-monaco'
+  }
+  if (normalizedId.includes('/node_modules/pdfjs-dist/')) {
+    return 'vendor-pdf'
+  }
+
+  return undefined
+}
+
 export default defineConfig({
   main: {
     build: {
@@ -218,6 +243,13 @@ export default defineConfig({
     }
   },
   renderer: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: getRendererManualChunk
+        }
+      }
+    },
     resolve: {
       dedupe: ['react', 'react-dom'],
       alias: {
