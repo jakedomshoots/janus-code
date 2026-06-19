@@ -410,6 +410,28 @@ function unwrapResult(value) {
 }
 
 function fail(message) {
-  console.error(`computer-use smoke: ${message}`)
+  const recovery = permissionRecoveryHint(message)
+  console.error(`computer-use smoke: ${message}${recovery ? `\n${recovery}` : ''}`)
   process.exit(1)
+}
+
+function permissionRecoveryHint(message) {
+  const error = parseCliFailure(message)
+  const code = String(error?.code ?? '')
+  const detail = String(error?.message ?? message)
+  if (
+    code !== 'permission_denied' &&
+    code !== 'accessibility_error' &&
+    !/Accessibility|Screen Recording|permission/i.test(detail)
+  ) {
+    return ''
+  }
+
+  return [
+    'computer-use smoke: macOS permission recovery:',
+    '  janus computer permissions --id accessibility --json',
+    '  janus computer permissions --id screenshots --json',
+    '  janus computer permissions --json',
+    'computer-use smoke: after granting both permissions, rerun `pnpm run smoke:janus-workflow`.'
+  ].join('\n')
 }

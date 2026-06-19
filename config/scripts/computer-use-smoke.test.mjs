@@ -211,6 +211,26 @@ describe('computer-use smoke script', () => {
     )
   })
 
+  it('prints targeted macOS permission recovery when the Janus workflow gate is blocked', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writePermissionDeniedJanusWorkflowCli(root)
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('Accessibility permission is required')
+    expect(result.stderr).toContain('janus computer permissions --id accessibility --json')
+    expect(result.stderr).toContain('janus computer permissions --id screenshots --json')
+    expect(result.stderr).toContain('pnpm run smoke:janus-workflow')
+  })
+
   it('can launch a runtime before checking apps', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
     const cliPath = path.join(root, 'fake-cli.cjs')
@@ -397,6 +417,25 @@ function writeFakeJanusWorkflowCli(root) {
       '  };',
       '  return states[state] || states.workspace;',
       '}'
+    ].join('\n'),
+    'utf8'
+  )
+  chmodSync(cliPath, 0o755)
+  return cliPath
+}
+
+function writePermissionDeniedJanusWorkflowCli(root) {
+  const cliPath = path.join(root, 'fake-cli.cjs')
+  writeFileSync(
+    cliPath,
+    [
+      'const args = process.argv.slice(2);',
+      'if (args[0] === "computer" && args[1] === "get-app-state") {',
+      '  console.log(JSON.stringify({ error: { code: "permission_denied", message: "Accessibility permission is required for Janus Computer Use." } }));',
+      '  process.exit(1);',
+      '}',
+      'console.error("unexpected args: " + args.join(" "));',
+      'process.exit(1);'
     ].join('\n'),
     'utf8'
   )
