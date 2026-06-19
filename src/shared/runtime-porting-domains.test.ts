@@ -1,0 +1,36 @@
+import { describe, expect, it } from 'vitest'
+import {
+  getRuntimePortingDomain,
+  isFirstRuntimePortingSlice,
+  RUNTIME_PORTING_DOMAINS
+} from './runtime-porting-domains'
+
+describe('runtime porting domains', () => {
+  it('marks runtime status diagnostics as the first safe porting slice', () => {
+    const domain = getRuntimePortingDomain('runtime-status-diagnostics')
+
+    expect(domain).toMatchObject({
+      id: 'runtime-status-diagnostics',
+      boundary: 'runtime-rpc',
+      disposition: 'first-slice'
+    })
+    expect(isFirstRuntimePortingSlice(domain)).toBe(true)
+  })
+
+  it('keeps the embedded browser workbench out of the first native porting wave', () => {
+    const domain = getRuntimePortingDomain('browser-workbench')
+
+    expect(domain).toMatchObject({
+      id: 'browser-workbench',
+      boundary: 'electron-host',
+      disposition: 'retain-electron'
+    })
+    expect(isFirstRuntimePortingSlice(domain)).toBe(false)
+  })
+
+  it('keeps every domain id unique', () => {
+    const ids = RUNTIME_PORTING_DOMAINS.map((domain) => domain.id)
+
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+})
