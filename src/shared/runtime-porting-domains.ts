@@ -69,6 +69,12 @@ export function isFirstRuntimePortingSlice(domain: RuntimePortingDomain): boolea
   return domain.disposition === 'first-slice'
 }
 
+export function listRuntimePortingDomainsByBoundary(
+  boundary: RuntimePortingDomainBoundary
+): readonly RuntimePortingDomain[] {
+  return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.boundary === boundary)
+}
+
 export function listNativeRuntimePortingCandidates(): readonly RuntimePortingDomain[] {
   return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === 'native-candidate')
 }

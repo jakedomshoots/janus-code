@@ -5,6 +5,7 @@ import {
   getRuntimePortingDomain,
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
+  listRuntimePortingDomainsByBoundary,
   listNativeRuntimePortingCandidates,
   listRetainedElectronRuntimeDomains,
   RUNTIME_PORTING_DOMAINS
@@ -37,6 +38,14 @@ describe('runtime porting domains', () => {
     const ids = RUNTIME_PORTING_DOMAINS.map((domain) => domain.id)
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('lists runtime porting domains by host boundary', () => {
+    expect(listRuntimePortingDomainsByBoundary('host-service')).toEqual([
+      getRuntimePortingDomain('pty-lifecycle'),
+      getRuntimePortingDomain('process-supervision'),
+      getRuntimePortingDomain('filesystem-workspace-scanning')
+    ])
   })
 
   it('lists host-service domains as native runtime porting candidates', () => {
