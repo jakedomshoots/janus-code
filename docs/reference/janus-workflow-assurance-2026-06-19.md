@@ -25,6 +25,7 @@ Every workflow was checked against this chain:
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
 - Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control, Checks panel, Add Project, Settings, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Sidebar Add Project/New workspace header regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/SidebarHeader.test.tsx`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
@@ -112,7 +113,7 @@ Recommended public-download path without paying Apple:
 
 | Priority | Risk                                                                                                                                                                              | Recommended next check                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution requires macOS Accessibility/Screen Recording grants for `Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release.  |
+| P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution currently reports `accessibility: not-granted` and `screenshots: not-granted` for `/Applications/Janus Code.app/Contents/Resources/Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release.  |
 | P2       | SSH parity now covers composer discovery, PR generation, Checks refresh/create request context, Source Control discard quiesce, file drag-move mutations, Agent Workspace git actions, Source Control branch/bulk owner-context builders, and non-destructive installed-app Source Control selection/menu smoke coverage; broader SSH visual/manual sweeps should keep exercising remote hosts before release. | Run an SSH smoke session against branch actions plus multi-select bulk git flows before release. |
 
 ## Next Score Plan
