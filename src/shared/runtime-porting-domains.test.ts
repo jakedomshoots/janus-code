@@ -6,6 +6,7 @@ import {
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
   listRuntimePortingDomainsByBoundary,
+  listRuntimePortingDomainsByDisposition,
   listNativeRuntimePortingCandidates,
   listRetainedElectronRuntimeDomains,
   RUNTIME_PORTING_DOMAINS
@@ -45,6 +46,12 @@ describe('runtime porting domains', () => {
       getRuntimePortingDomain('pty-lifecycle'),
       getRuntimePortingDomain('process-supervision'),
       getRuntimePortingDomain('filesystem-workspace-scanning')
+    ])
+  })
+
+  it('lists runtime porting domains by migration disposition', () => {
+    expect(listRuntimePortingDomainsByDisposition('first-slice')).toEqual([
+      getRuntimePortingDomain('runtime-status-diagnostics')
     ])
   })
 

@@ -75,6 +75,12 @@ export function listRuntimePortingDomainsByBoundary(
   return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.boundary === boundary)
 }
 
+export function listRuntimePortingDomainsByDisposition(
+  disposition: RuntimePortingDomainDisposition
+): readonly RuntimePortingDomain[] {
+  return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === disposition)
+}
+
 export function listNativeRuntimePortingCandidates(): readonly RuntimePortingDomain[] {
   return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === 'native-candidate')
 }
