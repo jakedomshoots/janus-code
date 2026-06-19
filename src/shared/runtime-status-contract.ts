@@ -49,6 +49,21 @@ const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
+type RuntimeStatusPortingNumericConstraint = {
+  integer: true
+  minimum: number
+  nullable?: true
+}
+
+const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
+  runtimeProtocolVersion: { integer: true, minimum: 1 },
+  minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
+  rendererGraphEpoch: { integer: true, minimum: 0 },
+  liveTabCount: { integer: true, minimum: 0 },
+  liveLeafCount: { integer: true, minimum: 0 },
+  authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
+} as const satisfies Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -159,6 +174,7 @@ export function getRuntimeStatusPortingContractSummary(): {
     graphStatus: string[]
     hostPlatform: string[]
   }
+  numericConstraints: Partial<Record<keyof RuntimeStatus, RuntimeStatusPortingNumericConstraint>>
 } {
   return {
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
@@ -169,6 +185,7 @@ export function getRuntimeStatusPortingContractSummary(): {
     enumValues: {
       graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
       hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
-    }
+    },
+    numericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
   }
 }

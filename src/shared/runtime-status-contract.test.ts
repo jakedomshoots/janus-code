@@ -64,6 +64,14 @@ describe('runtime status porting contract', () => {
       enumValues: {
         graphStatus: ['ready', 'reloading', 'unavailable'],
         hostPlatform: ['darwin', 'linux', 'win32']
+      },
+      numericConstraints: {
+        runtimeProtocolVersion: { integer: true, minimum: 1 },
+        minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
+        rendererGraphEpoch: { integer: true, minimum: 0 },
+        liveTabCount: { integer: true, minimum: 0 },
+        liveLeafCount: { integer: true, minimum: 0 },
+        authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
       }
     })
   })
