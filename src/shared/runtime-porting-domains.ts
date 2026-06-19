@@ -11,6 +11,7 @@ import {
 } from './runtime-status-json-schema'
 import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
+  NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
   VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 } from './runtime-status-field-groups'
@@ -62,6 +63,8 @@ export type RuntimePortingFirstSliceContractJsonSchemaTitle =
 export type RuntimePortingFirstSliceContractRequiredFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
+export type RuntimePortingFirstSliceContractNonNegativeIntegerFields =
+  readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractVersionedFields = readonly RuntimeStatusPortingField[]
 
 export type RuntimePortingDomainSummary = {
@@ -81,6 +84,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
+  firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
@@ -126,6 +130,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePort
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS: RuntimePortingFirstSliceContractInvalidatableFields =
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS: RuntimePortingFirstSliceContractNonNegativeIntegerFields =
+  NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS: RuntimePortingFirstSliceContractVersionedFields =
@@ -226,6 +232,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
     firstSliceContractInvalidatableFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
+    firstSliceContractNonNegativeIntegerFields:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
     firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,

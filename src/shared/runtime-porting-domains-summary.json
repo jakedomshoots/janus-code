@@ -30,6 +30,11 @@
     "authoritativeWindowId",
     "hostPlatform"
   ],
+  "firstSliceContractNonNegativeIntegerFields": [
+    "rendererGraphEpoch",
+    "liveTabCount",
+    "liveLeafCount"
+  ],
   "firstSliceContractRequiredFields": [
     "runtimeId",
     "rendererGraphEpoch",
