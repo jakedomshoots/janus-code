@@ -25,11 +25,16 @@ const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
-  for (const field of REQUIRED_RUNTIME_STATUS_PORTING_FIELDS) {
-    if (status[field] === undefined) {
-      throw new Error(`Runtime status porting contract missing ${field}`)
-    }
+  const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
+  if (firstMissingField) {
+    throw new Error(`Runtime status porting contract missing ${firstMissingField}`)
   }
+}
+
+export function listMissingRuntimeStatusPortingFields(
+  status: RuntimeStatus
+): (keyof RuntimeStatus)[] {
+  return REQUIRED_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => status[field] === undefined)
 }
 
 export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {

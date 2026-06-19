@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
   getRuntimeStatusPortingContractSummary,
+  listMissingRuntimeStatusPortingFields,
   listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -74,6 +75,24 @@ describe('runtime status porting contract', () => {
         })
       )
     ).toThrow('runtimeProtocolVersion')
+  })
+
+  it('lists every missing required field for sidecar diagnostics', () => {
+    expect(
+      listMissingRuntimeStatusPortingFields(
+        makeRuntimeStatus({
+          runtimeProtocolVersion: undefined,
+          minCompatibleRuntimeClientVersion: undefined,
+          capabilities: undefined,
+          hostPlatform: undefined
+        })
+      )
+    ).toEqual([
+      'runtimeProtocolVersion',
+      'minCompatibleRuntimeClientVersion',
+      'capabilities',
+      'hostPlatform'
+    ])
   })
 
   it('requires host platform so native runtime parity stays cross-platform', () => {
