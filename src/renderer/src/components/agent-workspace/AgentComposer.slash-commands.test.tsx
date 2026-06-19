@@ -339,4 +339,51 @@ describe('AgentComposer slash commands', () => {
     expect(textarea?.value).toContain('Composer send button looks disabled.')
     expect(container.textContent).toContain('Browser context attached.')
   })
+
+  it('routes composer tool buttons to browser workbench and terminal drawer actions', async () => {
+    const openBrowserWorkbench = vi.fn()
+    const onOpenTerminalDrawer = vi.fn()
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={runningThread}
+          terminalAvailable={true}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+          browserWorkbench={{
+            browserWorkbenchReady: true,
+            canOpenBrowserDrawer: true,
+            browserAvailable: true,
+            browserTabCount: 0,
+            browserAnnotationCount: 0,
+            browserAnnotationMarkdown: '',
+            canAttachBrowserContext: false,
+            openBrowserWorkbench
+          }}
+        />
+      )
+    })
+
+    const openBrowserButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((candidate) => candidate.getAttribute('aria-label') === 'Open browser workbench')
+    const openTerminalButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((candidate) => candidate.getAttribute('aria-label') === 'Open terminal drawer')
+
+    expect(openBrowserButton).not.toBeNull()
+    expect(openBrowserButton?.disabled).toBe(false)
+    expect(openTerminalButton).not.toBeNull()
+    expect(openTerminalButton?.disabled).toBe(false)
+
+    await act(async () => {
+      openBrowserButton?.click()
+    })
+    await act(async () => {
+      openTerminalButton?.click()
+    })
+
+    expect(openBrowserWorkbench).toHaveBeenCalledTimes(1)
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
+  })
 })

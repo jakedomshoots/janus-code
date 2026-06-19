@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**96/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
+**97/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible sidebar/settings/workbench control can be called proven.
 
 ## First-Principles Standard
 
@@ -20,6 +20,7 @@ Every workflow was checked against this chain:
 - Local installed slash-menu smoke evidence: `docs/audits/evidence/janus-workflow-assurance-2026-06-19/02-installed-slash-menu.png`
 - Red/green regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "selected project backend context"`
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
+- Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
@@ -58,7 +59,8 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Agent picker               | detected agents plus settings defaults drive active agent                 | Source-reviewed                               |
 | Provider/model controls    | settings popover writes default agent/model args                          | Source-reviewed                               |
 | Browser context attach     | active browser tab annotations feed composer context                      | Verified by test                              |
-| Terminal reveal            | composer terminal actions map to reveal reasons                           | Source-reviewed                               |
+| Browser workbench open     | composer tool button calls the workbench open action                      | Verified by test                              |
+| Terminal drawer open       | composer tool button calls terminal reveal with debug reason              | Verified by test                              |
 | Prompt recovery controls   | restore/send-again/open-terminal paths remain visible after failures      | Source-reviewed and covered by recovery tests |
 
 ## Workspace And Sidebar Matrix
@@ -95,12 +97,12 @@ Recommended public-download path without paying Apple:
 
 | Priority | Risk                                                                                                                                             | Recommended next check                                                                                                  |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible app control.                                       | Add Playwright/Computer Use smoke scripts for sidebar, project add, settings, terminal, and browser workbench controls. |
+| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible sidebar/settings/workbench control.                | Add Playwright/Computer Use smoke scripts for sidebar, project add, settings, terminal, and browser workbench controls. |
 | P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                  |
 
 ## Next Score Plan
 
-To move from **96/100 to 98/100**, complete the scripted workflow sweep:
+To move from **97/100 to 99/100**, complete the scripted workflow sweep:
 
 1. Use Computer Use or Playwright to exercise visible sidebar, project-add, terminal, browser, and settings controls without sending destructive prompts.
 2. Add/adjust tests for any mismatch found.
