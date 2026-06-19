@@ -1,4 +1,7 @@
-import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
+import {
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+} from './runtime-status-contract-artifact-metadata'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
 
@@ -29,6 +32,8 @@ export type RuntimePortingTargetRuntime = 'tauri'
 export type RuntimePortingVerificationCommand =
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export type RuntimePortingFirstSliceRationale = 'read-only-runtime-rpc'
+export type RuntimePortingFirstSliceContractArtifactId =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export type RuntimePortingFirstSliceContractArtifactPath =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
@@ -41,6 +46,7 @@ export type RuntimePortingDomainSummary = {
   targetRuntime: RuntimePortingTargetRuntime
   verificationCommand: RuntimePortingVerificationCommand
   firstSlice: RuntimePortingDomain
+  firstSliceContractArtifactId: RuntimePortingFirstSliceContractArtifactId
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
@@ -69,6 +75,8 @@ export const RUNTIME_PORTING_VERIFICATION_COMMAND: RuntimePortingVerificationCom
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export const RUNTIME_PORTING_FIRST_SLICE_RATIONALE: RuntimePortingFirstSliceRationale =
   'read-only-runtime-rpc'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID: RuntimePortingFirstSliceContractArtifactId =
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 
@@ -157,6 +165,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     targetRuntime: RUNTIME_PORTING_TARGET_RUNTIME,
     verificationCommand: RUNTIME_PORTING_VERIFICATION_COMMAND,
     firstSlice: getRuntimePortingFirstSliceDomain(),
+    firstSliceContractArtifactId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
     firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
