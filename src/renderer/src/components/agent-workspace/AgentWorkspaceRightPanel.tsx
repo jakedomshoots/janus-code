@@ -80,7 +80,7 @@ export function AgentWorkspaceRightPanel({
 
   return (
     <aside className="pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-[26px] border border-border bg-card/95 p-5 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+      <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
@@ -227,7 +227,7 @@ function ApprovalActions({
   }
 
   return (
-    <div className="mt-4 rounded-2xl border border-border bg-background/60 p-3">
+    <div className="mt-4 rounded-xl border border-border bg-background/60 p-3">
       <div className="flex gap-2">
         <Button
           type="button"

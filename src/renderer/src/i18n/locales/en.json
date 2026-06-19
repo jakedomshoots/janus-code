@@ -11230,7 +11230,8 @@
           "projectlessLaunchFailed": "Could not start a planning agent.",
           "projectlessAgentLaunching": "Starting a planning agent.",
           "continueWith": "Continue with",
-          "followUpPlaceholder": "Ask a follow-up in this thread..."
+          "followUpPlaceholder": "Ask a follow-up in this thread...",
+          "slashCommands": "Slash commands"
         },
         "page": {
           "agentWorkspace": "Agent workspace"

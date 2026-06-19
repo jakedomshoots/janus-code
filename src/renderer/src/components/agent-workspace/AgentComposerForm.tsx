@@ -1,4 +1,6 @@
+import { useCallback, useMemo, useState } from 'react'
 import { AgentComposerFooter } from './AgentComposerFooter'
+import { AgentComposerSlashCommandMenu } from './AgentComposerSlashCommandMenu'
 import { AgentComposerTextarea } from './AgentComposerTextarea'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
@@ -7,6 +9,10 @@ import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
+import {
+  completeAgentComposerSlashCommand,
+  getAgentComposerSlashCommandMatches
+} from './agent-composer-slash-command-model'
 
 export function AgentComposerForm({
   prompt,
@@ -77,6 +83,53 @@ export function AgentComposerForm({
   onSelectedAgentChange: (agent: TuiAgent | null) => void
   onSelectedModelChange: (modelId: string) => void
 }): React.JSX.Element {
+  const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0)
+  const slashCommands = useMemo(() => getAgentComposerSlashCommandMatches(prompt), [prompt])
+  const slashMenuOpen = slashCommands.length > 0
+
+  const handleSlashCommandSelect = useCallback(
+    (command: { command: string }): void => {
+      onPromptChange(completeAgentComposerSlashCommand(command.command))
+      setActiveSlashCommandIndex(0)
+    },
+    [onPromptChange]
+  )
+
+  const handleTextareaKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+      if (!slashMenuOpen) {
+        onKeyDown(event)
+        return
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        setActiveSlashCommandIndex((current) => (current + 1) % slashCommands.length)
+        return
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        setActiveSlashCommandIndex(
+          (current) => (current - 1 + slashCommands.length) % slashCommands.length
+        )
+        return
+      }
+
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        const selectedCommand = slashCommands[activeSlashCommandIndex] ?? slashCommands[0]
+        if (selectedCommand) {
+          event.preventDefault()
+          handleSlashCommandSelect(selectedCommand)
+          return
+        }
+      }
+
+      onKeyDown(event)
+    },
+    [activeSlashCommandIndex, handleSlashCommandSelect, onKeyDown, slashCommands, slashMenuOpen]
+  )
+
   return (
     <form
       className="border-t border-border/70 bg-background/95 px-6 pb-5 pt-3 backdrop-blur"
@@ -84,6 +137,12 @@ export function AgentComposerForm({
     >
       <div className="mx-auto w-full max-w-[860px]">
         <div className="agent-composer-shell rounded-xl border border-border/80 bg-card shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
+          <AgentComposerSlashCommandMenu
+            commands={slashCommands}
+            activeIndex={Math.min(activeSlashCommandIndex, slashCommands.length - 1)}
+            onActiveIndexChange={setActiveSlashCommandIndex}
+            onSelect={handleSlashCommandSelect}
+          />
           <AgentComposerTextarea
             value={prompt}
             activeWorktreeId={activeWorktreeId}
@@ -92,7 +151,7 @@ export function AgentComposerForm({
             statusMessage={statusMessage}
             onChange={onPromptChange}
             onPaste={onPaste}
-            onKeyDown={onKeyDown}
+            onKeyDown={handleTextareaKeyDown}
           />
           <AgentComposerFooter
             statusMessage={statusMessage}

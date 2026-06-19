@@ -46,7 +46,7 @@ export function PanelSummary({
   ]
 
   return (
-    <section className="mb-4 rounded-2xl border border-border bg-background/65 p-3">
+    <section className="mb-4 rounded-xl border border-border bg-background/65 p-3">
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card">
           <Bot className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -93,7 +93,7 @@ export function PlanProgress({
   const activeStep = plan.steps.find((step) => step.status === 'in-progress') ?? null
 
   return (
-    <section className="mb-4 rounded-2xl border border-border bg-background/60 p-3">
+    <section className="mb-4 rounded-xl border border-border bg-background/60 p-3">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <ListChecks className="size-3.5" aria-hidden="true" />
         {translate('auto.components.agentWorkspace.rightPanel.planProgress', 'Plan progress')}
