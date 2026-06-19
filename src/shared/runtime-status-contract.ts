@@ -234,6 +234,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'string'
       minLength: number
     }
+    graphStatus: {
+      type: 'string'
+      enum: string[]
+    }
   }
 } {
   return {
@@ -245,6 +249,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       runtimeId: {
         type: 'string',
         minLength: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS.runtimeId.minLength
+      },
+      graphStatus: {
+        type: 'string',
+        enum: [...VALID_RUNTIME_GRAPH_STATUSES]
       }
     }
   }

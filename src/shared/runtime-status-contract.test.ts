@@ -120,6 +120,10 @@ describe('runtime status porting contract', () => {
         runtimeId: {
           type: 'string',
           minLength: 1
+        },
+        graphStatus: {
+          type: 'string',
+          enum: ['ready', 'reloading', 'unavailable']
         }
       }
     })
@@ -131,6 +135,17 @@ describe('runtime status porting contract', () => {
         runtimeId: {
           type: 'string',
           minLength: 1
+        }
+      }
+    })
+  })
+
+  it('describes the graph status JSON schema enum for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        graphStatus: {
+          type: 'string',
+          enum: ['ready', 'reloading', 'unavailable']
         }
       }
     })
