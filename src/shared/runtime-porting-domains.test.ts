@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getRuntimePortingDomain,
   getRuntimePortingFirstSliceDomain,
+  getRuntimePortingDomainSummary,
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
   listRuntimePortingDomainsByBoundary,
@@ -29,6 +30,14 @@ describe('runtime porting domains', () => {
     expect(getRuntimePortingFirstSliceDomain()).toEqual(
       getRuntimePortingDomain('runtime-status-diagnostics')
     )
+  })
+
+  it('summarizes first, native, and retained runtime porting domains', () => {
+    expect(getRuntimePortingDomainSummary()).toEqual({
+      firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
+      nativeCandidates: listNativeRuntimePortingCandidates(),
+      retainedElectron: listRetainedElectronRuntimeDomains()
+    })
   })
 
   it('keeps the embedded browser workbench out of the first native porting wave', () => {

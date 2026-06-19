@@ -17,6 +17,12 @@ export type RuntimePortingDomain = {
   disposition: RuntimePortingDomainDisposition
 }
 
+export type RuntimePortingDomainSummary = {
+  firstSlice: RuntimePortingDomain
+  nativeCandidates: readonly RuntimePortingDomain[]
+  retainedElectron: readonly RuntimePortingDomain[]
+}
+
 export type RuntimePortingFirstSliceMethod = 'status.get'
 
 export const RUNTIME_PORTING_FIRST_SLICE_METHOD: RuntimePortingFirstSliceMethod = 'status.get'
@@ -91,6 +97,14 @@ export function listNativeRuntimePortingCandidates(): readonly RuntimePortingDom
 
 export function listRetainedElectronRuntimeDomains(): readonly RuntimePortingDomain[] {
   return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === 'retain-electron')
+}
+
+export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
+  return {
+    firstSlice: getRuntimePortingFirstSliceDomain(),
+    nativeCandidates: listNativeRuntimePortingCandidates(),
+    retainedElectron: listRetainedElectronRuntimeDomains()
+  }
 }
 
 export function getRuntimePortingFirstSliceMethod(): RuntimePortingFirstSliceMethod {
