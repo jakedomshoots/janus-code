@@ -250,6 +250,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'integer'
       minimum: number
     }
+    rendererGraphEpoch: {
+      type: 'integer'
+      minimum: number
+    }
   }
 } {
   return {
@@ -278,6 +282,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
         type: 'integer',
         minimum:
           RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.minCompatibleRuntimeClientVersion.minimum
+      },
+      rendererGraphEpoch: {
+        type: 'integer',
+        minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.rendererGraphEpoch.minimum
       }
     }
   }

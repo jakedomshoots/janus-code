@@ -136,6 +136,10 @@ describe('runtime status porting contract', () => {
         minCompatibleRuntimeClientVersion: {
           type: 'integer',
           minimum: 1
+        },
+        rendererGraphEpoch: {
+          type: 'integer',
+          minimum: 0
         }
       }
     })
@@ -191,6 +195,17 @@ describe('runtime status porting contract', () => {
         minCompatibleRuntimeClientVersion: {
           type: 'integer',
           minimum: 1
+        }
+      }
+    })
+  })
+
+  it('describes the renderer graph epoch JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        rendererGraphEpoch: {
+          type: 'integer',
+          minimum: 0
         }
       }
     })
