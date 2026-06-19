@@ -108,6 +108,13 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-json-schema'")
   })
 
+  it('uses the dedicated runtime status field type in the JSON schema module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-json-schema.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-porting-field'")
+    expect(source).not.toContain('keyof RuntimeStatus')
+  })
+
   it('keeps the bundled artifact type in a dedicated artifact module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 

@@ -1,10 +1,10 @@
-import type { RuntimeStatus } from './runtime-types'
+import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingJsonSchema = {
   $schema: string
   title: string
   type: 'object'
-  required: (keyof RuntimeStatus)[]
+  required: RuntimeStatusPortingField[]
   additionalProperties: false
   properties: {
     runtimeId: { type: 'string'; minLength: number }
