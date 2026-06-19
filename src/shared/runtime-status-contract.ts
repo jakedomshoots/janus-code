@@ -6,6 +6,7 @@ import {
 } from './runtime-porting-domains'
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
+import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 
 export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
   'runtime-status-diagnostics'
@@ -106,13 +107,9 @@ export type RuntimeStatusPortingContractSummary = {
   arrayConstraints: Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
 }
 
-export type RuntimeStatusPortingValidationResult =
-  | { ok: true }
-  | { ok: false; missingFields: RuntimeStatusPortingField[] }
-  | { ok: false; invalidFields: RuntimeStatusPortingField[] }
-
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
+export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)

@@ -61,7 +61,7 @@ describe('runtime status porting contract', () => {
   it('exports the validation result type for sidecar diagnostics', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
-    expect(source).toContain('export type RuntimeStatusPortingValidationResult')
+    expect(source).toContain('RuntimeStatusPortingValidationResult')
   })
 
   it('exports constraint metadata types for sidecar schema adapters', () => {
@@ -94,6 +94,12 @@ describe('runtime status porting contract', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
     expect(source).toContain("from './runtime-status-contract-artifact'")
+  })
+
+  it('keeps the validation result type in a dedicated diagnostics module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-validation-result'")
   })
 
   it('documents that status.get accepts null params', () => {
