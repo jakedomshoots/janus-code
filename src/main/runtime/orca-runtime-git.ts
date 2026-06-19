@@ -15,10 +15,7 @@ import type {
 } from '../../shared/types'
 import type { CommitMessageDraftContext } from '../../shared/commit-message-generation'
 import { getCommitMessageModelDiscoveryHostKey } from '../../shared/commit-message-host-key'
-import {
-  discoverTuiAgentSlashCommands,
-  type DiscoverTuiAgentSlashCommandsResult
-} from '../../shared/tui-agent-slash-commands'
+import type { DiscoverTuiAgentSlashCommandsResult } from '../../shared/tui-agent-slash-commands'
 import type { GitHistoryOptions, GitHistoryResult } from '../../shared/git-history'
 import {
   mergeLegacyCommitMessageAiIntoSourceControlAi,
@@ -67,6 +64,10 @@ import {
 } from '../text-generation/commit-message-text-generation'
 import type { CommitMessageAgentEnvironmentResolvers } from '../text-generation/commit-message-agent-environment'
 import { prepareLocalCommitMessageAgentEnv } from '../text-generation/commit-message-agent-environment'
+import {
+  discoverAgentSlashCommandsLocal,
+  discoverAgentSlashCommandsRemote
+} from '../text-generation/tui-agent-slash-command-discovery'
 import { getPullRequestDraftContext } from '../text-generation/pull-request-context'
 import { normalizeRuntimeRelativePath } from './runtime-relative-paths'
 import { gitExecFileAsync } from '../git/runner'
@@ -664,9 +665,36 @@ export class RuntimeGitCommands {
   }
 
   async discoverRuntimeAgentSlashCommands(
-    agentId: string
+    worktreeSelector: string,
+    agentId: string,
+    settingsOverride?: Pick<RuntimeCommitMessageSettingsOverride, 'agentCmdOverrides'>
   ): Promise<DiscoverTuiAgentSlashCommandsResult> {
-    return discoverTuiAgentSlashCommands(agentId)
+    const target = await this.host.resolveRuntimeGitTarget(worktreeSelector)
+    const typedAgentId = agentId as TuiAgent
+    const agentCommandOverride =
+      settingsOverride?.agentCmdOverrides?.[typedAgentId] ??
+      this.host.getRuntimeSettings().agentCmdOverrides?.[typedAgentId]
+    if (target.connectionId) {
+      const provider = getSshGitProvider(target.connectionId)
+      if (!provider) {
+        return discoverAgentSlashCommandsLocal(agentId, undefined, agentCommandOverride)
+      }
+      return discoverAgentSlashCommandsRemote(
+        typedAgentId,
+        target.worktree.path,
+        (plan, cwd, timeoutMs) => provider.executeCommitMessagePlan(plan, cwd, timeoutMs),
+        agentCommandOverride
+      )
+    }
+    const localEnv = await prepareLocalCommitMessageAgentEnv(
+      typedAgentId,
+      this.host.getCommitMessageAgentEnvironment?.()
+    )
+    return discoverAgentSlashCommandsLocal(
+      agentId,
+      localEnv.ok ? localEnv.env : undefined,
+      agentCommandOverride
+    )
   }
 
   async stageRuntimeGitPath(worktreeSelector: string, filePath: string): Promise<{ ok: true }> {

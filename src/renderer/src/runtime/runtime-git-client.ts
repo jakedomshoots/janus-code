@@ -580,7 +580,10 @@ export async function discoverRuntimeAgentSlashCommands(
     'git.discoverAgentSlashCommands',
     {
       worktree: toRuntimeWorktreeSelector(context.worktreeId),
-      agentId
+      agentId,
+      ...(context.settings?.agentCmdOverrides
+        ? { agentCmdOverrides: context.settings.agentCmdOverrides }
+        : {})
     },
     { timeoutMs: 15_000 }
   )

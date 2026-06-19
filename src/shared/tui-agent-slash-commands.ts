@@ -5,7 +5,7 @@ export type TuiAgentSlashCommand = {
   command: string
   title: string
   description: string
-  source: 'catalog'
+  source: 'catalog' | 'cli-help'
   agentIds?: readonly TuiAgent[]
 }
 
@@ -142,7 +142,8 @@ const AGENT_SPECIFIC_TUI_AGENT_SLASH_COMMANDS: readonly TuiAgentSlashCommand[] =
 ]
 
 export function discoverTuiAgentSlashCommands(
-  agentId: string
+  agentId: string,
+  discoveredCommands: readonly TuiAgentSlashCommand[] = []
 ): DiscoverTuiAgentSlashCommandsResult {
   if (!isTuiAgent(agentId)) {
     return { success: false, error: `Unknown agent "${agentId}".` }
@@ -150,11 +151,14 @@ export function discoverTuiAgentSlashCommands(
   return {
     success: true,
     agentId,
-    commands: getTuiAgentSlashCommands(agentId)
+    commands: getTuiAgentSlashCommands(agentId, discoveredCommands)
   }
 }
 
-export function getTuiAgentSlashCommands(agentId: TuiAgent): TuiAgentSlashCommand[] {
+export function getTuiAgentSlashCommands(
+  agentId: TuiAgent,
+  discoveredCommands: readonly TuiAgentSlashCommand[] = []
+): TuiAgentSlashCommand[] {
   const commands = new Map<string, TuiAgentSlashCommand>()
   for (const item of COMMON_TUI_AGENT_SLASH_COMMANDS) {
     commands.set(item.command, item)
@@ -163,6 +167,42 @@ export function getTuiAgentSlashCommands(agentId: TuiAgent): TuiAgentSlashComman
     if (item.agentIds?.includes(agentId)) {
       commands.set(item.command, item)
     }
+  }
+  for (const item of discoveredCommands) {
+    if (item.command.startsWith('/')) {
+      commands.set(item.command, item)
+    }
+  }
+  return [...commands.values()].sort((left, right) => left.command.localeCompare(right.command))
+}
+
+function titleFromCommand(command: string): string {
+  const trimmed = command.replace(/^\//, '')
+  if (!trimmed) {
+    return command
+  }
+  return trimmed
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((word) => word.slice(0, 1).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+export function parseCliSlashCommands(output: string): TuiAgentSlashCommand[] {
+  const commands = new Map<string, TuiAgentSlashCommand>()
+  for (const line of output.split(/\r?\n/)) {
+    const match = line.match(/^\s*(\/[a-z][\w-]*)\b(?:\s+(.+?))?\s*$/i)
+    if (!match?.[1]) {
+      continue
+    }
+    const command = match[1]
+    const description = match[2]?.trim() || titleFromCommand(command)
+    commands.set(command, {
+      command,
+      title: titleFromCommand(command),
+      description,
+      source: 'cli-help'
+    })
   }
   return [...commands.values()].sort((left, right) => left.command.localeCompare(right.command))
 }

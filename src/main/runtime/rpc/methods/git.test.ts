@@ -223,7 +223,8 @@ describe('git RPC methods', () => {
     await dispatcher.dispatch(
       makeRequest('git.discoverAgentSlashCommands', {
         worktree: 'id:wt-1',
-        agentId: 'codex'
+        agentId: 'codex',
+        agentCmdOverrides: { codex: 'npx codex' }
       })
     )
     await dispatcher.dispatch(
@@ -251,7 +252,9 @@ describe('git RPC methods', () => {
     expect(runtime.discoverRuntimeCommitMessageModels).toHaveBeenCalledWith('id:wt-1', 'cursor', {
       agentCmdOverrides: { cursor: 'cursor-agent' }
     })
-    expect(runtime.discoverRuntimeAgentSlashCommands).toHaveBeenCalledWith('codex')
+    expect(runtime.discoverRuntimeAgentSlashCommands).toHaveBeenCalledWith('id:wt-1', 'codex', {
+      agentCmdOverrides: { codex: 'npx codex' }
+    })
     expect(runtime.cancelRuntimeGenerateCommitMessage).toHaveBeenCalledWith('id:wt-1')
     expect(runtime.abortRuntimeGitMerge).toHaveBeenCalledWith('id:wt-1')
     expect(runtime.abortRuntimeGitRebase).toHaveBeenCalledWith('id:wt-1')

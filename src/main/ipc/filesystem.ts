@@ -74,10 +74,7 @@ import {
 } from '../git/huge-folder-ignore'
 import { assertGitPushTargetShape } from '../../shared/git-push-target-validation'
 import { getCommitMessageModelDiscoveryHostKey } from '../../shared/commit-message-host-key'
-import {
-  discoverTuiAgentSlashCommands,
-  type DiscoverTuiAgentSlashCommandsResult
-} from '../../shared/tui-agent-slash-commands'
+import type { DiscoverTuiAgentSlashCommandsResult } from '../../shared/tui-agent-slash-commands'
 import type { ResolvedSourceControlAiGenerationParams } from '../../shared/source-control-ai'
 import { validateGitPushTarget } from '../git/push-target-validation'
 import { getRemoteFileUrl } from '../git/repo'
@@ -105,6 +102,10 @@ import {
   prepareLocalCommitMessageAgentEnv,
   type CommitMessageAgentEnvironmentResolvers
 } from '../text-generation/commit-message-agent-environment'
+import {
+  discoverAgentSlashCommandsLocal,
+  discoverAgentSlashCommandsRemote
+} from '../text-generation/tui-agent-slash-command-discovery'
 import { listRepoWorktrees } from '../repo-worktrees'
 import { splitWorktreeId } from '../../shared/worktree-id'
 import { getRuntimePathBasename } from '../../shared/cross-platform-path'
@@ -1124,7 +1125,31 @@ export function registerFilesystemHandlers(
     async (
       _event,
       args: { agentId: string; worktreePath?: string; connectionId?: string }
-    ): Promise<DiscoverTuiAgentSlashCommandsResult> => discoverTuiAgentSlashCommands(args.agentId)
+    ): Promise<DiscoverTuiAgentSlashCommandsResult> => {
+      const agentId = args.agentId
+      const agentCommandOverride = store.getSettings().agentCmdOverrides?.[agentId as TuiAgent]
+      if (args.connectionId) {
+        if (!args.worktreePath) {
+          return discoverAgentSlashCommandsLocal(agentId, undefined, agentCommandOverride)
+        }
+        const provider = getSshGitProvider(args.connectionId)
+        if (!provider) {
+          return discoverAgentSlashCommandsLocal(agentId, undefined, agentCommandOverride)
+        }
+        return discoverAgentSlashCommandsRemote(
+          agentId as TuiAgent,
+          args.worktreePath,
+          (plan, cwd, timeoutMs) => provider.executeCommitMessagePlan(plan, cwd, timeoutMs),
+          agentCommandOverride
+        )
+      }
+      const localEnv = await prepareLocalCommitMessageAgentEnv(agentId, commitMessageAgentEnv)
+      return discoverAgentSlashCommandsLocal(
+        agentId,
+        localEnv.ok ? localEnv.env : undefined,
+        agentCommandOverride
+      )
+    }
   )
 
   ipcMain.handle(

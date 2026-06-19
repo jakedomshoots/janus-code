@@ -523,7 +523,10 @@ describe('runtime git client', () => {
 
     await discoverRuntimeAgentSlashCommands(
       {
-        settings: { activeRuntimeEnvironmentId: 'env-1' },
+        settings: {
+          activeRuntimeEnvironmentId: 'env-1',
+          agentCmdOverrides: { codex: 'npx codex' }
+        },
         worktreeId: 'wt-1',
         worktreePath: '/repo'
       },
@@ -533,7 +536,11 @@ describe('runtime git client', () => {
     expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
       selector: 'env-1',
       method: 'git.discoverAgentSlashCommands',
-      params: { worktree: 'id:wt-1', agentId: 'codex' },
+      params: {
+        worktree: 'id:wt-1',
+        agentId: 'codex',
+        agentCmdOverrides: { codex: 'npx codex' }
+      },
       timeoutMs: 15_000
     })
     expect(gitDiscoverAgentSlashCommands).not.toHaveBeenCalled()

@@ -249,7 +249,15 @@ export const GIT_METHODS: RpcMethod[] = [
     name: 'git.discoverAgentSlashCommands',
     params: GitDiscoverAgentSlashCommands,
     handler: async (params, { runtime }) =>
-      runtime.discoverRuntimeAgentSlashCommands(params.agentId)
+      runtime.discoverRuntimeAgentSlashCommands(
+        params.worktree,
+        params.agentId,
+        params.agentCmdOverrides !== undefined
+          ? {
+              agentCmdOverrides: params.agentCmdOverrides as GlobalSettings['agentCmdOverrides']
+            }
+          : {}
+      )
   }),
   defineMethod({
     name: 'git.cancelGenerateCommitMessage',
