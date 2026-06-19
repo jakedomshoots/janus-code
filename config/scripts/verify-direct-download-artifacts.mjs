@@ -29,7 +29,7 @@ export function parseSha256Sums(content) {
 
 export function verifyDirectDownloadArtifacts(
   baseDir = 'dist',
-  { version = packageJson.version } = {}
+  { releaseNotesPath = null, version = packageJson.version } = {}
 ) {
   const requiredArtifacts = requiredDirectDownloadArtifacts({ version })
   const missingArtifacts = requiredArtifacts.filter((name) => !existsSync(join(baseDir, name)))
@@ -45,15 +45,41 @@ export function verifyDirectDownloadArtifacts(
       }
     }
   }
-  return { missingArtifacts, missingChecksums }
+  const releaseNoteFailures = releaseNotesPath
+    ? verifyDirectDownloadReleaseNotes(readFileSync(releaseNotesPath, 'utf8'))
+    : []
+  return { missingArtifacts, missingChecksums, releaseNoteFailures }
+}
+
+export function verifyDirectDownloadReleaseNotes(content) {
+  const normalized = content.toLowerCase()
+  const failures = []
+  if (!normalized.includes('unsigned')) {
+    failures.push('release notes must state that these macOS downloads are unsigned')
+  }
+  if (!normalized.includes('right-click') || !normalized.includes('open')) {
+    failures.push('release notes must include right-click Open launch guidance for macOS')
+  }
+  if (normalized.includes('notarized')) {
+    failures.push('release notes must not claim notarization for unsigned direct downloads')
+  }
+  if (!normalized.includes('sha-256') && !normalized.includes('sha256')) {
+    failures.push('release notes must mention SHA-256 checksums')
+  }
+  return failures
 }
 
 function readArgs(argv) {
   const args = {
     baseDir: 'dist',
+    releaseNotesPath: null,
     version: packageJson.version
   }
   for (const arg of argv) {
+    if (arg.startsWith('--release-notes=')) {
+      args.releaseNotesPath = arg.slice('--release-notes='.length)
+      continue
+    }
     if (arg.startsWith('--version=')) {
       args.version = arg.slice('--version='.length)
       continue
@@ -65,17 +91,33 @@ function readArgs(argv) {
 
 export function main() {
   const args = readArgs(process.argv.slice(2))
-  const result = verifyDirectDownloadArtifacts(args.baseDir, { version: args.version })
-  if (result.missingArtifacts.length > 0 || result.missingChecksums.length > 0) {
+  const result = verifyDirectDownloadArtifacts(args.baseDir, {
+    releaseNotesPath: args.releaseNotesPath,
+    version: args.version
+  })
+  if (
+    result.missingArtifacts.length > 0 ||
+    result.missingChecksums.length > 0 ||
+    result.releaseNoteFailures.length > 0
+  ) {
     if (result.missingArtifacts.length > 0) {
       console.error(`Missing direct-download artifacts: ${result.missingArtifacts.join(', ')}`)
     }
     if (result.missingChecksums.length > 0) {
       console.error(`Missing direct-download checksums: ${result.missingChecksums.join(', ')}`)
     }
+    if (result.releaseNoteFailures.length > 0) {
+      console.error(
+        `Invalid direct-download release notes: ${result.releaseNoteFailures.join(', ')}`
+      )
+    }
     process.exit(1)
   }
-  console.log('Verified direct-download artifacts and checksums')
+  console.log(
+    args.releaseNotesPath
+      ? 'Verified direct-download artifacts, checksums, and release notes'
+      : 'Verified direct-download artifacts and checksums'
+  )
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

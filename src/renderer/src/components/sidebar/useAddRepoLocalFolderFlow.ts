@@ -69,6 +69,8 @@ export function useAddRepoLocalFolderFlow({
   const handleAddLocalPath = useCallback(
     async (path: string, source: AddRepoExistingWorkspaceSource): Promise<void> => {
       if (activeRuntimeEnvironmentId?.trim()) {
+        // Why: remote hosts require host paths; advancing the local add
+        // generation here would strand the Browse button's busy cleanup.
         toast.error(
           translate(
             'auto.components.sidebar.useAddRepoLocalFolderFlow.7ab10e4974',

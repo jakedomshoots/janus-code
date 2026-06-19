@@ -5,7 +5,8 @@ import { describe, expect, it } from 'vitest'
 import {
   parseSha256Sums,
   requiredDirectDownloadArtifacts,
-  verifyDirectDownloadArtifacts
+  verifyDirectDownloadArtifacts,
+  verifyDirectDownloadReleaseNotes
 } from './verify-direct-download-artifacts.mjs'
 
 function withTempDir(callback) {
@@ -34,7 +35,8 @@ describe('verifyDirectDownloadArtifacts', () => {
 
       expect(verifyDirectDownloadArtifacts(dir, { version: '1.2.3' })).toEqual({
         missingArtifacts: artifacts.slice(1),
-        missingChecksums: ['SHA256SUMS.txt']
+        missingChecksums: ['SHA256SUMS.txt'],
+        releaseNoteFailures: []
       })
     })
   })
@@ -49,7 +51,8 @@ describe('verifyDirectDownloadArtifacts', () => {
 
       expect(verifyDirectDownloadArtifacts(dir, { version: '1.2.3' })).toEqual({
         missingArtifacts: [],
-        missingChecksums: []
+        missingChecksums: [],
+        releaseNoteFailures: []
       })
     })
   })
@@ -58,5 +61,23 @@ describe('verifyDirectDownloadArtifacts', () => {
     const entries = parseSha256Sums(`${'b'.repeat(64)}  ./dist/janus-code-macos-arm64.dmg\n`)
 
     expect(entries.get('janus-code-macos-arm64.dmg')).toBe('b'.repeat(64))
+  })
+
+  it('requires unsigned macOS launch guidance in release notes', () => {
+    expect(
+      verifyDirectDownloadReleaseNotes(
+        [
+          'These macOS direct downloads are unsigned.',
+          'After downloading, verify the SHA-256 checksums.',
+          'If macOS blocks first launch, right-click Janus Code and choose Open.'
+        ].join('\n')
+      )
+    ).toEqual([])
+
+    expect(verifyDirectDownloadReleaseNotes('Download Janus Code for macOS.')).toEqual([
+      'release notes must state that these macOS downloads are unsigned',
+      'release notes must include right-click Open launch guidance for macOS',
+      'release notes must mention SHA-256 checksums'
+    ])
   })
 })

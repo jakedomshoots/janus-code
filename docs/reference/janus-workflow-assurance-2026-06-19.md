@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**92/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
+**95/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
 
 ## First-Principles Standard
 
@@ -20,7 +20,8 @@ Every workflow was checked against this chain:
 - Local installed slash-menu smoke evidence: `docs/audits/evidence/janus-workflow-assurance-2026-06-19/02-installed-slash-menu.png`
 - Red/green regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "selected project backend context"`
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
-- Direct-download release gate: `pnpm run verify:direct-download-artifacts`
+- Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
+- Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -60,21 +61,21 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 
 ## Workspace And Sidebar Matrix
 
-| Control            | Expected behavior                                            | Status          |
-| ------------------ | ------------------------------------------------------------ | --------------- |
-| New Agent          | starts projectless planning agent                            | Source-reviewed |
-| Automations        | opens automations page and supports hide from context menu   | Source-reviewed |
-| Agents             | opens activity page with unread badge                        | Source-reviewed |
-| Janus Code Mobile  | opens mobile page and dismisses onboarding badge             | Source-reviewed |
-| Search             | opens worktree/browser palette with platform shortcut label  | Source-reviewed |
-| Workspace board    | toggles board with moved-location hint                       | Source-reviewed |
-| Workspace options  | sort/group/layout/filter controls write store state          | Source-reviewed |
-| Add local project  | blocks local folder picker when a remote runtime is selected | Source-reviewed |
-| Add remote project | host path flow is separate from local picker                 | Source-reviewed |
+| Control            | Expected behavior                                            | Status           |
+| ------------------ | ------------------------------------------------------------ | ---------------- |
+| New Agent          | starts projectless planning agent                            | Source-reviewed  |
+| Automations        | opens automations page and supports hide from context menu   | Source-reviewed  |
+| Agents             | opens activity page with unread badge                        | Source-reviewed  |
+| Janus Code Mobile  | opens mobile page and dismisses onboarding badge             | Source-reviewed  |
+| Search             | opens worktree/browser palette with platform shortcut label  | Source-reviewed  |
+| Workspace board    | toggles board with moved-location hint                       | Source-reviewed  |
+| Workspace options  | sort/group/layout/filter controls write store state          | Source-reviewed  |
+| Add local project  | blocks local folder picker when a remote runtime is selected | Verified by test |
+| Add remote project | host path flow is separate from local picker                 | Source-reviewed  |
 
 ## No-Apple Direct Download Assessment
 
-The app does **not** require App Store distribution. `config/electron-builder.config.cjs` already supports direct-download macOS artifacts, and `config/scripts/verify-direct-download-artifacts.mjs` now gives the unsigned-download lane a repeatable artifact/checksum gate:
+The app does **not** require App Store distribution. `config/electron-builder.config.cjs` already supports direct-download macOS artifacts, and `config/scripts/verify-direct-download-artifacts.mjs` now gives the unsigned-download lane a repeatable artifact/checksum/release-note gate:
 
 - Local mac builds use `identity: null`, `hardenedRuntime: false`, and `notarize: false` unless `JANUS_MAC_RELEASE=1` or `ORCA_MAC_RELEASE=1`.
 - Release-signing failure is enforced only when the explicit mac release flag is set.
@@ -94,16 +95,14 @@ Recommended public-download path without paying Apple:
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
 | P1       | The completed-thread footer can read like an active send path even when the thread is idle after recovery.                                       | Make copy/state reflect idle vs recovering.                                                                             |
 | P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible app control.                                       | Add Playwright/Computer Use smoke scripts for sidebar, project add, settings, terminal, and browser workbench controls. |
-| P2       | Direct-download artifacts are gated for packages/checksums, but release notes are not yet validated for unsigned macOS launch instructions.      | Add release-note validation for right-click Open and unsigned/notarization wording.                                     |
 | P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                  |
 
 ## Next Score Plan
 
-To move from **92/100 to 95/100**, complete the scripted workflow sweep:
+To move from **95/100 to 98/100**, complete the scripted workflow sweep:
 
 1. Use Computer Use or Playwright to exercise visible sidebar, project-add, terminal, browser, and settings controls without sending destructive prompts.
 2. Add/adjust tests for any mismatch found.
-3. Add release-note validation for the no-Apple download lane.
 
 To move from **95/100 to 100/100**, add durable automation:
 

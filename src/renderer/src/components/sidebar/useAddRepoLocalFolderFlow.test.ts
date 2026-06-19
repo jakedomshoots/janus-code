@@ -89,4 +89,36 @@ describe('useAddRepoLocalFolderFlow', () => {
     expect(mocks.setAddProjectBusyLabel).toHaveBeenLastCalledWith(null)
     expect(mocks.addRepoPath).not.toHaveBeenCalled()
   })
+
+  it('keeps remote host paths out of the local picker flow and clears busy state', async () => {
+    mocks.pickFolder.mockResolvedValue('/Users/jake/project')
+    const { useAddRepoLocalFolderFlow } = await import('./useAddRepoLocalFolderFlow')
+
+    const result = useAddRepoLocalFolderFlow({
+      isOpen: true,
+      droppedLocalPath: '',
+      activeRuntimeEnvironmentId: 'runtime-1',
+      addRepoPath: mocks.addRepoPath,
+      closeModal: mocks.closeModal,
+      fetchWorktrees: mocks.fetchWorktrees,
+      scanNestedRepos: mocks.scanNestedRepos,
+      setActiveNestedScanId: mocks.setActiveNestedScanId,
+      setNestedScanInProgress: mocks.setNestedScanInProgress,
+      showNestedRepoReview: mocks.showNestedRepoReview,
+      onGitRepoReady: mocks.onGitRepoReady,
+      setIsAdding: mocks.setIsAdding,
+      setAddProjectBusyLabel: mocks.setAddProjectBusyLabel
+    })
+
+    await result.handleBrowse()
+
+    expect(mocks.toastError).toHaveBeenCalledWith(
+      'Use a host path to add projects from a remote host.'
+    )
+    expect(mocks.closeModal).toHaveBeenCalledTimes(1)
+    expect(mocks.addRepoPath).not.toHaveBeenCalled()
+    expect(mocks.scanNestedRepos).not.toHaveBeenCalled()
+    expect(mocks.setIsAdding).toHaveBeenLastCalledWith(false)
+    expect(mocks.setAddProjectBusyLabel).toHaveBeenLastCalledWith(null)
+  })
 })
