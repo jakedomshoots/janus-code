@@ -5,6 +5,7 @@ import {
   assertRuntimeStatusPortingContract,
   getRuntimeStatusPortingContractSummary,
   listMissingRuntimeStatusPortingFields,
+  listRuntimeStatusPortingInvalidatableFields,
   listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
@@ -223,6 +224,21 @@ describe('runtime status porting contract', () => {
       ok: false,
       invalidFields: ['hostPlatform']
     })
+  })
+
+  it('exposes fields with value validation for future sidecar schema generation', () => {
+    expect(listRuntimeStatusPortingInvalidatableFields()).toEqual([
+      'runtimeProtocolVersion',
+      'minCompatibleRuntimeClientVersion',
+      'rendererGraphEpoch',
+      'liveTabCount',
+      'liveLeafCount',
+      'capabilities',
+      'graphStatus',
+      'runtimeId',
+      'authoritativeWindowId',
+      'hostPlatform'
+    ])
   })
 
   it('exposes the required fields for future sidecar schema generation', () => {
