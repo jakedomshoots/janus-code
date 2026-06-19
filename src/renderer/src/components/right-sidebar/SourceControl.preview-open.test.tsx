@@ -17,7 +17,9 @@ const mocks = vi.hoisted(() => {
     path: '/repo',
     displayName: 'Repo',
     badgeColor: '#000',
-    addedAt: 0
+    addedAt: 0,
+    connectionId: null as string | null,
+    executionHostId: null as string | null
   }
   const activeWorktree = {
     id: 'wt-1',
@@ -138,6 +140,8 @@ function noopAsync(value: unknown = undefined): () => Promise<unknown> {
 
 function resetState(overrides: Partial<Record<string, unknown>> = {}): void {
   vi.clearAllMocks()
+  mocks.activeRepo.connectionId = null
+  mocks.activeRepo.executionHostId = null
   mocks.calls.createEmptySplitGroup.mockReturnValue('group-2')
   mocks.calls.discardRuntimeGitPath.mockResolvedValue(undefined)
   mocks.calls.refreshGitStatusForWorktree.mockResolvedValue(undefined)
@@ -417,6 +421,55 @@ describe('SourceControl preview row opens', () => {
       worktreePath: '/repo/wt',
       relativePath: 'src/file.ts',
       runtimeEnvironmentId: 'runtime-remote'
+    })
+  })
+
+  it('does not quiesce SSH-owned discards through the focused runtime', async () => {
+    resetState({
+      gitStatusByWorktree: { [mocks.activeWorktree.id]: [gitEntry({ path: 'src/file.ts' })] },
+      settings: { activeRuntimeEnvironmentId: 'focused-runtime' }
+    })
+    mocks.activeRepo.connectionId = 'ssh-1'
+    renderSourceControl()
+
+    const row = container.querySelector<HTMLDivElement>('[data-source-control-path="src/file.ts"]')
+    const discardButton = row?.querySelector<HTMLButtonElement>(
+      'button[aria-label="Discard changes"]'
+    )
+    expect(discardButton).not.toBeNull()
+    act(() => {
+      discardButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    const confirmButton = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(
+      (button) => button.textContent?.trim() === 'Discard'
+    )
+    expect(confirmButton).not.toBeNull()
+    await act(async () => {
+      confirmButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+
+    expect(mocks.calls.requestEditorSaveQuiesce).toHaveBeenCalledWith({
+      worktreeId: mocks.activeWorktree.id,
+      worktreePath: '/repo/wt',
+      relativePath: 'src/file.ts',
+      runtimeEnvironmentId: null
+    })
+    expect(mocks.calls.discardRuntimeGitPath).toHaveBeenCalledWith(
+      {
+        settings: { activeRuntimeEnvironmentId: null },
+        worktreeId: mocks.activeWorktree.id,
+        worktreePath: '/repo/wt',
+        connectionId: 'ssh-1'
+      },
+      'src/file.ts'
+    )
+    expect(mocks.calls.notifyEditorExternalFileChange).toHaveBeenCalledWith({
+      worktreeId: mocks.activeWorktree.id,
+      worktreePath: '/repo/wt',
+      relativePath: 'src/file.ts',
+      runtimeEnvironmentId: null
     })
   })
 

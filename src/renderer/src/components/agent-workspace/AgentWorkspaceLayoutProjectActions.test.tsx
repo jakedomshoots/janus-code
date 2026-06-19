@@ -39,6 +39,17 @@ const storeMocks = vi.hoisted(() => {
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
+    remoteDetectedAgentIds: {},
+    runtimeDetectedAgentIds: {},
+    isDetectingRemoteAgents: {},
+    isDetectingRuntimeAgents: {},
+    detectedAgentIds: [],
+    isDetectingAgents: false,
+    isRefreshingAgents: false,
+    ensureDetectedAgents: vi.fn().mockResolvedValue([]),
+    ensureRemoteDetectedAgents: vi.fn().mockResolvedValue([]),
+    ensureRuntimeDetectedAgents: vi.fn().mockResolvedValue([]),
+    refreshDetectedAgents: vi.fn().mockResolvedValue([]),
     activeGroupIdByWorktree: {
       'worktree-1': 'group-1',
       'worktree-2': 'group-2'
@@ -79,9 +90,14 @@ const deleteFlowMocks = vi.hoisted(() => ({
 }))
 const runtimeGitMocks = vi.hoisted(() => ({
   stageRuntimeGitPath: vi.fn().mockResolvedValue(undefined),
+  unstageRuntimeGitPath: vi.fn().mockResolvedValue(undefined),
   discardRuntimeGitPath: vi.fn().mockResolvedValue(undefined),
   commitRuntimeGit: vi.fn().mockResolvedValue({ success: true }),
   getRuntimeGitStatus: vi.fn().mockResolvedValue({ entries: [], conflictOperation: 'unknown' })
+}))
+const editorAutosaveMocks = vi.hoisted(() => ({
+  requestEditorSaveQuiesce: vi.fn().mockResolvedValue(undefined),
+  notifyEditorExternalFileChange: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -96,6 +112,8 @@ vi.mock('../sidebar/delete-worktree-flow', () => ({
 }))
 
 vi.mock('@/runtime/runtime-git-client', () => runtimeGitMocks)
+
+vi.mock('@/components/editor/editor-autosave', () => editorAutosaveMocks)
 
 vi.mock('@/components/tab-group/useTabGroupWorkspaceModel', () => ({
   useTabGroupWorkspaceModel: () => ({
@@ -160,9 +178,12 @@ afterEach(() => {
   storeMocks.focusBrowserTabInWorktree.mockClear()
   deleteFlowMocks.runWorktreeDelete.mockClear()
   runtimeGitMocks.stageRuntimeGitPath.mockClear()
+  runtimeGitMocks.unstageRuntimeGitPath.mockClear()
   runtimeGitMocks.discardRuntimeGitPath.mockClear()
   runtimeGitMocks.commitRuntimeGit.mockClear()
   runtimeGitMocks.getRuntimeGitStatus.mockClear()
+  editorAutosaveMocks.requestEditorSaveQuiesce.mockClear()
+  editorAutosaveMocks.notifyEditorExternalFileChange.mockClear()
   document.body.replaceChildren()
 })
 
@@ -396,6 +417,115 @@ describe('AgentWorkspaceLayout project actions', () => {
         connectionId: undefined
       },
       'feat: wire gui source control'
+    )
+  })
+
+  it('runs source-control actions against the selected SSH project host', async () => {
+    const snapshot = {
+      ...makeSelectionSnapshot('worktree-ssh'),
+      projects: [
+        {
+          id: 'worktree-ssh',
+          label: 'janus ssh',
+          path: '/home/jake/janus-code',
+          hostKind: 'ssh' as const,
+          repoId: 'repo-janus',
+          canCreateWorktree: true,
+          canDeleteWorktree: true,
+          agentDetectionTarget: { kind: 'ssh' as const, connectionId: 'ssh-1' }
+        }
+      ],
+      threads: [
+        {
+          id: 'thread-ssh',
+          worktreeId: 'worktree-ssh',
+          title: 'SSH thread',
+          agentKind: 'codex',
+          phase: 'waiting-for-user' as const,
+          updatedAt: '2026-06-15T12:05:00.000Z',
+          branchName: 'feature/ssh',
+          cwd: '/home/jake/janus-code'
+        }
+      ],
+      timeline: [],
+      diffs: [
+        {
+          id: 'diff-ssh-unstaged',
+          threadId: 'thread-ssh',
+          area: 'unstaged' as const,
+          filePath: 'src/app.ts',
+          additions: 4,
+          deletions: 1,
+          status: 'modified' as const
+        },
+        {
+          id: 'diff-ssh-staged',
+          threadId: 'thread-ssh',
+          area: 'staged' as const,
+          filePath: 'src/index.ts',
+          additions: 2,
+          deletions: 0,
+          status: 'modified' as const
+        }
+      ]
+    } satisfies AgentWorkspaceSnapshot
+    const container = renderLayout(snapshot)
+    const sshContext = {
+      settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
+      worktreeId: 'worktree-ssh',
+      worktreePath: '/home/jake/janus-code',
+      connectionId: 'ssh-1'
+    }
+
+    await act(async () => {
+      getButton(container, 'Stage').click()
+      await Promise.resolve()
+    })
+    expect(runtimeGitMocks.stageRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/app.ts')
+
+    await act(async () => {
+      getButton(container, 'Discard').click()
+      await Promise.resolve()
+    })
+    expect(editorAutosaveMocks.requestEditorSaveQuiesce).toHaveBeenCalledWith({
+      worktreeId: 'worktree-ssh',
+      worktreePath: '/home/jake/janus-code',
+      relativePath: 'src/app.ts',
+      runtimeEnvironmentId: null
+    })
+    expect(runtimeGitMocks.discardRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/app.ts')
+    expect(editorAutosaveMocks.notifyEditorExternalFileChange).toHaveBeenCalledWith({
+      worktreeId: 'worktree-ssh',
+      worktreePath: '/home/jake/janus-code',
+      relativePath: 'src/app.ts',
+      runtimeEnvironmentId: null
+    })
+
+    await act(async () => {
+      getButton(container, 'src/index.ts').click()
+    })
+    await act(async () => {
+      getButton(container, 'Unstage').click()
+      await Promise.resolve()
+    })
+    expect(runtimeGitMocks.unstageRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/index.ts')
+
+    const messageInput = container.querySelector<HTMLTextAreaElement>(
+      'textarea[aria-label="Commit message"]'
+    )
+    expect(messageInput).not.toBeNull()
+    await act(async () => {
+      if (messageInput) {
+        setTextareaValue(messageInput, 'feat: verify ssh source control')
+      }
+    })
+    await act(async () => {
+      getButton(container, 'Commit').click()
+      await Promise.resolve()
+    })
+    expect(runtimeGitMocks.commitRuntimeGit).toHaveBeenCalledWith(
+      sshContext,
+      'feat: verify ssh source control'
     )
   })
 })
