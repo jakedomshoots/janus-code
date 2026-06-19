@@ -2,11 +2,28 @@ import type {
   RuntimePortingDomainId,
   RuntimePortingFirstSliceMethod
 } from './runtime-porting-domains'
-import type {
-  RuntimeStatusPortingArrayConstraint,
-  RuntimeStatusPortingNumericConstraint,
-  RuntimeStatusPortingStringConstraint
+import {
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
+  type RuntimeStatusPortingArrayConstraint,
+  type RuntimeStatusPortingNumericConstraint,
+  type RuntimeStatusPortingStringConstraint
 } from './runtime-status-constraints'
+import {
+  RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
+} from './runtime-status-contract-metadata'
+import {
+  listRuntimeStatusPortingInvalidatableFields,
+  listRuntimeStatusPortingRequiredFields
+} from './runtime-status-contract-validation'
+import {
+  VALID_RUNTIME_GRAPH_STATUSES,
+  VALID_RUNTIME_HOST_PLATFORMS
+} from './runtime-status-enum-values'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingContractSummary = {
@@ -27,4 +44,22 @@ export type RuntimeStatusPortingContractSummary = {
     Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
   >
   arrayConstraints: Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
+}
+
+export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingContractSummary {
+  return {
+    schemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
+    domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
+    method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+    params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+    requiredFields: listRuntimeStatusPortingRequiredFields(),
+    invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
+    enumValues: {
+      graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
+      hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
+    },
+    numericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+    stringConstraints: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
+    arrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
+  }
 }

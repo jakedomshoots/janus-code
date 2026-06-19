@@ -70,6 +70,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-contract-summary'")
   })
 
+  it('keeps the contract summary builder in the dedicated summary module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract-summary.ts'), 'utf8')
+
+    expect(source).toContain('getRuntimeStatusPortingContractSummary')
+  })
+
   it('exports the validation result type for sidecar diagnostics', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
