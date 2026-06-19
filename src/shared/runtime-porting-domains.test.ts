@@ -5,6 +5,7 @@ import {
   getRuntimePortingDomain,
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
+  listNativeRuntimePortingCandidates,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -35,6 +36,14 @@ describe('runtime porting domains', () => {
     const ids = RUNTIME_PORTING_DOMAINS.map((domain) => domain.id)
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('lists host-service domains as native runtime porting candidates', () => {
+    expect(listNativeRuntimePortingCandidates()).toEqual([
+      getRuntimePortingDomain('pty-lifecycle'),
+      getRuntimePortingDomain('process-supervision'),
+      getRuntimePortingDomain('filesystem-workspace-scanning')
+    ])
   })
 
   it('maps the first runtime slice to the existing status RPC method', () => {
