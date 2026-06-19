@@ -12,6 +12,7 @@
     "disposition": "first-slice"
   },
   "firstSliceContractArtifactId": "janus-runtime-status-contract",
+  "firstSliceContractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
   "firstSliceContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",

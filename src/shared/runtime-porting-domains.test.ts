@@ -1,7 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID } from './runtime-status-contract-artifact'
+import {
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE
+} from './runtime-status-contract-artifact'
 import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
 import {
   getRuntimePortingDomain,
@@ -56,6 +59,7 @@ describe('runtime porting domains', () => {
         'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts',
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
       firstSliceContractArtifactId: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
+      firstSliceContractArtifactMediaType: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
       firstSliceRationale: 'read-only-runtime-rpc',
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
@@ -106,6 +110,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE)
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID)
+    expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE)
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH)
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
