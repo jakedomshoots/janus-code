@@ -21,6 +21,7 @@ export type RuntimePortingDomainSummaryArtifactId = 'janus-runtime-porting-domai
 export type RuntimePortingDomainSummaryMediaType =
   'application/vnd.janus.runtime-porting-domain-summary+json'
 export type RuntimePortingDomainSummarySchemaVersion = 1
+export type RuntimePortingMigrationStrategy = 'incremental-slice'
 export type RuntimePortingSourceRuntime = 'electron'
 export type RuntimePortingTargetRuntime = 'tauri'
 
@@ -28,6 +29,7 @@ export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
   mediaType: RuntimePortingDomainSummaryMediaType
   schemaVersion: RuntimePortingDomainSummarySchemaVersion
+  migrationStrategy: RuntimePortingMigrationStrategy
   sourceRuntime: RuntimePortingSourceRuntime
   targetRuntime: RuntimePortingTargetRuntime
   firstSlice: RuntimePortingDomain
@@ -49,6 +51,8 @@ export const RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE: RuntimePortingDomainSumm
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION: RuntimePortingDomainSummarySchemaVersion = 1
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH =
   'src/shared/runtime-porting-domains-summary.json'
+export const RUNTIME_PORTING_MIGRATION_STRATEGY: RuntimePortingMigrationStrategy =
+  'incremental-slice'
 export const RUNTIME_PORTING_SOURCE_RUNTIME: RuntimePortingSourceRuntime = 'electron'
 export const RUNTIME_PORTING_TARGET_RUNTIME: RuntimePortingTargetRuntime = 'tauri'
 
@@ -132,6 +136,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     artifactId: RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID,
     mediaType: RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE,
     schemaVersion: RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION,
+    migrationStrategy: RUNTIME_PORTING_MIGRATION_STRATEGY,
     sourceRuntime: RUNTIME_PORTING_SOURCE_RUNTIME,
     targetRuntime: RUNTIME_PORTING_TARGET_RUNTIME,
     firstSlice: getRuntimePortingFirstSliceDomain(),

@@ -2,6 +2,7 @@
   "artifactId": "janus-runtime-porting-domain-summary",
   "mediaType": "application/vnd.janus.runtime-porting-domain-summary+json",
   "schemaVersion": 1,
+  "migrationStrategy": "incremental-slice",
   "sourceRuntime": "electron",
   "targetRuntime": "tauri",
   "firstSlice": {
