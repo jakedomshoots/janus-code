@@ -156,7 +156,10 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
           {canSendToSelectedThread ? (
             <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs text-muted-foreground">
               {selectedThread?.phase === 'completed'
-                ? translate('auto.components.agentWorkspace.composer.continueWith', 'Continue with')
+                ? translate(
+                    'auto.components.agentWorkspace.composer.completedThread',
+                    'Completed thread'
+                  )
                 : translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
               <span className="font-medium text-foreground">
                 {formatAgentTypeLabel(selectedThread?.agentKind)}

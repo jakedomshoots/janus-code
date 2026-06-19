@@ -162,6 +162,16 @@ describe('AgentComposer completed-thread recovery', () => {
     expect(textarea?.value).toBe('Check status again.')
   })
 
+  it('labels completed-thread follow-up state without implying an active send', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    expect(container.textContent).toContain('Completed thread')
+    expect(container.textContent).toContain('Codex')
+    expect(container.textContent).not.toContain('Continue with')
+  })
+
   it('can resend a recovered completed-thread prompt and open the terminal drawer', async () => {
     const onOpenTerminalDrawer = vi.fn()
     mocks.sendNotesToActiveAgentSession.mockResolvedValue({

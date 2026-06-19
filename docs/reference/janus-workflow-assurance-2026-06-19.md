@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**95/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
+**96/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
 
 ## First-Principles Standard
 
@@ -22,6 +22,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
+- Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -48,6 +49,7 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | -------------------------- | ------------------------------------------------------------------------- | --------------------------------------------- |
 | Send in active thread      | `sendNotesToActiveAgentSession({ worktreeId, prompt })`                   | Verified by source and tests                  |
 | Send in completed thread   | completed-thread recovery retry path, preserves prompt until sent         | Verified by existing recovery tests           |
+| Completed-thread footer    | labels completed state without implying active send                       | Verified by test                              |
 | Send new session           | `launchSelectedAgent` -> `launchAgentInNewTab` with args/env/model prompt | Verified by source                            |
 | Slash command raw send     | typed command remains raw prompt text                                     | Verified by test                              |
 | Slash menu static commands | local command list filters and inserts command text                       | Verified by test                              |
@@ -93,13 +95,12 @@ Recommended public-download path without paying Apple:
 
 | Priority | Risk                                                                                                                                             | Recommended next check                                                                                                  |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| P1       | The completed-thread footer can read like an active send path even when the thread is idle after recovery.                                       | Make copy/state reflect idle vs recovering.                                                                             |
 | P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible app control.                                       | Add Playwright/Computer Use smoke scripts for sidebar, project add, settings, terminal, and browser workbench controls. |
 | P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                  |
 
 ## Next Score Plan
 
-To move from **95/100 to 98/100**, complete the scripted workflow sweep:
+To move from **96/100 to 98/100**, complete the scripted workflow sweep:
 
 1. Use Computer Use or Playwright to exercise visible sidebar, project-add, terminal, browser, and settings controls without sending destructive prompts.
 2. Add/adjust tests for any mismatch found.
