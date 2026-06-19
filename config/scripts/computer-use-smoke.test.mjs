@@ -211,6 +211,71 @@ describe('computer-use smoke script', () => {
     )
   })
 
+  it('returns from an open browser tab before driving the Janus workflow gate', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root, { initialState: 'browser' })
+    const callsPath = path.join(root, 'calls.jsonl')
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+    const calls = readFileSync(callsPath, 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line))
+    expect(calls.slice(0, 2)).toEqual([
+      [
+        'computer',
+        'get-app-state',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ],
+      [
+        'computer',
+        'click',
+        '--session',
+        expect.any(String),
+        '--app',
+        'com.jakedom.januscode',
+        '--element-index',
+        '62',
+        '--restore-window',
+        '--no-screenshot',
+        '--json'
+      ]
+    ])
+  })
+
+  it('accepts the selected Changes panel when source control has no changed rows', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root, { noChanges: true })
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+  })
+
   it('prints targeted macOS permission recovery when the Janus workflow gate is blocked', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
     const cliPath = writePermissionDeniedJanusWorkflowCli(root)
@@ -357,11 +422,11 @@ describe('computer-use smoke script', () => {
   })
 })
 
-function writeFakeJanusWorkflowCli(root) {
+function writeFakeJanusWorkflowCli(root, options = {}) {
   const cliPath = path.join(root, 'fake-cli.cjs')
   const callsPath = path.join(root, 'calls.jsonl')
   const statePath = path.join(root, 'state.txt')
-  writeFileSync(statePath, 'workspace', 'utf8')
+  writeFileSync(statePath, options.initialState ?? 'workspace', 'utf8')
   writeFileSync(
     cliPath,
     [
@@ -372,6 +437,7 @@ function writeFakeJanusWorkflowCli(root) {
       'fs.appendFileSync(callsPath, JSON.stringify(args) + "\\n");',
       'const command = args.slice(0, 2).join(" ");',
       'const elementIndex = readFlag("--element-index");',
+      `const noChanges = ${JSON.stringify(Boolean(options.noChanges))};`,
       `fs.writeFileSync(${JSON.stringify(path.join(root, 'user-data-path.txt'))}, process.env.ORCA_USER_DATA_PATH || "");`,
       'if (command === "computer get-app-state") {',
       '  printState(fs.readFileSync(statePath, "utf8"));',
@@ -381,7 +447,7 @@ function writeFakeJanusWorkflowCli(root) {
       '  if (elementIndex === "76") fs.writeFileSync(statePath, "browser");',
       '  if (elementIndex === "62") fs.writeFileSync(statePath, "workspace");',
       '  if (elementIndex === "89") fs.writeFileSync(statePath, "output");',
-      '  if (elementIndex === "90") fs.writeFileSync(statePath, "changes");',
+      '  if (elementIndex === "90") fs.writeFileSync(statePath, noChanges ? "changes-empty" : "changes");',
       '  if (elementIndex === "96") fs.writeFileSync(statePath, "changes-selected");',
       '  if (elementIndex === "84") fs.writeFileSync(statePath, "actions-menu");',
       '  if (elementIndex === "91") fs.writeFileSync(statePath, "review");',
@@ -407,9 +473,10 @@ function writeFakeJanusWorkflowCli(root) {
       '    workspace: ["33 button Settings", "72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "76 button Open browser workbench", "78 button Open terminal drawer", "79 text Completed thread Codex", "80 button disabled Send", "89 tab Output", "90 tab Changes", "91 tab Review", "92 tab Context", "102 container Terminal drawer"].join("\\n"),',
       '    settings: ["6 button Back to app", "7 text field Placeholder: Search settings", "12 button Voice Not installed"].join("\\n"),',
       '    "settings-search": ["6 button Back to app", "7 text field Value: voice, Placeholder: Search settings", "23 heading Voice", "40 heading Shortcuts", "72 heading macOS Permissions"].join("\\n"),',
-      '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container Browser workbench"].join("\\n"),',
+      '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container"].join("\\n"),',
       '    output: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab (selected) Output", "90 tab Changes", "91 tab Review", "94 container Outputs"].join("\\n"),',
       '    changes: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 row src/app.ts modified"].join("\\n"),',
+      '    "changes-empty": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 text No changes"].join("\\n"),',
       '    "changes-selected": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 row selected src/app.ts modified", "120 toolbar 1 selected", "121 button Stage (1)", "122 button Clear selection"].join("\\n"),',
       '    "actions-menu": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions expanded", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "100 menu", "101 menu item Fetch", "102 menu item Pull", "103 menu item Push", "104 menu item Sync"].join("\\n"),',
       '    review: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab Changes", "91 tab (selected) Review", "94 container Review", "97 text None"].join("\\n"),',

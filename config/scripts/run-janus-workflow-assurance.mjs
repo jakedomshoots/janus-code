@@ -11,6 +11,8 @@ const vitestFiles = [
   'config/scripts/computer-e2e-workflow.test.mjs',
   'config/scripts/janus-workflow-assurance-suite.test.mjs',
   'config/scripts/verify-direct-download-artifacts.test.mjs',
+  'src/main/computer/macos-native-provider-transport.test.ts',
+  'src/main/startup/configure-process.test.ts',
   'src/renderer/src/components/agent-workspace/AgentComposer.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.draft-agent.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx',

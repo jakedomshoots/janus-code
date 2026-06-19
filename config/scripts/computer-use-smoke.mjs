@@ -130,7 +130,7 @@ function runSnapshotSmoke(app) {
 }
 
 function runJanusWorkflowSmoke() {
-  let state = getAppState(janusApp)
+  let state = ensureAgentChat(getAppState(janusApp))
   expectTree(state, ['Agent chat composer', 'Message agent'])
 
   state = clickElement(janusApp, findElementIndex(state, ['Settings']))
@@ -142,7 +142,7 @@ function runJanusWorkflowSmoke() {
   expectTree(state, ['Agent chat composer', 'Message agent'])
 
   state = clickElement(janusApp, findElementIndex(state, ['Open browser workbench']))
-  expectTree(state, ['Browser workbench', 'New Tab'])
+  expectTree(state, ['Back to chat', 'New Tab', 'about:blank'])
 
   state = clickElement(janusApp, findElementIndex(state, ['Back to chat']))
   expectTree(state, ['Agent chat composer', 'Message agent'])
@@ -168,14 +168,27 @@ function runJanusWorkflowSmoke() {
   console.log('computer-use smoke: Janus workflow gate passed')
 }
 
+function ensureAgentChat(state) {
+  if (treeTextForState(state).includes('Agent chat composer')) {
+    return state
+  }
+
+  const backToChatIndex = findOptionalElementIndex(state, ['Back to chat'])
+  if (!backToChatIndex) {
+    return state
+  }
+
+  return clickElement(janusApp, backToChatIndex)
+}
+
 function runJanusSourceControlSmoke(state) {
-  expectTree(state, ['More commit and remote actions'])
   const changedRowIndex = findSourceControlChangedRowIndex(state)
   if (!changedRowIndex) {
     expectAnyTree(state, ['No changes', 'No uncommitted changes', 'No changes on this branch'])
     return state
   }
 
+  expectTree(state, ['More commit and remote actions'])
   const selectedState = clickElement(janusApp, changedRowIndex)
   expectTree(selectedState, ['selected', 'Stage ('])
 

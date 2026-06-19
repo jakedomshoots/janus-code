@@ -66,6 +66,12 @@ export function configureElectronNetworkCompatibility(
   app.commandLine.appendSwitch('disable-http2')
 }
 
+export function enableElectronAccessibilitySupport(): void {
+  // Why: Janus Computer Use inspects the Electron renderer through macOS
+  // accessibility; Chromium keeps that tree sparse unless explicitly enabled.
+  app.setAccessibilitySupportEnabled(true)
+}
+
 function getProcessPathDelimiter(): string {
   return process.platform === 'win32' ? ';' : ':'
 }

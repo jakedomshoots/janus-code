@@ -64,10 +64,10 @@ export function consumeNativeProviderLines(
 }
 
 export async function startMacOSNativeProviderSocket({
-  helperExecutablePath,
+  helperAppPath,
   isCurrent
 }: {
-  helperExecutablePath: string
+  helperAppPath: string
   isCurrent: (socketPath: string) => boolean
 }): Promise<StartedMacOSProviderSocket> {
   const socketDirectory = mkdtempSync(join(tmpdir(), 'orca-computer-use-'))
@@ -76,9 +76,9 @@ export async function startMacOSNativeProviderSocket({
   const socketToken = randomUUID()
   const socketTokenPath = join(socketDirectory, 'provider.token')
   writeFileSync(socketTokenPath, socketToken, { encoding: 'utf8', mode: 0o600 })
-  // Why: launching the nested helper via LaunchServices can make TCC evaluate
-  // Orca.app as responsible; the signed helper executable owns this grant.
-  const provider = spawnProvider(helperExecutablePath, socketPath, socketTokenPath)
+  // Why: macOS TCC grants are attached to the helper app bundle identity; use
+  // Launch Services so automation runs under the same identity users approve.
+  const provider = spawnProvider(helperAppPath, socketPath, socketTokenPath)
   const providerFailure = waitForProviderLaunchFailure(provider)
   const connectAbort = new AbortController()
   try {
@@ -115,13 +115,13 @@ function cleanupSocketDirectory(socketDirectory: string): void {
 }
 
 function spawnProvider(
-  helperExecutablePath: string,
+  helperAppPath: string,
   socketPath: string,
   socketTokenPath: string
 ): ChildProcess {
   const provider = spawn(
-    helperExecutablePath,
-    ['--agent', socketPath, '--token-file', socketTokenPath],
+    '/usr/bin/open',
+    ['-n', helperAppPath, '--args', '--agent', socketPath, '--token-file', socketTokenPath],
     { detached: true, stdio: 'ignore' }
   )
   provider.unref()
@@ -142,21 +142,9 @@ function waitForProviderLaunchFailure(provider: ChildProcess): {
         )
       )
     }
-    const exit = (code: number | null, signal: NodeJS.Signals | null) => {
-      reject(
-        new RuntimeClientError(
-          'accessibility_error',
-          `native macOS helper app exited before connecting: ${
-            typeof code === 'number' ? `code ${code}` : `signal ${signal ?? 'unknown'}`
-          }`
-        )
-      )
-    }
     provider.once('error', fail)
-    provider.once('exit', exit)
     cleanup = () => {
       provider.off('error', fail)
-      provider.off('exit', exit)
     }
   })
   return { promise, cleanup }

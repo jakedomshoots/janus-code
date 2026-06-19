@@ -15,6 +15,7 @@ vi.mock('electron', () => {
       exit: vi.fn(),
       isPackaged: false,
       disableHardwareAcceleration: vi.fn(),
+      setAccessibilitySupportEnabled: vi.fn(),
       commandLine: {
         appendSwitch: vi.fn(),
         getSwitchValue: vi.fn(() => '')
@@ -26,6 +27,17 @@ vi.mock('electron', () => {
 afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
+})
+
+describe('enableElectronAccessibilitySupport', () => {
+  it('enables renderer accessibility so Computer Use can inspect Electron UI', async () => {
+    const { app } = await import('electron')
+    const { enableElectronAccessibilitySupport } = await import('./configure-process')
+
+    enableElectronAccessibilitySupport()
+
+    expect(app.setAccessibilitySupportEnabled).toHaveBeenCalledWith(true)
+  })
 })
 
 describe('patchPackagedProcessPath', () => {
