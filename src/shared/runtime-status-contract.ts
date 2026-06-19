@@ -32,3 +32,15 @@ export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void 
 export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {
   return [...REQUIRED_RUNTIME_STATUS_PORTING_FIELDS]
 }
+
+export function getRuntimeStatusPortingContractSummary(): {
+  method: RuntimePortingFirstSliceMethod
+  params: null
+  requiredFields: (keyof RuntimeStatus)[]
+} {
+  return {
+    method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+    params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+    requiredFields: listRuntimeStatusPortingRequiredFields()
+  }
+}

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
+  getRuntimeStatusPortingContractSummary,
   listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -48,6 +49,14 @@ describe('runtime status porting contract', () => {
 
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
+  })
+
+  it('exposes a single inspectable contract summary for sidecar adapters', () => {
+    expect(getRuntimeStatusPortingContractSummary()).toEqual({
+      method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+      params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+      requiredFields: listRuntimeStatusPortingRequiredFields()
+    })
   })
 
   it('accepts the current runtime status shape used by status.get', () => {
