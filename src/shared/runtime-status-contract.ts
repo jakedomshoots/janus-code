@@ -50,18 +50,18 @@ const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
-type RuntimeStatusPortingNumericConstraint = {
+export type RuntimeStatusPortingNumericConstraint = {
   integer: true
   minimum: number
   nullable?: true
 }
 
-type RuntimeStatusPortingStringConstraint = {
+export type RuntimeStatusPortingStringConstraint = {
   minLength: number
   trim?: true
 }
 
-type RuntimeStatusPortingArrayConstraint = {
+export type RuntimeStatusPortingArrayConstraint = {
   itemType: 'string'
 }
 
