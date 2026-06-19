@@ -43,6 +43,11 @@ export {
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
 } from './runtime-status-constraints'
+export {
+  VALID_RUNTIME_GRAPH_STATUSES,
+  VALID_RUNTIME_HOST_PLATFORMS,
+  VALID_RUNTIME_HOST_PLATFORM_VALUES
+} from './runtime-status-enum-values'
 export type {
   RuntimeStatusPortingArrayConstraint,
   RuntimeStatusPortingNumericConstraint,

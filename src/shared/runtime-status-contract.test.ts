@@ -166,6 +166,14 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-enum-values'")
   })
 
+  it('exports runtime status enum values for sidecar schema adapters', () => {
+    expect(runtimeStatusContract).toMatchObject({
+      VALID_RUNTIME_GRAPH_STATUSES: ['ready', 'reloading', 'unavailable'],
+      VALID_RUNTIME_HOST_PLATFORMS: ['darwin', 'linux', 'win32'],
+      VALID_RUNTIME_HOST_PLATFORM_VALUES: ['darwin', 'linux', 'win32']
+    })
+  })
+
   it('keeps runtime status field groups in a dedicated field-groups module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
