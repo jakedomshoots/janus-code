@@ -1,6 +1,4 @@
-import type { RuntimeStatus } from './runtime-types'
-
-type RuntimeStatusPortingField = keyof RuntimeStatus
+import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingValidationResult =
   | { ok: true }

@@ -7,9 +7,7 @@ import type {
   RuntimeStatusPortingNumericConstraint,
   RuntimeStatusPortingStringConstraint
 } from './runtime-status-constraints'
-import type { RuntimeStatus } from './runtime-types'
-
-type RuntimeStatusPortingField = keyof RuntimeStatus
+import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingContractSummary = {
   schemaVersion: 1

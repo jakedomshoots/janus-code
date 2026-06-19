@@ -81,7 +81,13 @@ describe('runtime status porting contract', () => {
   it('exports the runtime status field type for sidecar schema adapters', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
-    expect(source).toContain('export type RuntimeStatusPortingField')
+    expect(source).toContain('RuntimeStatusPortingField')
+  })
+
+  it('keeps the runtime status field type in a dedicated field module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-porting-field'")
   })
 
   it('exports the JSON schema type for sidecar schema adapters', () => {

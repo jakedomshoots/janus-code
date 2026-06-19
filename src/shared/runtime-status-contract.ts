@@ -12,6 +12,7 @@ import type {
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
+import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 
 export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
@@ -59,8 +60,6 @@ const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
-export type RuntimeStatusPortingField = keyof RuntimeStatus
-
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
   runtimeProtocolVersion: { integer: true, minimum: 1 },
   minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
@@ -82,6 +81,7 @@ export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schem
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
+export type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 export type {
   RuntimeStatusPortingArrayConstraint,
   RuntimeStatusPortingNumericConstraint,
