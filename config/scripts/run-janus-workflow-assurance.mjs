@@ -45,7 +45,17 @@ const vitestFiles = [
   'src/renderer/src/components/sidebar/DeleteWorktreeDialog.host-context-boundary.test.ts',
   'src/renderer/src/components/sidebar/WorktreeCardAgents.send-target.test.tsx',
   'src/renderer/src/components/sidebar/WorktreeTitleInlineRename.test.tsx',
-  'src/renderer/src/components/settings/SettingsSidebar.test.tsx'
+  'src/renderer/src/components/settings/SettingsSidebar.test.tsx',
+  'src/renderer/src/components/settings/AgentsPane.test.tsx',
+  'src/renderer/src/components/settings/GitPane.test.ts',
+  'src/renderer/src/components/settings/CommitMessageAiPane.test.tsx',
+  'src/renderer/src/components/settings/RepositorySourceControlAiSection.test.ts',
+  'src/renderer/src/components/settings/RepositoryHostSetupsSection.test.tsx',
+  'src/renderer/src/components/settings/repository-host-setup-options.test.ts',
+  'src/renderer/src/components/settings/host-scoped-setting-scope.test.ts',
+  'src/renderer/src/components/settings/ssh-target-draft.test.ts',
+  'src/renderer/src/components/settings/ssh-target-remove.test.ts',
+  'src/renderer/src/components/settings/provider-account-scope.test.ts'
 ]
 
 function pnpmCommand() {

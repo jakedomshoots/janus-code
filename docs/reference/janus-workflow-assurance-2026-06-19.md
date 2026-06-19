@@ -25,7 +25,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
@@ -91,6 +91,20 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Commit failure recovery     | launches source-control recovery agent with commit-failure context          | Verified by test |
 | Commit drafts               | persist per worktree while switching source-control context                 | Verified by test |
 | Commit-generation records   | key running/completed generation by worktree id with path fallback          | Verified by test |
+
+## Settings And Provider Matrix
+
+| Control                         | Expected behavior                                                        | Status           |
+| ------------------------------- | ------------------------------------------------------------------------ | ---------------- |
+| Agent availability/defaults     | per-agent visibility/default changes update composer agent choices safely | Verified by test |
+| Agent permission mode settings  | global defaults map cleanly into composer permission state                | Verified by test |
+| Git auto-rename controls        | dirty prompt drafts stay visible while search/filtering changes           | Verified by test |
+| Source Control AI settings      | repo overrides preserve dirty drafts and clear legacy instructions safely | Verified by test |
+| Repository host setups          | clone/setup actions target the selected SSH/runtime host                  | Verified by test |
+| Host-scoped settings            | local/client scope stays separate from SSH/runtime hosts                  | Verified by test |
+| SSH target forms                | pasted hosts/ports/config aliases parse into valid editable drafts        | Verified by test |
+| SSH target removal              | removes targets even when relay cleanup needs reconnect/retry fallback    | Verified by test |
+| Provider account scope          | account-scoped settings do not leak across provider/host boundaries       | Verified by test |
 
 ## Workspace And Sidebar Matrix
 
