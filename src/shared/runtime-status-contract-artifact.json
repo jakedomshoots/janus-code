@@ -1,0 +1,136 @@
+{
+  "summary": {
+    "schemaVersion": 1,
+    "domainId": "runtime-status-diagnostics",
+    "method": "status.get",
+    "params": null,
+    "requiredFields": [
+      "runtimeId",
+      "rendererGraphEpoch",
+      "graphStatus",
+      "authoritativeWindowId",
+      "liveTabCount",
+      "liveLeafCount",
+      "runtimeProtocolVersion",
+      "minCompatibleRuntimeClientVersion",
+      "capabilities",
+      "hostPlatform"
+    ],
+    "invalidatableFields": [
+      "runtimeProtocolVersion",
+      "minCompatibleRuntimeClientVersion",
+      "rendererGraphEpoch",
+      "liveTabCount",
+      "liveLeafCount",
+      "capabilities",
+      "graphStatus",
+      "runtimeId",
+      "authoritativeWindowId",
+      "hostPlatform"
+    ],
+    "enumValues": {
+      "graphStatus": ["ready", "reloading", "unavailable"],
+      "hostPlatform": ["darwin", "linux", "win32"]
+    },
+    "numericConstraints": {
+      "runtimeProtocolVersion": {
+        "integer": true,
+        "minimum": 1
+      },
+      "minCompatibleRuntimeClientVersion": {
+        "integer": true,
+        "minimum": 1
+      },
+      "rendererGraphEpoch": {
+        "integer": true,
+        "minimum": 0
+      },
+      "liveTabCount": {
+        "integer": true,
+        "minimum": 0
+      },
+      "liveLeafCount": {
+        "integer": true,
+        "minimum": 0
+      },
+      "authoritativeWindowId": {
+        "integer": true,
+        "minimum": 0,
+        "nullable": true
+      }
+    },
+    "stringConstraints": {
+      "runtimeId": {
+        "minLength": 1,
+        "trim": true
+      }
+    },
+    "arrayConstraints": {
+      "capabilities": {
+        "itemType": "string"
+      }
+    }
+  },
+  "jsonSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Janus Runtime status.get result",
+    "type": "object",
+    "required": [
+      "runtimeId",
+      "rendererGraphEpoch",
+      "graphStatus",
+      "authoritativeWindowId",
+      "liveTabCount",
+      "liveLeafCount",
+      "runtimeProtocolVersion",
+      "minCompatibleRuntimeClientVersion",
+      "capabilities",
+      "hostPlatform"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "runtimeId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "graphStatus": {
+        "type": "string",
+        "enum": ["ready", "reloading", "unavailable"]
+      },
+      "hostPlatform": {
+        "type": "string",
+        "enum": ["darwin", "linux", "win32"]
+      },
+      "runtimeProtocolVersion": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "minCompatibleRuntimeClientVersion": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "rendererGraphEpoch": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "liveTabCount": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "liveLeafCount": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "authoritativeWindowId": {
+        "type": ["integer", "null"],
+        "minimum": 0
+      },
+      "capabilities": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

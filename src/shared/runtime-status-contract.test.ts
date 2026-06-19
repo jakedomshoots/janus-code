@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as runtimeStatusContract from './runtime-status-contract'
@@ -157,6 +157,19 @@ describe('runtime status porting contract', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract-artifact.ts'), 'utf8')
 
     expect(source).toContain('getRuntimeStatusPortingContractArtifact')
+  })
+
+  it('keeps a checked-in JSON artifact for non-TypeScript sidecar adapters', () => {
+    const artifactPath = resolve(__dirname, './runtime-status-contract-artifact.json')
+
+    expect(existsSync(artifactPath)).toBe(true)
+    if (!existsSync(artifactPath)) {
+      return
+    }
+
+    expect(JSON.parse(readFileSync(artifactPath, 'utf8'))).toEqual(
+      runtimeStatusContract.getRuntimeStatusPortingContractArtifact()
+    )
   })
 
   it('keeps the validation result type in a dedicated diagnostics module', () => {
