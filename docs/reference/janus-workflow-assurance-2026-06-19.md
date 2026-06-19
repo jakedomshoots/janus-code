@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**99/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a final whole-app runtime sweep before every visible workflow can be called proven.
+**100/100 for the audited release-readiness gate.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, the first manual audit findings now have repeatable checks, and the installed app passed the final non-destructive runtime sweep for settings, composer, browser, terminal, and right-panel workflows.
 
 ## First-Principles Standard
 
@@ -26,6 +26,7 @@ Every workflow was checked against this chain:
 - Sidebar Add Project/New workspace header regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/SidebarHeader.test.tsx`
 - Completed-thread footer regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx -t "completed-thread follow-up state"`
 - Settings sidebar control regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/settings/SettingsSidebar.test.tsx`
+- Installed-app Computer Use runtime sweep: Settings search/back, completed-thread composer state, slash-command picker, browser workbench launch, terminal drawer presence, and Output/Changes/Review right-panel tabs.
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -97,16 +98,16 @@ Recommended public-download path without paying Apple:
 3. Be explicit in release notes that macOS may require right-click -> Open for first launch.
 4. Avoid claiming notarization or App Store-style trust until a Developer ID release path exists.
 
-## Remaining Risks Before A True 100/100
+## Hardening After 100/100
 
 | Priority | Risk                                                                                                                                             | Recommended next check                                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through one whole-app runtime sweep.                                     | Add one Playwright/Computer Use smoke script for the installed app covering settings, terminal, and browser workbench. |
+| P1       | The runtime sweep is proven manually through Computer Use, but not yet captured as a reusable automation.                                        | Add one Playwright/Computer Use smoke script for the installed app covering settings, terminal, and browser workbench. |
 | P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                 |
 
 ## Next Score Plan
 
-To move from **99/100 to 100/100**, complete the final runtime sweep:
+To keep the app at **100/100** as features move:
 
-1. Use Computer Use or Playwright to exercise the installed app settings, terminal, browser workbench, and composer controls without sending destructive prompts.
-2. Add/adjust tests for any mismatch found.
+1. Convert the Computer Use runtime sweep into a repeatable installed-app smoke script.
+2. Add/adjust tests for any mismatch found in future manual or automated sweeps.
