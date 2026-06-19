@@ -12,6 +12,7 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
@@ -79,6 +80,7 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+      firstSliceContractArrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
       firstSliceContractEnumValues: {
         graphStatus: VALID_RUNTIME_GRAPH_STATUSES,
         hostPlatform: VALID_RUNTIME_HOST_PLATFORMS
@@ -153,6 +155,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
+    expect(doc).toContain('firstSliceContractArrayConstraints')
     expect(doc).toContain('firstSliceContractEnumValues')
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')

@@ -14,8 +14,10 @@ import {
   VALID_RUNTIME_HOST_PLATFORMS
 } from './runtime-status-enum-values'
 import {
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
+  type RuntimeStatusPortingArrayConstraint,
   type RuntimeStatusPortingNumericConstraint,
   type RuntimeStatusPortingStringConstraint
 } from './runtime-status-constraints'
@@ -74,6 +76,9 @@ export type RuntimePortingFirstSliceContractEnumValues = {
   graphStatus: typeof VALID_RUNTIME_GRAPH_STATUSES
   hostPlatform: typeof VALID_RUNTIME_HOST_PLATFORMS
 }
+export type RuntimePortingFirstSliceContractArrayConstraints = Partial<
+  Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>
+>
 export type RuntimePortingFirstSliceContractRequiredFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
@@ -103,6 +108,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
   firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
@@ -151,6 +157,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS: RuntimePortingFirstSliceContractArrayConstraints =
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES: RuntimePortingFirstSliceContractEnumValues =
   {
     graphStatus: VALID_RUNTIME_GRAPH_STATUSES,
@@ -262,6 +270,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractArrayConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
     firstSliceContractEnumValues: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
     firstSliceContractInvalidatableFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
