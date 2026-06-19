@@ -18,10 +18,13 @@ export type RuntimePortingDomain = {
 }
 
 export type RuntimePortingDomainSummaryArtifactId = 'janus-runtime-porting-domain-summary'
+export type RuntimePortingDomainSummaryMediaType =
+  'application/vnd.janus.runtime-porting-domain-summary+json'
 export type RuntimePortingDomainSummarySchemaVersion = 1
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
+  mediaType: RuntimePortingDomainSummaryMediaType
   schemaVersion: RuntimePortingDomainSummarySchemaVersion
   firstSlice: RuntimePortingDomain
   firstSliceMethod: RuntimePortingFirstSliceMethod
@@ -37,6 +40,8 @@ export type RuntimePortingFirstSliceMethod = 'status.get'
 export const RUNTIME_PORTING_FIRST_SLICE_METHOD: RuntimePortingFirstSliceMethod = 'status.get'
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID: RuntimePortingDomainSummaryArtifactId =
   'janus-runtime-porting-domain-summary'
+export const RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE: RuntimePortingDomainSummaryMediaType =
+  'application/vnd.janus.runtime-porting-domain-summary+json'
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION: RuntimePortingDomainSummarySchemaVersion = 1
 export const RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH =
   'src/shared/runtime-porting-domains-summary.json'
@@ -119,6 +124,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
 
   return {
     artifactId: RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID,
+    mediaType: RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE,
     schemaVersion: RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION,
     firstSlice: getRuntimePortingFirstSliceDomain(),
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
