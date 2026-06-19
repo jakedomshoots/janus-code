@@ -1,5 +1,13 @@
-import type { HostedReviewCreationEligibility } from '../../../../shared/hosted-review'
+import type {
+  CreateHostedReviewInput,
+  HostedReviewCreationEligibility,
+  HostedReviewCreationEligibilityArgs,
+  HostedReviewProvider
+} from '../../../../shared/hosted-review'
 import { normalizeHostedReviewBaseRef } from '../../../../shared/hosted-review-refs'
+import type { RefreshHostedReviewCardArgs } from '@/store/slices/hosted-review'
+
+type GitHubPRFallbackSource = 'explicit' | 'pr-cache' | 'hosted-review'
 
 export function resolveChecksPanelHostedReviewBaseRef(input: {
   worktreeBaseRef?: string | null
@@ -27,4 +35,51 @@ export function shouldOpenChecksPanelCreateComposer(input: {
     (input.hostedReviewCreation?.canCreate === true ||
       input.hostedReviewCreation?.blockedReason === 'needs_push')
   )
+}
+
+export type ChecksPanelRefreshGitHubReviewOptions = {
+  force: true
+  repoId: string
+  worktreeId?: string
+  linkedPRNumber?: number | null
+  fallbackPRNumber?: number | null
+  fallbackPRSource?: GitHubPRFallbackSource | null
+}
+
+export function buildChecksPanelHostedReviewCreationEligibilityArgs(
+  input: HostedReviewCreationEligibilityArgs
+): HostedReviewCreationEligibilityArgs {
+  return { ...input }
+}
+
+export function buildChecksPanelRefreshGitHubReviewOptions(input: {
+  repoId: string
+  worktreeId?: string | null
+  linkedGitHubPR?: number | null
+  fallbackGitHubPR?: number | null
+  fallbackPRSource?: GitHubPRFallbackSource | null
+}): ChecksPanelRefreshGitHubReviewOptions {
+  return {
+    force: true,
+    repoId: input.repoId,
+    worktreeId: input.worktreeId ?? undefined,
+    linkedPRNumber: input.linkedGitHubPR ?? null,
+    ...(input.fallbackGitHubPR !== undefined ? { fallbackPRNumber: input.fallbackGitHubPR } : {}),
+    ...(input.fallbackPRSource !== undefined ? { fallbackPRSource: input.fallbackPRSource } : {})
+  }
+}
+
+export function buildChecksPanelRefreshHostedReviewArgs(
+  input: RefreshHostedReviewCardArgs
+): RefreshHostedReviewCardArgs {
+  return { ...input }
+}
+
+export function buildChecksPanelCreateHostedReviewInput(
+  input: CreateHostedReviewInput & {
+    repoId: string
+    provider: Exclude<HostedReviewProvider, 'unsupported'>
+  }
+): CreateHostedReviewInput & { repoId: string } {
+  return { ...input }
 }

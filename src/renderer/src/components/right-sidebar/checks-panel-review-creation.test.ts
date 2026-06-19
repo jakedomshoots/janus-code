@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildChecksPanelCreateHostedReviewInput,
+  buildChecksPanelHostedReviewCreationEligibilityArgs,
+  buildChecksPanelRefreshGitHubReviewOptions,
+  buildChecksPanelRefreshHostedReviewArgs,
   resolveChecksPanelHostedReviewBaseRef,
   shouldOpenChecksPanelCreateComposer
 } from './checks-panel-review-creation'
@@ -144,5 +148,112 @@ describe('shouldOpenChecksPanelCreateComposer', () => {
         }
       })
     ).toBe(false)
+  })
+})
+
+describe('Checks panel hosted review request builders', () => {
+  it('preserves active worktree context for creation eligibility', () => {
+    expect(
+      buildChecksPanelHostedReviewCreationEligibilityArgs({
+        repoPath: '/ssh/repo',
+        repoId: 'repo-ssh',
+        worktreePath: '/home/jake/repo',
+        branch: 'feature/checks',
+        base: 'origin/main',
+        hasUncommittedChanges: false,
+        hasUpstream: true,
+        ahead: 2,
+        behind: 0,
+        linkedGitHubPR: 12,
+        fallbackGitHubPR: null,
+        linkedGitLabMR: null,
+        linkedBitbucketPR: null,
+        linkedAzureDevOpsPR: null,
+        linkedGiteaPR: null
+      })
+    ).toEqual({
+      repoPath: '/ssh/repo',
+      repoId: 'repo-ssh',
+      worktreePath: '/home/jake/repo',
+      branch: 'feature/checks',
+      base: 'origin/main',
+      hasUncommittedChanges: false,
+      hasUpstream: true,
+      ahead: 2,
+      behind: 0,
+      linkedGitHubPR: 12,
+      fallbackGitHubPR: null,
+      linkedGitLabMR: null,
+      linkedBitbucketPR: null,
+      linkedAzureDevOpsPR: null,
+      linkedGiteaPR: null
+    })
+  })
+
+  it('preserves worktree identity and linked review hints for refreshes', () => {
+    expect(
+      buildChecksPanelRefreshGitHubReviewOptions({
+        repoId: 'repo-ssh',
+        worktreeId: 'wt-ssh',
+        linkedGitHubPR: null,
+        fallbackGitHubPR: 34
+      })
+    ).toEqual({
+      force: true,
+      repoId: 'repo-ssh',
+      worktreeId: 'wt-ssh',
+      linkedPRNumber: null,
+      fallbackPRNumber: 34
+    })
+
+    expect(
+      buildChecksPanelRefreshHostedReviewArgs({
+        repoPath: '/ssh/repo',
+        repoId: 'repo-ssh',
+        branch: 'feature/checks',
+        linkedGitHubPR: null,
+        fallbackGitHubPR: 34,
+        linkedGitLabMR: 22,
+        linkedBitbucketPR: null,
+        linkedAzureDevOpsPR: null,
+        linkedGiteaPR: null
+      })
+    ).toEqual({
+      repoPath: '/ssh/repo',
+      repoId: 'repo-ssh',
+      branch: 'feature/checks',
+      linkedGitHubPR: null,
+      fallbackGitHubPR: 34,
+      linkedGitLabMR: 22,
+      linkedBitbucketPR: null,
+      linkedAzureDevOpsPR: null,
+      linkedGiteaPR: null
+    })
+  })
+
+  it('preserves selected worktree path when creating a hosted review', () => {
+    expect(
+      buildChecksPanelCreateHostedReviewInput({
+        repoId: 'repo-ssh',
+        provider: 'github',
+        base: 'main',
+        head: 'feature/checks',
+        title: 'Fix checks',
+        body: 'Details',
+        draft: true,
+        worktreePath: '/home/jake/repo',
+        useTemplate: false
+      })
+    ).toEqual({
+      repoId: 'repo-ssh',
+      provider: 'github',
+      base: 'main',
+      head: 'feature/checks',
+      title: 'Fix checks',
+      body: 'Details',
+      draft: true,
+      worktreePath: '/home/jake/repo',
+      useTemplate: false
+    })
   })
 })

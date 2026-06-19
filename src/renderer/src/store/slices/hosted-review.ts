@@ -167,7 +167,7 @@ export type HostedReviewSlice = {
   ) => Promise<HostedReviewInfo | null>
 }
 
-type RefreshHostedReviewCardArgs = {
+export type RefreshHostedReviewCardArgs = {
   repoPath: string
   repoId: string
   branch: string

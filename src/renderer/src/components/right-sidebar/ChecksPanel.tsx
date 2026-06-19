@@ -129,6 +129,12 @@ import {
 import { resolveSourceControlLaunchPlatform } from '@/lib/source-control-launch-platform'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { CreateHostedReviewComposer } from './CreateHostedReviewComposer'
+import {
+  buildChecksPanelCreateHostedReviewInput,
+  buildChecksPanelHostedReviewCreationEligibilityArgs,
+  buildChecksPanelRefreshGitHubReviewOptions,
+  buildChecksPanelRefreshHostedReviewArgs
+} from './checks-panel-review-creation'
 import { formatCreateError } from './create-pull-request-review-copy'
 import { stripBaseRef, useCreatePullRequestDialogFields } from './useCreatePullRequestDialogFields'
 import { localizedHostedReviewCopy } from '@/i18n/hosted-review-localized-copy'
@@ -1029,23 +1035,25 @@ export default function ChecksPanel(): React.JSX.Element {
       return
     }
     let stale = false
-    void getHostedReviewCreationEligibility({
-      repoPath: repo.path,
-      repoId: repo.id,
-      ...(activeWorktreePath ? { worktreePath: activeWorktreePath } : {}),
-      branch,
-      base: repo.worktreeBaseRef ?? null,
-      hasUncommittedChanges,
-      hasUpstream: remoteStatus?.hasUpstream,
-      ahead: remoteStatus?.ahead,
-      behind: remoteStatus?.behind,
-      linkedGitHubPR: linkedPR,
-      fallbackGitHubPR: fallbackGitHubPRNumber,
-      linkedGitLabMR,
-      linkedBitbucketPR,
-      linkedAzureDevOpsPR,
-      linkedGiteaPR
-    })
+    void getHostedReviewCreationEligibility(
+      buildChecksPanelHostedReviewCreationEligibilityArgs({
+        repoPath: repo.path,
+        repoId: repo.id,
+        ...(activeWorktreePath ? { worktreePath: activeWorktreePath } : {}),
+        branch,
+        base: repo.worktreeBaseRef ?? null,
+        hasUncommittedChanges,
+        hasUpstream: remoteStatus?.hasUpstream,
+        ahead: remoteStatus?.ahead,
+        behind: remoteStatus?.behind,
+        linkedGitHubPR: linkedPR,
+        fallbackGitHubPR: fallbackGitHubPRNumber,
+        linkedGitLabMR,
+        linkedBitbucketPR,
+        linkedAzureDevOpsPR,
+        linkedGiteaPR
+      })
+    )
       .then((result) => {
         if (!stale) {
           setHostedReviewCreationSnapshot({
@@ -1485,17 +1493,20 @@ export default function ChecksPanel(): React.JSX.Element {
     setGitStatusRefreshNonce((value) => value + 1)
     try {
       if (isGitLabReviewContext) {
-        const refreshedReview = await refreshHostedReviewCard(fetchHostedReviewForBranch, {
-          repoPath: repo.path,
-          repoId: repo.id,
-          branch,
-          linkedGitHubPR: linkedPR,
-          fallbackGitHubPR: fallbackGitHubPRNumber,
-          linkedGitLabMR,
-          linkedBitbucketPR,
-          linkedAzureDevOpsPR,
-          linkedGiteaPR
-        })
+        const refreshedReview = await refreshHostedReviewCard(
+          fetchHostedReviewForBranch,
+          buildChecksPanelRefreshHostedReviewArgs({
+            repoPath: repo.path,
+            repoId: repo.id,
+            branch,
+            linkedGitHubPR: linkedPR,
+            fallbackGitHubPR: fallbackGitHubPRNumber,
+            linkedGitLabMR,
+            linkedBitbucketPR,
+            linkedAzureDevOpsPR,
+            linkedGiteaPR
+          })
+        )
         if (!isCurrentRequest()) {
           return
         }
@@ -1513,27 +1524,33 @@ export default function ChecksPanel(): React.JSX.Element {
         }
         return
       }
-      const refreshedPR = await fetchPRForBranch(repo.path, branch, {
-        force: true,
-        repoId: repo.id,
-        worktreeId: activeWorktreeId ?? undefined,
-        linkedPRNumber: linkedPR,
-        fallbackPRNumber: fallbackGitHubPRNumber
-      })
+      const refreshedPR = await fetchPRForBranch(
+        repo.path,
+        branch,
+        buildChecksPanelRefreshGitHubReviewOptions({
+          repoId: repo.id,
+          worktreeId: activeWorktreeId,
+          linkedGitHubPR: linkedPR,
+          fallbackGitHubPR: fallbackGitHubPRNumber
+        })
+      )
       if (!isCurrentRequest()) {
         return
       }
-      await refreshHostedReviewCard(fetchHostedReviewForBranch, {
-        repoPath: repo.path,
-        repoId: repo.id,
-        branch,
-        linkedGitHubPR: linkedPR,
-        fallbackGitHubPR: refreshedPR?.number ?? fallbackGitHubPRNumber,
-        linkedGitLabMR,
-        linkedBitbucketPR,
-        linkedAzureDevOpsPR,
-        linkedGiteaPR
-      })
+      await refreshHostedReviewCard(
+        fetchHostedReviewForBranch,
+        buildChecksPanelRefreshHostedReviewArgs({
+          repoPath: repo.path,
+          repoId: repo.id,
+          branch,
+          linkedGitHubPR: linkedPR,
+          fallbackGitHubPR: refreshedPR?.number ?? fallbackGitHubPRNumber,
+          linkedGitLabMR,
+          linkedBitbucketPR,
+          linkedAzureDevOpsPR,
+          linkedGiteaPR
+        })
+      )
       if (!isCurrentRequest()) {
         return
       }
@@ -2766,17 +2783,20 @@ export default function ChecksPanel(): React.JSX.Element {
         }
         pushed = true
       }
-      const result = await createHostedReview(repo.path, {
-        repoId: repo.id,
-        provider: hostedReviewCreateProvider,
-        base,
-        head: normalizeHostedReviewHeadRef(branch),
-        title,
-        body: prBody,
-        draft: prDraft,
-        worktreePath,
-        useTemplate: prCreationDefaults.useTemplate
-      })
+      const result = await createHostedReview(
+        repo.path,
+        buildChecksPanelCreateHostedReviewInput({
+          repoId: repo.id,
+          provider: hostedReviewCreateProvider,
+          base,
+          head: normalizeHostedReviewHeadRef(branch),
+          title,
+          body: prBody,
+          draft: prDraft,
+          worktreePath,
+          useTemplate: prCreationDefaults.useTemplate
+        })
+      )
       if (!isCurrentCreateRequest()) {
         return
       }
