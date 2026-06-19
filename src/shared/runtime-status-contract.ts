@@ -93,6 +93,10 @@ export function listInvalidRuntimeStatusPortingFields(
     invalidFields.push('graphStatus')
   }
 
+  if (typeof status.runtimeId !== 'string' || status.runtimeId.trim().length === 0) {
+    invalidFields.push('runtimeId')
+  }
+
   return invalidFields
 }
 

@@ -166,6 +166,19 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid runtime id without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          runtimeId: ''
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['runtimeId']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))
