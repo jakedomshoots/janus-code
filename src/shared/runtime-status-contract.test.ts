@@ -138,6 +138,19 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid graph status without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          graphStatus: 'warming-up' as RuntimeStatus['graphStatus']
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['graphStatus']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))

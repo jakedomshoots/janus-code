@@ -29,6 +29,8 @@ const VERSIONED_RUNTIME_STATUS_PORTING_FIELDS = [
   'minCompatibleRuntimeClientVersion'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
+const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -72,6 +74,10 @@ export function listInvalidRuntimeStatusPortingFields(
     status.capabilities.some((item) => typeof item !== 'string')
   ) {
     invalidFields.push('capabilities')
+  }
+
+  if (!VALID_RUNTIME_GRAPH_STATUSES.includes(status.graphStatus)) {
+    invalidFields.push('graphStatus')
   }
 
   return invalidFields
