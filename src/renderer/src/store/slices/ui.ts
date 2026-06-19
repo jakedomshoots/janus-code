@@ -31,6 +31,9 @@ import type {
 import type { GitLabWorkItem } from '../../../../shared/gitlab-types'
 import type { LaunchSource } from '../../../../shared/telemetry-events'
 import type { TaskSourceContext } from '../../../../shared/task-source-context'
+import { toast } from 'sonner'
+import { track } from '@/lib/telemetry'
+import { sendBracketedPasteToRunningAgent } from '@/lib/agent-paste-draft'
 import { tuiAgentToAgentKind } from '../../../../shared/agent-kind'
 import { PET_SIZE_DEFAULT, PET_SIZE_MAX, PET_SIZE_MIN } from '../../../../shared/types'
 import {
@@ -953,7 +956,6 @@ export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get)
     )
 
     const label = formatAgentTypeLabel(target.entry.agentType)
-    const { sendBracketedPasteToRunningAgent } = await import('@/lib/agent-paste-draft')
     const delivered = await sendBracketedPasteToRunningAgent({
       ptyId: target.ptyId,
       content: mode.prompt
@@ -974,7 +976,6 @@ export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get)
             }
           : s
       )
-      const { toast } = await import('sonner')
       toast.error(
         translate('auto.store.slices.ui.53883b7bc3', "Couldn't send to {{value0}}", {
           value0: label
@@ -985,7 +986,6 @@ export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get)
     }
 
     mode.onPromptDelivered?.()
-    const [{ toast }, { track }] = await Promise.all([import('sonner'), import('@/lib/telemetry')])
     track('agent_prompt_sent', {
       agent_kind: agentKindForTarget(target.entry.agentType),
       launch_source: mode.launchSource,
