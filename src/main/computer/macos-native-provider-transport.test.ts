@@ -37,6 +37,7 @@ describe('macOS native provider transport', () => {
     expect(spawnMock).toHaveBeenCalledWith(
       '/usr/bin/open',
       [
+        '-W',
         '-n',
         '/Applications/Janus Code.app/Contents/Resources/Janus Computer Use.app',
         '--args',

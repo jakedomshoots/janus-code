@@ -121,7 +121,7 @@ function spawnProvider(
 ): ChildProcess {
   const provider = spawn(
     '/usr/bin/open',
-    ['-n', helperAppPath, '--args', '--agent', socketPath, '--token-file', socketTokenPath],
+    ['-W', '-n', helperAppPath, '--args', '--agent', socketPath, '--token-file', socketTokenPath],
     { detached: true, stdio: 'ignore' }
   )
   provider.unref()

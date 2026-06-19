@@ -5,6 +5,7 @@ import type {
   AgentStatusToolEventStatus
 } from '../../../../shared/agent-status-types'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import { isAgentWorkspaceVisibleUserPrompt } from './agent-visible-user-prompt'
 import { compareAgentTimelineEntries } from './agent-timeline-order'
 
 function getIsoTimestamp(value: number): string | null {
@@ -33,7 +34,7 @@ function toUserPromptTimelineEntry(
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
   const prompt = entry.prompt.trim()
-  if (!prompt) {
+  if (!isAgentWorkspaceVisibleUserPrompt(prompt)) {
     return null
   }
   return {
@@ -51,6 +52,9 @@ function appendConversationTurnTimelineEntries(
   thread: AgentWorkspaceThread,
   turn: AgentStatusConversationTurn
 ): void {
+  if (!isAgentWorkspaceVisibleUserPrompt(turn.prompt)) {
+    return
+  }
   timeline.push({
     id: `${turn.id}:user`,
     threadId: thread.id,
@@ -147,6 +151,9 @@ function toCompletionTimelineEntry(
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
   if (entry.state !== 'done' || entry.failure) {
+    return null
+  }
+  if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {
     return null
   }
   return {
