@@ -73,6 +73,10 @@ export function listNativeRuntimePortingCandidates(): readonly RuntimePortingDom
   return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === 'native-candidate')
 }
 
+export function listRetainedElectronRuntimeDomains(): readonly RuntimePortingDomain[] {
+  return RUNTIME_PORTING_DOMAINS.filter((domain) => domain.disposition === 'retain-electron')
+}
+
 export function getRuntimePortingFirstSliceMethod(): RuntimePortingFirstSliceMethod {
   return RUNTIME_PORTING_FIRST_SLICE_METHOD
 }

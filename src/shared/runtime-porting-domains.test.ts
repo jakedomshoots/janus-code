@@ -6,6 +6,7 @@ import {
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
   listNativeRuntimePortingCandidates,
+  listRetainedElectronRuntimeDomains,
   RUNTIME_PORTING_DOMAINS
 } from './runtime-porting-domains'
 
@@ -43,6 +44,14 @@ describe('runtime porting domains', () => {
       getRuntimePortingDomain('pty-lifecycle'),
       getRuntimePortingDomain('process-supervision'),
       getRuntimePortingDomain('filesystem-workspace-scanning')
+    ])
+  })
+
+  it('lists domains retained on the Electron side of the boundary', () => {
+    expect(listRetainedElectronRuntimeDomains()).toEqual([
+      getRuntimePortingDomain('browser-workbench'),
+      getRuntimePortingDomain('app-shell'),
+      getRuntimePortingDomain('provider-review-integrations')
     ])
   })
 
