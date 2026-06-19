@@ -156,6 +156,61 @@ describe('AgentTimeline', () => {
 
     expect(onReviewDiffs).toHaveBeenCalledTimes(1)
   })
+
+  it('keeps edited files attached to the agent message that mentioned those files', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'user',
+        text: 'Create the handoff doc.',
+        status: 'done',
+        createdAt: '2026-06-18T14:01:00.000Z'
+      },
+      {
+        id: 'entry-2',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'Created docs/handoff.md for the release.',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      },
+      {
+        id: 'entry-3',
+        threadId: thread.id,
+        kind: 'user',
+        text: 'Thanks. Confirm follow-up chat works.',
+        status: 'done',
+        createdAt: '2026-06-18T14:03:00.000Z'
+      },
+      {
+        id: 'entry-4',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'Follow-up chat works.',
+        status: 'done',
+        createdAt: '2026-06-18T14:04:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline
+          thread={thread}
+          timeline={timeline}
+          diffs={[diff({ id: 'diff-1', filePath: 'docs/handoff.md', additions: 12 })]}
+        />
+      )
+    })
+
+    const text = container.textContent ?? ''
+
+    expect(container.querySelectorAll('[data-agent-edited-files-card="true"]')).toHaveLength(1)
+    expect(text.indexOf('Edited 1 file')).toBeGreaterThan(text.indexOf('Created docs/handoff.md'))
+    expect(text.indexOf('Edited 1 file')).toBeLessThan(
+      text.indexOf('Thanks. Confirm follow-up chat works.')
+    )
+  })
 })
 
 function diff(overrides: Partial<AgentWorkspaceDiffSummary>): AgentWorkspaceDiffSummary {

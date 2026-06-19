@@ -49,6 +49,7 @@ export function AgentTimeline({
   terminalAvailable?: boolean
 }): React.JSX.Element {
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
+  const editedFilesOwnerId = getEditedFilesOwnerId(timeline, diffs)
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current
@@ -83,15 +84,21 @@ export function AgentTimeline({
               </div>
             ) : (
               <div className="flex flex-col gap-4 pb-2">
+                {timeline.length === 0 ? (
+                  <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
+                ) : null}
                 {timeline.map((entry) => (
-                  <AgentTimelineEntry
-                    key={entry.id}
-                    entry={entry}
-                    cwd={thread.cwd}
-                    onOpenMarkdownArtifact={onOpenMarkdownArtifact}
-                  />
+                  <div key={entry.id} className="contents">
+                    <AgentTimelineEntry
+                      entry={entry}
+                      cwd={thread.cwd}
+                      onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+                    />
+                    {entry.id === editedFilesOwnerId ? (
+                      <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
+                    ) : null}
+                  </div>
                 ))}
-                <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
               </div>
             )}
           </>
@@ -107,6 +114,61 @@ export function AgentTimeline({
       </div>
     </div>
   )
+}
+
+function getEditedFilesOwnerId(
+  timeline: readonly AgentWorkspaceTimelineEntry[],
+  diffs: readonly AgentWorkspaceDiffSummary[]
+): string | null {
+  if (diffs.length === 0) {
+    return null
+  }
+
+  const matchingAgent = findLastTimelineEntryIndex(
+    timeline,
+    (entry) => entry.kind === 'agent' && doesAgentTextMentionAnyDiff(entry.text, diffs)
+  )
+
+  if (matchingAgent !== -1) {
+    return timeline[matchingAgent]?.id ?? null
+  }
+
+  const latestAgent = findLastTimelineEntryIndex(timeline, (entry) => entry.kind === 'agent')
+  const latestUser = findLastTimelineEntryIndex(timeline, (entry) => entry.kind === 'user')
+
+  // Avoid re-attaching stale workspace diffs below no-op follow-up turns.
+  if (latestAgent === -1 || latestUser > latestAgent) {
+    return null
+  }
+
+  return timeline[latestAgent]?.id ?? null
+}
+
+function findLastTimelineEntryIndex(
+  timeline: readonly AgentWorkspaceTimelineEntry[],
+  predicate: (entry: AgentWorkspaceTimelineEntry) => boolean
+): number {
+  for (let index = timeline.length - 1; index >= 0; index -= 1) {
+    const entry = timeline[index]
+    if (entry && predicate(entry)) {
+      return index
+    }
+  }
+  return -1
+}
+
+function doesAgentTextMentionAnyDiff(
+  text: string,
+  diffs: readonly AgentWorkspaceDiffSummary[]
+): boolean {
+  const normalizedText = text.replaceAll('\\', '/')
+  return diffs.some((diff) => {
+    const filePath = diff.filePath.replaceAll('\\', '/')
+    const fileName = filePath.split('/').filter(Boolean).at(-1)
+    return (
+      normalizedText.includes(filePath) || (fileName ? normalizedText.includes(fileName) : false)
+    )
+  })
 }
 
 function WorkbenchEmptyState({
