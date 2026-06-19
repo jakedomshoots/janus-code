@@ -53,6 +53,7 @@ describe('runtime status porting contract', () => {
 
   it('exposes a single inspectable contract summary for sidecar adapters', () => {
     expect(getRuntimeStatusPortingContractSummary()).toEqual({
+      domainId: 'runtime-status-diagnostics',
       method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
       params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       requiredFields: listRuntimeStatusPortingRequiredFields()
