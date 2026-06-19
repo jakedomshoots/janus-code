@@ -1,10 +1,10 @@
-import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
-import { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
-import { getRuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
-
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export { getRuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
+export {
+  getRuntimeStatusPortingContractArtifact,
+  getRuntimeStatusPortingContractArtifactJson
+} from './runtime-status-contract-artifact'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
@@ -44,14 +44,3 @@ export {
   listRuntimeStatusPortingRequiredFields,
   validateRuntimeStatusPortingContract
 } from './runtime-status-contract-validation'
-
-export function getRuntimeStatusPortingContractArtifact(): RuntimeStatusPortingContractArtifact {
-  return {
-    summary: getRuntimeStatusPortingContractSummary(),
-    jsonSchema: getRuntimeStatusPortingJsonSchema()
-  }
-}
-
-export function getRuntimeStatusPortingContractArtifactJson(): string {
-  return JSON.stringify(getRuntimeStatusPortingContractArtifact())
-}

@@ -153,6 +153,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-contract-artifact'")
   })
 
+  it('keeps the bundled artifact builder in the dedicated artifact module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract-artifact.ts'), 'utf8')
+
+    expect(source).toContain('getRuntimeStatusPortingContractArtifact')
+  })
+
   it('keeps the validation result type in a dedicated diagnostics module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
