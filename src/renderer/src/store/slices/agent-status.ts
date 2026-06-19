@@ -4,6 +4,7 @@ import type { AppState } from '../types'
 import {
   AGENT_STATUS_STALE_AFTER_MS,
   AGENT_STATE_HISTORY_MAX,
+  type AgentStatusConversationTurn,
   type AgentStateHistoryEntry,
   type AgentStatusEntry,
   type AgentStatusFailure,
@@ -299,6 +300,32 @@ function mergeCurrentOrchestrationContext(
   return orchestrationContextsEqual(existing, merged) ? existing : merged
 }
 
+function appendCompletedConversationTurn(
+  conversation: readonly AgentStatusConversationTurn[] | undefined,
+  entry: AgentStatusEntry | undefined
+): AgentStatusConversationTurn[] {
+  const existingTurns = conversation ?? []
+  if (!entry || entry.state !== 'done' || !entry.prompt.trim() || !entry.lastAssistantMessage) {
+    return [...existingTurns]
+  }
+  const turnId = `${entry.paneKey}:turn:${entry.stateStartedAt}`
+  const turn: AgentStatusConversationTurn = {
+    id: turnId,
+    prompt: entry.prompt,
+    assistantMessage: entry.lastAssistantMessage,
+    startedAt: entry.stateStartedAt,
+    completedAt: entry.updatedAt,
+    ...(entry.interrupted ? { interrupted: true } : {})
+  }
+  const existingIndex = existingTurns.findIndex((candidate) => candidate.id === turnId)
+  if (existingIndex === -1) {
+    return [...existingTurns, turn]
+  }
+  const nextTurns = [...existingTurns]
+  nextTurns[existingIndex] = turn
+  return nextTurns
+}
+
 export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusSlice> = (
   set,
   get
@@ -515,6 +542,9 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           worktreeId: entryWorktreeId ?? null,
           occurredAt: updatedAt
         })
+        const conversation = promptChanged
+          ? appendCompletedConversationTurn(existing?.conversation, existing)
+          : (existing?.conversation ?? [])
         const entry: AgentStatusEntry = {
           state: payload.state,
           prompt: payload.prompt,
@@ -530,6 +560,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           toolName: payload.toolName,
           toolInput: payload.toolInput,
           lastAssistantMessage: payload.lastAssistantMessage,
+          conversation,
           toolEvent: payload.toolEvent ?? undefined,
           failure,
           plan,
@@ -583,6 +614,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.toolName !== existing.toolName ||
             entry.toolInput !== existing.toolInput ||
             entry.lastAssistantMessage !== existing.lastAssistantMessage ||
+            entry.conversation !== existing.conversation ||
             entry.toolEvent !== existing.toolEvent ||
             entry.failure !== existing.failure ||
             entry.plan !== existing.plan ||

@@ -106,7 +106,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
           )}
           {canSendToSelectedThread ? (
-            <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-none border border-border bg-background px-3 text-xs text-muted-foreground">
+            <div className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs text-muted-foreground">
               {translate('auto.components.agentWorkspace.composer.sendingTo', 'Sending to')}
               <span className="font-medium text-foreground">
                 {formatAgentTypeLabel(selectedThread?.agentKind)}
@@ -131,7 +131,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         <Button
           type="submit"
           size="icon"
-          className="size-9 shrink-0 rounded-none transition-transform active:scale-[0.96]"
+          className="size-9 shrink-0 rounded-full transition-transform active:scale-[0.96]"
           disabled={!canSubmit}
           aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
         >
@@ -180,7 +180,7 @@ function PermissionModeSelect({
         <Button
           type="button"
           variant="outline"
-          className="h-9 justify-start gap-2 rounded-none px-3 text-xs"
+          className="h-9 justify-start gap-2 rounded-lg px-3 text-xs"
           aria-label={translate(
             'auto.components.agentWorkspace.composer.permissionMode',
             'Permission mode'

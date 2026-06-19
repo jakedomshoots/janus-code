@@ -1,5 +1,6 @@
 import type { AppState } from '@/store'
 import type {
+  AgentStatusConversationTurn,
   AgentStatusEntry,
   AgentStatusToolEventStatus
 } from '../../../../shared/agent-status-types'
@@ -43,6 +44,29 @@ function toUserPromptTimelineEntry(
     createdAt: getIsoTimestamp(getPromptTimestamp(entry)),
     status: 'done'
   }
+}
+
+function appendConversationTurnTimelineEntries(
+  timeline: AgentWorkspaceTimelineEntry[],
+  thread: AgentWorkspaceThread,
+  turn: AgentStatusConversationTurn
+): void {
+  timeline.push({
+    id: `${turn.id}:user`,
+    threadId: thread.id,
+    kind: 'user',
+    text: turn.prompt,
+    createdAt: getIsoTimestamp(turn.startedAt),
+    status: 'done'
+  })
+  timeline.push({
+    id: `${turn.id}:agent`,
+    threadId: thread.id,
+    kind: 'agent',
+    text: turn.interrupted ? 'Agent interrupted' : turn.assistantMessage,
+    createdAt: getIsoTimestamp(turn.completedAt),
+    status: 'done'
+  })
 }
 
 function toToolTimelineEntry(
@@ -141,6 +165,9 @@ function appendTimelineEntries(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
 ): void {
+  for (const turn of entry.conversation ?? []) {
+    appendConversationTurnTimelineEntries(timeline, thread, turn)
+  }
   const userPromptEntry = toUserPromptTimelineEntry(thread, entry)
   if (userPromptEntry) {
     timeline.push(userPromptEntry)

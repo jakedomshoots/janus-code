@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Clock3, GitBranch, Globe, MessageSquareText, PanelBottom, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -21,9 +22,22 @@ export function AgentTimeline({
   browserAvailable?: boolean
   terminalAvailable?: boolean
 }): React.JSX.Element {
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current
+    if (!scrollArea || !thread) {
+      return
+    }
+    scrollArea.scrollTop = scrollArea.scrollHeight
+  }, [thread, timeline.length])
+
   return (
-    <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-8">
-      <div className="mx-auto flex w-full max-w-[980px] flex-col gap-5">
+    <div
+      ref={scrollAreaRef}
+      className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-6"
+    >
+      <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-5">
         {thread ? (
           <>
             <ThreadSummary thread={thread} />
@@ -35,7 +49,7 @@ export function AgentTimeline({
                 )}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-border bg-card/80 shadow-xs">
+              <div className="flex flex-col gap-4 pb-2">
                 {timeline.map((entry) => (
                   <AgentTimelineEntry key={entry.id} entry={entry} />
                 ))}

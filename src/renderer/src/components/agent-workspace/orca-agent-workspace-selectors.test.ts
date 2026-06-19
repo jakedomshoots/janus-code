@@ -524,6 +524,46 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('maps preserved conversation turns before the current model response', () => {
+    const chat = worktree('wt-chat', {
+      path: '/repo/janus-code/worktrees/chat',
+      branch: 'refs/heads/feature/chat'
+    })
+    const chatTab = tab('tab-agent', chat.id)
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(chat, {
+        activeWorktreeId: chat.id,
+        tabsByWorktree: { [chat.id]: [chatTab] },
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry(paneKey, {
+            state: 'done',
+            prompt: 'Second question',
+            updatedAt: Date.UTC(2026, 5, 15, 14, 55),
+            stateStartedAt: Date.UTC(2026, 5, 15, 14, 54),
+            lastAssistantMessage: 'Second answer',
+            conversation: [
+              {
+                id: `${paneKey}:turn:1781535000000`,
+                prompt: 'First question',
+                assistantMessage: 'First answer',
+                startedAt: Date.UTC(2026, 5, 15, 14, 50),
+                completedAt: Date.UTC(2026, 5, 15, 14, 51)
+              }
+            ]
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text])).toEqual([
+      ['user', 'First question'],
+      ['agent', 'First answer'],
+      ['user', 'Second question'],
+      ['agent', 'Second answer']
+    ])
+  })
+
   it('maps waiting and blocked statuses to user-action phases', () => {
     const action = worktree('wt-action', { path: '/repo/janus-code/worktrees/action' })
 

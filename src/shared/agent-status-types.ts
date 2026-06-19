@@ -86,6 +86,15 @@ export type AgentStatusPlan = {
   updatedAt?: number
 }
 
+export type AgentStatusConversationTurn = {
+  id: string
+  prompt: string
+  assistantMessage: string
+  startedAt: number
+  completedAt: number
+  interrupted?: boolean
+}
+
 export const AGENT_STATUS_TOOL_EVENT_STATUSES = ['running', 'completed', 'failed'] as const
 export type AgentStatusToolEventStatus = (typeof AGENT_STATUS_TOOL_EVENT_STATUSES)[number]
 
@@ -171,6 +180,8 @@ export type AgentStatusEntry = {
   toolInput?: string
   /** Most recent assistant message preview, when the hook carried one. */
   lastAssistantMessage?: string
+  /** Completed prompt/assistant turns for this pane before the current turn. */
+  conversation?: AgentStatusConversationTurn[]
   /** Latest provider-neutral structured tool lifecycle event for the active turn. */
   toolEvent?: AgentStatusToolEvent
   /** Provider-neutral failure detail for a failed turn or agent session. */

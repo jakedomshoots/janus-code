@@ -59,7 +59,7 @@ export function AgentComposerTextarea({
 
   return (
     <textarea
-      className="agent-composer-textarea block min-h-20 w-full resize-none bg-transparent px-5 pb-2.5 pt-4 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+      className="agent-composer-textarea block min-h-24 w-full resize-none bg-transparent px-5 pb-2.5 pt-4 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
       value={value}
       placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}
       disabled={disabled}

@@ -106,6 +106,49 @@ describe('agent status freshness expiry', () => {
   })
 })
 
+describe('agent status conversation turns', () => {
+  it('preserves completed model replies when the user starts the next turn', () => {
+    const store = createTestStore()
+
+    store.getState().setAgentStatus(
+      'tab-1:1',
+      {
+        state: 'done',
+        prompt: 'First question',
+        agentType: 'codex',
+        lastAssistantMessage: 'First answer'
+      },
+      undefined,
+      {
+        updatedAt: Date.UTC(2026, 5, 18, 12, 1),
+        stateStartedAt: Date.UTC(2026, 5, 18, 12, 0)
+      }
+    )
+
+    store
+      .getState()
+      .setAgentStatus(
+        'tab-1:1',
+        { state: 'working', prompt: 'Second question', agentType: 'codex' },
+        undefined,
+        {
+          updatedAt: Date.UTC(2026, 5, 18, 12, 2),
+          stateStartedAt: Date.UTC(2026, 5, 18, 12, 2)
+        }
+      )
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1']?.conversation).toEqual([
+      {
+        id: 'tab-1:1:turn:1781784000000',
+        prompt: 'First question',
+        assistantMessage: 'First answer',
+        startedAt: Date.UTC(2026, 5, 18, 12, 0),
+        completedAt: Date.UTC(2026, 5, 18, 12, 1)
+      }
+    ])
+  })
+})
+
 describe('agent status routing attribution', () => {
   afterEach(() => {
     vi.useRealTimers()

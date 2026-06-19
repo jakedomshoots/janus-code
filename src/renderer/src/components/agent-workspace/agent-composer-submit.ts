@@ -4,12 +4,14 @@ import {
   type ActiveAgentNotesSendStatus
 } from '@/lib/active-agent-note-send'
 import { translate } from '@/i18n/i18n'
+import { parsePaneKey } from '../../../../shared/stable-pane-id'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 
 export type AgentComposerSendFunction = (args: {
   worktreeId: string
   prompt: string
+  noteTarget?: { tabId: string; leafId: string } | null
 }) => Promise<ActiveAgentNotesSendResult>
 
 type AgentComposerSubmitContext = {
@@ -110,9 +112,11 @@ export async function submitAgentComposerMessage({
   }
 
   try {
+    const noteTarget = parsePaneKey(selectedThread.id)
     const result = await sendNotes({
       worktreeId: selectedThread.worktreeId,
-      prompt: trimmedPrompt
+      prompt: trimmedPrompt,
+      ...(noteTarget ? { noteTarget } : {})
     })
     if (result.status !== 'sent') {
       return {

@@ -78,9 +78,12 @@ export function AgentComposerForm({
   onSelectedModelChange: (modelId: string) => void
 }): React.JSX.Element {
   return (
-    <form className="bg-transparent px-6 pb-6 pt-3" onSubmit={(event) => void onSubmit(event)}>
+    <form
+      className="border-t border-border/70 bg-background/95 px-6 pb-5 pt-3 backdrop-blur"
+      onSubmit={(event) => void onSubmit(event)}
+    >
       <div className="mx-auto w-full max-w-[860px]">
-        <div className="agent-composer-shell rounded-none border border-border/80 bg-card/95 shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
+        <div className="agent-composer-shell rounded-2xl border border-border/80 bg-card shadow-xs transition-colors focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/10">
           <AgentComposerTextarea
             value={prompt}
             activeWorktreeId={activeWorktreeId}

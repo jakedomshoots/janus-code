@@ -159,6 +159,30 @@ describe('submitAgentComposerMessage', () => {
     })
   })
 
+  it('targets the selected thread pane instead of whichever terminal is active', async () => {
+    const sendNotes = vi.fn<AgentComposerSendFunction>().mockResolvedValue({ status: 'sent' })
+    const selectedThread = makeThread({
+      id: 'tab-selected:123e4567-e89b-12d3-a456-426614174000'
+    })
+
+    await submitAgentComposerMessage({
+      activeWorktreeId: 'worktree-1',
+      selectedThread,
+      prompt: 'Continue this chat.',
+      sendNotes
+    })
+
+    expect(sendNotes).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'Continue this chat.',
+      noteTarget: {
+        tabId: 'tab-selected',
+        leafId: '123e4567-e89b-12d3-a456-426614174000',
+        stablePaneId: '123e4567-e89b-12d3-a456-426614174000'
+      }
+    })
+  })
+
   it('localizes failure results from the send API', async () => {
     await setRendererUiLanguage('es')
     const sendNotes = vi.fn<AgentComposerSendFunction>().mockResolvedValue({ status: 'no-agent' })

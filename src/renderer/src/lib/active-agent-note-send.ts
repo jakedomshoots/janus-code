@@ -34,10 +34,12 @@ export type ActiveAgentNotesSendResult = {
 export async function sendNotesToActiveAgentSession({
   worktreeId,
   prompt,
+  noteTarget,
   timeoutMs = ACTIVE_AGENT_SEND_TIMEOUT_MS
 }: {
   worktreeId: string
   prompt: string
+  noteTarget?: { tabId: string; leafId: string } | null
   timeoutMs?: number
 }): Promise<ActiveAgentNotesSendResult> {
   const trimmedPrompt = prompt.trim()
@@ -46,8 +48,8 @@ export async function sendNotesToActiveAgentSession({
   }
 
   const state = useAppStore.getState()
-  const noteTarget = getActiveTerminalNoteTarget(state, worktreeId)
-  if (!noteTarget) {
+  const resolvedNoteTarget = noteTarget ?? getActiveTerminalNoteTarget(state, worktreeId)
+  if (!resolvedNoteTarget) {
     return { status: 'no-active-terminal' }
   }
 
@@ -59,7 +61,7 @@ export async function sendNotesToActiveAgentSession({
   const terminal = await findActiveRuntimeTerminal(
     runtimeTarget,
     worktreeId,
-    noteTarget,
+    resolvedNoteTarget,
     ACTIVE_AGENT_SEND_RPC_TIMEOUT_MS
   )
   if (!terminal) {
@@ -78,7 +80,7 @@ export async function sendNotesToActiveAgentSession({
     return { status: 'no-agent' }
   }
 
-  if (!hasFreshCompletedAgentStatus(state, noteTarget)) {
+  if (!hasFreshCompletedAgentStatus(state, resolvedNoteTarget)) {
     try {
       const { wait } = await callRuntimeRpc<{ wait: RuntimeTerminalWait }>(
         runtimeTarget,

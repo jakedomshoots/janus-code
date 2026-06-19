@@ -28,14 +28,14 @@ export function AgentTimelineEntry({
 
   return (
     <article
-      className="group flex min-w-0 border-b border-border/70 last:border-b-0"
+      className={cn('group flex min-w-0', isUser ? 'justify-end' : 'justify-start')}
       data-agent-timeline-entry-kind={entry.kind}
       data-agent-timeline-entry-status={entry.status}
     >
       <div
         className={cn(
-          'flex min-w-0 flex-1 gap-3 px-4 py-3',
-          isUser ? 'bg-accent/35' : 'bg-card/80',
+          'flex min-w-0 max-w-[82%] gap-3 rounded-2xl border border-border/80 px-4 py-3 shadow-xs',
+          isUser ? 'bg-primary text-primary-foreground' : 'bg-card text-card-foreground',
           entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
             ? 'bg-muted/40'
             : null,
@@ -44,19 +44,17 @@ export function AgentTimelineEntry({
       >
         <span
           className={cn(
-            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground',
+            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border',
+            isUser
+              ? 'border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground'
+              : 'border-border bg-background text-muted-foreground',
             entry.kind === 'error' ? 'text-destructive' : null
           )}
           aria-hidden="true"
         >
           <Icon className="size-3.5" />
         </span>
-        <div
-          className={cn(
-            'min-w-0 flex-1 text-card-foreground',
-            entry.kind === 'error' ? 'text-destructive' : null
-          )}
-        >
+        <div className={cn('min-w-0 flex-1', entry.kind === 'error' ? 'text-destructive' : null)}>
           <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">
             <Badge
               variant={entry.kind === 'error' ? 'destructive' : 'outline'}
@@ -65,16 +63,33 @@ export function AgentTimelineEntry({
               {formatAgentWorkspaceTimelineKind(entry.kind)}
             </Badge>
             {statusLabel ? (
-              <span className="text-[11px] text-muted-foreground">{statusLabel}</span>
+              <span
+                className={cn(
+                  'text-[11px]',
+                  isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                )}
+              >
+                {statusLabel}
+              </span>
             ) : null}
             {timestamp ? (
-              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground tabular-nums">
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1 text-[11px] tabular-nums',
+                  isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                )}
+              >
                 <Clock3 className="size-3" aria-hidden="true" />
                 <time dateTime={entry.createdAt ?? undefined}>{timestamp}</time>
               </span>
             ) : null}
           </div>
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
+          <p
+            className={cn(
+              'whitespace-pre-wrap break-words text-sm leading-relaxed',
+              isUser ? 'text-primary-foreground' : 'text-foreground'
+            )}
+          >
             {entry.text}
           </p>
         </div>
