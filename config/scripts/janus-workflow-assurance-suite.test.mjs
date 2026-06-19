@@ -65,6 +65,12 @@ describe('Janus workflow assurance suite', () => {
         'src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts',
         'src/renderer/src/components/sidebar/useAddRepoCloneFlow.test.ts',
         'src/renderer/src/components/sidebar/SidebarHeader.test.tsx',
+        'src/renderer/src/components/sidebar/SidebarToolbar.test.tsx',
+        'src/renderer/src/components/sidebar/WorktreeCard.quick-actions.test.tsx',
+        'src/renderer/src/components/sidebar/WorktreeOpenInMenu.test.tsx',
+        'src/renderer/src/components/sidebar/DeleteWorktreeDialog.host-context-boundary.test.ts',
+        'src/renderer/src/components/sidebar/WorktreeCardAgents.send-target.test.tsx',
+        'src/renderer/src/components/sidebar/WorktreeTitleInlineRename.test.tsx',
         'src/renderer/src/components/settings/SettingsSidebar.test.tsx'
       ])
     )
