@@ -133,6 +133,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-constraints'")
   })
 
+  it('keeps runtime status enum values in a dedicated enum module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-enum-values'")
+  })
+
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })

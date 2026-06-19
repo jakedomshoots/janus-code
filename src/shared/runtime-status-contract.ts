@@ -11,6 +11,11 @@ import type {
 } from './runtime-status-constraints'
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
+import {
+  VALID_RUNTIME_GRAPH_STATUSES,
+  VALID_RUNTIME_HOST_PLATFORMS,
+  VALID_RUNTIME_HOST_PLATFORM_VALUES
+} from './runtime-status-enum-values'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
@@ -45,10 +50,6 @@ const NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS = [
   'liveTabCount',
   'liveLeafCount'
 ] as const satisfies readonly RuntimeStatusPortingField[]
-
-const VALID_RUNTIME_GRAPH_STATUSES = ['ready', 'reloading', 'unavailable'] as const
-const VALID_RUNTIME_HOST_PLATFORMS = ['darwin', 'linux', 'win32'] as const
-const VALID_RUNTIME_HOST_PLATFORM_VALUES: readonly string[] = VALID_RUNTIME_HOST_PLATFORMS
 
 const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   ...VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
