@@ -25,7 +25,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, file explorer, quick-open/search, Cmd+J palette, editor tab/content, notes-send, agent review/diff, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone flows, sidebar/worktree quick actions, Settings/provider/SSH host flows, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, file explorer, quick-open/search, Cmd+J palette, editor tab/content, notes-send, agent review/diff, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone/server-path flows, sidebar navigation/worktree quick actions, Settings/provider/SSH host flows, workspace board, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
@@ -144,16 +144,16 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 
 | Control              | Expected behavior                                              | Status           |
 | -------------------- | -------------------------------------------------------------- | ---------------- |
-| New Agent            | starts projectless planning agent                              | Source-reviewed  |
-| Automations          | opens automations page and supports hide from context menu     | Source-reviewed  |
-| Agents               | opens activity page with unread badge                          | Source-reviewed  |
-| Janus Code Mobile    | opens mobile page and dismisses onboarding badge               | Source-reviewed  |
+| New Agent            | starts projectless planning agent                              | Verified by test |
+| Automations          | opens automations page and supports hide from context menu     | Verified by test |
+| Agents               | opens activity page with unread badge                          | Verified by test |
+| Janus Code Mobile    | opens mobile page and dismisses onboarding badge               | Verified by test |
 | Search               | opens worktree/browser palette with platform shortcut label    | Source-reviewed  |
-| Workspace board      | toggles board with moved-location hint                         | Source-reviewed  |
+| Workspace board      | toggles board, records interaction, and respects nested menus  | Verified by test |
 | Workspace options    | sort/group/layout/filter controls write store state            | Source-reviewed  |
 | Add local project    | blocks local folder picker when a remote runtime is selected   | Verified by test |
 | Add clone project    | clones through selected SSH/runtime host context               | Verified by test |
-| Add remote project   | host path flow is separate from local picker                   | Source-reviewed  |
+| Add remote project   | host path flow is separate from local picker                   | Verified by test |
 | Header Add Project   | opens the Add Project modal                                    | Verified by test |
 | Header New workspace | disabled until a project exists; otherwise opens creation flow | Verified by test |
 | Worktree quick actions | destructive delete stays gated behind Option/Alt and activity state | Verified by test |
