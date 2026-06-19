@@ -5,6 +5,7 @@ import {
   bulkStageRuntimeGitPaths,
   cancelRuntimeGenerateCommitMessage,
   commitRuntimeGit,
+  discoverRuntimeAgentSlashCommands,
   discoverRuntimeCommitMessageModels,
   fastForwardRuntimeGit,
   fetchRuntimeGit,
@@ -35,6 +36,7 @@ const gitPush = vi.fn()
 const gitRebaseFromBase = vi.fn()
 const gitGenerateCommitMessage = vi.fn()
 const gitDiscoverCommitMessageModels = vi.fn()
+const gitDiscoverAgentSlashCommands = vi.fn()
 const gitCancelGenerateCommitMessage = vi.fn()
 const runtimeEnvironmentCall = vi.fn()
 const runtimeEnvironmentTransportCall = vi.fn()
@@ -55,6 +57,7 @@ beforeEach(() => {
   gitRebaseFromBase.mockReset()
   gitGenerateCommitMessage.mockReset()
   gitDiscoverCommitMessageModels.mockReset()
+  gitDiscoverAgentSlashCommands.mockReset()
   gitCancelGenerateCommitMessage.mockReset()
   runtimeEnvironmentCall.mockReset()
   runtimeEnvironmentTransportCall.mockReset()
@@ -78,6 +81,7 @@ beforeEach(() => {
         rebaseFromBase: gitRebaseFromBase,
         generateCommitMessage: gitGenerateCommitMessage,
         discoverCommitMessageModels: gitDiscoverCommitMessageModels,
+        discoverAgentSlashCommands: gitDiscoverAgentSlashCommands,
         cancelGenerateCommitMessage: gitCancelGenerateCommitMessage
       },
       runtime: { call: runtimeCall },
@@ -496,5 +500,42 @@ describe('runtime git client', () => {
       timeoutMs: 75_000
     })
     expect(gitDiscoverCommitMessageModels).not.toHaveBeenCalled()
+  })
+
+  it('discovers agent slash commands through the active runtime', async () => {
+    runtimeEnvironmentCall.mockResolvedValue({
+      id: 'rpc-1',
+      ok: true,
+      result: {
+        success: true,
+        agentId: 'codex',
+        commands: [
+          {
+            command: '/commands',
+            title: 'Commands',
+            description: 'Refresh',
+            source: 'catalog'
+          }
+        ]
+      },
+      _meta: { runtimeId: 'remote-runtime' }
+    })
+
+    await discoverRuntimeAgentSlashCommands(
+      {
+        settings: { activeRuntimeEnvironmentId: 'env-1' },
+        worktreeId: 'wt-1',
+        worktreePath: '/repo'
+      },
+      'codex'
+    )
+
+    expect(runtimeEnvironmentCall).toHaveBeenCalledWith({
+      selector: 'env-1',
+      method: 'git.discoverAgentSlashCommands',
+      params: { worktree: 'id:wt-1', agentId: 'codex' },
+      timeoutMs: 15_000
+    })
+    expect(gitDiscoverAgentSlashCommands).not.toHaveBeenCalled()
   })
 })

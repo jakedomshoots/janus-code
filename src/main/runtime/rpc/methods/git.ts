@@ -10,6 +10,7 @@ import {
   GitCommit,
   GitCommitCompare,
   GitCommitDiff,
+  GitDiscoverAgentSlashCommands,
   GitDiscoverCommitMessageModels,
   GitDiff,
   GitFilePath,
@@ -243,6 +244,12 @@ export const GIT_METHODS: RpcMethod[] = [
             }
           : {}
       )
+  }),
+  defineMethod({
+    name: 'git.discoverAgentSlashCommands',
+    params: GitDiscoverAgentSlashCommands,
+    handler: async (params, { runtime }) =>
+      runtime.discoverRuntimeAgentSlashCommands(params.agentId)
   }),
   defineMethod({
     name: 'git.cancelGenerateCommitMessage',

@@ -3597,6 +3597,8 @@ export class OrcaRuntimeService {
     this.gitCommands.generateRuntimeCommitMessage.bind(this.gitCommands)
   discoverRuntimeCommitMessageModels: RuntimeGitCommands['discoverRuntimeCommitMessageModels'] =
     this.gitCommands.discoverRuntimeCommitMessageModels.bind(this.gitCommands)
+  discoverRuntimeAgentSlashCommands: RuntimeGitCommands['discoverRuntimeAgentSlashCommands'] =
+    this.gitCommands.discoverRuntimeAgentSlashCommands.bind(this.gitCommands)
   cancelRuntimeGenerateCommitMessage: RuntimeGitCommands['cancelRuntimeGenerateCommitMessage'] =
     this.gitCommands.cancelRuntimeGenerateCommitMessage.bind(this.gitCommands)
   generateRuntimePullRequestFields: RuntimeGitCommands['generateRuntimePullRequestFields'] =

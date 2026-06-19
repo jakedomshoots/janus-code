@@ -255,6 +255,7 @@ import type {
   CommitMessageAgentCapability,
   CommitMessageModelCapability
 } from '../shared/commit-message-agent-spec'
+import type { DiscoverTuiAgentSlashCommandsResult } from '../shared/tui-agent-slash-commands'
 import type { ResolvedSourceControlAiGenerationParams } from '../shared/source-control-ai'
 import type { SourceControlAiSettings } from '../shared/source-control-ai-types'
 import type { ShellOpenLocalPathResult } from '../shared/shell-open-types'
@@ -2190,6 +2191,11 @@ export type PreloadApi = {
         }
       | { success: false; error: string }
     >
+    discoverAgentSlashCommands: (args: {
+      agentId: string
+      worktreePath?: string
+      connectionId?: string
+    }) => Promise<DiscoverTuiAgentSlashCommandsResult>
     cancelGenerateCommitMessage: (args: {
       worktreePath: string
       connectionId?: string

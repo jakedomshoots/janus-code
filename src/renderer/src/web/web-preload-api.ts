@@ -1500,6 +1500,19 @@ function createGitApi(): NonNullable<Partial<PreloadApi>['git']> {
         ...(settings.agentCmdOverrides ? { agentCmdOverrides: settings.agentCmdOverrides } : {})
       })
     },
+    discoverAgentSlashCommands: async ({ agentId, worktreePath }) => {
+      if (!worktreePath) {
+        return callRuntimeResult('git.discoverAgentSlashCommands', {
+          worktree: 'active',
+          agentId
+        })
+      }
+      const worktree = await resolveRuntimeWorktreeByPath(worktreePath)
+      return callRuntimeResult('git.discoverAgentSlashCommands', {
+        worktree: toRuntimeWorktreeSelector(worktree.id),
+        agentId
+      })
+    },
     cancelGenerateCommitMessage: () => Promise.resolve(),
     generatePullRequestFields: async () => ({
       success: false,

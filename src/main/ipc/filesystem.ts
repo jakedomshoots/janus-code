@@ -74,6 +74,10 @@ import {
 } from '../git/huge-folder-ignore'
 import { assertGitPushTargetShape } from '../../shared/git-push-target-validation'
 import { getCommitMessageModelDiscoveryHostKey } from '../../shared/commit-message-host-key'
+import {
+  discoverTuiAgentSlashCommands,
+  type DiscoverTuiAgentSlashCommandsResult
+} from '../../shared/tui-agent-slash-commands'
 import type { ResolvedSourceControlAiGenerationParams } from '../../shared/source-control-ai'
 import { validateGitPushTarget } from '../git/push-target-validation'
 import { getRemoteFileUrl } from '../git/repo'
@@ -1113,6 +1117,14 @@ export function registerFilesystemHandlers(
         agentCommandOverride
       )
     }
+  )
+
+  ipcMain.handle(
+    'git:discoverAgentSlashCommands',
+    async (
+      _event,
+      args: { agentId: string; worktreePath?: string; connectionId?: string }
+    ): Promise<DiscoverTuiAgentSlashCommandsResult> => discoverTuiAgentSlashCommands(args.agentId)
   )
 
   ipcMain.handle(

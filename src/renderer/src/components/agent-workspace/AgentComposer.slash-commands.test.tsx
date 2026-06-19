@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   useDetectedAgents: vi.fn(),
   updateSettings: vi.fn(),
   discoverCommitMessageModels: vi.fn(),
+  discoverAgentSlashCommands: vi.fn(),
   createBrowserTab: vi.fn(),
   focusBrowserTabInWorktree: vi.fn(),
   browserState: {
@@ -115,6 +116,7 @@ describe('AgentComposer slash commands', () => {
     mocks.useDetectedAgents.mockReset()
     mocks.updateSettings.mockReset()
     mocks.discoverCommitMessageModels.mockReset()
+    mocks.discoverAgentSlashCommands.mockReset()
     mocks.createBrowserTab.mockReset()
     mocks.focusBrowserTabInWorktree.mockReset()
     mocks.browserState.browserTabsByWorktree = {}
@@ -122,7 +124,8 @@ describe('AgentComposer slash commands', () => {
     mocks.browserState.activeBrowserTabIdByWorktree = {}
     window.api = {
       git: {
-        discoverCommitMessageModels: mocks.discoverCommitMessageModels
+        discoverCommitMessageModels: mocks.discoverCommitMessageModels,
+        discoverAgentSlashCommands: mocks.discoverAgentSlashCommands
       }
     } as never
     mocks.useDetectedAgents.mockReturnValue({
@@ -134,6 +137,10 @@ describe('AgentComposer slash commands', () => {
     mocks.discoverCommitMessageModels.mockResolvedValue({
       success: false,
       error: 'Discovery not configured for this test.'
+    })
+    mocks.discoverAgentSlashCommands.mockResolvedValue({
+      success: false,
+      error: 'Slash command discovery not configured for this test.'
     })
   })
 
@@ -218,5 +225,39 @@ describe('AgentComposer slash commands', () => {
     })
 
     expect(textarea?.value).toBe('/commands')
+  })
+
+  it('offers slash commands returned by the runtime catalog API', async () => {
+    mocks.discoverAgentSlashCommands.mockResolvedValue({
+      success: true,
+      agentId: 'codex',
+      commands: [
+        {
+          command: '/runtime-only',
+          title: 'Runtime only',
+          description: 'Discovered from the runtime catalog.',
+          source: 'catalog'
+        }
+      ]
+    })
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/runtime')
+    })
+
+    const runtimeOption = container.querySelector<HTMLElement>(
+      '[role="option"][data-command="/runtime-only"]'
+    )
+    expect(runtimeOption?.textContent).toContain('/runtime-only')
   })
 })

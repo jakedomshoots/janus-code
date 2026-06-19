@@ -2584,6 +2584,11 @@ const api = {
       worktreePath?: string
       connectionId?: string
     }): Promise<unknown> => ipcRenderer.invoke('git:discoverCommitMessageModels', args),
+    discoverAgentSlashCommands: (args: {
+      agentId: string
+      worktreePath?: string
+      connectionId?: string
+    }): Promise<unknown> => ipcRenderer.invoke('git:discoverAgentSlashCommands', args),
     cancelGenerateCommitMessage: (args: {
       worktreePath: string
       connectionId?: string

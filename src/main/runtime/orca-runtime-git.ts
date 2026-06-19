@@ -15,6 +15,10 @@ import type {
 } from '../../shared/types'
 import type { CommitMessageDraftContext } from '../../shared/commit-message-generation'
 import { getCommitMessageModelDiscoveryHostKey } from '../../shared/commit-message-host-key'
+import {
+  discoverTuiAgentSlashCommands,
+  type DiscoverTuiAgentSlashCommandsResult
+} from '../../shared/tui-agent-slash-commands'
 import type { GitHistoryOptions, GitHistoryResult } from '../../shared/git-history'
 import {
   mergeLegacyCommitMessageAiIntoSourceControlAi,
@@ -657,6 +661,12 @@ export class RuntimeGitCommands {
       return { success: false, error: localEnv.error }
     }
     return discoverCommitMessageModelsLocal(typedAgentId, localEnv.env, agentCommandOverride)
+  }
+
+  async discoverRuntimeAgentSlashCommands(
+    agentId: string
+  ): Promise<DiscoverTuiAgentSlashCommandsResult> {
+    return discoverTuiAgentSlashCommands(agentId)
   }
 
   async stageRuntimeGitPath(worktreeSelector: string, filePath: string): Promise<{ ok: true }> {

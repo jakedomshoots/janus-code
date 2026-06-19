@@ -13,6 +13,7 @@ import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
 import { learnAgentComposerSlashCommandsFromTimeline } from './agent-composer-learned-slash-commands'
+import { useAgentComposerSlashCommandDiscovery } from './agent-composer-slash-command-discovery'
 import {
   completeAgentComposerSlashCommand,
   getAgentComposerSlashCommandMatches
@@ -105,9 +106,14 @@ export function AgentComposerForm({
     () => learnAgentComposerSlashCommandsFromTimeline(timeline),
     [timeline]
   )
+  const discoveredSlashCommands = useAgentComposerSlashCommandDiscovery(activeAgent)
+  const availableSlashCommands = useMemo(
+    () => [...discoveredSlashCommands.commands, ...learnedSlashCommands],
+    [discoveredSlashCommands.commands, learnedSlashCommands]
+  )
   const slashCommands = useMemo(
-    () => getAgentComposerSlashCommandMatches(prompt, activeAgent, learnedSlashCommands),
-    [activeAgent, learnedSlashCommands, prompt]
+    () => getAgentComposerSlashCommandMatches(prompt, activeAgent, availableSlashCommands),
+    [activeAgent, availableSlashCommands, prompt]
   )
   const slashMenuOpen = slashCommands.length > 0
 

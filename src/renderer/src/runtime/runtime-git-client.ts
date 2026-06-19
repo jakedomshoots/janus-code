@@ -15,6 +15,7 @@ import type {
   CommitMessageAgentCapability,
   CommitMessageModelCapability
 } from '../../../shared/commit-message-agent-spec'
+import type { DiscoverTuiAgentSlashCommandsResult } from '../../../shared/tui-agent-slash-commands'
 import type { ResolvedSourceControlAiGenerationParams } from '../../../shared/source-control-ai'
 import { getCommitMessageModelDiscoveryHostKeyForScope } from '../../../shared/commit-message-host-key'
 import type { GitHistoryOptions, GitHistoryResult } from '../../../shared/git-history'
@@ -559,6 +560,29 @@ export async function discoverRuntimeCommitMessageModels(
         : {})
     },
     { timeoutMs: 75_000 }
+  )
+}
+
+export async function discoverRuntimeAgentSlashCommands(
+  context: RuntimeGitContext,
+  agentId: string
+): Promise<DiscoverTuiAgentSlashCommandsResult> {
+  const target = getActiveRuntimeTarget(context.settings)
+  if (target.kind === 'local' || !context.worktreeId) {
+    return window.api.git.discoverAgentSlashCommands({
+      agentId,
+      worktreePath: context.worktreePath,
+      connectionId: context.connectionId
+    })
+  }
+  return callRuntimeRpc<DiscoverTuiAgentSlashCommandsResult>(
+    target,
+    'git.discoverAgentSlashCommands',
+    {
+      worktree: toRuntimeWorktreeSelector(context.worktreeId),
+      agentId
+    },
+    { timeoutMs: 15_000 }
   )
 }
 
