@@ -262,6 +262,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       type: 'integer'
       minimum: number
     }
+    authoritativeWindowId: {
+      type: ['integer', 'null']
+      minimum: number
+    }
   }
 } {
   return {
@@ -302,6 +306,10 @@ export function getRuntimeStatusPortingJsonSchema(): {
       liveLeafCount: {
         type: 'integer',
         minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.liveLeafCount.minimum
+      },
+      authoritativeWindowId: {
+        type: ['integer', 'null'],
+        minimum: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS.authoritativeWindowId.minimum
       }
     }
   }

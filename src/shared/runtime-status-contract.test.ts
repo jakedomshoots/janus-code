@@ -148,6 +148,10 @@ describe('runtime status porting contract', () => {
         liveLeafCount: {
           type: 'integer',
           minimum: 0
+        },
+        authoritativeWindowId: {
+          type: ['integer', 'null'],
+          minimum: 0
         }
       }
     })
@@ -235,6 +239,17 @@ describe('runtime status porting contract', () => {
       properties: {
         liveLeafCount: {
           type: 'integer',
+          minimum: 0
+        }
+      }
+    })
+  })
+
+  it('describes the authoritative window id JSON schema for non-TypeScript sidecar adapters', () => {
+    expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
+      properties: {
+        authoritativeWindowId: {
+          type: ['integer', 'null'],
           minimum: 0
         }
       }
