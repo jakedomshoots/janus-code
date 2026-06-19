@@ -179,6 +179,19 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid authoritative window id without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          authoritativeWindowId: -1
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['authoritativeWindowId']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))

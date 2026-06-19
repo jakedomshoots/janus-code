@@ -97,6 +97,15 @@ export function listInvalidRuntimeStatusPortingFields(
     invalidFields.push('runtimeId')
   }
 
+  if (
+    status.authoritativeWindowId !== null &&
+    (typeof status.authoritativeWindowId !== 'number' ||
+      !Number.isInteger(status.authoritativeWindowId) ||
+      status.authoritativeWindowId < 0)
+  ) {
+    invalidFields.push('authoritativeWindowId')
+  }
+
   return invalidFields
 }
 
