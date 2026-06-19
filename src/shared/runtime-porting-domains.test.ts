@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   getRuntimePortingDomain,
@@ -37,5 +39,15 @@ describe('runtime porting domains', () => {
 
   it('maps the first runtime slice to the existing status RPC method', () => {
     expect(getRuntimePortingFirstSliceMethod()).toBe('status.get')
+  })
+
+  it('keeps the assessment document aligned with the first runtime slice', () => {
+    const assessment = readFileSync(
+      resolve(__dirname, '../../docs/reference/janus-runtime-porting-assessment.md'),
+      'utf8'
+    )
+
+    expect(assessment).toContain('runtime-status-diagnostics')
+    expect(assessment).toContain(getRuntimePortingFirstSliceMethod())
   })
 })

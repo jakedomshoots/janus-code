@@ -60,6 +60,9 @@ The first code slice should not introduce Rust yet. It should define a typed
 host/runtime classification for the preload API domains and add tests that prove
 the existing Electron and web runtime adapters agree on one low-risk domain.
 
+Machine-readable contract: domain `runtime-status-diagnostics` maps to runtime
+RPC method `status.get`.
+
 Recommended first domain: runtime status and diagnostics. It has clear request
 and response shapes, does not require browser parity, and gives future native
 sidecars a small compatibility target before touching PTY behavior.
