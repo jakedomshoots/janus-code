@@ -4,10 +4,10 @@ import {
   type RuntimePortingDomainId,
   type RuntimePortingFirstSliceMethod
 } from './runtime-porting-domains'
-import type {
-  RuntimeStatusPortingArrayConstraint,
-  RuntimeStatusPortingNumericConstraint,
-  RuntimeStatusPortingStringConstraint
+import {
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
 } from './runtime-status-constraints'
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
@@ -32,27 +32,6 @@ export const RUNTIME_STATUS_PORTING_CONTRACT_METHOD: RuntimePortingFirstSliceMet
   RUNTIME_PORTING_FIRST_SLICE_METHOD
 export const RUNTIME_STATUS_PORTING_CONTRACT_PARAMS = null
 export const RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION = 1
-
-const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
-  runtimeProtocolVersion: { integer: true, minimum: 1 },
-  minCompatibleRuntimeClientVersion: { integer: true, minimum: 1 },
-  rendererGraphEpoch: { integer: true, minimum: 0 },
-  liveTabCount: { integer: true, minimum: 0 },
-  liveLeafCount: { integer: true, minimum: 0 },
-  authoritativeWindowId: { integer: true, minimum: 0, nullable: true }
-} as const satisfies Partial<
-  Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
->
-
-const RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS = {
-  runtimeId: { minLength: 1, trim: true }
-} as const satisfies Partial<
-  Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
->
-
-const RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS = {
-  capabilities: { itemType: 'string' }
-} as const satisfies Partial<Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>>
 
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'

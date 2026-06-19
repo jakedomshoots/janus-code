@@ -133,6 +133,19 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-constraints'")
   })
 
+  it('keeps runtime status constraint values in the dedicated constraints module', () => {
+    const contractSource = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+    const constraintsSource = readFileSync(
+      resolve(__dirname, './runtime-status-constraints.ts'),
+      'utf8'
+    )
+
+    expect(contractSource).not.toContain('const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS')
+    expect(constraintsSource).toContain('RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS')
+    expect(constraintsSource).toContain('RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS')
+    expect(constraintsSource).toContain('RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS')
+  })
+
   it('keeps runtime status enum values in a dedicated enum module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
