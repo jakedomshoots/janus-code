@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
+import { translate } from '@/i18n/i18n'
 import { AgentComposerFooter } from './AgentComposerFooter'
 import { AgentComposerSlashCommandMenu } from './AgentComposerSlashCommandMenu'
 import { AgentComposerTextarea } from './AgentComposerTextarea'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
+import { isTuiAgent } from '../../../../shared/tui-agent-config'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
@@ -84,7 +86,15 @@ export function AgentComposerForm({
   onSelectedModelChange: (modelId: string) => void
 }): React.JSX.Element {
   const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0)
-  const slashCommands = useMemo(() => getAgentComposerSlashCommandMatches(prompt), [prompt])
+  const activeAgent = selectedThread
+    ? isTuiAgent(selectedThread.agentKind)
+      ? selectedThread.agentKind
+      : null
+    : selectedAgent
+  const slashCommands = useMemo(
+    () => getAgentComposerSlashCommandMatches(prompt, activeAgent),
+    [activeAgent, prompt]
+  )
   const slashMenuOpen = slashCommands.length > 0
 
   const handleSlashCommandSelect = useCallback(
@@ -132,7 +142,11 @@ export function AgentComposerForm({
 
   return (
     <form
-      className="border-t border-border/70 bg-background/95 px-6 pb-5 pt-3 backdrop-blur"
+      className="agent-workspace-composer border-t border-border/70 bg-background/95 px-6 pb-5 pt-3 backdrop-blur"
+      aria-label={translate(
+        'auto.components.agentWorkspace.composer.agentChatComposer',
+        'Agent chat composer'
+      )}
       onSubmit={(event) => void onSubmit(event)}
     >
       <div className="mx-auto w-full max-w-[860px]">

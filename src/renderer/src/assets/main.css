@@ -721,6 +721,125 @@
     inset -2px -2px 0 var(--win-border-dark) !important;
 }
 
+.theme-retro95 .agent-workspace-pane {
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 10%) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(0 0 0 / 8%) 1px, transparent 1px), var(--win-bg) !important;
+  background-size: 12px 12px;
+}
+
+.theme-retro95 .agent-workspace-chat-surface {
+  background: transparent !important;
+}
+
+.theme-retro95 .agent-workspace-timeline {
+  padding: 22px 22px 18px !important;
+}
+
+.theme-retro95 .agent-workspace-timeline-inner {
+  max-width: 920px;
+  gap: 14px !important;
+}
+
+.theme-retro95 .agent-workspace-timeline-inner > .rounded-xl,
+.theme-retro95 .agent-workspace-right-panel-shell,
+.theme-retro95 .agent-composer-shell {
+  outline: 1px solid var(--win-border-black);
+  outline-offset: 0;
+}
+
+.theme-retro95 .agent-workspace-timeline-inner > .rounded-xl {
+  border: 0 !important;
+  background:
+    linear-gradient(var(--win-titlebar), var(--win-titlebar)) 0 0 / 100% 22px no-repeat,
+    var(--win-surface) !important;
+  padding-top: 30px !important;
+  position: relative;
+}
+
+.theme-retro95 .agent-workspace-timeline-inner > .rounded-xl::before,
+.theme-retro95 .agent-workspace-right-panel-shell::before,
+.theme-retro95 .agent-composer-shell::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: var(--win-surface);
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset -1px -1px 0 var(--win-border-black);
+}
+
+.theme-retro95 .agent-workspace-right-panel-shell,
+.theme-retro95 .agent-composer-shell {
+  position: relative;
+  padding-top: 28px !important;
+  background:
+    linear-gradient(var(--win-titlebar), var(--win-titlebar)) 0 0 / 100% 22px no-repeat,
+    var(--win-surface) !important;
+}
+
+.theme-retro95 .agent-workspace-right-panel-shell {
+  margin-top: 22px !important;
+  padding-inline: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+.theme-retro95 .agent-workspace-composer {
+  background: transparent !important;
+  border-top: 0 !important;
+  padding: 8px 22px 18px !important;
+}
+
+.theme-retro95 [data-agent-timeline-entry-kind] {
+  background: transparent !important;
+}
+
+.theme-retro95 [data-agent-timeline-entry-kind] > div {
+  max-width: min(78%, 680px);
+  border: 0 !important;
+  background: var(--win-surface) !important;
+  color: var(--win-text) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset 2px 2px 0 var(--win-surface-light),
+    inset -1px -1px 0 var(--win-border-black),
+    inset -2px -2px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 [data-agent-timeline-entry-kind='user'] > div {
+  background: linear-gradient(
+    90deg,
+    var(--win-titlebar) 0 4px,
+    var(--win-surface-light) 4px 100%
+  ) !important;
+}
+
+.theme-retro95 [data-agent-timeline-entry-kind='agent'] > div {
+  background: linear-gradient(
+    90deg,
+    var(--win-highlight) 0 4px,
+    var(--win-surface) 4px 100%
+  ) !important;
+}
+
+.theme-retro95 [data-agent-timeline-entry-status='running'] > div,
+.theme-retro95 [data-agent-timeline-entry-status='pending'] > div {
+  outline: 1px dotted var(--win-border-black);
+  outline-offset: -5px;
+}
+
+.theme-retro95 [data-agent-command-label] {
+  border: 0 !important;
+  background: var(--win-input-bg) !important;
+  color: var(--win-text-muted) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-black),
+    inset -1px -1px 0 var(--win-border-light) !important;
+}
+
 .theme-retro95 .agent-composer-shell:focus-within {
   box-shadow:
     inset 1px 1px 0 var(--win-border-light),

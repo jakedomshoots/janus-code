@@ -27,12 +27,17 @@ export function AgentTimelineEntry({
   const statusLabel = entry.status ? formatAgentWorkspaceTimelineStatus(entry.status) : null
   const timestamp = formatAgentTimelineTimestamp(entry.createdAt)
   const roleLabel = getTimelineEntryRoleLabel(entry.kind)
+  const slashCommand = getTimelineSlashCommand(entry)
+  const isLive = entry.status === 'pending' || entry.status === 'running'
+  const entryLabel = [roleLabel, statusLabel, slashCommand].filter(Boolean).join(', ')
 
   return (
     <article
       className={cn('group flex min-w-0', isUser ? 'justify-end' : 'justify-start')}
       data-agent-timeline-entry-kind={entry.kind}
       data-agent-timeline-entry-status={entry.status}
+      aria-label={entryLabel}
+      aria-busy={isLive ? 'true' : undefined}
     >
       <div
         className={cn(
@@ -71,6 +76,15 @@ export function AgentTimelineEntry({
               <span className="inline-flex items-center gap-1 text-[11px] tabular-nums text-muted-foreground">
                 <Clock3 className="size-3" aria-hidden="true" />
                 <time dateTime={entry.createdAt ?? undefined}>{timestamp}</time>
+              </span>
+            ) : null}
+            {slashCommand ? (
+              <span
+                className="inline-flex items-center gap-1 border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+                data-agent-command-label={slashCommand}
+              >
+                {translate('auto.components.agentWorkspace.timeline.command', 'Command')}
+                <span className="text-foreground">{slashCommand}</span>
               </span>
             ) : null}
           </div>
@@ -126,4 +140,15 @@ function formatAgentTimelineTimestamp(value: string | null): string {
     hour: 'numeric',
     minute: '2-digit'
   }).format(date)
+}
+
+function getTimelineSlashCommand(entry: AgentWorkspaceTimelineEntry): string | null {
+  if (entry.kind !== 'user') {
+    return null
+  }
+  const [firstToken] = entry.text.trim().split(/\s+/, 1)
+  if (!firstToken?.startsWith('/') || firstToken.length === 1) {
+    return null
+  }
+  return firstToken
 }

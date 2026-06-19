@@ -47,9 +47,16 @@ export function AgentTimeline({
   return (
     <div
       ref={scrollAreaRef}
-      className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-6"
+      className="agent-workspace-timeline scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-6"
+      role="log"
+      aria-label={translate(
+        'auto.components.agentWorkspace.layout.agentConversationTimeline',
+        'Agent conversation timeline'
+      )}
+      aria-live="polite"
+      aria-relevant="additions text"
     >
-      <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-5">
+      <div className="agent-workspace-timeline-inner mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-5">
         {thread ? (
           <>
             <ThreadSummary thread={thread} />

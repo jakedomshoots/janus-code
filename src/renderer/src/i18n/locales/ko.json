@@ -11158,7 +11158,8 @@
           "openTerminal": "Terminal",
           "oneChange": "1 change",
           "changeCount": "{{count}} changes",
-          "completedThreadFollowUp": "This conversation is complete, but you can keep chatting in the same thread."
+          "completedThreadFollowUp": "This conversation is complete, but you can keep chatting in the same thread.",
+          "agentConversationTimeline": "Agent conversation timeline"
         },
         "composer": {
           "enterMessageBeforeSending": "보내기 전에 메시지를 입력하세요.",
@@ -11231,7 +11232,8 @@
           "projectlessAgentLaunching": "Starting a planning agent.",
           "continueWith": "Continue with",
           "followUpPlaceholder": "Ask a follow-up in this thread...",
-          "slashCommands": "Slash commands"
+          "slashCommands": "Slash commands",
+          "agentChatComposer": "Agent chat composer"
         },
         "page": {
           "agentWorkspace": "에이전트 작업 공간"
@@ -11349,6 +11351,9 @@
         "timelineRole": {
           "you": "You",
           "agent": "Agent"
+        },
+        "timeline": {
+          "command": "Command"
         }
       },
       "DesktopShellRequired": {

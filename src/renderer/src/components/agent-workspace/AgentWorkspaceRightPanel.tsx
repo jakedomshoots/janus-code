@@ -79,8 +79,8 @@ export function AgentWorkspaceRightPanel({
   })
 
   return (
-    <aside className="pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[24rem] shrink-0">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
