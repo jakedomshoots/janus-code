@@ -1,5 +1,7 @@
 import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
 
+const mockBrowserPageTitle = 'Pricing'
+
 export function makeAnnotation(): BrowserPageAnnotation {
   return {
     id: 'annotation-1',
@@ -11,7 +13,7 @@ export function makeAnnotation(): BrowserPageAnnotation {
     payload: {
       page: {
         sanitizedUrl: 'https://example.com/pricing',
-        title: 'Pricing',
+        title: mockBrowserPageTitle,
         viewportWidth: 1280,
         viewportHeight: 720,
         scrollX: 0,

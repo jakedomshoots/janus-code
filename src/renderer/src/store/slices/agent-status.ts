@@ -300,12 +300,17 @@ function mergeCurrentOrchestrationContext(
   return orchestrationContextsEqual(existing, merged) ? existing : merged
 }
 
-function appendCompletedConversationTurn(
+function appendPreviousConversationTurn(
   conversation: readonly AgentStatusConversationTurn[] | undefined,
   entry: AgentStatusEntry | undefined
 ): AgentStatusConversationTurn[] {
   const existingTurns = conversation ?? []
-  if (!entry || entry.state !== 'done' || !entry.prompt.trim() || !entry.lastAssistantMessage) {
+  if (
+    !entry ||
+    (entry.state !== 'done' && entry.state !== 'waiting') ||
+    !entry.prompt.trim() ||
+    !entry.lastAssistantMessage
+  ) {
     return [...existingTurns]
   }
   const turnId = `${entry.paneKey}:turn:${entry.stateStartedAt}`
@@ -543,7 +548,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           occurredAt: updatedAt
         })
         const conversation = promptChanged
-          ? appendCompletedConversationTurn(existing?.conversation, existing)
+          ? appendPreviousConversationTurn(existing?.conversation, existing)
           : (existing?.conversation ?? [])
         const entry: AgentStatusEntry = {
           state: payload.state,

@@ -147,6 +147,47 @@ describe('agent status conversation turns', () => {
       }
     ])
   })
+
+  it('preserves waiting model replies when the user answers the agent', () => {
+    const store = createTestStore()
+
+    store.getState().setAgentStatus(
+      'tab-1:1',
+      {
+        state: 'waiting',
+        prompt: 'First question',
+        agentType: 'codex',
+        lastAssistantMessage: 'Can you clarify the target platform?'
+      },
+      undefined,
+      {
+        updatedAt: Date.UTC(2026, 5, 18, 12, 1),
+        stateStartedAt: Date.UTC(2026, 5, 18, 12, 0)
+      }
+    )
+
+    store
+      .getState()
+      .setAgentStatus(
+        'tab-1:1',
+        { state: 'working', prompt: 'Use macOS first.', agentType: 'codex' },
+        undefined,
+        {
+          updatedAt: Date.UTC(2026, 5, 18, 12, 2),
+          stateStartedAt: Date.UTC(2026, 5, 18, 12, 2)
+        }
+      )
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1']?.conversation).toEqual([
+      {
+        id: 'tab-1:1:turn:1781784000000',
+        prompt: 'First question',
+        assistantMessage: 'Can you clarify the target platform?',
+        startedAt: Date.UTC(2026, 5, 18, 12, 0),
+        completedAt: Date.UTC(2026, 5, 18, 12, 1)
+      }
+    ])
+  })
 })
 
 describe('agent status routing attribution', () => {

@@ -382,6 +382,68 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
   })
 
+  it('keeps waiting-thread chat history visible when sending an answer', async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    roots.push(root)
+    const waitingThread = {
+      id: 'thread-waiting',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'waiting-for-user' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    sendMocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceLayout
+          snapshot={baseSnapshot({
+            threads: [waitingThread],
+            timeline: [
+              {
+                id: 'timeline-question',
+                threadId: waitingThread.id,
+                kind: 'agent',
+                text: 'Can you clarify the target platform?',
+                createdAt: '2026-06-18T17:21:00.000Z',
+                status: 'done'
+              }
+            ]
+          })}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(container.textContent).toContain('Can you clarify the target platform?')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Use macOS first.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(sendMocks.sendNotesToActiveAgentSession).toHaveBeenCalledWith({
+      worktreeId: 'worktree-1',
+      prompt: 'Use macOS first.'
+    })
+    expect(container.textContent).toContain('Can you clarify the target platform?')
+    expect(container.textContent).toContain('Use macOS first.')
+    expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
+  })
+
   it('splits and closes agent workspace panes from the tab strip', async () => {
     const container = await renderLayout(baseSnapshot())
 
