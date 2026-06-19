@@ -2,6 +2,7 @@
   "artifactId": "janus-runtime-status-contract",
   "artifactVersion": 1,
   "artifactMediaType": "application/vnd.janus.runtime-status-contract+json",
+  "artifactJsonPath": "src/shared/runtime-status-contract-artifact.json",
   "summary": {
     "schemaVersion": 1,
     "domainId": "runtime-status-diagnostics",

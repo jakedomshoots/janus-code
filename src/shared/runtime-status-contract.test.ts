@@ -184,7 +184,8 @@ describe('runtime status porting contract', () => {
     expect(runtimeStatusContract.getRuntimeStatusPortingContractArtifact()).toMatchObject({
       artifactId: 'janus-runtime-status-contract',
       artifactVersion: 1,
-      artifactMediaType: 'application/vnd.janus.runtime-status-contract+json'
+      artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
+      artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json'
     })
   })
 
@@ -316,6 +317,7 @@ describe('runtime status porting contract', () => {
       artifactId: 'janus-runtime-status-contract',
       artifactVersion: 1,
       artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
+      artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json',
       summary: getRuntimeStatusPortingContractSummary(),
       jsonSchema: getRuntimeStatusPortingJsonSchema()
     })
@@ -333,6 +335,7 @@ describe('runtime status porting contract', () => {
         artifactId: 'janus-runtime-status-contract',
         artifactVersion: 1,
         artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
+        artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json',
         summary: getRuntimeStatusPortingContractSummary(),
         jsonSchema: getRuntimeStatusPortingJsonSchema()
       })
