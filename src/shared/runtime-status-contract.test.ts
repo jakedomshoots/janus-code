@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
+  listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD
 } from './runtime-status-contract'
 import {
@@ -51,5 +52,20 @@ describe('runtime status porting contract', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))
     ).toThrow('hostPlatform')
+  })
+
+  it('exposes the required fields for future sidecar schema generation', () => {
+    expect(listRuntimeStatusPortingRequiredFields()).toEqual([
+      'runtimeId',
+      'rendererGraphEpoch',
+      'graphStatus',
+      'authoritativeWindowId',
+      'liveTabCount',
+      'liveLeafCount',
+      'runtimeProtocolVersion',
+      'minCompatibleRuntimeClientVersion',
+      'capabilities',
+      'hostPlatform'
+    ])
   })
 })

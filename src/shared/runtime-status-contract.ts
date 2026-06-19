@@ -22,3 +22,7 @@ export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void 
     }
   }
 }
+
+export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {
+  return [...REQUIRED_RUNTIME_STATUS_PORTING_FIELDS]
+}
