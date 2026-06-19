@@ -19,6 +19,7 @@ export type RuntimePortingDomain = {
 
 export type RuntimePortingDomainSummary = {
   firstSlice: RuntimePortingDomain
+  firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
   retainedElectron: readonly RuntimePortingDomain[]
   totalDomainCount: number
@@ -108,6 +109,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
 
   return {
     firstSlice: getRuntimePortingFirstSliceDomain(),
+    firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,
     retainedElectron,
     totalDomainCount: RUNTIME_PORTING_DOMAINS.length,

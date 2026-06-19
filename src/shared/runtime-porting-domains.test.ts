@@ -35,6 +35,7 @@ describe('runtime porting domains', () => {
   it('summarizes first, native, and retained runtime porting domains', () => {
     expect(getRuntimePortingDomainSummary()).toEqual({
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
+      firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
       retainedElectron: listRetainedElectronRuntimeDomains(),
       totalDomainCount: RUNTIME_PORTING_DOMAINS.length,
