@@ -25,7 +25,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control, Checks panel, Add Project, Settings, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project, Settings, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
@@ -79,6 +79,18 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Browser workbench open     | composer tool button calls the workbench open action                      | Verified by test                              |
 | Terminal drawer open       | composer tool button calls terminal reveal with debug reason              | Verified by test                              |
 | Prompt recovery controls   | restore/send-again/open-terminal paths remain visible after failures      | Source-reviewed and covered by recovery tests |
+
+## Commit And Source Control Matrix
+
+| Control                     | Expected backend path                                                      | Status           |
+| --------------------------- | -------------------------------------------------------------------------- | ---------------- |
+| Commit primary              | commits only when staged files and message are present                     | Verified by test |
+| Commit split menu           | exposes independently gated fetch/pull/push/sync/publish actions           | Verified by test |
+| Commit-message AI generate  | runs only with configured agent, staged files, and empty message            | Verified by test |
+| Commit generation cancel    | switches the generate icon to a stop affordance while generation is active  | Verified by test |
+| Commit failure recovery     | launches source-control recovery agent with commit-failure context          | Verified by test |
+| Commit drafts               | persist per worktree while switching source-control context                 | Verified by test |
+| Commit-generation records   | key running/completed generation by worktree id with path fallback          | Verified by test |
 
 ## Workspace And Sidebar Matrix
 
