@@ -4,6 +4,7 @@ import {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact-metadata'
+import { RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID } from './runtime-status-json-schema'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
 
@@ -42,6 +43,8 @@ export type RuntimePortingFirstSliceContractArtifactVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export type RuntimePortingFirstSliceContractArtifactPath =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export type RuntimePortingFirstSliceContractJsonSchemaId =
+  typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 
 export type RuntimePortingDomainSummary = {
   artifactId: RuntimePortingDomainSummaryArtifactId
@@ -56,6 +59,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
   firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
+  firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceRationale: RuntimePortingFirstSliceRationale
   firstSliceMethod: RuntimePortingFirstSliceMethod
   nativeCandidates: readonly RuntimePortingDomain[]
@@ -91,6 +95,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION: RuntimePorti
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePortingFirstSliceContractJsonSchemaId =
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 
 // Why: this keeps the porting plan machine-checkable before any Rust or host
 // adapter code exists, so future slices can move one domain at a time.
@@ -181,6 +187,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractArtifactMediaType: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
     firstSliceContractArtifactVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION,
     firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
+    firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,
     firstSliceMethod: getRuntimePortingFirstSliceMethod(),
     nativeCandidates,

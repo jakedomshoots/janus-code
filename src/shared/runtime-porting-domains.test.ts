@@ -6,6 +6,7 @@ import {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact'
+import { RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID } from './runtime-status-contract'
 import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
 import {
   getRuntimePortingDomain,
@@ -63,6 +64,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArtifactMediaType: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
       firstSliceContractArtifactVersion: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION,
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
+      firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceRationale: 'read-only-runtime-rpc',
       firstSliceMethod: getRuntimePortingFirstSliceMethod(),
       nativeCandidates: listNativeRuntimePortingCandidates(),
@@ -116,6 +118,9 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH)
     expect(doc).toContain(
       `firstSliceContractArtifactVersion: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION}`
+    )
+    expect(doc).toContain(
+      `firstSliceContractJsonSchemaId: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID}`
     )
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)
     expect(doc).toContain(`schemaVersion: ${RUNTIME_PORTING_DOMAIN_SUMMARY_SCHEMA_VERSION}`)
