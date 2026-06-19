@@ -26,22 +26,22 @@ host-side services that do not depend on Electron's browser or window model.
 
 Port these only after a small contract test proves the current behavior:
 
-- PTY lifecycle: spawn, write, resize, signal, kill, cold restore, and output
+- `pty-lifecycle`: spawn, write, resize, signal, kill, cold restore, and output
   replay.
-- Process supervision: child process cleanup, foreground process detection,
+- `process-supervision`: child process cleanup, foreground process detection,
   long-running agent health, and restart diagnostics.
-- Filesystem and workspace scanning: watchers, large workspace scans, and
+- `filesystem-workspace-scanning`: watchers, large workspace scans, and
   path-normalized file operations.
-- Runtime diagnostics: health checks, structured logs, protocol version checks,
+- `runtime-status-diagnostics`: health checks, structured logs, protocol version checks,
   and crash containment for native-side failures.
 
 Keep these in Electron/TypeScript until a dedicated spike proves parity:
 
-- Browser workbench, browser profiles, grab/annotation, downloads, popups, and
+- `browser-workbench`: browser profiles, grab/annotation, downloads, popups, and
   context menus.
-- App shell behavior: windows, menus, dock/tray, updater, packaging identity,
+- `app-shell`: windows, menus, dock/tray, updater, packaging identity,
   and platform-specific desktop chrome.
-- Provider and review integrations unless a measured hotspot justifies moving a
+- `provider-review-integrations` unless a measured hotspot justifies moving a
   narrow parser or transport helper.
 
 ## Increment Rule

@@ -68,4 +68,15 @@ describe('runtime porting domains', () => {
     expect(assessment).toContain('runtime-status-diagnostics')
     expect(assessment).toContain(getRuntimePortingFirstSliceMethod())
   })
+
+  it('documents every machine-readable runtime porting domain in the assessment', () => {
+    const assessment = readFileSync(
+      resolve(__dirname, '../../docs/reference/janus-runtime-porting-assessment.md'),
+      'utf8'
+    )
+
+    for (const domain of RUNTIME_PORTING_DOMAINS) {
+      expect(assessment).toContain(domain.id)
+    }
+  })
 })
