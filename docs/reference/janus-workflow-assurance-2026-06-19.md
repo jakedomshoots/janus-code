@@ -25,7 +25,7 @@ Every workflow was checked against this chain:
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
-- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, slash-command, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, file explorer, quick-open/search, Cmd+J palette, editor tab/content, notes-send, agent review/diff, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone/server-path flows, sidebar navigation/worktree quick actions, Settings/provider/SSH host flows, workspace board, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
+- Repo-side workflow assurance gate: `pnpm run verify:janus-workflow-assurance`. This groups the composer, agent picker/model discovery, slash-command, prompt recovery, provider status controls, agent launch delivery, browser workbench, browser tab/address/overlay behavior, terminal drawer/focus/quick-command dispatch, file explorer, quick-open/search, worktree/browser palettes, Cmd+J palette, editor tab/content, notes-send, agent review/diff, Source Control file actions, commit primary/split-button, commit-message AI generation, commit failure recovery, Checks panel, Add Project local/clone/server-path flows, sidebar navigation/worktree quick actions, Settings/provider/SSH host flows, workspace board/sort/filter behavior, Computer Use metadata, direct-download verifier, assurance-suite self-check, and direct-download artifact checks into one pre-release command.
 - Rebuilt unsigned mac direct-download artifacts with `pnpm run build:mac`, regenerated `dist/SHA256SUMS.txt`, and re-ran `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`.
 - Installed the rebuilt arm64 app over `/Applications/Janus Code.app`, launched it, and confirmed the app writes fresh runtime metadata before retrying the live smoke.
 - Add Project local/remote guard regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/sidebar/useAddRepoLocalFolderFlow.test.ts`
@@ -67,18 +67,18 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Send in active thread      | `sendNotesToActiveAgentSession({ worktreeId, prompt })`                   | Verified by source and tests                  |
 | Send in completed thread   | completed-thread recovery retry path, preserves prompt until sent         | Verified by existing recovery tests           |
 | Completed-thread footer    | labels completed state without implying active send                       | Verified by test                              |
-| Send new session           | `launchSelectedAgent` -> `launchAgentInNewTab` with args/env/model prompt | Verified by source                            |
+| Send new session           | `launchSelectedAgent` -> `launchAgentInNewTab` with args/env/model prompt | Verified by test                              |
 | Slash command raw send     | typed command remains raw prompt text                                     | Verified by test                              |
 | Slash menu static commands | local command list filters and inserts command text                       | Verified by test                              |
 | Slash menu live commands   | runtime catalog commands populate menu                                    | Verified by test                              |
 | Slash menu SSH backend     | selected project path and SSH connection id reach discovery API           | Fixed and verified                            |
-| Agent picker               | detected agents plus settings defaults drive active agent                 | Source-reviewed                               |
-| Provider/model controls    | settings popover writes default agent/model args                          | Source-reviewed                               |
+| Agent picker               | detected agents plus settings defaults drive active agent                 | Verified by test                              |
+| Provider/model controls    | settings popover writes default agent/model args                          | Verified by test                              |
 | Draft agent sync           | provider changes notify the draft tab strip exactly once                  | Fixed and verified                            |
 | Browser context attach     | active browser tab annotations feed composer context                      | Verified by test                              |
 | Browser workbench open     | composer tool button calls the workbench open action                      | Verified by test                              |
 | Terminal drawer open       | composer tool button calls terminal reveal with debug reason              | Verified by test                              |
-| Prompt recovery controls   | restore/send-again/open-terminal paths remain visible after failures      | Source-reviewed and covered by recovery tests |
+| Prompt recovery controls   | restore/send-again/open-terminal paths remain visible after failures      | Verified by test                              |
 
 ## Commit And Source Control Matrix
 
@@ -148,9 +148,9 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Automations          | opens automations page and supports hide from context menu     | Verified by test |
 | Agents               | opens activity page with unread badge                          | Verified by test |
 | Janus Code Mobile    | opens mobile page and dismisses onboarding badge               | Verified by test |
-| Search               | opens worktree/browser palette with platform shortcut label    | Source-reviewed  |
+| Search               | opens worktree/browser palette with platform shortcut label    | Verified by test |
 | Workspace board      | toggles board, records interaction, and respects nested menus  | Verified by test |
-| Workspace options    | sort/group/layout/filter controls write store state            | Source-reviewed  |
+| Workspace options    | sort/group/layout/filter controls write store state            | Verified by test |
 | Add local project    | blocks local folder picker when a remote runtime is selected   | Verified by test |
 | Add clone project    | clones through selected SSH/runtime host context               | Verified by test |
 | Add remote project   | host path flow is separate from local picker                   | Verified by test |
