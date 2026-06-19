@@ -194,6 +194,12 @@ describe('runtime status porting contract', () => {
     expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
   })
 
+  it('lists the runtime status artifact in the durable reference index', () => {
+    const index = readFileSync(resolve(__dirname, '../../docs/reference/README.md'), 'utf8')
+
+    expect(index).toContain('./runtime-status-contract-artifact.md')
+  })
+
   it('labels the checked-in contract artifact for non-TypeScript consumers', () => {
     expect(runtimeStatusContract.getRuntimeStatusPortingContractArtifact()).toMatchObject({
       artifactId: 'janus-runtime-status-contract',
