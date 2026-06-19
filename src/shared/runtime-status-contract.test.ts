@@ -172,6 +172,14 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('exposes a package script for verifying the checked-in contract artifact', () => {
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf8'))
+
+    expect(packageJson.scripts['verify:runtime-status-contract-artifact']).toBe(
+      'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts'
+    )
+  })
+
   it('labels the checked-in contract artifact for non-TypeScript consumers', () => {
     expect(runtimeStatusContract.getRuntimeStatusPortingContractArtifact()).toMatchObject({
       artifactId: 'janus-runtime-status-contract',
