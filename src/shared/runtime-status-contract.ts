@@ -24,6 +24,11 @@ const REQUIRED_RUNTIME_STATUS_PORTING_FIELDS = [
   'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
+const VERSIONED_RUNTIME_STATUS_PORTING_FIELDS = [
+  'runtimeProtocolVersion',
+  'minCompatibleRuntimeClientVersion'
+] as const satisfies readonly (keyof RuntimeStatus)[]
+
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
   if (firstMissingField) {
@@ -39,9 +44,26 @@ export function listMissingRuntimeStatusPortingFields(
 
 export function validateRuntimeStatusPortingContract(
   status: RuntimeStatus
-): { ok: true } | { ok: false; missingFields: (keyof RuntimeStatus)[] } {
+):
+  | { ok: true }
+  | { ok: false; missingFields: (keyof RuntimeStatus)[] }
+  | { ok: false; invalidFields: (keyof RuntimeStatus)[] } {
   const missingFields = listMissingRuntimeStatusPortingFields(status)
-  return missingFields.length === 0 ? { ok: true } : { ok: false, missingFields }
+  if (missingFields.length > 0) {
+    return { ok: false, missingFields }
+  }
+
+  const invalidFields = listInvalidRuntimeStatusPortingFields(status)
+  return invalidFields.length === 0 ? { ok: true } : { ok: false, invalidFields }
+}
+
+export function listInvalidRuntimeStatusPortingFields(
+  status: RuntimeStatus
+): (keyof RuntimeStatus)[] {
+  return VERSIONED_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => {
+    const value = status[field]
+    return typeof value !== 'number' || !Number.isInteger(value) || value < 1
+  })
 }
 
 export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {

@@ -111,6 +111,20 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid protocol versions without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          runtimeProtocolVersion: 0,
+          minCompatibleRuntimeClientVersion: Number.NaN
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['runtimeProtocolVersion', 'minCompatibleRuntimeClientVersion']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))
