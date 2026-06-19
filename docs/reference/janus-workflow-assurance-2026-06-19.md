@@ -2,7 +2,7 @@
 
 ## Current Grade
 
-**88/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, and the direct-download macOS path is viable without an Apple Developer subscription. The score is not 100 yet because this pass found and fixed one real backend-context mismatch, and the app still needs a broader scripted control sweep before every visible button can be called proven.
+**92/100 after this pass.** The core agent composer workflow is materially stronger than the previous build, the direct-download macOS path is viable without an Apple Developer subscription, and the first manual audit findings now have repeatable checks. The score is not 100 yet because the app still needs a broader scripted control sweep before every visible button can be called proven.
 
 ## First-Principles Standard
 
@@ -19,6 +19,8 @@ Every workflow was checked against this chain:
 - Local installed app visual evidence: `docs/audits/evidence/janus-workflow-assurance-2026-06-19/01-installed-agent-workspace.png`
 - Local installed slash-menu smoke evidence: `docs/audits/evidence/janus-workflow-assurance-2026-06-19/02-installed-slash-menu.png`
 - Red/green regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "selected project backend context"`
+- Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
+- Direct-download release gate: `pnpm run verify:direct-download-artifacts`
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -41,38 +43,38 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 
 ## Composer Control Matrix
 
-| Control | Expected backend path | Status |
-| --- | --- | --- |
-| Send in active thread | `sendNotesToActiveAgentSession({ worktreeId, prompt })` | Verified by source and tests |
-| Send in completed thread | completed-thread recovery retry path, preserves prompt until sent | Verified by existing recovery tests |
-| Send new session | `launchSelectedAgent` -> `launchAgentInNewTab` with args/env/model prompt | Verified by source |
-| Slash command raw send | typed command remains raw prompt text | Verified by test |
-| Slash menu static commands | local command list filters and inserts command text | Verified by test |
-| Slash menu live commands | runtime catalog commands populate menu | Verified by test |
-| Slash menu SSH backend | selected project path and SSH connection id reach discovery API | Fixed and verified |
-| Agent picker | detected agents plus settings defaults drive active agent | Source-reviewed |
-| Provider/model controls | settings popover writes default agent/model args | Source-reviewed |
-| Browser context attach | active browser tab annotations feed composer context | Source-reviewed |
-| Terminal reveal | composer terminal actions map to reveal reasons | Source-reviewed |
-| Prompt recovery controls | restore/send-again/open-terminal paths remain visible after failures | Source-reviewed and covered by recovery tests |
+| Control                    | Expected backend path                                                     | Status                                        |
+| -------------------------- | ------------------------------------------------------------------------- | --------------------------------------------- |
+| Send in active thread      | `sendNotesToActiveAgentSession({ worktreeId, prompt })`                   | Verified by source and tests                  |
+| Send in completed thread   | completed-thread recovery retry path, preserves prompt until sent         | Verified by existing recovery tests           |
+| Send new session           | `launchSelectedAgent` -> `launchAgentInNewTab` with args/env/model prompt | Verified by source                            |
+| Slash command raw send     | typed command remains raw prompt text                                     | Verified by test                              |
+| Slash menu static commands | local command list filters and inserts command text                       | Verified by test                              |
+| Slash menu live commands   | runtime catalog commands populate menu                                    | Verified by test                              |
+| Slash menu SSH backend     | selected project path and SSH connection id reach discovery API           | Fixed and verified                            |
+| Agent picker               | detected agents plus settings defaults drive active agent                 | Source-reviewed                               |
+| Provider/model controls    | settings popover writes default agent/model args                          | Source-reviewed                               |
+| Browser context attach     | active browser tab annotations feed composer context                      | Verified by test                              |
+| Terminal reveal            | composer terminal actions map to reveal reasons                           | Source-reviewed                               |
+| Prompt recovery controls   | restore/send-again/open-terminal paths remain visible after failures      | Source-reviewed and covered by recovery tests |
 
 ## Workspace And Sidebar Matrix
 
-| Control | Expected behavior | Status |
-| --- | --- | --- |
-| New Agent | starts projectless planning agent | Source-reviewed |
-| Automations | opens automations page and supports hide from context menu | Source-reviewed |
-| Agents | opens activity page with unread badge | Source-reviewed |
-| Janus Code Mobile | opens mobile page and dismisses onboarding badge | Source-reviewed |
-| Search | opens worktree/browser palette with platform shortcut label | Source-reviewed |
-| Workspace board | toggles board with moved-location hint | Source-reviewed |
-| Workspace options | sort/group/layout/filter controls write store state | Source-reviewed |
-| Add local project | blocks local folder picker when a remote runtime is selected | Source-reviewed |
-| Add remote project | host path flow is separate from local picker | Source-reviewed |
+| Control            | Expected behavior                                            | Status          |
+| ------------------ | ------------------------------------------------------------ | --------------- |
+| New Agent          | starts projectless planning agent                            | Source-reviewed |
+| Automations        | opens automations page and supports hide from context menu   | Source-reviewed |
+| Agents             | opens activity page with unread badge                        | Source-reviewed |
+| Janus Code Mobile  | opens mobile page and dismisses onboarding badge             | Source-reviewed |
+| Search             | opens worktree/browser palette with platform shortcut label  | Source-reviewed |
+| Workspace board    | toggles board with moved-location hint                       | Source-reviewed |
+| Workspace options  | sort/group/layout/filter controls write store state          | Source-reviewed |
+| Add local project  | blocks local folder picker when a remote runtime is selected | Source-reviewed |
+| Add remote project | host path flow is separate from local picker                 | Source-reviewed |
 
 ## No-Apple Direct Download Assessment
 
-The app does **not** require App Store distribution. `config/electron-builder.config.cjs` already supports direct-download macOS artifacts:
+The app does **not** require App Store distribution. `config/electron-builder.config.cjs` already supports direct-download macOS artifacts, and `config/scripts/verify-direct-download-artifacts.mjs` now gives the unsigned-download lane a repeatable artifact/checksum gate:
 
 - Local mac builds use `identity: null`, `hardenedRuntime: false`, and `notarize: false` unless `JANUS_MAC_RELEASE=1` or `ORCA_MAC_RELEASE=1`.
 - Release-signing failure is enforced only when the explicit mac release flag is set.
@@ -82,27 +84,26 @@ The app does **not** require App Store distribution. `config/electron-builder.co
 Recommended public-download path without paying Apple:
 
 1. Publish unsigned `.dmg` and `.zip` artifacts on GitHub Releases.
-2. Include SHA-256 checksums.
+2. Include SHA-256 checksums in `SHA256SUMS.txt`.
 3. Be explicit in release notes that macOS may require right-click -> Open for first launch.
 4. Avoid claiming notarization or App Store-style trust until a Developer ID release path exists.
 
 ## Remaining Risks Before A True 100/100
 
-| Priority | Risk | Recommended next check |
-| --- | --- | --- |
-| P1 | The completed-thread footer can read like an active send path even when the thread is idle after recovery. | Make copy/state reflect idle vs recovering. |
-| P1 | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible app control. | Add Playwright/Computer Use smoke scripts for composer, sidebar, project add, and settings. |
-| P2 | Direct-download artifacts are buildable, but release instructions/checksums are not yet packaged into a repeatable release script. | Add `scripts/direct-download-release-checklist` or release docs. |
-| P2 | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around browser context, terminal reveal, and model discovery for SSH projects. |
+| Priority | Risk                                                                                                                                             | Recommended next check                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| P1       | The completed-thread footer can read like an active send path even when the thread is idle after recovery.                                       | Make copy/state reflect idle vs recovering.                                                                             |
+| P1       | The matrix is source-reviewed plus unit-tested, not yet fully automated through every visible app control.                                       | Add Playwright/Computer Use smoke scripts for sidebar, project add, settings, terminal, and browser workbench controls. |
+| P2       | Direct-download artifacts are gated for packages/checksums, but release notes are not yet validated for unsigned macOS launch instructions.      | Add release-note validation for right-click Open and unsigned/notarization wording.                                     |
+| P2       | SSH backend behavior is now covered for slash discovery, but other composer context providers should receive the same remote/local parity tests. | Add tests around terminal reveal and model discovery for SSH projects.                                                  |
 
 ## Next Score Plan
 
-To move from **88/100 to 95/100**, complete the scripted workflow sweep:
+To move from **92/100 to 95/100**, complete the scripted workflow sweep:
 
-1. Build and install the patched desktop app.
-2. Use Computer Use to exercise visible composer controls without sending destructive prompts.
-3. Add/adjust tests for any mismatch found.
-4. Add a direct-download release checklist with checksum commands.
+1. Use Computer Use or Playwright to exercise visible sidebar, project-add, terminal, browser, and settings controls without sending destructive prompts.
+2. Add/adjust tests for any mismatch found.
+3. Add release-note validation for the no-Apple download lane.
 
 To move from **95/100 to 100/100**, add durable automation:
 

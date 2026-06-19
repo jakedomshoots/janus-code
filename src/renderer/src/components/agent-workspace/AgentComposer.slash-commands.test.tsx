@@ -294,4 +294,49 @@ describe('AgentComposer slash commands', () => {
       connectionId: 'ssh-1'
     })
   })
+
+  it('attaches browser annotations into the draft through the composer tool button', async () => {
+    const openBrowserWorkbench = vi.fn()
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={runningThread}
+          browserWorkbench={{
+            browserWorkbenchReady: true,
+            canOpenBrowserDrawer: true,
+            browserAvailable: true,
+            browserTabCount: 1,
+            browserAnnotationCount: 2,
+            browserAnnotationMarkdown:
+              'Browser context:\n- page: http://localhost:5175\n- note: Composer send button looks disabled.',
+            canAttachBrowserContext: true,
+            openBrowserWorkbench
+          }}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Use this page state.')
+    })
+
+    const attachButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.getAttribute('aria-label') === 'Attach browser context'
+    )
+    expect(attachButton).not.toBeNull()
+    expect(attachButton?.disabled).toBe(false)
+
+    await act(async () => {
+      attachButton?.click()
+    })
+
+    expect(textarea?.value).toContain('Use this page state.')
+    expect(textarea?.value).toContain('Browser context:')
+    expect(textarea?.value).toContain('Composer send button looks disabled.')
+    expect(container.textContent).toContain('Browser context attached.')
+  })
 })
