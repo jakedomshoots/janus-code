@@ -78,6 +78,20 @@ describe('runtime status porting contract', () => {
     expect(source).toContain('RuntimeStatusPortingArrayConstraint')
   })
 
+  it('exports constraint metadata values for sidecar schema adapters', () => {
+    expect(runtimeStatusContract).toMatchObject({
+      RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS: {
+        runtimeProtocolVersion: { integer: true, minimum: 1 }
+      },
+      RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS: {
+        runtimeId: { minLength: 1, trim: true }
+      },
+      RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS: {
+        capabilities: { itemType: 'string' }
+      }
+    })
+  })
+
   it('exports the runtime status field type for sidecar schema adapters', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 

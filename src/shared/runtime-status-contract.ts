@@ -38,6 +38,11 @@ export type { RuntimeStatusPortingContractArtifact } from './runtime-status-cont
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 export type { RuntimeStatusPortingField } from './runtime-status-porting-field'
+export {
+  RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
+  RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
+} from './runtime-status-constraints'
 export type {
   RuntimeStatusPortingArrayConstraint,
   RuntimeStatusPortingNumericConstraint,
