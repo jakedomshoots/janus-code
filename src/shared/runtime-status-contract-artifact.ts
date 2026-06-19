@@ -5,6 +5,7 @@ import {
 import {
   getRuntimeStatusPortingJsonSchema,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
   type RuntimeStatusPortingJsonSchema
 } from './runtime-status-json-schema'
 import {
@@ -27,6 +28,7 @@ export type RuntimeStatusPortingContractArtifact = {
   artifactMediaType: typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE
   artifactJsonPath: typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
   jsonSchemaDraftUri: typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI
+  jsonSchemaId: typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
   summary: RuntimeStatusPortingContractSummary
   jsonSchema: RuntimeStatusPortingJsonSchema
 }
@@ -38,6 +40,7 @@ export function getRuntimeStatusPortingContractArtifact(): RuntimeStatusPortingC
     artifactMediaType: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
     artifactJsonPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
     jsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
+    jsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
     summary: getRuntimeStatusPortingContractSummary(),
     jsonSchema: getRuntimeStatusPortingJsonSchema()
   }

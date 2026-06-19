@@ -2,7 +2,7 @@
 
 Use `src/shared/runtime-status-contract-artifact.json` as the checked-in contract for non-TypeScript runtime adapters, including Rust or Tauri sidecars that need to validate the `status.get` response shape.
 
-The artifact is labeled with media type `application/vnd.janus.runtime-status-contract+json`, `jsonSchemaDraftUri: https://json-schema.org/draft/2020-12/schema`, and includes:
+The artifact is labeled with media type `application/vnd.janus.runtime-status-contract+json`, `jsonSchemaDraftUri: https://json-schema.org/draft/2020-12/schema`, `jsonSchemaId: urn:janus:runtime-status-contract:json-schema:1`, and includes:
 
 - `summary`: portable contract metadata, required fields, enum values, and constraints.
 - `jsonSchema`: the JSON Schema for the `status.get` result.
