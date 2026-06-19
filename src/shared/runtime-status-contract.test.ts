@@ -90,6 +90,12 @@ describe('runtime status porting contract', () => {
     expect(source).toContain("from './runtime-status-json-schema'")
   })
 
+  it('keeps the bundled artifact type in a dedicated artifact module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-contract-artifact'")
+  })
+
   it('documents that status.get accepts null params', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })

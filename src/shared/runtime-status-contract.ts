@@ -4,6 +4,7 @@ import {
   type RuntimePortingDomainId,
   type RuntimePortingFirstSliceMethod
 } from './runtime-porting-domains'
+import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 
 export const RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID: RuntimePortingDomainId =
@@ -111,11 +112,7 @@ export type RuntimeStatusPortingValidationResult =
   | { ok: false; invalidFields: RuntimeStatusPortingField[] }
 
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
-
-export type RuntimeStatusPortingContractArtifact = {
-  summary: RuntimeStatusPortingContractSummary
-  jsonSchema: RuntimeStatusPortingJsonSchema
-}
+export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
