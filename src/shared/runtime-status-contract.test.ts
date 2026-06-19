@@ -67,9 +67,9 @@ describe('runtime status porting contract', () => {
   it('exports constraint metadata types for sidecar schema adapters', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
-    expect(source).toContain('export type RuntimeStatusPortingNumericConstraint')
-    expect(source).toContain('export type RuntimeStatusPortingStringConstraint')
-    expect(source).toContain('export type RuntimeStatusPortingArrayConstraint')
+    expect(source).toContain('RuntimeStatusPortingNumericConstraint')
+    expect(source).toContain('RuntimeStatusPortingStringConstraint')
+    expect(source).toContain('RuntimeStatusPortingArrayConstraint')
   })
 
   it('exports the runtime status field type for sidecar schema adapters', () => {
@@ -100,6 +100,12 @@ describe('runtime status porting contract', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 
     expect(source).toContain("from './runtime-status-validation-result'")
+  })
+
+  it('keeps constraint metadata types in a dedicated constraints module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-status-constraints'")
   })
 
   it('documents that status.get accepts null params', () => {

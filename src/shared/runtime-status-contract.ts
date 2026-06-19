@@ -4,6 +4,11 @@ import {
   type RuntimePortingDomainId,
   type RuntimePortingFirstSliceMethod
 } from './runtime-porting-domains'
+import type {
+  RuntimeStatusPortingArrayConstraint,
+  RuntimeStatusPortingNumericConstraint,
+  RuntimeStatusPortingStringConstraint
+} from './runtime-status-constraints'
 import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
@@ -53,21 +58,6 @@ const INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS = [
   'hostPlatform'
 ] as const satisfies readonly (keyof RuntimeStatus)[]
 
-export type RuntimeStatusPortingNumericConstraint = {
-  integer: true
-  minimum: number
-  nullable?: true
-}
-
-export type RuntimeStatusPortingStringConstraint = {
-  minLength: number
-  trim?: true
-}
-
-export type RuntimeStatusPortingArrayConstraint = {
-  itemType: 'string'
-}
-
 export type RuntimeStatusPortingField = keyof RuntimeStatus
 
 const RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS = {
@@ -110,6 +100,11 @@ export type RuntimeStatusPortingContractSummary = {
 export type { RuntimeStatusPortingJsonSchema } from './runtime-status-json-schema'
 export type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
+export type {
+  RuntimeStatusPortingArrayConstraint,
+  RuntimeStatusPortingNumericConstraint,
+  RuntimeStatusPortingStringConstraint
+} from './runtime-status-constraints'
 
 export function assertRuntimeStatusPortingContract(status: RuntimeStatus): void {
   const [firstMissingField] = listMissingRuntimeStatusPortingFields(status)
