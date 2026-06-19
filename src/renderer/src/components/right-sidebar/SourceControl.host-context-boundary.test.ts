@@ -51,4 +51,30 @@ describe('SourceControl host-context boundaries', () => {
     expect(requestContext).toContain('settings,')
     expect(requestContext).not.toContain('useAppStore.getState().settings')
   })
+
+  it('routes branch actions through the selected worktree branch context builder', () => {
+    const branchActionSection = sourceBetween(
+      SOURCE_CONTROL_SOURCE,
+      'const runRemoteAction = useCallback(',
+      'const openHostedReviewInChecks = useCallback'
+    )
+    expect(SOURCE_CONTROL_SOURCE).toContain('buildSourceControlBranchActionArgs')
+    expect(branchActionSection).toContain(
+      'const branchActionArgs = buildSourceControlBranchActionArgs'
+    )
+    expect(branchActionSection).toContain('branchActionArgs.options')
+    expect(branchActionSection).not.toContain('runtimeTargetSettings: activeRepoSettings')
+  })
+
+  it('routes multi-select git actions through the selected worktree runtime context builder', () => {
+    const bulkActionSection = sourceBetween(
+      SOURCE_CONTROL_SOURCE,
+      'const handleBulkStage = useCallback',
+      'const branchCompareInFlightRef = useRef'
+    )
+    expect(SOURCE_CONTROL_SOURCE).toContain('buildSourceControlRuntimeGitContext')
+    expect(bulkActionSection).toContain('buildSourceControlRuntimeGitContext')
+    expect(bulkActionSection).not.toContain('await bulkStageRuntimeGitPaths(\n        {')
+    expect(bulkActionSection).not.toContain('await bulkUnstageRuntimeGitPaths(\n        {')
+  })
 })

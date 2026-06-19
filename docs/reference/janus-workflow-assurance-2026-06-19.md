@@ -32,6 +32,7 @@ Every workflow was checked against this chain:
 - SSH source-control/file parity checks: PR field generation and file explorer drag-move mutations use the selected SSH worktree context instead of ambient host state.
 - SSH discard/source-control action parity checks: Source Control discard now quiesces editor saves against the worktree owner boundary, and Agent Workspace Stage, Unstage, Discard, and Commit actions carry the selected SSH project context.
 - Checks panel context checks: creation eligibility, manual refresh, and create-review submissions now route through shared builders that preserve repo, worktree, hosted-review, PR head, and selected worktree path context.
+- Branch/bulk Source Control context checks: branch remote actions and multi-select Stage, Unstage, and Discard routes now use shared owner-context builders for selected worktree, path, connection, push target, and runtime owner settings.
 - Source review: composer, agent workspace, sidebar project-add flows, and macOS packaging config.
 
 ## Fixed In This Pass
@@ -108,7 +109,7 @@ Recommended public-download path without paying Apple:
 | Priority | Risk                                                                                                                                                                              | Recommended next check                                                                     |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | P1       | The runtime sweep is now captured as `pnpm run smoke:janus-workflow`, but local live execution requires macOS Accessibility/Screen Recording grants for `Janus Computer Use.app`. | Grant the helper permissions once per machine, then run the smoke command before release.  |
-| P2       | SSH parity now covers composer discovery, PR generation, Checks refresh/create request context, Source Control discard quiesce, file drag-move mutations, and Agent Workspace git actions; broader branch/bulk edge cases still deserve the same audit depth. | Add SSH/local parity tests around branch actions and multi-select bulk git flows. |
+| P2       | SSH parity now covers composer discovery, PR generation, Checks refresh/create request context, Source Control discard quiesce, file drag-move mutations, Agent Workspace git actions, and Source Control branch/bulk owner-context builders; broader visual/manual sweeps should keep exercising these paths before release. | Run local and SSH smoke sessions against branch actions plus multi-select bulk git flows before release. |
 
 ## Next Score Plan
 
@@ -116,4 +117,4 @@ To keep the app at **100/100** as features move:
 
 1. Run `pnpm run smoke:janus-workflow` before release after the macOS helper permission is granted.
 2. Add/adjust tests for any mismatch found in future manual or automated sweeps.
-3. Keep expanding SSH/local parity checks around branch actions and multi-select bulk git workflows.
+3. Keep branch actions and multi-select bulk git workflows in the pre-release local/SSH smoke path.

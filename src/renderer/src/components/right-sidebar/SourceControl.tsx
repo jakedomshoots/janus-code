@@ -148,6 +148,10 @@ import {
   type RuntimeGeneratePullRequestFieldsOverrides
 } from '@/runtime/runtime-git-client'
 import { getRuntimeRepoBaseRefDefault } from '@/runtime/runtime-repo-client'
+import {
+  buildSourceControlBranchActionArgs,
+  buildSourceControlRuntimeGitContext
+} from './source-control-workflow-context'
 import { PullRequestIcon } from './checks-panel-content'
 import { stripBaseRef, useCreatePullRequestDialogFields } from './useCreatePullRequestDialogFields'
 import { GitHistoryPanel, type GitHistoryPanelState } from './GitHistoryPanel'
@@ -1794,75 +1798,78 @@ function SourceControlInner(): React.JSX.Element {
         return
       }
       const connectionId = getConnectionId(activeWorktreeId) ?? undefined
+      const branchActionArgs = buildSourceControlBranchActionArgs({
+        settings: activeRepoSettings,
+        worktreeId: activeWorktreeId,
+        worktreePath,
+        connectionId,
+        pushTarget: activeWorktree?.pushTarget
+      })
       setRemoteActionErrors((prev) => ({ ...prev, [activeWorktreeId]: null }))
       try {
         if (kind === 'publish') {
           await pushBranch(
-            activeWorktreeId,
-            worktreePath,
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
             true,
-            connectionId,
-            activeWorktree?.pushTarget,
-            { runtimeTargetSettings: activeRepoSettings }
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            branchActionArgs.options
           )
           return
         }
         if (kind === 'push') {
           const forceWithLease = shouldForcePushWithLeaseForUpstream(remoteStatus)
           await pushBranch(
-            activeWorktreeId,
-            worktreePath,
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
             false,
-            connectionId,
-            activeWorktree?.pushTarget,
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
             forceWithLease
-              ? { forceWithLease: true, runtimeTargetSettings: activeRepoSettings }
-              : { runtimeTargetSettings: activeRepoSettings }
+              ? { ...branchActionArgs.options, forceWithLease: true }
+              : branchActionArgs.options
           )
           return
         }
         if (kind === 'force_push') {
           await pushBranch(
-            activeWorktreeId,
-            worktreePath,
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
             false,
-            connectionId,
-            activeWorktree?.pushTarget,
-            { forceWithLease: true, runtimeTargetSettings: activeRepoSettings }
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            { ...branchActionArgs.options, forceWithLease: true }
           )
           return
         }
         if (kind === 'pull') {
           await pullBranch(
-            activeWorktreeId,
-            worktreePath,
-            connectionId,
-            activeWorktree?.pushTarget,
-            {
-              runtimeTargetSettings: activeRepoSettings
-            }
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            branchActionArgs.options
           )
           return
         }
         if (kind === 'fast_forward') {
           await fastForwardBranch(
-            activeWorktreeId,
-            worktreePath,
-            connectionId,
-            activeWorktree?.pushTarget,
-            { runtimeTargetSettings: activeRepoSettings }
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            branchActionArgs.options
           )
           return
         }
         if (kind === 'fetch') {
           await fetchBranch(
-            activeWorktreeId,
-            worktreePath,
-            connectionId,
-            activeWorktree?.pushTarget,
-            {
-              runtimeTargetSettings: activeRepoSettings
-            }
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            branchActionArgs.options
           )
           return
         }
@@ -1871,18 +1878,22 @@ function SourceControlInner(): React.JSX.Element {
             return
           }
           await rebaseFromBase(
-            activeWorktreeId,
-            worktreePath,
+            branchActionArgs.worktreeId,
+            branchActionArgs.worktreePath,
             effectiveBaseRef,
-            connectionId,
-            activeWorktree?.pushTarget,
-            { runtimeTargetSettings: activeRepoSettings }
+            branchActionArgs.connectionId,
+            branchActionArgs.pushTarget,
+            branchActionArgs.options
           )
           return
         }
-        await syncBranch(activeWorktreeId, worktreePath, connectionId, activeWorktree?.pushTarget, {
-          runtimeTargetSettings: activeRepoSettings
-        })
+        await syncBranch(
+          branchActionArgs.worktreeId,
+          branchActionArgs.worktreePath,
+          branchActionArgs.connectionId,
+          branchActionArgs.pushTarget,
+          branchActionArgs.options
+        )
         setRemoteActionErrors((prev) => ({ ...prev, [activeWorktreeId]: null }))
       } catch (error) {
         // Why: remote action failures are surfaced by editor-slice actions to keep
@@ -2868,13 +2879,12 @@ function SourceControlInner(): React.JSX.Element {
     try {
       const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
       await bulkStageRuntimeGitPaths(
-        {
-          // Why: route staging by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         bulkStagePaths
       )
       await refreshActiveGitStatusAfterMutation()
@@ -2899,13 +2909,12 @@ function SourceControlInner(): React.JSX.Element {
     try {
       const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
       await bulkUnstageRuntimeGitPaths(
-        {
-          // Why: route unstaging by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         bulkUnstagePaths
       )
       await refreshActiveGitStatusAfterMutation()
@@ -2931,13 +2940,12 @@ function SourceControlInner(): React.JSX.Element {
       try {
         const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
         await bulkStageRuntimeGitPaths(
-          {
-            // Why: route staging by the repo OWNER host, not the focused runtime.
+          buildSourceControlRuntimeGitContext({
             settings: activeRepoSettings,
             worktreeId: activeWorktreeId,
             worktreePath,
             connectionId
-          },
+          }),
           [...paths]
         )
         await refreshActiveGitStatusAfterMutation()
@@ -2965,13 +2973,12 @@ function SourceControlInner(): React.JSX.Element {
       try {
         const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
         await bulkUnstageRuntimeGitPaths(
-          {
-            // Why: route unstaging by the repo OWNER host, not the focused runtime.
+          buildSourceControlRuntimeGitContext({
             settings: activeRepoSettings,
             worktreeId: activeWorktreeId,
             worktreePath,
             connectionId
-          },
+          }),
           [...paths]
         )
         await refreshActiveGitStatusAfterMutation()
@@ -3007,13 +3014,12 @@ function SourceControlInner(): React.JSX.Element {
       try {
         const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
         await bulkStageRuntimeGitPaths(
-          {
-            // Why: route staging by the repo OWNER host, not the focused runtime.
+          buildSourceControlRuntimeGitContext({
             settings: activeRepoSettings,
             worktreeId: activeWorktreeId,
             worktreePath,
             connectionId
-          },
+          }),
           paths
         )
         await refreshActiveGitStatusAfterMutation()
@@ -3052,13 +3058,12 @@ function SourceControlInner(): React.JSX.Element {
     try {
       const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
       await bulkStageRuntimeGitPaths(
-        {
-          // Why: route staging by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         filePaths
       )
       await refreshActiveGitStatusAfterMutation()
@@ -3110,13 +3115,12 @@ function SourceControlInner(): React.JSX.Element {
     try {
       const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
       await bulkUnstageRuntimeGitPaths(
-        {
-          // Why: route unstaging by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         paths
       )
       await refreshActiveGitStatusAfterMutation()
@@ -3579,13 +3583,12 @@ function SourceControlInner(): React.JSX.Element {
       try {
         const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
         await stageRuntimeGitPath(
-          {
-            // Why: route staging by the repo OWNER host, not the focused runtime.
+          buildSourceControlRuntimeGitContext({
             settings: activeRepoSettings,
             worktreeId: activeWorktreeId,
             worktreePath,
             connectionId
-          },
+          }),
           filePath
         )
         await refreshActiveGitStatusAfterMutation()
@@ -3604,13 +3607,12 @@ function SourceControlInner(): React.JSX.Element {
       try {
         const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
         await unstageRuntimeGitPath(
-          {
-            // Why: route unstaging by the repo OWNER host, not the focused runtime.
+          buildSourceControlRuntimeGitContext({
             settings: activeRepoSettings,
             worktreeId: activeWorktreeId,
             worktreePath,
             connectionId
-          },
+          }),
           filePath
         )
         await refreshActiveGitStatusAfterMutation()
@@ -3645,13 +3647,12 @@ function SourceControlInner(): React.JSX.Element {
       })
       const connectionId = getConnectionId(activeWorktreeId ?? null) ?? undefined
       await discardRuntimeGitPath(
-        {
-          // Why: route the discard by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         filePath
       )
       notifyEditorExternalFileChange({
@@ -3688,13 +3689,12 @@ function SourceControlInner(): React.JSX.Element {
       )
       const connectionId = getConnectionId(activeWorktreeId) ?? undefined
       await bulkDiscardRuntimeGitPaths(
-        {
-          // Why: route the discard by the repo OWNER host, not the focused runtime.
+        buildSourceControlRuntimeGitContext({
           settings: activeRepoSettings,
           worktreeId: activeWorktreeId,
           worktreePath,
           connectionId
-        },
+        }),
         filePaths
       )
       for (const relativePath of filePaths) {
@@ -3751,13 +3751,12 @@ function SourceControlInner(): React.JSX.Element {
         const result = await runDiscardAllForArea(area, paths, {
           bulkUnstage: (filePaths) =>
             bulkUnstageRuntimeGitPaths(
-              {
-                // Why: route unstaging by the repo OWNER host, not the focused runtime.
+              buildSourceControlRuntimeGitContext({
                 settings: activeRepoSettings,
                 worktreeId: activeWorktreeId,
                 worktreePath,
                 connectionId
-              },
+              }),
               filePaths
             ),
           discardMany,
