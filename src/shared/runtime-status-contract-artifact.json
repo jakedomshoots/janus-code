@@ -3,6 +3,7 @@
   "artifactVersion": 1,
   "artifactMediaType": "application/vnd.janus.runtime-status-contract+json",
   "artifactJsonPath": "src/shared/runtime-status-contract-artifact.json",
+  "jsonSchemaDraftUri": "https://json-schema.org/draft/2020-12/schema",
   "summary": {
     "schemaVersion": 1,
     "domainId": "runtime-status-diagnostics",

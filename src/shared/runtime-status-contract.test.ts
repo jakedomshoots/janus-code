@@ -11,7 +11,8 @@ import {
   listRuntimeStatusPortingRequiredFields,
   RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
-  validateRuntimeStatusPortingContract
+  validateRuntimeStatusPortingContract,
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI
 } from './runtime-status-contract'
 import {
   MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
@@ -205,7 +206,8 @@ describe('runtime status porting contract', () => {
       artifactId: 'janus-runtime-status-contract',
       artifactVersion: 1,
       artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
-      artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json'
+      artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json',
+      jsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI
     })
   })
 
@@ -338,6 +340,7 @@ describe('runtime status porting contract', () => {
       artifactVersion: 1,
       artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
       artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json',
+      jsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       summary: getRuntimeStatusPortingContractSummary(),
       jsonSchema: getRuntimeStatusPortingJsonSchema()
     })
@@ -356,6 +359,7 @@ describe('runtime status porting contract', () => {
         artifactVersion: 1,
         artifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
         artifactJsonPath: 'src/shared/runtime-status-contract-artifact.json',
+        jsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
         summary: getRuntimeStatusPortingContractSummary(),
         jsonSchema: getRuntimeStatusPortingJsonSchema()
       })
