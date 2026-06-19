@@ -12,6 +12,7 @@ const vitestFiles = [
   'config/scripts/janus-workflow-assurance-suite.test.mjs',
   'config/scripts/verify-direct-download-artifacts.test.mjs',
   'src/renderer/src/components/agent-workspace/AgentComposer.test.tsx',
+  'src/renderer/src/components/agent-workspace/AgentComposer.draft-agent.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.permission-mode.test.tsx',
   'src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx',

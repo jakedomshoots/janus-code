@@ -21,6 +21,7 @@ Every workflow was checked against this chain:
 - Red/green regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "selected project backend context"`
 - Keyboard slash-command selection regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "keyboard-selects slash commands"`
 - Composer permission-mode regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.permission-mode.test.tsx`
+- Draft-agent provider selection regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.draft-agent.test.tsx`
 - Browser context attachment regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "attaches browser annotations"`
 - Browser workbench and terminal drawer tool-button regression test: `pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/components/agent-workspace/AgentComposer.slash-commands.test.tsx -t "routes composer tool buttons"`
 - Direct-download release gate: `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md`
@@ -73,6 +74,7 @@ The renderer asked for live slash commands with only `{ agentId }`. The IPC/runt
 | Slash menu SSH backend     | selected project path and SSH connection id reach discovery API           | Fixed and verified                            |
 | Agent picker               | detected agents plus settings defaults drive active agent                 | Source-reviewed                               |
 | Provider/model controls    | settings popover writes default agent/model args                          | Source-reviewed                               |
+| Draft agent sync           | provider changes notify the draft tab strip exactly once                  | Fixed and verified                            |
 | Browser context attach     | active browser tab annotations feed composer context                      | Verified by test                              |
 | Browser workbench open     | composer tool button calls the workbench open action                      | Verified by test                              |
 | Terminal drawer open       | composer tool button calls terminal reveal with debug reason              | Verified by test                              |

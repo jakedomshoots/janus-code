@@ -347,9 +347,6 @@ export function AgentComposer({
 
   function handleSelectedAgentChange(agent: TuiAgent | null): void {
     setSelectedAgent(agent)
-    if (!selectedThread && draftSessionId && agent) {
-      onDraftSessionAgentChangeRef.current?.(agent)
-    }
   }
 
   return (
