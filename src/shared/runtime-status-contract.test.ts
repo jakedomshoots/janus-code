@@ -136,6 +136,21 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('serializes the bundled contract artifact for non-TypeScript sidecar adapters', () => {
+    const artifactJson = (
+      runtimeStatusContract as typeof runtimeStatusContract & {
+        getRuntimeStatusPortingContractArtifactJson?: () => string
+      }
+    ).getRuntimeStatusPortingContractArtifactJson?.()
+
+    expect(artifactJson).toBe(
+      JSON.stringify({
+        summary: getRuntimeStatusPortingContractSummary(),
+        jsonSchema: getRuntimeStatusPortingJsonSchema()
+      })
+    )
+  })
+
   it('exposes a JSON schema shell for non-TypeScript sidecar adapters', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toEqual({
       $schema: 'https://json-schema.org/draft/2020-12/schema',

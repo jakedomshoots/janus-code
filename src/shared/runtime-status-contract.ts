@@ -293,3 +293,7 @@ export function getRuntimeStatusPortingContractArtifact(): RuntimeStatusPortingC
     jsonSchema: getRuntimeStatusPortingJsonSchema()
   }
 }
+
+export function getRuntimeStatusPortingContractArtifactJson(): string {
+  return JSON.stringify(getRuntimeStatusPortingContractArtifact())
+}
