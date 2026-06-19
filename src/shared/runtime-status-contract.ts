@@ -60,10 +60,21 @@ export function validateRuntimeStatusPortingContract(
 export function listInvalidRuntimeStatusPortingFields(
   status: RuntimeStatus
 ): (keyof RuntimeStatus)[] {
-  return VERSIONED_RUNTIME_STATUS_PORTING_FIELDS.filter((field) => {
-    const value = status[field]
-    return typeof value !== 'number' || !Number.isInteger(value) || value < 1
-  })
+  const invalidFields: (keyof RuntimeStatus)[] = VERSIONED_RUNTIME_STATUS_PORTING_FIELDS.filter(
+    (field) => {
+      const value = status[field]
+      return typeof value !== 'number' || !Number.isInteger(value) || value < 1
+    }
+  )
+
+  if (
+    !Array.isArray(status.capabilities) ||
+    status.capabilities.some((item) => typeof item !== 'string')
+  ) {
+    invalidFields.push('capabilities')
+  }
+
+  return invalidFields
 }
 
 export function listRuntimeStatusPortingRequiredFields(): (keyof RuntimeStatus)[] {

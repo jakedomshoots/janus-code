@@ -125,6 +125,19 @@ describe('runtime status porting contract', () => {
     })
   })
 
+  it('rejects invalid capabilities without throwing for sidecar diagnostics', () => {
+    expect(
+      validateRuntimeStatusPortingContract(
+        makeRuntimeStatus({
+          capabilities: ['runtime.status.compat.v1', 7] as RuntimeStatus['capabilities']
+        })
+      )
+    ).toEqual({
+      ok: false,
+      invalidFields: ['capabilities']
+    })
+  })
+
   it('requires host platform so native runtime parity stays cross-platform', () => {
     expect(() =>
       assertRuntimeStatusPortingContract(makeRuntimeStatus({ hostPlatform: undefined }))
