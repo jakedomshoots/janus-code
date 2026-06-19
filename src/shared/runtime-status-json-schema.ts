@@ -14,6 +14,7 @@ export const RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI =
   'https://json-schema.org/draft/2020-12/schema'
 export const RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID =
   'urn:janus:runtime-status-contract:json-schema:1'
+export const RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE = 'Janus Runtime status.get result'
 
 export type RuntimeStatusPortingJsonSchema = {
   $schema: string
@@ -40,7 +41,7 @@ export function getRuntimeStatusPortingJsonSchema(): RuntimeStatusPortingJsonSch
   return {
     $schema: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
     $id: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
-    title: 'Janus Runtime status.get result',
+    title: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
     type: 'object',
     required: listRuntimeStatusPortingRequiredFields(),
     additionalProperties: false,

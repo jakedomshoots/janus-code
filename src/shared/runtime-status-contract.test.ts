@@ -392,6 +392,12 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('exports the JSON schema title for sidecar validators', () => {
+    expect(runtimeStatusContract.RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE).toBe(
+      'Janus Runtime status.get result'
+    )
+  })
+
   it('closes the JSON schema so sidecar adapters catch runtime status drift', () => {
     expect(getRuntimeStatusPortingJsonSchema()).toMatchObject({
       additionalProperties: false
