@@ -26,6 +26,7 @@
     "verify:packaged-release-artifacts": "node config/scripts/verify-packaged-release-artifacts.mjs",
     "verify:packaged-release-artifacts:mac": "node config/scripts/verify-packaged-release-artifacts.mjs --platform=mac",
     "verify:direct-download-artifacts": "node config/scripts/verify-direct-download-artifacts.mjs",
+    "verify:release-perf-scorecard": "node config/scripts/release-perf-scorecard.mjs",
     "verify:janus-workflow-assurance": "node config/scripts/run-janus-workflow-assurance.mjs",
     "vendor:feature-wall-assets": "node config/scripts/vendor-feature-wall-assets.mjs",
     "tc:node": "pnpm run typecheck:node",
