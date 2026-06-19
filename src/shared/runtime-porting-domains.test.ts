@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   getRuntimePortingDomain,
+  getRuntimePortingFirstSliceDomain,
   isFirstRuntimePortingSlice,
   getRuntimePortingFirstSliceMethod,
   listRuntimePortingDomainsByBoundary,
@@ -22,6 +23,12 @@ describe('runtime porting domains', () => {
       disposition: 'first-slice'
     })
     expect(isFirstRuntimePortingSlice(domain)).toBe(true)
+  })
+
+  it('resolves the first runtime porting slice domain', () => {
+    expect(getRuntimePortingFirstSliceDomain()).toEqual(
+      getRuntimePortingDomain('runtime-status-diagnostics')
+    )
   })
 
   it('keeps the embedded browser workbench out of the first native porting wave', () => {

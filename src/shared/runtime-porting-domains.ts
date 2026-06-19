@@ -65,6 +65,10 @@ export function getRuntimePortingDomain(id: RuntimePortingDomainId): RuntimePort
   return RUNTIME_PORTING_DOMAINS.find((domain) => domain.id === id)!
 }
 
+export function getRuntimePortingFirstSliceDomain(): RuntimePortingDomain {
+  return RUNTIME_PORTING_DOMAINS.find((domain) => domain.disposition === 'first-slice')!
+}
+
 export function isFirstRuntimePortingSlice(domain: RuntimePortingDomain): boolean {
   return domain.disposition === 'first-slice'
 }
