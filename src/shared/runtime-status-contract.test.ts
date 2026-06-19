@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   assertRuntimeStatusPortingContract,
   listRuntimeStatusPortingRequiredFields,
-  RUNTIME_STATUS_PORTING_CONTRACT_METHOD
+  RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+  RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
 } from './runtime-status-contract'
 import {
   MIN_COMPATIBLE_RUNTIME_CLIENT_VERSION,
@@ -30,6 +31,10 @@ function makeRuntimeStatus(overrides: Partial<RuntimeStatus> = {}): RuntimeStatu
 describe('runtime status porting contract', () => {
   it('uses the existing status.get runtime RPC method as the compatibility target', () => {
     expect(RUNTIME_STATUS_PORTING_CONTRACT_METHOD).toBe('status.get')
+  })
+
+  it('documents that status.get accepts null params', () => {
+    expect(RUNTIME_STATUS_PORTING_CONTRACT_PARAMS).toBeNull()
   })
 
   it('accepts the current runtime status shape used by status.get', () => {
