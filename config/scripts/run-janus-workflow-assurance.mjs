@@ -12,6 +12,7 @@ const vitestFiles = [
   'config/scripts/electron-vite-renderer-chunks.test.mjs',
   'config/scripts/janus-workflow-assurance-suite.test.mjs',
   'config/scripts/release-perf-scorecard.test.mjs',
+  'config/scripts/verify-computer-native.test.mjs',
   'config/scripts/verify-direct-download-artifacts.test.mjs',
   'src/main/computer/macos-native-provider-transport.test.ts',
   'src/main/startup/configure-process.test.ts',

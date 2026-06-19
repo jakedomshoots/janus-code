@@ -11,7 +11,8 @@ const checks = [
     name: 'macOS Swift renderer/provider tests',
     command: 'swift',
     args: ['test', '--package-path', 'native/computer-use-macos'],
-    enabled: process.platform === 'darwin'
+    enabled: process.platform === 'darwin',
+    requiredCommands: ['xctest']
   },
   {
     name: 'Linux provider Python syntax',
@@ -82,6 +83,11 @@ for (const check of checks) {
     console.log(`[computer-native] skip ${check.name}`)
     continue
   }
+  const missingRequiredCommand = findMissingRequiredCommand(check)
+  if (missingRequiredCommand) {
+    console.log(`[computer-native] skip ${check.name}: ${missingRequiredCommand} not found`)
+    continue
+  }
   if (check.run) {
     console.log(`[computer-native] ${check.name}`)
     if (!check.run()) {
@@ -120,6 +126,26 @@ function hasCommand(command) {
     stdio: 'ignore'
   })
   return result.status === 0
+}
+
+function findMissingRequiredCommand(check) {
+  for (const command of check.requiredCommands ?? []) {
+    if (!hasDeveloperCommand(command)) {
+      return command
+    }
+  }
+  return null
+}
+
+function hasDeveloperCommand(command) {
+  if (hasCommand(command)) {
+    return true
+  }
+  if (process.platform !== 'darwin' || !hasCommand('xcrun')) {
+    return false
+  }
+  const result = spawnSync('xcrun', ['--find', command], { stdio: 'ignore' })
+  return result.status === 0 && !result.error
 }
 
 function verifyMacOSHelperApp() {

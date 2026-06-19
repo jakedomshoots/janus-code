@@ -8,19 +8,21 @@ The direct-download prerelease is published at:
 
 https://github.com/jakedomshoots/janus-code/releases/tag/v0.0.1-rc.8-direct-download.1
 
-The current repo-side workflow gate is at **100/100** for audited release readiness. The installed app is rebuilt and installed locally, but this Mac still needs Accessibility and Screen Recording permission for the bundled Janus Computer Use helper before the live installed-app smoke can pass.
+The current repo-side workflow gate is at **100/100** for audited release readiness. The installed app was rebuilt locally, and the live installed-app smoke now passes with the bundled Janus Computer Use helper permissions granted on this Mac.
 
 ## Verified Requirements
 
 | Requirement | Evidence |
 | --- | --- |
-| Push latest code to GitHub | All workflow-assurance and direct-download handoff commits through `b57094a1f` were pushed to `origin/main` before publishing the release. |
-| Rebuild the app | `pnpm run build:mac` produced fresh unsigned `.dmg` and `.zip` macOS artifacts in `dist/`. |
+| Push latest code to GitHub | The verified workflow-assurance and direct-download handoff branch is pushed to `origin/main` after each release-readiness pass. |
+| Rebuild the app | `pnpm run build:unpack` rebuilt the local unpacked macOS app in `dist/mac-arm64/Janus Code.app`; `pnpm run build:mac` produces the unsigned `.dmg` and `.zip` macOS artifacts in `dist/`. |
 | Support no-Apple direct download | `pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md` passed with unsigned mac artifacts, checksums, and release notes; those assets were uploaded to the `v0.0.1-rc.8-direct-download.1` GitHub prerelease. |
-| Composer/chat wiring audit | `pnpm run verify:janus-workflow-assurance` passed 87 test files and 703 tests, including composer send, recovery, slash commands, model/provider controls, browser context, terminal drawer, source-control, settings, sidebar, browser, editor, and direct-download checks. |
+| Composer/chat wiring audit | `pnpm run verify:janus-workflow-assurance` passed 92 test files and 733 tests, including composer send, recovery, slash commands, model/provider controls, browser context, terminal drawer, source-control, settings, sidebar, browser, editor, and direct-download checks. |
 | Slash command backend context | The assurance gate verifies live slash command discovery receives selected project worktree context and SSH connection id. |
 | Premium Retro 95 workflow surface | Composer-adjacent workflow coverage now protects the visible controls that changed during the Retro 95 pass: composer controls, terminal/browser tools, right-panel tabs, sidebar actions, settings, and source-control flows. |
-| Installed app smoke harness | `pnpm run smoke:janus-workflow` is implemented and runs against the installed runtime. It currently stops at macOS permission denial, with recovery commands printed by the script. |
+| Installed app smoke harness | `pnpm run smoke:janus-workflow` passed against the installed runtime, covering the live chat/composer workflow, slash command picker, browser workbench, terminal drawer, and right-panel tabs. |
+| Release performance scorecard | `pnpm run verify:release-perf-scorecard` passed with measured idle CPU and terminal-scale reports instead of skipped optional artifacts. |
+| Native computer-use gate | `pnpm run verify:computer-native` passed the local native checks; SwiftPM tests are explicitly skipped when this Mac's Command Line Tools install does not provide `xctest`. |
 
 ## Fresh Verification
 
@@ -28,8 +30,8 @@ Last local verification from this handoff pass:
 
 ```text
 pnpm run verify:janus-workflow-assurance
-Test Files  87 passed (87)
-Tests       703 passed (703)
+Test Files  92 passed (92)
+Tests       733 passed (733)
 Verified direct-download artifacts, checksums, and release notes
 ```
 
@@ -38,16 +40,42 @@ pnpm run verify:direct-download-artifacts -- --release-notes=RELEASE_NOTES.md
 Verified direct-download artifacts, checksums, and release notes
 ```
 
-The installed-app smoke is not green yet because macOS still reports:
+```text
+pnpm test
+Test Files  1756 passed | 2 skipped (1758)
+Tests       17253 passed | 13 skipped (17266)
+```
 
-```json
-{
-  "helperAppPath": "/Applications/Janus Code.app/Contents/Resources/Janus Computer Use.app",
-  "permissions": [
-    { "id": "accessibility", "status": "not-granted" },
-    { "id": "screenshots", "status": "not-granted" }
-  ]
-}
+```text
+pnpm run test:e2e
+182 passed, 7 skipped
+```
+
+```text
+pnpm run build:unpack
+packaging platform=darwin arch=arm64 electron=42.3.3 appOutDir=dist/mac-arm64
+```
+
+```text
+pnpm run smoke:janus-workflow
+computer-use smoke: Janus workflow gate passed
+```
+
+```text
+pnpm run verify:release-perf-scorecard
+release perf scorecard: pass
+PASS  idle-cpu.mean-total                   1.59  budget 2.00
+PASS  terminal-scale.worst-typing          15.70  budget 300.00
+PASS  terminal-scale.restore              614.60  budget 2000.00
+```
+
+```text
+pnpm run verify:computer-native
+[computer-native] skip macOS Swift renderer/provider tests: xctest not found
+[computer-native] Linux provider Python syntax
+syntax-ok
+[computer-native] native provider argument guardrails
+[computer-native] macOS helper app bundle and signature
 ```
 
 ## Local Artifact Checksums
@@ -71,7 +99,7 @@ These artifacts are intentionally ignored by git. They are published as GitHub R
 
 ## Installed Smoke Recovery
 
-Before final public release, grant permissions for the helper app:
+If a different Mac reports permission denial, grant permissions for the helper app:
 
 ```sh
 janus computer permissions --id accessibility --json
@@ -89,4 +117,4 @@ That smoke covers the installed Janus app through Janus Computer Use, including 
 
 ## Release Decision
 
-The direct-download release lane is ready from the repo and artifact side. The only remaining local gate is granting macOS helper permissions and rerunning the installed-app smoke. If that smoke passes, the current app can be published through GitHub Releases without the Apple Developer subscription.
+The direct-download release lane is ready from the repo, artifact, installed-smoke, and local performance sides. The current app can be published through GitHub Releases without the Apple Developer subscription, as long as it is described accurately as unsigned and not notarized.
