@@ -37,6 +37,7 @@ describe('runtime porting domains', () => {
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
       nativeCandidates: listNativeRuntimePortingCandidates(),
       retainedElectron: listRetainedElectronRuntimeDomains(),
+      totalDomainCount: RUNTIME_PORTING_DOMAINS.length,
       nativeCandidateCount: 3,
       retainedElectronCount: 3
     })
