@@ -13,6 +13,8 @@ import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+  VALID_RUNTIME_GRAPH_STATUSES,
+  VALID_RUNTIME_HOST_PLATFORMS,
   VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 } from './runtime-status-contract'
 import { RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH } from './runtime-status-contract-artifact-metadata'
@@ -75,6 +77,10 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+      firstSliceContractEnumValues: {
+        graphStatus: VALID_RUNTIME_GRAPH_STATUSES,
+        hostPlatform: VALID_RUNTIME_HOST_PLATFORMS
+      },
       firstSliceContractInvalidatableFields: INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractNonNegativeIntegerFields:
         NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
@@ -108,7 +114,7 @@ describe('runtime porting domains', () => {
       return
     }
 
-    expect(readFileSync(artifactPath, 'utf8')).toBe(getRuntimePortingDomainSummaryJson())
+    expect(JSON.parse(readFileSync(artifactPath, 'utf8'))).toEqual(getRuntimePortingDomainSummary())
   })
 
   it('exposes a package script for verifying the checked-in porting summary artifact', () => {
@@ -143,6 +149,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
+    expect(doc).toContain('firstSliceContractEnumValues')
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')
     expect(doc).toContain('firstSliceContractRequiredFields')

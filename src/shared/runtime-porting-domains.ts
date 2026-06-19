@@ -10,6 +10,10 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 } from './runtime-status-json-schema'
 import {
+  VALID_RUNTIME_GRAPH_STATUSES,
+  VALID_RUNTIME_HOST_PLATFORMS
+} from './runtime-status-enum-values'
+import {
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
@@ -60,6 +64,10 @@ export type RuntimePortingFirstSliceContractJsonSchemaId =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export type RuntimePortingFirstSliceContractJsonSchemaTitle =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export type RuntimePortingFirstSliceContractEnumValues = {
+  graphStatus: typeof VALID_RUNTIME_GRAPH_STATUSES
+  hostPlatform: typeof VALID_RUNTIME_HOST_PLATFORMS
+}
 export type RuntimePortingFirstSliceContractRequiredFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
@@ -83,6 +91,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
@@ -128,6 +137,11 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES: RuntimePortingFirstSliceContractEnumValues =
+  {
+    graphStatus: VALID_RUNTIME_GRAPH_STATUSES,
+    hostPlatform: VALID_RUNTIME_HOST_PLATFORMS
+  }
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS: RuntimePortingFirstSliceContractInvalidatableFields =
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS: RuntimePortingFirstSliceContractNonNegativeIntegerFields =
@@ -230,6 +244,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractEnumValues: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
     firstSliceContractInvalidatableFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
     firstSliceContractNonNegativeIntegerFields:
