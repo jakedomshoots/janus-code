@@ -44,6 +44,7 @@
     }
   ],
   "firstSliceContractSampleCount": 2,
+  "firstSliceContractSampleKinds": ["valid", "invalid"],
   "firstSliceContractSamplePaths": [
     "src/shared/runtime-status-contract-valid-sample.json",
     "src/shared/runtime-status-contract-invalid-sample.json"

@@ -89,6 +89,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractInvalidSampleExpectedResult: RuntimePortingFirstSliceContractInvalidSampleExpectedResult
   firstSliceContractSamples: RuntimePortingFirstSliceContractSamples
   firstSliceContractSampleCount: number
+  firstSliceContractSampleKinds: readonly string[]
   firstSliceContractSamplePaths: readonly string[]
   firstSliceContractSampleVerificationCommand: RuntimePortingFirstSliceContractSampleVerificationCommand
   firstSliceContractSampleManifestPath: RuntimePortingFirstSliceContractSampleManifestPath
