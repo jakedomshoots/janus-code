@@ -172,6 +172,44 @@ pub fn verify_runtime_status_artifact_json_schema_property_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_property_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let summary_required_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("requiredFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.requiredFields array".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    let summary_fields: Result<Vec<&str>, String> = summary_required_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.requiredFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut summary_fields = summary_fields?;
+    let mut property_fields: Vec<&str> = properties.keys().map(String::as_str).collect();
+    summary_fields.sort_unstable();
+    property_fields.sort_unstable();
+
+    if summary_fields == property_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.requiredFields {summary_fields:?} to match jsonSchema.properties fields {property_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_draft_uri(
     relative_path: &str,
     expected_draft_uri: &str,
@@ -1283,6 +1321,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_property_array_item_type,
         verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_fields,
+        verify_runtime_status_artifact_json_schema_property_fields_consistency,
         verify_runtime_status_artifact_json_schema_property_min_length,
         verify_runtime_status_artifact_json_schema_property_minimum,
         verify_runtime_status_artifact_json_schema_property_type,
@@ -1394,6 +1433,16 @@ mod tests {
             verify_runtime_status_artifact_json_schema_property_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 REQUIRED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_property_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_property_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
