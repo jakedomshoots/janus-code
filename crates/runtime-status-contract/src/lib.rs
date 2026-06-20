@@ -125,6 +125,39 @@ pub fn verify_runtime_status_artifact_versioned_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_non_negative_integer_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let non_negative_integer_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("nonNegativeIntegerFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.nonNegativeIntegerFields array".to_string()
+        })?;
+
+    let actual_fields: Result<Vec<&str>, String> = non_negative_integer_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field.as_str().ok_or_else(|| {
+                format!("summary.nonNegativeIntegerFields[{index}] must be a string")
+            })
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.nonNegativeIntegerFields {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -478,6 +511,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
+        verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_required_fields,
         verify_runtime_status_artifact_versioned_fields,
         verify_runtime_status_manifest_artifact_id,
@@ -499,6 +533,8 @@ mod tests {
         "runtimeProtocolVersion",
         "minCompatibleRuntimeClientVersion",
     ];
+    const NON_NEGATIVE_INTEGER_FIELDS: &[&str] =
+        &["rendererGraphEpoch", "liveTabCount", "liveLeafCount"];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -525,6 +561,17 @@ mod tests {
             verify_runtime_status_artifact_versioned_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 VERSIONED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_non_negative_integer_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_non_negative_integer_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                NON_NEGATIVE_INTEGER_FIELDS
             ),
             Ok(())
         );
