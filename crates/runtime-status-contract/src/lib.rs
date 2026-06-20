@@ -202,13 +202,33 @@ pub fn verify_runtime_status_manifest_artifact_id(
     }
 }
 
+pub fn verify_runtime_status_manifest_artifact_path(
+    relative_path: &str,
+    expected_artifact_path: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_artifact_path = manifest
+        .get("contractArtifactPath")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string contractArtifactPath".to_string())?;
+
+    if actual_artifact_path == expected_artifact_path {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractArtifactPath {expected_artifact_path} but got {actual_artifact_path}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
         validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
-        verify_runtime_status_manifest_id, verify_runtime_status_manifest_json_path,
-        verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
-        verify_runtime_status_manifest_schema_version, verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_artifact_path, verify_runtime_status_manifest_id,
+        verify_runtime_status_manifest_json_path, verify_runtime_status_manifest_media_type,
+        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -300,6 +320,17 @@ mod tests {
             verify_runtime_status_manifest_artifact_id(
                 "src/shared/runtime-status-contract-samples.json",
                 "janus-runtime-status-contract"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_the_runtime_status_contract_artifact_path() {
+        assert_eq!(
+            verify_runtime_status_manifest_artifact_path(
+                "src/shared/runtime-status-contract-samples.json",
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
