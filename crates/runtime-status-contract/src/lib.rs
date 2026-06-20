@@ -1098,6 +1098,61 @@ pub fn verify_runtime_status_artifact_nullable_fields_schema_consistency(
     Ok(())
 }
 
+pub fn verify_runtime_status_artifact_nullable_fields_numeric_constraints_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let nullable_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("nullableFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.nullableFields array".to_string())?;
+    let numeric_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.numericConstraints object".to_string()
+        })?;
+
+    let nullable_fields: Result<Vec<&str>, String> = nullable_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.nullableFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut nullable_fields = nullable_fields?;
+    let mut nullable_constraint_fields: Vec<&str> = Vec::new();
+
+    for (field_name, constraint) in numeric_constraints {
+        let constraint = constraint
+            .as_object()
+            .ok_or_else(|| format!("summary.numericConstraints.{field_name} must be an object"))?;
+        let nullable = constraint
+            .get("nullable")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+
+        if nullable {
+            nullable_constraint_fields.push(field_name);
+        }
+    }
+
+    nullable_fields.sort_unstable();
+    nullable_constraint_fields.sort_unstable();
+
+    if nullable_fields == nullable_constraint_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.nullableFields {nullable_fields:?} to match nullable summary.numericConstraints fields {nullable_constraint_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_invalidatable_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -2205,6 +2260,7 @@ mod tests {
         verify_runtime_status_artifact_non_negative_integer_fields_numeric_constraints_consistency,
         verify_runtime_status_artifact_non_negative_integer_fields_numeric_fields_consistency,
         verify_runtime_status_artifact_nullable_fields,
+        verify_runtime_status_artifact_nullable_fields_numeric_constraints_consistency,
         verify_runtime_status_artifact_nullable_fields_schema_consistency,
         verify_runtime_status_artifact_numeric_constraint,
         verify_runtime_status_artifact_numeric_constraints_fields_consistency,
@@ -2658,6 +2714,16 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_nullable_fields_schema_consistency() {
         assert_eq!(
             verify_runtime_status_artifact_nullable_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_nullable_fields_numeric_constraints_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_nullable_fields_numeric_constraints_consistency(
                 "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
