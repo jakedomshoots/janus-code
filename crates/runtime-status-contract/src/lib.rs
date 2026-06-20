@@ -220,6 +220,37 @@ pub fn verify_runtime_status_artifact_array_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_numeric_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let numeric_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.numericFields array".to_string())?;
+
+    let actual_fields: Result<Vec<&str>, String> = numeric_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.numericFields[{index}] must be a string"))
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.numericFields {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -575,6 +606,7 @@ mod tests {
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
+        verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_required_fields,
         verify_runtime_status_artifact_string_fields,
         verify_runtime_status_artifact_versioned_fields,
@@ -601,6 +633,14 @@ mod tests {
         &["rendererGraphEpoch", "liveTabCount", "liveLeafCount"];
     const STRING_FIELDS: &[&str] = &["runtimeId"];
     const ARRAY_FIELDS: &[&str] = &["capabilities"];
+    const NUMERIC_FIELDS: &[&str] = &[
+        "runtimeProtocolVersion",
+        "minCompatibleRuntimeClientVersion",
+        "rendererGraphEpoch",
+        "liveTabCount",
+        "liveLeafCount",
+        "authoritativeWindowId",
+    ];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -660,6 +700,17 @@ mod tests {
             verify_runtime_status_artifact_array_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 ARRAY_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_numeric_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_numeric_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                NUMERIC_FIELDS
             ),
             Ok(())
         );
