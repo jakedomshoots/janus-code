@@ -23,6 +23,16 @@ pub enum RuntimeStatusHostPlatform {
     Win32,
 }
 
+impl RuntimeStatusHostPlatform {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Darwin => "darwin",
+            Self::Linux => "linux",
+            Self::Win32 => "win32",
+        }
+    }
+}
+
 impl FromStr for RuntimeStatusHostPlatform {
     type Err = String;
 
@@ -2426,6 +2436,13 @@ mod tests {
         assert_eq!("darwin".parse(), Ok(RuntimeStatusHostPlatform::Darwin));
         assert_eq!("linux".parse(), Ok(RuntimeStatusHostPlatform::Linux));
         assert_eq!("win32".parse(), Ok(RuntimeStatusHostPlatform::Win32));
+    }
+
+    #[test]
+    fn returns_runtime_status_host_platform_contract_values() {
+        assert_eq!(RuntimeStatusHostPlatform::Darwin.as_str(), "darwin");
+        assert_eq!(RuntimeStatusHostPlatform::Linux.as_str(), "linux");
+        assert_eq!(RuntimeStatusHostPlatform::Win32.as_str(), "win32");
     }
 
     #[test]
