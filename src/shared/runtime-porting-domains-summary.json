@@ -16,6 +16,7 @@
   "firstSliceContractArtifactVersion": 1,
   "firstSliceContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "firstSliceContractSchemaVersion": 1,
+  "firstSliceContractParams": null,
   "firstSliceContractJsonSchemaDraftUri": "https://json-schema.org/draft/2020-12/schema",
   "firstSliceContractJsonSchemaId": "urn:janus:runtime-status-contract:json-schema:1",
   "firstSliceContractJsonSchemaTitle": "Janus Runtime status.get result",
