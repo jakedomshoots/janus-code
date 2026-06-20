@@ -1,6 +1,6 @@
 // Step for AddRepoDialog (orca#763), split out so create-project state stays scoped.
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { ChevronDown, Folder, GitBranch, Loader2 } from 'lucide-react'
+import { AlertTriangle, ChevronDown, Folder, GitBranch, Loader2 } from 'lucide-react'
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -100,12 +100,6 @@ export function CreateStep({
     })
   }, [cancelRadioFocusFrame, createKind, onKindChange])
 
-  const canSubmit =
-    createName.trim().length > 0 &&
-    createParent.trim().length > 0 &&
-    gitAvailability !== 'checking' &&
-    !parentDefaultPending &&
-    !isCreating
   const missingLocationLabel = translate(
     'auto.components.sidebar.AddRepoCreateStep.3a13f6e88b',
     'location not selected'
@@ -147,6 +141,13 @@ export function CreateStep({
   const showGitChecking = gitAvailability === 'checking'
   const showRuntimeMissingParent =
     runtimeEnvironmentId && !createParent.trim() && runtimeParentStatus !== 'checking'
+  const createPrerequisiteBlocked = Boolean(showRuntimeMissingParent || parentDefaultPending)
+  const canSubmit =
+    createName.trim().length > 0 &&
+    createParent.trim().length > 0 &&
+    gitAvailability !== 'checking' &&
+    !createPrerequisiteBlocked &&
+    !isCreating
 
   if (browsingParent && (runtimeEnvironmentId || sshTargetId)) {
     return (
@@ -182,6 +183,26 @@ export function CreateStep({
         the dialog width even with flex + truncate on the row itself. min-w-0
         here caps the grid track at the dialog's max-width. */}
       <div className="space-y-3.5 pt-1 min-w-0">
+        {showRuntimeMissingParent ? (
+          <div className="flex items-start gap-2 rounded-md border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-primary" strokeWidth={1.8} />
+            <div className="min-w-0 space-y-1">
+              <p className="font-medium text-primary">
+                {translate(
+                  'auto.components.sidebar.AddRepoCreateStep.remoteParentGateTitle',
+                  'Choose a host folder before naming this project.'
+                )}
+              </p>
+              <p className="text-xs">
+                {translate(
+                  'auto.components.sidebar.AddRepoCreateStep.remoteParentGateDescription',
+                  'Open Location, then browse the host filesystem or enter the remote parent path.'
+                )}
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         {/* Name. Monospaced because it ends up as a directory name. */}
         <div className="space-y-1">
           <label
@@ -199,8 +220,8 @@ export function CreateStep({
               'my-project'
             )}
             className="h-11 text-sm font-mono"
-            disabled={isCreating}
-            autoFocus
+            disabled={isCreating || createPrerequisiteBlocked}
+            autoFocus={!createPrerequisiteBlocked}
             autoComplete="off"
             spellCheck={false}
           />

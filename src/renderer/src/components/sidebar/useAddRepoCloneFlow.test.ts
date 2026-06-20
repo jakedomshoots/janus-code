@@ -185,6 +185,28 @@ describe('useAddRepoCloneFlow', () => {
     expect(mocks.stateSetters[3]).toHaveBeenCalledWith(cloneError)
   })
 
+  it('rejects malformed Git URLs before calling clone APIs', async () => {
+    mocks.stateValues = ['not a url', '/srv', false, null, null]
+    const { useAddRepoCloneFlow } = await import('./useAddRepoCloneFlow')
+
+    const result = useAddRepoCloneFlow({
+      step: 'clone',
+      activeRuntimeEnvironmentId: null,
+      sshTargetId: 'ssh-1',
+      workspaceDir: '/local/workspace',
+      fetchWorktrees: mocks.fetchWorktrees,
+      onGitRepoReady: mocks.onGitRepoReady
+    })
+    await result.handleClone()
+
+    expect(mocks.stateSetters[3]).toHaveBeenCalledWith(
+      'Enter a valid Git URL, such as https://github.com/user/repo.git.'
+    )
+    expect(mocks.cloneRemote).not.toHaveBeenCalled()
+    expect(mocks.cloneLocal).not.toHaveBeenCalled()
+    expect(mocks.callRuntimeRpc).not.toHaveBeenCalled()
+  })
+
   it('clones through the selected runtime environment', async () => {
     const repo = makeRepo({ id: 'runtime-repo', executionHostId: 'runtime:env-1' })
     mocks.callRuntimeRpc.mockResolvedValue({ repo })

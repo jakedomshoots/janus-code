@@ -912,7 +912,19 @@
         "16e9e3df89": "con estrella",
         "0d0ace8861": "Dar estrella en GitHub",
         "ec43b38ba7": "Con estrella en GitHub",
-        "157bb5ecbb": "Abrir GitHub"
+        "157bb5ecbb": "Abrir GitHub",
+        "requiredSetup": "Required before Git projects",
+        "optionalSetup": "Optional source-control setup",
+        "setupStepProject": "Start with a project",
+        "setupStepProjectDescription": "Add a local folder, clone a repository, or create a new project.",
+        "setupStepRuntime": "Connect Janus Code",
+        "setupStepRuntimeDescription": "Pair this web client or use the desktop app so local actions can run.",
+        "setupStepGit": "Install required Git",
+        "setupStepGitDescription": "Git projects need Git before source control and workspace management work.",
+        "setupStepAgent": "Start an agent",
+        "setupStepAgentDescription": "Once setup is ready, launch an agent from a workspace.",
+        "setupPathTitle": "First-run setup path",
+        "createWorkspaceBlocked": "Add a project before creating a workspace."
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",
@@ -2687,7 +2699,9 @@
             "cd9d7b40ff": "Reiniciar {{value0}} sesiones",
             "6cd6650b4c": "Reiniciar sesión",
             "1446d0d8a0": "{{value0}} Las sesiones del Codex todavía están en la cuenta anterior.",
-            "605901a495": "1 sesión del Codex todavía está en la cuenta anterior"
+            "605901a495": "1 sesión del Codex todavía está en la cuenta anterior",
+            "wslCliLogin": "WSL CLI login",
+            "thisDeviceCliLogin": "This device CLI login"
           },
           "StatusBarUsageEmptyCta": {
             "828c764a79": "Conectar una cuenta",
@@ -3225,7 +3239,9 @@
           "c234df77f7": "Elige o introduce una carpeta principal del servidor antes de crear.",
           "3a13f6e88b": "ubicación no seleccionada",
           "6ed14c0281": "carpeta del servidor no seleccionada",
-          "ssh_parent_manual": "Enter an SSH parent path."
+          "ssh_parent_manual": "Enter an SSH parent path.",
+          "remoteParentGateTitle": "Choose a host folder before naming this project.",
+          "remoteParentGateDescription": "Open Location, then browse the host filesystem or enter the remote parent path."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "Escaneo de repositorios. Haga clic para detener.",
@@ -3316,7 +3332,8 @@
           "32a7256d85": "Clon",
           "69f5b5380d": "Clonación...",
           "cloneOnHostDescription": "Enter the Git URL and choose where to clone it on {{value0}}.",
-          "cloneParentFolder": "Parent folder"
+          "cloneParentFolder": "Parent folder",
+          "gitCloneUrlValidation": "Enter a valid Git URL, such as https://github.com/user/repo.git."
         },
         "AutoRenameFailedDialog": {
           "aed1623b1e": "Cerca",
@@ -3527,7 +3544,9 @@
           "0ccba862b8": "Abrir tareas de GitHub",
           "fee535205b": "Tareas",
           "d599269755": "Ocultar de la barra lateral",
-          "newAgent": "New Agent"
+          "newAgent": "New Agent",
+          "newAgentRecoveryTitle": "Connect Janus Code before starting a planning agent.",
+          "openRemoteHostsSettings": "Open Remote Hosts settings"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "Claro",
@@ -3924,12 +3943,16 @@
         },
         "useAddRepoCloneFlow": {
           "4d0013cc93": "Repositorio clonado",
-          "0dc4d1b657": "Introduzca una ruta de servidor para el destino del clon."
+          "0dc4d1b657": "Introduzca una ruta de servidor para el destino del clon.",
+          "gitCloneUrlValidation": "Enter a valid Git URL, such as https://github.com/user/repo.git."
         },
         "useAddRepoLocalFolderFlow": {
           "7ab10e4974": "Utilice una ruta de servidor para agregar proyectos desde un tiempo de ejecución remoto.",
           "webPairingRequired": "Pair this web client with Janus Code before browsing folders.",
-          "folderPickerFailed": "Could not open the folder picker."
+          "folderPickerFailed": "Could not open the folder picker.",
+          "webPairingRequiredTitle": "Pair Janus Code before browsing folders",
+          "webPairingRequiredDescription": "This web client needs a reachable Janus Code server to open native folders.",
+          "webPairingRequiredAction": "Open Remote Hosts settings"
         },
         "useAddRepoNestedImportFlow": {
           "680cac2c82": "{{value0}} falló",
@@ -4230,7 +4253,11 @@
           "75ca9b718e": "Codex informó que la cuenta activa necesita un nuevo inicio de sesión. Vuelva a autenticarlo antes de iniciar nuevas sesiones del Codex.",
           "b11078a9c2": "wsl",
           "350b2a1aa7": "Usa tu actual",
-          "e05d0ff737": "Utilice su inicio de sesión actual de {{value0}} Claude."
+          "e05d0ff737": "Utilice su inicio de sesión actual de {{value0}} Claude.",
+          "currentClaudeCliLogin": "Current Claude CLI login",
+          "currentCodexCliLogin": "Current Codex CLI login",
+          "removeCodexCurrentCliLogin": "Janus Code will delete the managed Codex home for this saved account. If it is currently active, Janus Code falls back to the current Codex CLI login.",
+          "removeClaudeCurrentCliLogin": "Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Janus Code falls back to the current Claude CLI login."
         },
         "AdvancedPane": {
           "40b29e0bf3": "Reanudar",
@@ -9114,7 +9141,12 @@
           "4e1eb5d55c": "No se pudo revocar el dispositivo",
           "255372e6e8": "Dispositivo revocado",
           "1b4509a8a1": "emparejado",
-          "c5909374cf": "introducción"
+          "c5909374cf": "introducción",
+          "pairingIssueTitle": "Start Janus Code server before pairing mobile.",
+          "pairingIssueDescription": "Mobile pairing needs the desktop WebSocket transport to create a QR code.",
+          "pairingIssueAction": "Open Remote Hosts settings",
+          "pairingIssueFailedTitle": "Could not generate a mobile pairing code.",
+          "pairingIssueFailedDescription": "Check that Janus Code is reachable, then try generating the code again."
         },
         "MobilePageToolbar": {
           "ad2284a9e2": "Cerrar · Esc",
@@ -9557,7 +9589,8 @@
                 "tracking": {
                   "b94ec70eda": "Seguimiento no configurado",
                   "cc39a87288": "Conectado · Sistema predeterminado",
-                  "00087eecb2": "Conectado · {{value0}}"
+                  "00087eecb2": "Conectado · {{value0}}",
+                  "localCliLogin": "Connected · local CLI login"
                 }
               }
             }
@@ -10411,8 +10444,13 @@
                 "removeWorktree": "eliminar árbol de trabajo",
                 "trashWorktree": "árbol de trabajo de basura",
                 "addQuickCommand": "agregar comando rápido",
-                "newQuickCommand": "nuevo comando rápido"
-              }
+                "newQuickCommand": "nuevo comando rápido",
+                "addProject": "add project",
+                "newProject": "new project",
+                "cloneProject": "clone project"
+              },
+              "addProjectTitle": "Add Project",
+              "addProjectDescription": "Add a local folder, clone a repository, or create a project."
             }
           }
         }
@@ -10627,7 +10665,9 @@
           "e46c1aa9ad": "Crear",
           "a9d9dccf77": "Ahorrar",
           "777548c2d6": "Guardar cambios",
-          "ff5db28639": "existente"
+          "ff5db28639": "existente",
+          "noProjectGateTitle": "Add a project before creating an automation.",
+          "noProjectGateDescription": "Automations need a project or workspace target to run."
         },
         "AutomationEditorDialogHeader": {
           "31f9253920": "Usar plantilla",
@@ -10764,7 +10804,9 @@
           "d441032f7e": "pausa",
           "5918020edc": "correr",
           "a21f6c33ad": "Automation source refreshed.",
-          "53f06f0ad5": "Retry source"
+          "53f06f0ad5": "Retry source",
+          "noProjectTemplatesTitle": "Add a project before using automation templates.",
+          "noProjectTemplatesDescription": "Templates need a project target before Janus Code can schedule runs."
         },
         "CreateFromPicker": {
           "f061f49e3f": "Buscar sucursales de repo...",
@@ -11020,7 +11062,9 @@
         "noGitLabMrsTitle": "No GitLab merge requests",
         "noGitLabMrsDescription": "No GitLab MRs match this filter.",
         "noGitLabWorkTitle": "No GitLab work",
-        "noGitLabWorkDescription": "No GitLab work matches this filter."
+        "noGitLabWorkDescription": "No GitLab work matches this filter.",
+        "addProjectSourcesTitle": "Add a project source to load tasks",
+        "addProjectSourcesDescription": "Add or select a GitHub/GitLab project, then connect that provider account if Janus Code asks for access."
       },
       "taskSourceContextSummary": {
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",

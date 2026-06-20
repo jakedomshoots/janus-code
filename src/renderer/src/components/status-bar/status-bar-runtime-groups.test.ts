@@ -82,7 +82,7 @@ describe('status bar runtime switch groups', () => {
     ])
   })
 
-  it('keeps Claude WSL system-default available without managed Claude accounts', () => {
+  it('keeps Claude WSL CLI login targets available without managed Claude accounts', () => {
     const state: ClaudeRateLimitAccountsState = {
       accounts: [],
       activeAccountId: null,
@@ -100,8 +100,8 @@ describe('status bar runtime switch groups', () => {
         targets: group.targets.map((target) => target.label)
       }))
     ).toEqual([
-      { key: 'host', label: hostLabel, targets: ['System default'] },
-      { key: 'wsl:Ubuntu', label: 'WSL Ubuntu', targets: ['System default'] }
+      { key: 'host', label: hostLabel, targets: ['This device CLI login'] },
+      { key: 'wsl:Ubuntu', label: 'WSL Ubuntu', targets: ['WSL CLI login'] }
     ])
   })
 })

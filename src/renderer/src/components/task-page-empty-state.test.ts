@@ -9,9 +9,9 @@ describe('getRepoBackedTaskEmptyState', () => {
         selectedRepoCount: 0
       })
     ).toEqual({
-      title: 'No project sources selected',
+      title: 'Add a project source to load tasks',
       description:
-        'Select at least one project source so Janus Code knows which host/account to fetch tasks from.'
+        'Add or select a GitHub/GitLab project, then connect that provider account if Janus Code asks for access.'
     })
   })
 

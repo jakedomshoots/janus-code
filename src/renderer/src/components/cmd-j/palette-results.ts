@@ -43,6 +43,8 @@ const SETTINGS_ALIASES: Record<string, string[]> = {
   privacy: ['telemetry']
 }
 
+const EMPTY_STATE_ACTION_IDS = ['add-project', 'create-workspace'] as const
+
 function normalizeQuery(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')
 }
@@ -236,4 +238,12 @@ export function rankCmdJMiddleResults({
     .filter((entry): entry is RankedResult => entry !== null)
     .sort(compareRanked)
     .map((entry) => entry.result)
+}
+
+export function getCmdJEmptyStateActionResults(
+  actionResults: readonly CmdJActionResult[]
+): CmdJActionResult[] {
+  return EMPTY_STATE_ACTION_IDS.map((id) =>
+    actionResults.find((action) => action.id === id)
+  ).filter((action): action is CmdJActionResult => action !== undefined)
 }

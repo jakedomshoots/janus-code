@@ -18,7 +18,7 @@ function rateLimits(overrides: Partial<ProviderRateLimits> = {}): ProviderRateLi
 }
 
 describe('feature wall usage tracking state', () => {
-  it('treats system-default Codex rate limit data as connected', () => {
+  it('treats local CLI Codex rate limit data as connected', () => {
     expect(
       getFeatureWallUsageProviderConnection({
         managedAccountCount: 0,
@@ -31,7 +31,7 @@ describe('feature wall usage tracking state', () => {
           }
         })
       })
-    ).toEqual({ connected: true, label: 'Connected · System default' })
+    ).toEqual({ connected: true, label: 'Connected · local CLI login' })
   })
 
   it('keeps managed accounts connected even before live quota data arrives', () => {
@@ -52,7 +52,7 @@ describe('feature wall usage tracking state', () => {
     ).toEqual({ connected: false, label: 'Tracking not set up' })
   })
 
-  it('marks the usage step complete from system-default provider data', () => {
+  it('marks the usage step complete from local CLI provider data', () => {
     expect(
       hasFeatureWallUsageTracking({
         claudeManagedAccountCount: 0,

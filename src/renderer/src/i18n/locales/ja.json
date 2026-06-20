@@ -912,7 +912,19 @@
         "16e9e3df89": "星付き",
         "0d0ace8861": "GitHub でスターを付ける",
         "ec43b38ba7": "GitHubでスター済み",
-        "157bb5ecbb": "GitHubを開く"
+        "157bb5ecbb": "GitHubを開く",
+        "requiredSetup": "Required before Git projects",
+        "optionalSetup": "Optional source-control setup",
+        "setupStepProject": "Start with a project",
+        "setupStepProjectDescription": "Add a local folder, clone a repository, or create a new project.",
+        "setupStepRuntime": "Connect Janus Code",
+        "setupStepRuntimeDescription": "Pair this web client or use the desktop app so local actions can run.",
+        "setupStepGit": "Install required Git",
+        "setupStepGitDescription": "Git projects need Git before source control and workspace management work.",
+        "setupStepAgent": "Start an agent",
+        "setupStepAgentDescription": "Once setup is ready, launch an agent from a workspace.",
+        "setupPathTitle": "First-run setup path",
+        "createWorkspaceBlocked": "Add a project before creating a workspace."
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",
@@ -2687,7 +2699,9 @@
             "cd9d7b40ff": "{{value0}} セッションを再起動します",
             "6cd6650b4c": "セッションを再開する",
             "1446d0d8a0": "{{value0}} Codex セッションはまだ古いアカウントにあります。",
-            "605901a495": "1 Codex セッションはまだ古いアカウントにあります"
+            "605901a495": "1 Codex セッションはまだ古いアカウントにあります",
+            "wslCliLogin": "WSL CLI login",
+            "thisDeviceCliLogin": "This device CLI login"
           },
           "StatusBarUsageEmptyCta": {
             "828c764a79": "アカウントを接続する",
@@ -3206,7 +3220,9 @@
           "c234df77f7": "作成する前に、サーバーの親フォルダを選択または入力してください。",
           "3a13f6e88b": "場所が選択されていません",
           "6ed14c0281": "サーバーフォルダが選択されていません",
-          "ssh_parent_manual": "Enter an SSH parent path."
+          "ssh_parent_manual": "Enter an SSH parent path.",
+          "remoteParentGateTitle": "Choose a host folder before naming this project.",
+          "remoteParentGateDescription": "Open Location, then browse the host filesystem or enter the remote parent path."
         },
         "AddRepoNestedImportStep": {
           "496f68cf8c": "リポジトリをスキャンしています。クリックして停止します。",
@@ -3297,7 +3313,8 @@
           "32a7256d85": "クローン",
           "69f5b5380d": "クローン作成中...",
           "cloneOnHostDescription": "Enter the Git URL and choose where to clone it on {{value0}}.",
-          "cloneParentFolder": "Parent folder"
+          "cloneParentFolder": "Parent folder",
+          "gitCloneUrlValidation": "Enter a valid Git URL, such as https://github.com/user/repo.git."
         },
         "AutoRenameFailedDialog": {
           "aed1623b1e": "閉じる",
@@ -3508,7 +3525,9 @@
           "0ccba862b8": "GitHub タスクを開く",
           "fee535205b": "タスク",
           "d599269755": "サイドバーから隠す",
-          "newAgent": "New Agent"
+          "newAgent": "New Agent",
+          "newAgentRecoveryTitle": "Connect Janus Code before starting a planning agent.",
+          "openRemoteHostsSettings": "Open Remote Hosts settings"
         },
         "SidebarRepositoryFilterSection": {
           "d3a9c4cea1": "クリア",
@@ -3905,12 +3924,16 @@
         },
         "useAddRepoCloneFlow": {
           "4d0013cc93": "リポジトリのクローンが作成されました",
-          "0dc4d1b657": "クローン先のサーバー パスを入力します。"
+          "0dc4d1b657": "クローン先のサーバー パスを入力します。",
+          "gitCloneUrlValidation": "Enter a valid Git URL, such as https://github.com/user/repo.git."
         },
         "useAddRepoLocalFolderFlow": {
           "7ab10e4974": "サーバー パスを使用して、リモート ランタイムからプロジェクトを追加します。",
           "webPairingRequired": "Pair this web client with Janus Code before browsing folders.",
-          "folderPickerFailed": "Could not open the folder picker."
+          "folderPickerFailed": "Could not open the folder picker.",
+          "webPairingRequiredTitle": "Pair Janus Code before browsing folders",
+          "webPairingRequiredDescription": "This web client needs a reachable Janus Code server to open native folders.",
+          "webPairingRequiredAction": "Open Remote Hosts settings"
         },
         "useAddRepoNestedImportFlow": {
           "680cac2c82": "{{value0}} は失敗しました",
@@ -4215,7 +4238,11 @@
           "75ca9b718e": "Codex は、アクティブなアカウントには新たにサインインする必要があると報告しました。新規 Codex セッションを開始する前に、再認証してください。",
           "b11078a9c2": "wsl",
           "350b2a1aa7": "Use your current",
-          "e05d0ff737": "現在の {{value0}} Claude ログインを使用します。"
+          "e05d0ff737": "現在の {{value0}} Claude ログインを使用します。",
+          "currentClaudeCliLogin": "Current Claude CLI login",
+          "currentCodexCliLogin": "Current Codex CLI login",
+          "removeCodexCurrentCliLogin": "Janus Code will delete the managed Codex home for this saved account. If it is currently active, Janus Code falls back to the current Codex CLI login.",
+          "removeClaudeCurrentCliLogin": "Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Janus Code falls back to the current Claude CLI login."
         },
         "AdvancedPane": {
           "40b29e0bf3": "再起動",
@@ -9114,7 +9141,12 @@
           "4e1eb5d55c": "デバイスの取り消しに失敗しました",
           "255372e6e8": "デバイスが取り消されました",
           "1b4509a8a1": "ペアになった",
-          "c5909374cf": "イントロ"
+          "c5909374cf": "イントロ",
+          "pairingIssueTitle": "Start Janus Code server before pairing mobile.",
+          "pairingIssueDescription": "Mobile pairing needs the desktop WebSocket transport to create a QR code.",
+          "pairingIssueAction": "Open Remote Hosts settings",
+          "pairingIssueFailedTitle": "Could not generate a mobile pairing code.",
+          "pairingIssueFailedDescription": "Check that Janus Code is reachable, then try generating the code again."
         },
         "MobilePageToolbar": {
           "ad2284a9e2": "閉じる・Esc",
@@ -9557,7 +9589,8 @@
                 "tracking": {
                   "b94ec70eda": "追跡が設定されていません",
                   "cc39a87288": "接続済み · システムのデフォルト",
-                  "00087eecb2": "接続されました · {{value0}}"
+                  "00087eecb2": "接続されました · {{value0}}",
+                  "localCliLogin": "Connected · local CLI login"
                 }
               }
             }
@@ -10411,8 +10444,13 @@
                 "removeWorktree": "ワークツリーを削除する",
                 "trashWorktree": "ゴミ箱ワークツリー",
                 "addQuickCommand": "クイックコマンドを追加",
-                "newQuickCommand": "新規クイックコマンド"
-              }
+                "newQuickCommand": "新規クイックコマンド",
+                "addProject": "add project",
+                "newProject": "new project",
+                "cloneProject": "clone project"
+              },
+              "addProjectTitle": "Add Project",
+              "addProjectDescription": "Add a local folder, clone a repository, or create a project."
             }
           }
         }
@@ -10627,7 +10665,9 @@
           "e46c1aa9ad": "作成",
           "a9d9dccf77": "保存",
           "777548c2d6": "変更を保存",
-          "ff5db28639": "既存 "
+          "ff5db28639": "既存 ",
+          "noProjectGateTitle": "Add a project before creating an automation.",
+          "noProjectGateDescription": "Automations need a project or workspace target to run."
         },
         "AutomationEditorDialogHeader": {
           "31f9253920": "テンプレートを使用する",
@@ -10764,7 +10804,9 @@
           "d441032f7e": "一時停止",
           "5918020edc": "走る",
           "a21f6c33ad": "Automation source refreshed.",
-          "53f06f0ad5": "Retry source"
+          "53f06f0ad5": "Retry source",
+          "noProjectTemplatesTitle": "Add a project before using automation templates.",
+          "noProjectTemplatesDescription": "Templates need a project target before Janus Code can schedule runs."
         },
         "CreateFromPicker": {
           "f061f49e3f": "repo ブランチを検索...",
@@ -11020,7 +11062,9 @@
         "noGitLabMrsTitle": "No GitLab merge requests",
         "noGitLabMrsDescription": "No GitLab MRs match this filter.",
         "noGitLabWorkTitle": "No GitLab work",
-        "noGitLabWorkDescription": "No GitLab work matches this filter."
+        "noGitLabWorkDescription": "No GitLab work matches this filter.",
+        "addProjectSourcesTitle": "Add a project source to load tasks",
+        "addProjectSourcesDescription": "Add or select a GitHub/GitLab project, then connect that provider account if Janus Code asks for access."
       },
       "taskSourceContextSummary": {
         "sourceUnavailable": "{{value0}} source unavailable: {{value1}}",

@@ -125,9 +125,15 @@ function getCodexAccountLabel(
   accountId: string | null | undefined
 ): string {
   if (accountId == null) {
-    return 'System default'
+    return 'Current Codex CLI login'
   }
   return state.accounts.find((account) => account.id === accountId)?.email ?? 'Codex account'
+}
+
+function getCliLoginTargetLabel(target: CodexStatusRuntimeTarget): string {
+  return target.runtime === 'wsl'
+    ? translate('auto.components.status.bar.StatusBar.wslCliLogin', 'WSL CLI login')
+    : translate('auto.components.status.bar.StatusBar.thisDeviceCliLogin', 'This device CLI login')
 }
 
 function getCodexAccountDisplayLabel(account: CodexStatusAccount): string {
@@ -249,7 +255,7 @@ export function buildCodexStatusSwitchGroups(
       targets: [
         {
           id: null,
-          label: translate('auto.components.status.bar.StatusBar.c676918adc', 'System default'),
+          label: getCliLoginTargetLabel(target),
           active: activeId === null,
           runtimeTarget: target
         },
@@ -408,7 +414,7 @@ export function buildClaudeStatusSwitchGroups(
       targets: [
         {
           id: null,
-          label: translate('auto.components.status.bar.StatusBar.c676918adc', 'System default'),
+          label: getCliLoginTargetLabel(target),
           active: activeId === null,
           runtimeTarget: target
         },
@@ -784,7 +790,10 @@ function ClaudeSwitcherMenu({
       >
         <span className="max-w-[180px] truncate text-[12px] text-foreground">
           {activeTarget?.label ??
-            translate('auto.components.status.bar.StatusBar.c676918adc', 'System default')}
+            translate(
+              'auto.components.status.bar.StatusBar.thisDeviceCliLogin',
+              'This device CLI login'
+            )}
         </span>
         {accountsExpanded ? (
           <ChevronDown className="ml-auto size-3.5 text-muted-foreground/85" />
@@ -1343,7 +1352,10 @@ function CodexSwitcherMenu({
           <div className="flex min-w-0 items-center gap-1.5">
             <span className="min-w-0 flex-1 truncate text-foreground">
               {activeTarget?.label ??
-                translate('auto.components.status.bar.StatusBar.c676918adc', 'System default')}
+                translate(
+                  'auto.components.status.bar.StatusBar.thisDeviceCliLogin',
+                  'This device CLI login'
+                )}
             </span>
           </div>
         </div>

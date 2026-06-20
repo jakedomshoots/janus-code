@@ -755,6 +755,46 @@
   opacity: 0.6;
 }
 
+.mobile-page-root .mp-pairing-issue {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  max-width: 420px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.mobile-page-root .mp-pairing-issue-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--primary);
+}
+
+.mobile-page-root .mp-pairing-issue-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mobile-page-root .mp-pairing-issue-title {
+  margin: 0;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mobile-page-root .mp-pairing-issue-description {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 /* Pairing settings card */
 .mobile-page-root .mp-pair-settings {
   margin-top: 12px;

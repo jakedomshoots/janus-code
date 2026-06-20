@@ -10,13 +10,15 @@ function renderCreateStep({
   createKind = 'git',
   gitAvailability = 'available',
   createParent = '/Users/alice/orca/projects',
-  parentDefaultPending = false
+  parentDefaultPending = false,
+  runtimeEnvironmentId = null
 }: {
   createName?: string
   createKind?: RepoKind
   gitAvailability?: GitAvailability
   createParent?: string
   parentDefaultPending?: boolean
+  runtimeEnvironmentId?: string | null
 } = {}): string {
   return renderToStaticMarkup(
     <TooltipProvider>
@@ -31,6 +33,7 @@ function renderCreateStep({
           gitAvailability={gitAvailability}
           runtimeParentStatus="idle"
           parentDefaultPending={parentDefaultPending}
+          runtimeEnvironmentId={runtimeEnvironmentId}
           onNameChange={vi.fn()}
           onParentChange={vi.fn()}
           onKindChange={vi.fn()}
@@ -69,6 +72,16 @@ describe('CreateStep', () => {
       parentDefaultPending: true
     })
 
+    expect(html).toContain('disabled=""')
+  })
+
+  it('gates remote project creation before the user names a project without a host folder', () => {
+    const html = renderCreateStep({
+      createParent: '',
+      runtimeEnvironmentId: 'remote-host'
+    })
+
+    expect(html).toContain('Choose a host folder before naming this project.')
     expect(html).toContain('disabled=""')
   })
 })

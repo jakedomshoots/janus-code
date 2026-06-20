@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   openAutomationsPage: vi.fn(),
   openActivityPage: vi.fn(),
   openMobilePage: vi.fn(),
+  openSettingsPage: vi.fn(),
+  openSettingsTarget: vi.fn(),
   openModal: vi.fn(),
   updateSettings: vi.fn(),
   refreshPreflightStatus: vi.fn(),
@@ -121,6 +123,8 @@ function setSidebarState({
     openAutomationsPage: mocks.openAutomationsPage,
     openActivityPage: mocks.openActivityPage,
     openMobilePage: mocks.openMobilePage,
+    openSettingsPage: mocks.openSettingsPage,
+    openSettingsTarget: mocks.openSettingsTarget,
     openModal: mocks.openModal,
     updateSettings: mocks.updateSettings,
     preflightStatus: { glab: { installed: false } },
@@ -291,6 +295,7 @@ describe('SidebarNav', () => {
 
   it('starts a planning agent from the sidebar without requiring projects', async () => {
     setSidebarState({ repos: [] })
+    mocks.startProjectlessPlanningAgent.mockResolvedValue(true)
     const container = await renderSidebarNav()
 
     await clickButton(getButtonByText(container, 'New Agent'))
@@ -299,6 +304,19 @@ describe('SidebarNav', () => {
     expect(mocks.openModal).not.toHaveBeenCalledWith('new-workspace-composer', {
       telemetrySource: 'sidebar'
     })
+  })
+
+  it('shows inline recovery when New Agent needs a paired Janus Code server', async () => {
+    setSidebarState({ repos: [] })
+    mocks.startProjectlessPlanningAgent.mockResolvedValue(false)
+    const container = await renderSidebarNav()
+
+    await clickButton(getButtonByText(container, 'New Agent'))
+
+    expect(container.textContent).toContain('Connect Janus Code before starting a planning agent.')
+    await clickButton(getButtonByText(container, 'Open Remote Hosts settings'))
+    expect(mocks.openSettingsTarget).toHaveBeenCalledWith({ pane: 'servers', repoId: null })
+    expect(mocks.openSettingsPage).toHaveBeenCalledTimes(1)
   })
 
   it('hides available Tasks from its sidebar context menu', async () => {

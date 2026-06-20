@@ -221,6 +221,34 @@ describe('AddRepoLocalStartStep', () => {
     expect(model.description).toBe('Existing Git repository or folder on this host')
   })
 
+  it('shows a persistent recovery notice when browsing folders needs pairing', () => {
+    const markup = renderToStaticMarkup(
+      <AddRepoLocalStartStep
+        repoCount={0}
+        isSshLikely={false}
+        isAdding={false}
+        addProjectBusyLabel={null}
+        nestedScanInProgress={false}
+        nestedScanId={null}
+        recoveryNotice={{
+          title: 'Pair Janus Code before browsing folders',
+          description:
+            'This web client needs a reachable Janus Code server to open native folders.',
+          actionLabel: 'Open Remote Hosts settings',
+          onAction: vi.fn()
+        }}
+        onBrowse={vi.fn()}
+        onOpenCloneStep={vi.fn()}
+        onOpenRemoteStep={vi.fn()}
+        onOpenCreateStep={vi.fn()}
+        onStopNestedScan={vi.fn()}
+      />
+    )
+
+    expect(markup).toContain('Pair Janus Code before browsing folders')
+    expect(markup).toContain('Open Remote Hosts settings')
+  })
+
   it('focuses Browse folder when the default Add Project step opens', async () => {
     const { container, root } = await renderLocalStartStepDom(false)
     const browseButton = findButton(container, 'Browse folder')

@@ -63,6 +63,7 @@ import { runWorktreeDelete } from '@/components/sidebar/delete-worktree-flow'
 import {
   buildCmdJActionResults,
   buildCmdJSettingsResults,
+  getCmdJEmptyStateActionResults,
   rankCmdJMiddleResults,
   type CmdJActionResult,
   type CmdJSettingsResult
@@ -679,6 +680,10 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
     openSettingsPage()
   }, [openSettingsPage, openSettingsTarget])
 
+  const openAddProjectAction = useCallback(() => {
+    queueMicrotask(() => openModal('add-repo'))
+  }, [openModal])
+
   const buildQuickActionContext = useCallback(
     () =>
       buildCmdJQuickActionContext({
@@ -687,12 +692,14 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
         openNewBrowserTab: openNewBrowserTabInActiveWorkspace,
         openNewMarkdownFile: openNewMarkdownInActiveWorkspace,
         openNewTerminalTab: openNewTerminalTabInActiveWorkspace,
+        openAddProject: openAddProjectAction,
         openCreateWorkspace: openCreateWorkspaceAction,
         deleteActiveWorkspace: deleteActiveWorkspaceAction,
         openAddQuickCommand: openAddQuickCommandAction
       }),
     [
       deleteActiveWorkspaceAction,
+      openAddProjectAction,
       openAddQuickCommandAction,
       openCreateWorkspaceAction,
       openNewBrowserTabInActiveWorkspace,
@@ -703,21 +710,33 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
 
   const quickActionContext = buildQuickActionContext()
 
-  const middleItems = useMemo<(SettingsPaletteItem | QuickActionPaletteItem)[]>(
-    () =>
-      rankCmdJMiddleResults({
-        query: deferredQuery,
-        settingsResults,
-        actionResults: actionResults.filter(
-          (action) => action.isAvailable(quickActionContext).available
-        )
-      }).map((result) =>
-        result.kind === 'settings'
-          ? { id: result.id, type: 'settings' as const, result }
-          : { id: `quick-action:${result.id}`, type: 'quick-action' as const, result }
-      ),
-    [actionResults, deferredQuery, quickActionContext, settingsResults]
-  )
+  const middleItems = useMemo<(SettingsPaletteItem | QuickActionPaletteItem)[]>(() => {
+    const availableActions = actionResults.filter(
+      (action) => action.isAvailable(quickActionContext).available
+    )
+    const results =
+      !hasQuery && worktreeItems.length === 0 && openTabItems.length === 0
+        ? getCmdJEmptyStateActionResults(availableActions)
+        : rankCmdJMiddleResults({
+            query: deferredQuery,
+            settingsResults,
+            actionResults: availableActions
+          })
+
+    return results.map((result) =>
+      result.kind === 'settings'
+        ? { id: result.id, type: 'settings' as const, result }
+        : { id: `quick-action:${result.id}`, type: 'quick-action' as const, result }
+    )
+  }, [
+    actionResults,
+    deferredQuery,
+    hasQuery,
+    openTabItems.length,
+    quickActionContext,
+    settingsResults,
+    worktreeItems.length
+  ])
 
   // Why: on empty query we cap the worktree section (not open tabs) so the
   // OPEN TABS header + ≥1 tab row stays visible above the fold — users
@@ -737,7 +756,8 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
     // viewport naturally.
     const worktreeCap = !hasQuery && openTabItems.length > 0 ? EMPTY_QUERY_WORKTREE_CAP : Infinity
     const visibleWorktreeItems = hasQuery ? worktreeItems : worktreeItems.slice(0, worktreeCap)
-    const visibleMiddleItems = hasQuery ? middleItems : []
+    const visibleMiddleItems =
+      hasQuery || (worktreeItems.length === 0 && openTabItems.length === 0) ? middleItems : []
     const visibleOpenTabItems = hasQuery
       ? openTabItems
       : openTabItems.slice(0, EMPTY_QUERY_OPEN_TAB_CAP)

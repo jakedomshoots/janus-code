@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType, type ReactNode, type Ref } from 'react'
-import { CircleStop, Loader2 } from 'lucide-react'
+import { AlertTriangle, CircleStop, Loader2 } from 'lucide-react'
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
@@ -70,6 +70,12 @@ type AddRepoLocalStartStepProps = {
   showRemoteAction?: boolean
   canCreateProject?: boolean
   browseHostKind?: 'local' | 'ssh' | 'runtime'
+  recoveryNotice?: {
+    title: string
+    description: string
+    actionLabel?: string
+    onAction?: () => void
+  } | null
   onBrowse: () => void
   onOpenCloneStep: () => void
   onOpenRemoteStep: () => void
@@ -88,6 +94,7 @@ export function AddRepoLocalStartStep({
   showRemoteAction = true,
   canCreateProject = true,
   browseHostKind = 'local',
+  recoveryNotice = null,
   onBrowse,
   onOpenCloneStep,
   onOpenRemoteStep,
@@ -183,6 +190,29 @@ export function AddRepoLocalStartStep({
           onClick={primaryAction.onClick}
           onFocus={() => setSelectedKind(primaryAction.kind)}
         />
+
+        {recoveryNotice ? (
+          <div className="rounded-md border border-border bg-muted px-3 py-2">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-xs font-medium text-foreground">{recoveryNotice.title}</p>
+                <p className="text-xs text-muted-foreground">{recoveryNotice.description}</p>
+                {recoveryNotice.actionLabel && recoveryNotice.onAction ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="xs"
+                    className="mt-1"
+                    onClick={recoveryNotice.onAction}
+                  >
+                    {recoveryNotice.actionLabel}
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Keep secondary entry methods always visible so they stay discoverable without an extra click. */}
         {/* Label clarifies the lighter-weight rows are alternate entry methods, not lesser features. */}

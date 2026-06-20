@@ -106,6 +106,7 @@ describe('Cmd+J quick action context', () => {
       openNewBrowserTab: async () => {},
       openNewMarkdownFile: async () => {},
       openNewTerminalTab: async () => {},
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {},
       openAddQuickCommand: () => {}
@@ -131,7 +132,7 @@ describe('Cmd+J quick action context', () => {
   it('applies the availability matrix across curated actions', () => {
     const workspaceActions = ['new-browser-tab', 'new-markdown-file', 'new-terminal-tab']
     const currentWorkspaceActions = ['delete-workspace']
-    const workspaceAgnosticActions = ['create-workspace', 'add-quick-command']
+    const workspaceAgnosticActions = ['add-project', 'create-workspace', 'add-quick-command']
     const actionById = new Map(getCmdJQuickActions().map((action) => [action.id, action]))
     const baseContext = {
       ...ctx({}),
@@ -140,6 +141,7 @@ describe('Cmd+J quick action context', () => {
       openNewBrowserTab: async () => {},
       openNewMarkdownFile: async () => {},
       openNewTerminalTab: async () => {},
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {},
       openAddQuickCommand: () => {}
@@ -220,6 +222,7 @@ describe('Cmd+J quick action context', () => {
       openNewBrowserTab: async () => {},
       openNewMarkdownFile: async () => {},
       openNewTerminalTab: async () => {},
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {},
       openAddQuickCommand: () => {}
@@ -246,6 +249,7 @@ describe('Cmd+J quick action context', () => {
       openNewBrowserTab: async () => {},
       openNewMarkdownFile: async () => {},
       openNewTerminalTab: async () => {},
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {},
       openAddQuickCommand: () => {}
@@ -266,6 +270,7 @@ describe('Cmd+J quick action context', () => {
       openNewTerminalTab: async (groupId: string) => {
         calls.push(groupId)
       },
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {},
       openAddQuickCommand: () => {}
@@ -288,6 +293,7 @@ describe('Cmd+J quick action context', () => {
       openNewBrowserTab: async () => {},
       openNewMarkdownFile: async () => {},
       openNewTerminalTab: async () => {},
+      openAddProject: () => {},
       openCreateWorkspace: () => {},
       deleteActiveWorkspace: () => {
         calls.push('delete')

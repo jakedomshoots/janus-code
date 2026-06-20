@@ -45,6 +45,11 @@ export default function MobilePage(): React.JSX.Element {
   const [pairQrDataUrl, setPairQrDataUrl] = useState<string | null>(null)
   const [pairingUrl, setPairingUrl] = useState<string | null>(null)
   const [pairLoading, setPairLoading] = useState(false)
+  const [pairingIssue, setPairingIssue] = useState<{
+    title: string
+    description: string
+    actionLabel: string
+  } | null>(null)
   const [networkInterfaces, setNetworkInterfaces] = useState<MobileNetworkInterface[]>([])
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>(undefined)
   const [refreshingNetworkInterfaces, setRefreshingNetworkInterfaces] = useState(false)
@@ -56,6 +61,8 @@ export default function MobilePage(): React.JSX.Element {
   const stageRef = useRef<FlowStage | null>(null)
   const deviceCountAtPairStartRef = useRef<number | null>(null)
   const closeMobilePage = useAppStore((s) => s.closeMobilePage)
+  const openSettingsPage = useAppStore((s) => s.openSettingsPage)
+  const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const showMobileButton = useAppStore((s) => s.settings?.showMobileButton !== false)
   const updateSettings = useAppStore((s) => s.updateSettings)
 
@@ -152,14 +159,16 @@ export default function MobilePage(): React.JSX.Element {
         await window.api.mobile.revokeDevice({ deviceId })
         const remaining = await loadDevices()
         if (mountedRef.current) {
-          toast.success(translate("auto.components.mobile.MobilePage.255372e6e8", "Device revoked"))
+          toast.success(translate('auto.components.mobile.MobilePage.255372e6e8', 'Device revoked'))
         }
         if (remaining.length === 0 && mountedRef.current) {
           showStage('intro')
         }
       } catch {
         if (mountedRef.current) {
-          toast.error(translate("auto.components.mobile.MobilePage.4e1eb5d55c", "Failed to revoke device"))
+          toast.error(
+            translate('auto.components.mobile.MobilePage.4e1eb5d55c', 'Failed to revoke device')
+          )
         }
       } finally {
         if (mountedRef.current) {
@@ -201,6 +210,7 @@ export default function MobilePage(): React.JSX.Element {
     async (rotate: boolean, addressOverride?: string) => {
       if (mountedRef.current) {
         setPairLoading(true)
+        setPairingIssue(null)
       }
       try {
         const address = addressOverride ?? selectedAddress
@@ -212,16 +222,55 @@ export default function MobilePage(): React.JSX.Element {
           if (mountedRef.current) {
             setPairQrDataUrl(result.qrDataUrl)
             setPairingUrl(result.pairingUrl)
+            setPairingIssue(null)
           }
           hasGeneratedRef.current = true
         } else {
           if (mountedRef.current) {
-            toast.error(translate("auto.components.mobile.MobilePage.b353e18de1", "WebSocket transport is not running"))
+            setPairingIssue({
+              title: translate(
+                'auto.components.mobile.MobilePage.pairingIssueTitle',
+                'Start Janus Code server before pairing mobile.'
+              ),
+              description: translate(
+                'auto.components.mobile.MobilePage.pairingIssueDescription',
+                'Mobile pairing needs the desktop WebSocket transport to create a QR code.'
+              ),
+              actionLabel: translate(
+                'auto.components.mobile.MobilePage.pairingIssueAction',
+                'Open Remote Hosts settings'
+              )
+            })
+            toast.error(
+              translate(
+                'auto.components.mobile.MobilePage.b353e18de1',
+                'WebSocket transport is not running'
+              )
+            )
           }
         }
       } catch {
         if (mountedRef.current) {
-          toast.error(translate("auto.components.mobile.MobilePage.4c8bd11c1a", "Failed to generate pairing code"))
+          setPairingIssue({
+            title: translate(
+              'auto.components.mobile.MobilePage.pairingIssueFailedTitle',
+              'Could not generate a mobile pairing code.'
+            ),
+            description: translate(
+              'auto.components.mobile.MobilePage.pairingIssueFailedDescription',
+              'Check that Janus Code is reachable, then try generating the code again.'
+            ),
+            actionLabel: translate(
+              'auto.components.mobile.MobilePage.pairingIssueAction',
+              'Open Remote Hosts settings'
+            )
+          })
+          toast.error(
+            translate(
+              'auto.components.mobile.MobilePage.4c8bd11c1a',
+              'Failed to generate pairing code'
+            )
+          )
         }
       } finally {
         if (mountedRef.current) {
@@ -231,6 +280,11 @@ export default function MobilePage(): React.JSX.Element {
     },
     [mountedRef, selectedAddress]
   )
+
+  const openRemoteHostsSettings = useCallback(() => {
+    openSettingsTarget({ pane: 'servers', repoId: null })
+    openSettingsPage()
+  }, [openSettingsPage, openSettingsTarget])
 
   const loadNetworkInterfaces = useCallback(async () => {
     if (mountedRef.current) {
@@ -283,12 +337,16 @@ export default function MobilePage(): React.JSX.Element {
     try {
       await window.api.ui.writeClipboardText(pairingUrl)
       if (mountedRef.current) {
-        toast.success(translate("auto.components.mobile.MobilePage.3c1f7168bb", "Pairing code copied"))
+        toast.success(
+          translate('auto.components.mobile.MobilePage.3c1f7168bb', 'Pairing code copied')
+        )
       }
     } catch (err) {
       console.error('writeClipboardText failed', err)
       if (mountedRef.current) {
-        toast.error(translate("auto.components.mobile.MobilePage.6a66e38943", "Failed to copy pairing code"))
+        toast.error(
+          translate('auto.components.mobile.MobilePage.6a66e38943', 'Failed to copy pairing code')
+        )
       }
     }
   }, [mountedRef, pairingUrl])
@@ -365,12 +423,16 @@ export default function MobilePage(): React.JSX.Element {
     try {
       await window.api.ui.writeClipboardText(PLATFORM_COPY[platform].url)
       if (mountedRef.current) {
-        toast.success(translate("auto.components.mobile.MobilePage.fad833de8d", "Install link copied"))
+        toast.success(
+          translate('auto.components.mobile.MobilePage.fad833de8d', 'Install link copied')
+        )
       }
     } catch (err) {
       console.error('writeClipboardText failed', err)
       if (mountedRef.current) {
-        toast.error(translate("auto.components.mobile.MobilePage.baea63c445", "Failed to copy link"))
+        toast.error(
+          translate('auto.components.mobile.MobilePage.baea63c445', 'Failed to copy link')
+        )
       }
     }
   }
@@ -417,9 +479,9 @@ export default function MobilePage(): React.JSX.Element {
       />
       <section className="mp-hero">
         <div className="mp-hero-copy">
-          {stage === null ? null : stage === "intro" ? (
+          {stage === null ? null : stage === 'intro' ? (
             <HeroIntro onStart={enterFlow} />
-          ) : stage === "paired" ? (
+          ) : stage === 'paired' ? (
             <HeroPaired
               devices={devices}
               onPairAnother={pairAnotherDevice}
@@ -438,6 +500,9 @@ export default function MobilePage(): React.JSX.Element {
               pairQrDataUrl={pairQrDataUrl}
               pairingUrl={pairingUrl}
               pairLoading={pairLoading}
+              pairingIssue={
+                pairingIssue ? { ...pairingIssue, onAction: openRemoteHostsSettings } : null
+              }
               onRegeneratePairing={() => void generatePairing(true)}
               onCopyPairingCode={() => void copyPairingCode()}
               networkInterfaces={networkInterfaces}
@@ -452,7 +517,10 @@ export default function MobilePage(): React.JSX.Element {
           )}
         </div>
 
-        <div className="mp-stage" aria-label={translate("auto.components.mobile.MobilePage.e17393c6a3", "Phone preview")}>
+        <div
+          className="mp-stage"
+          aria-label={translate('auto.components.mobile.MobilePage.e17393c6a3', 'Phone preview')}
+        >
           <PhoneCarousel />
         </div>
       </section>

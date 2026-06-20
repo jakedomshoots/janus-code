@@ -15,12 +15,12 @@ export function getRepoBackedTaskEmptyState(args: {
   if (args.selectedRepoCount === 0) {
     return {
       title: translate(
-        'auto.components.taskPageEmptyState.noProjectSourcesTitle',
-        'No project sources selected'
+        'auto.components.taskPageEmptyState.addProjectSourcesTitle',
+        'Add a project source to load tasks'
       ),
       description: translate(
-        'auto.components.taskPageEmptyState.noProjectSourcesDescription',
-        'Select at least one project source so Janus Code knows which host/account to fetch tasks from.'
+        'auto.components.taskPageEmptyState.addProjectSourcesDescription',
+        'Add or select a GitHub/GitLab project, then connect that provider account if Janus Code asks for access.'
       )
     }
   }

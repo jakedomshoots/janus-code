@@ -4,6 +4,7 @@ import type { CmdJQuickAction } from './quick-actions'
 import {
   buildCmdJActionResults,
   buildCmdJSettingsResults,
+  getCmdJEmptyStateActionResults,
   rankCmdJMiddleResults
 } from './palette-results'
 import type { SettingsNavSection } from '@/lib/settings-navigation-types'
@@ -12,6 +13,16 @@ const noopRun: CmdJQuickAction['run'] = async () => ({ status: 'ok' })
 const available: CmdJQuickAction['isAvailable'] = () => ({ available: true })
 
 const actions: CmdJQuickAction[] = [
+  {
+    id: 'add-project',
+    kind: 'action',
+    title: 'Add Project',
+    description: 'Add a local folder, clone a repository, or create a project.',
+    icon: Globe,
+    verbKeywords: ['add project', 'new project'],
+    isAvailable: available,
+    run: noopRun
+  },
   {
     id: 'new-browser-tab',
     kind: 'action',
@@ -200,5 +211,11 @@ describe('Cmd+J palette middle-band ranking', () => {
   it('does not match settings on one-character or description-only queries', () => {
     expect(top('t')).toBeUndefined()
     expect(top('cookie import')).toBeUndefined()
+  })
+
+  it('shows setup actions first for the empty no-workspace palette state', () => {
+    expect(
+      getCmdJEmptyStateActionResults(buildCmdJActionResults(actions)).map((item) => item.id)
+    ).toEqual(['add-project', 'create-workspace'])
   })
 })

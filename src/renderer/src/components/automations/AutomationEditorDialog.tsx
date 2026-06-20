@@ -1,5 +1,7 @@
 import React from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import { filterEnabledTuiAgents } from '../../../../shared/tui-agent-selection'
 import type {
@@ -90,6 +92,7 @@ export function AutomationEditorDialog({
   const isHermesTarget = createTarget === 'hermes'
   const isCreateMode = !isEditing && !isEditingExternal
   const isHermesCreate = isCreateMode && isHermesTarget
+  const createBlockedWithoutProjects = isCreateMode && repos.length === 0
   const visibleAgents = React.useMemo(() => {
     const enabledIds = new Set(
       filterEnabledTuiAgents(
@@ -144,35 +147,67 @@ export function AutomationEditorDialog({
           }}
         />
 
-        <AutomationEditorPromptSection
-          draft={draft}
-          isHermesCreate={isHermesCreate}
-          pickerTriggerClassName={PICKER_TRIGGER_CLASS}
-          onDraftChange={onDraftChange}
-        />
+        {createBlockedWithoutProjects ? (
+          <div className="grid gap-4 border-t border-border/50 px-5 py-5">
+            <div className="flex items-start gap-3 rounded-md border border-border bg-muted px-3 py-3 text-sm text-muted-foreground">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-primary" strokeWidth={1.8} />
+              <div className="min-w-0 space-y-1">
+                <p className="font-medium text-primary">
+                  {translate(
+                    'auto.components.automations.AutomationEditorDialog.noProjectGateTitle',
+                    'Add a project before creating an automation.'
+                  )}
+                </p>
+                <p className="text-xs">
+                  {translate(
+                    'auto.components.automations.AutomationEditorDialog.noProjectGateDescription',
+                    'Automations need a project or workspace target to run.'
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                {translate(
+                  'auto.components.automations.AutomationEditorDialog.fb1896a5e7',
+                  'Cancel'
+                )}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <AutomationEditorPromptSection
+              draft={draft}
+              isHermesCreate={isHermesCreate}
+              pickerTriggerClassName={PICKER_TRIGGER_CLASS}
+              onDraftChange={onDraftChange}
+            />
 
-        <AutomationEditorDialogFooter
-          isEditing={isEditing}
-          isEditingExternal={isEditingExternal}
-          isHermesTarget={isHermesTarget}
-          isHermesCreate={isHermesCreate}
-          isSaving={isSaving}
-          canSave={canSave}
-          repos={repos}
-          repoMap={repoMap}
-          worktrees={worktrees}
-          settings={settings}
-          draft={draft}
-          visibleAgents={visibleAgents}
-          scheduleField={scheduleField}
-          pickerTriggerClassName={PICKER_TRIGGER_CLASS}
-          modeToggleItemClassName={MODE_TOGGLE_ITEM_CLASS}
-          onProjectChange={onProjectChange}
-          getRepoHostLabel={getRepoHostLabel}
-          onDraftChange={onDraftChange}
-          onOpenChange={onOpenChange}
-          onSave={onSave}
-        />
+            <AutomationEditorDialogFooter
+              isEditing={isEditing}
+              isEditingExternal={isEditingExternal}
+              isHermesTarget={isHermesTarget}
+              isHermesCreate={isHermesCreate}
+              isSaving={isSaving}
+              canSave={canSave}
+              repos={repos}
+              repoMap={repoMap}
+              worktrees={worktrees}
+              settings={settings}
+              draft={draft}
+              visibleAgents={visibleAgents}
+              scheduleField={scheduleField}
+              pickerTriggerClassName={PICKER_TRIGGER_CLASS}
+              modeToggleItemClassName={MODE_TOGGLE_ITEM_CLASS}
+              onProjectChange={onProjectChange}
+              getRepoHostLabel={getRepoHostLabel}
+              onDraftChange={onDraftChange}
+              onOpenChange={onOpenChange}
+              onSave={onSave}
+            />
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

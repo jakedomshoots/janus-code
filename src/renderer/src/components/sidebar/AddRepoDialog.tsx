@@ -39,6 +39,11 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
   const [step, setStep] = useState<AddRepoDialogStep>('add')
   const [isAdding, setIsAdding] = useState(false)
   const [addProjectBusyLabel, setAddProjectBusyLabel] = useState<string | null>(null)
+  const [addProjectRecoveryNotice, setAddProjectRecoveryNotice] = useState<{
+    title: string
+    description: string
+    actionLabel?: string
+  } | null>(null)
   const {
     nestedScan,
     nestedSelectedPaths,
@@ -177,7 +182,8 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
     showNestedRepoReview,
     onGitRepoReady: completeGitRepoAdd,
     setIsAdding,
-    setAddProjectBusyLabel
+    setAddProjectBusyLabel,
+    setRecoveryNotice: setAddProjectRecoveryNotice
   })
   const {
     serverPath,
@@ -222,6 +228,7 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
     setStep('add')
     setIsAdding(false)
     setAddProjectBusyLabel(null)
+    setAddProjectRecoveryNotice(null)
     resetServerPathFlow()
     resetCloneFlow()
     resetNestedImportFlow()
@@ -243,6 +250,7 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
   const resetHostScopedState = useCallback(() => {
     setIsAdding(false)
     setAddProjectBusyLabel(null)
+    setAddProjectRecoveryNotice(null)
     resetServerPathFlow()
     resetCloneFlow()
     resetCreateDefaultState()
@@ -332,6 +340,18 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
         showRemoteAction={false}
         browseHostKind={
           selectedHostKind === 'ssh' || selectedHostKind === 'runtime' ? selectedHostKind : 'local'
+        }
+        recoveryNotice={
+          addProjectRecoveryNotice
+            ? {
+                ...addProjectRecoveryNotice,
+                onAction: () => {
+                  closeModal()
+                  openSettingsTarget({ pane: 'servers', repoId: null })
+                  openSettingsPage()
+                }
+              }
+            : null
         }
         createDefaultParent={createDefaultParent}
         createGitAvailability={createGitAvailability}

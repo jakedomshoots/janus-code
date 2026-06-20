@@ -29,6 +29,7 @@ export type CmdJQuickActionContext = {
   openNewBrowserTab: (groupId: string) => Promise<void>
   openNewMarkdownFile: (groupId: string) => Promise<void>
   openNewTerminalTab: (groupId: string) => Promise<void>
+  openAddProject: () => void
   openCreateWorkspace: () => void
   deleteActiveWorkspace: () => void
   openAddQuickCommand: () => void
@@ -131,6 +132,7 @@ export function buildCmdJQuickActionContext(args: {
   openNewBrowserTab: (groupId: string) => Promise<void>
   openNewMarkdownFile: (groupId: string) => Promise<void>
   openNewTerminalTab: (groupId: string) => Promise<void>
+  openAddProject: () => void
   openCreateWorkspace: () => void
   deleteActiveWorkspace: () => void
   openAddQuickCommand: () => void
@@ -163,6 +165,7 @@ export function buildCmdJQuickActionContext(args: {
     openNewBrowserTab: args.openNewBrowserTab,
     openNewMarkdownFile: args.openNewMarkdownFile,
     openNewTerminalTab: args.openNewTerminalTab,
+    openAddProject: args.openAddProject,
     openCreateWorkspace: args.openCreateWorkspace,
     deleteActiveWorkspace: args.deleteActiveWorkspace,
     openAddQuickCommand: args.openAddQuickCommand

@@ -36,8 +36,8 @@ export function getFeatureWallUsageProviderConnection(args: {
     return {
       connected: true,
       label: translate(
-        'auto.components.feature.wall.feature.wall.usage.tracking.cc39a87288',
-        'Connected · System default'
+        'auto.components.feature.wall.feature.wall.usage.tracking.localCliLogin',
+        'Connected · local CLI login'
       )
     }
   }

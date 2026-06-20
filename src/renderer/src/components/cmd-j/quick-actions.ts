@@ -27,6 +27,7 @@ export type CmdJQuickAction = {
 }
 
 export const CREATE_WORKSPACE_QUICK_ACTION_ID = 'create-workspace'
+export const ADD_PROJECT_QUICK_ACTION_ID = 'add-project'
 
 function workspaceActionAvailability(ctx: CmdJQuickActionContext): CmdJQuickActionAvailability {
   return getWorkspaceScopedActionAvailability(ctx)
@@ -57,6 +58,26 @@ async function runWorkspaceAction(
 // Context-heavy setup flows such as Ghostty import and browser cookie import
 // stay inside their Settings panes where explanatory UI and failure states fit.
 export const getCmdJQuickActions = createLocalizedCatalog((): CmdJQuickAction[] => [
+  {
+    id: ADD_PROJECT_QUICK_ACTION_ID,
+    kind: 'action',
+    title: translate('auto.components.cmd.j.quick.actions.addProjectTitle', 'Add Project'),
+    description: translate(
+      'auto.components.cmd.j.quick.actions.addProjectDescription',
+      'Add a local folder, clone a repository, or create a project.'
+    ),
+    icon: FolderPlus,
+    verbKeywords: [
+      translate('auto.components.cmd.j.quick.actions.verbs.addProject', 'add project'),
+      translate('auto.components.cmd.j.quick.actions.verbs.newProject', 'new project'),
+      translate('auto.components.cmd.j.quick.actions.verbs.cloneProject', 'clone project')
+    ],
+    isAvailable: () => ({ available: true }),
+    run: async (ctx) => {
+      ctx.openAddProject()
+      return { status: 'ok' }
+    }
+  },
   {
     id: 'new-browser-tab',
     kind: 'action',

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { translate } from '@/i18n/i18n'
 import { RemoteFileBrowser } from './RemoteFileBrowser'
+import { getGitCloneUrlValidationError } from './git-clone-url-validation'
 
 type CloneStepProps = {
   cloneUrl: string
@@ -40,7 +41,16 @@ export function CloneStep({
   const [browsingDestination, setBrowsingDestination] = useState(false)
   const isRemoteClone = Boolean(runtimeEnvironmentId || sshTargetId)
   const canBrowseRemoteDestination = isRemoteClone
-  const canClone = !!cloneUrl.trim() && !!cloneDestination.trim() && !isCloning
+  const cloneUrlValidationError = getGitCloneUrlValidationError(cloneUrl)
+  const cloneUrlError = cloneUrlValidationError
+    ? translate(
+        'auto.components.sidebar.AddRepoSteps.gitCloneUrlValidation',
+        'Enter a valid Git URL, such as https://github.com/user/repo.git.'
+      )
+    : null
+  const visibleCloneError = cloneUrlError ?? cloneError
+  const canClone =
+    !!cloneUrl.trim() && !cloneUrlValidationError && !!cloneDestination.trim() && !isCloning
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault()
@@ -180,13 +190,13 @@ export function CloneStep({
           </div>
         </div>
 
-        {cloneError && <p className="text-[11px] text-destructive">{cloneError}</p>}
+        {visibleCloneError && (
+          <p className="text-[11px] text-destructive" role="alert">
+            {visibleCloneError}
+          </p>
+        )}
 
-        <Button
-          onClick={onClone}
-          disabled={!cloneUrl.trim() || !cloneDestination.trim() || isCloning}
-          className="w-full"
-        >
+        <Button onClick={onClone} disabled={!canClone} className="w-full">
           {isCloning
             ? translate('auto.components.sidebar.AddRepoSteps.69f5b5380d', 'Cloning...')
             : translate('auto.components.sidebar.AddRepoSteps.32a7256d85', 'Clone')}

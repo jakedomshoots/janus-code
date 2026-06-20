@@ -35,7 +35,8 @@ export function useAddRepoLocalFolderFlow({
   showNestedRepoReview,
   onGitRepoReady,
   setIsAdding,
-  setAddProjectBusyLabel
+  setAddProjectBusyLabel,
+  setRecoveryNotice
 }: {
   isOpen: boolean
   droppedLocalPath: string
@@ -54,6 +55,9 @@ export function useAddRepoLocalFolderFlow({
   onGitRepoReady: (repoId: string, source: AddRepoExistingWorkspaceSource) => Promise<void>
   setIsAdding: (isAdding: boolean) => void
   setAddProjectBusyLabel: (label: string | null) => void
+  setRecoveryNotice: (
+    notice: { title: string; description: string; actionLabel?: string } | null
+  ) => void
 }): {
   handleBrowse: () => Promise<void>
   resetLocalFolderFlow: () => void
@@ -64,7 +68,8 @@ export function useAddRepoLocalFolderFlow({
   const resetLocalFolderFlow = useCallback((): void => {
     localAddGenRef.current++
     droppedLocalPathHandledRef.current = null
-  }, [])
+    setRecoveryNotice(null)
+  }, [setRecoveryNotice])
 
   const handleAddLocalPath = useCallback(
     async (path: string, source: AddRepoExistingWorkspaceSource): Promise<void> => {
@@ -190,6 +195,7 @@ export function useAddRepoLocalFolderFlow({
 
   const handleBrowse = useCallback(async (): Promise<void> => {
     const gen = ++localAddGenRef.current
+    setRecoveryNotice(null)
     setIsAdding(true)
     setAddProjectBusyLabel('Choose a folder...')
     try {
@@ -200,6 +206,22 @@ export function useAddRepoLocalFolderFlow({
       await handleAddLocalPath(path, 'local_folder_picker')
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
+      if (message.includes('Pair this web client')) {
+        setRecoveryNotice({
+          title: translate(
+            'auto.components.sidebar.useAddRepoLocalFolderFlow.webPairingRequiredTitle',
+            'Pair Janus Code before browsing folders'
+          ),
+          description: translate(
+            'auto.components.sidebar.useAddRepoLocalFolderFlow.webPairingRequiredDescription',
+            'This web client needs a reachable Janus Code server to open native folders.'
+          ),
+          actionLabel: translate(
+            'auto.components.sidebar.useAddRepoLocalFolderFlow.webPairingRequiredAction',
+            'Open Remote Hosts settings'
+          )
+        })
+      }
       toast.error(
         message.includes('Pair this web client')
           ? translate(
@@ -218,7 +240,7 @@ export function useAddRepoLocalFolderFlow({
         setAddProjectBusyLabel(null)
       }
     }
-  }, [handleAddLocalPath, setAddProjectBusyLabel, setIsAdding])
+  }, [handleAddLocalPath, setAddProjectBusyLabel, setIsAdding, setRecoveryNotice])
 
   return { handleBrowse, resetLocalFolderFlow }
 }

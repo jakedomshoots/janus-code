@@ -1,5 +1,12 @@
 import React from 'react'
-import { Bell, CalendarClock, MessageSquarePlus, Search, Smartphone } from 'lucide-react'
+import {
+  AlertTriangle,
+  Bell,
+  CalendarClock,
+  MessageSquarePlus,
+  Search,
+  Smartphone
+} from 'lucide-react'
 import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
 import type { GlobalSettings } from '../../../../shared/types'
@@ -38,12 +45,15 @@ const SidebarNav = React.memo(function SidebarNav() {
   const openAutomationsPage = useAppStore((s) => s.openAutomationsPage)
   const openActivityPage = useAppStore((s) => s.openActivityPage)
   const openMobilePage = useAppStore((s) => s.openMobilePage)
+  const openSettingsPage = useAppStore((s) => s.openSettingsPage)
+  const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const openModal = useAppStore((s) => s.openModal)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const activeView = useAppStore((s) => s.activeView)
   const showAgentsButton = useAppStore((s) => shouldShowAgentsButton(s.settings))
   const showAutomationsButton = useAppStore((s) => shouldShowAutomationsButton(s.settings))
   const showMobileButton = useAppStore((s) => shouldShowMobileButton(s.settings))
+  const [newAgentRecoveryVisible, setNewAgentRecoveryVisible] = React.useState(false)
 
   const automationsActive = activeView === 'automations'
   const activityActive = activeView === 'activity'
@@ -56,6 +66,18 @@ const SidebarNav = React.memo(function SidebarNav() {
   const hideMobileButton = React.useCallback(() => {
     void updateSettings({ showMobileButton: false })
   }, [updateSettings])
+  const startNewAgent = React.useCallback(() => {
+    setNewAgentRecoveryVisible(false)
+    void startProjectlessPlanningAgent().then((started) => {
+      if (started === false) {
+        setNewAgentRecoveryVisible(true)
+      }
+    })
+  }, [])
+  const openRemoteHostsSettings = React.useCallback(() => {
+    openSettingsTarget({ pane: 'servers', repoId: null })
+    openSettingsPage()
+  }, [openSettingsPage, openSettingsTarget])
 
   return (
     <div
@@ -65,7 +87,7 @@ const SidebarNav = React.memo(function SidebarNav() {
       <SetupGuideSidebarEntry />
       <button
         type="button"
-        onClick={() => void startProjectlessPlanningAgent()}
+        onClick={startNewAgent}
         className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] font-medium tracking-tight text-worktree-sidebar-foreground/60 transition-colors hover:bg-worktree-sidebar-foreground/8"
       >
         <MessageSquarePlus
@@ -76,6 +98,31 @@ const SidebarNav = React.memo(function SidebarNav() {
           {translate('auto.components.sidebar.SidebarNav.newAgent', 'New Agent')}
         </span>
       </button>
+      {newAgentRecoveryVisible ? (
+        <div className="ml-6 rounded-md border border-border bg-muted px-2 py-2 text-xs text-muted-foreground">
+          <div className="flex items-start gap-1.5">
+            <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={1.8} />
+            <div className="min-w-0 space-y-1">
+              <p className="font-medium text-primary">
+                {translate(
+                  'auto.components.sidebar.SidebarNav.newAgentRecoveryTitle',
+                  'Connect Janus Code before starting a planning agent.'
+                )}
+              </p>
+              <button
+                type="button"
+                className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+                onClick={openRemoteHostsSettings}
+              >
+                {translate(
+                  'auto.components.sidebar.SidebarNav.openRemoteHostsSettings',
+                  'Open Remote Hosts settings'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <SidebarTaskNavButton />
       {showAutomationsButton ? (
         <ContextMenu>

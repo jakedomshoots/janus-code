@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Copy, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowRight, Copy, RefreshCw } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import type { MobileNetworkInterface } from '../settings/mobile-network-interface-selection'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -33,6 +33,12 @@ type HeroFlowProps = {
   pairQrDataUrl: string | null
   pairingUrl: string | null
   pairLoading: boolean
+  pairingIssue?: {
+    title: string
+    description: string
+    actionLabel: string
+    onAction: () => void
+  } | null
   onRegeneratePairing: () => void
   onCopyPairingCode: () => void
   networkInterfaces: readonly MobileNetworkInterface[]
@@ -56,6 +62,7 @@ export function HeroFlow({
   pairQrDataUrl,
   pairingUrl,
   pairLoading,
+  pairingIssue = null,
   onRegeneratePairing,
   onCopyPairingCode,
   networkInterfaces,
@@ -225,6 +232,18 @@ export function HeroFlow({
                   {translate('auto.components.mobile.MobileHero.010dddcf27', 'Copy pairing code')}
                 </button>
               </div>
+              {pairingIssue ? (
+                <div className="mp-pairing-issue" role="status">
+                  <AlertTriangle className="mp-pairing-issue-icon" strokeWidth={1.8} />
+                  <div className="mp-pairing-issue-copy">
+                    <p className="mp-pairing-issue-title">{pairingIssue.title}</p>
+                    <p className="mp-pairing-issue-description">{pairingIssue.description}</p>
+                    <button type="button" className="mp-text-link" onClick={pairingIssue.onAction}>
+                      {pairingIssue.actionLabel}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="mp-qr-stack">
               <div

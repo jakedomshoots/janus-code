@@ -2,6 +2,7 @@
  * orchestration while the form and detail presentation live in sibling files. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  AlertTriangle,
   CalendarClock,
   Check,
   Clock,
@@ -2406,6 +2407,28 @@ export default function AutomationsPage(): React.JSX.Element {
             })}
             {automations.length === 0 && externalAutomationEntries.length === 0 ? (
               <div className="grid gap-2 p-2">
+                {repos.length === 0 ? (
+                  <div className="flex items-start gap-2 rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    <AlertTriangle
+                      className="mt-0.5 size-3.5 shrink-0 text-primary"
+                      strokeWidth={1.8}
+                    />
+                    <div className="min-w-0 space-y-1">
+                      <p className="font-medium text-primary">
+                        {translate(
+                          'auto.components.automations.AutomationsPage.noProjectTemplatesTitle',
+                          'Add a project before using automation templates.'
+                        )}
+                      </p>
+                      <p>
+                        {translate(
+                          'auto.components.automations.AutomationsPage.noProjectTemplatesDescription',
+                          'Templates need a project target before Janus Code can schedule runs.'
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="px-1 pb-1 text-sm font-medium">
                   {translate(
                     'auto.components.automations.AutomationsPage.d207ab4c25',

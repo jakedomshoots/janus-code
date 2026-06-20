@@ -66,7 +66,7 @@ function getCodexAccountLabel(
   accountId: string | null | undefined
 ): string {
   if (accountId == null) {
-    return 'System default'
+    return 'Current Codex CLI login'
   }
   return state.accounts.find((account) => account.id === accountId)?.email ?? 'Codex account'
 }
@@ -116,7 +116,7 @@ function getClaudeAccountLabel(
   accountId: string | null | undefined
 ): string {
   if (accountId == null) {
-    return 'System default'
+    return 'Current Claude CLI login'
   }
   return state.accounts.find((account) => account.id === accountId)?.email ?? 'Claude account'
 }
@@ -656,8 +656,8 @@ export function AccountsPane({
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-sm font-medium">
                     {translate(
-                      'auto.components.settings.AccountsPane.f2a265f8c7',
-                      'System default'
+                      'auto.components.settings.AccountsPane.currentClaudeCliLogin',
+                      'Current Claude CLI login'
                     )}
                   </span>
                   {activeClaudeAccountId === null ? (
@@ -682,7 +682,7 @@ export function AccountsPane({
               <div className="rounded-md border border-dashed border-border/70 px-3 py-4 text-xs text-muted-foreground">
                 {translate(
                   'auto.components.settings.AccountsPane.3fe7862418',
-                  "No managed Claude accounts for {{value0}}. Janus Code will use that environment's system default Claude login until you add one here.",
+                  "No managed Claude accounts for {{value0}}. Janus Code will use that environment's current Claude CLI login until you add one here.",
                   { value0: accountRuntime.label }
                 )}
               </div>
@@ -911,8 +911,8 @@ export function AccountsPane({
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-sm font-medium">
                     {translate(
-                      'auto.components.settings.AccountsPane.f2a265f8c7',
-                      'System default'
+                      'auto.components.settings.AccountsPane.currentCodexCliLogin',
+                      'Current Codex CLI login'
                     )}
                   </span>
                   {activeCodexAccountId === null ? (
@@ -958,7 +958,7 @@ export function AccountsPane({
               <div className="rounded-md border border-dashed border-border/70 px-3 py-4 text-xs text-muted-foreground">
                 {translate(
                   'auto.components.settings.AccountsPane.b4c9450319',
-                  "No managed Codex accounts for {{value0}}. Janus Code will use that environment's system default Codex login until you add one here.",
+                  "No managed Codex accounts for {{value0}}. Janus Code will use that environment's current Codex CLI login until you add one here.",
                   { value0: accountRuntime.label }
                 )}
               </div>
@@ -1345,8 +1345,8 @@ export function AccountsPane({
             </DialogTitle>
             <DialogDescription>
               {translate(
-                'auto.components.settings.AccountsPane.99c8f9e498',
-                'Janus Code will delete the managed Codex home for this saved account. If it is currently active, Janus Code falls back to the system default Codex login.'
+                'auto.components.settings.AccountsPane.removeCodexCurrentCliLogin',
+                'Janus Code will delete the managed Codex home for this saved account. If it is currently active, Janus Code falls back to the current Codex CLI login.'
               )}
             </DialogDescription>
           </DialogHeader>
@@ -1386,8 +1386,8 @@ export function AccountsPane({
             </DialogTitle>
             <DialogDescription>
               {translate(
-                'auto.components.settings.AccountsPane.854ebbcc45',
-                'Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Janus Code falls back to the system default Claude login.'
+                'auto.components.settings.AccountsPane.removeClaudeCurrentCliLogin',
+                'Janus Code will delete the managed Claude auth for this saved account. If it is currently active, Janus Code falls back to the current Claude CLI login.'
               )}
             </DialogDescription>
           </DialogHeader>

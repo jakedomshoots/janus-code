@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, ExternalLink, FolderPlus, GitBranchPlus, Star } from 'lucide-react'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ExternalLink,
+  FolderPlus,
+  GitBranchPlus,
+  Plug,
+  Star
+} from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useAppStore } from '../store'
 import { isGitRepoKind } from '../../../shared/repo-kind'
@@ -21,6 +29,7 @@ type PreflightIssue = {
   description: string
   fixLabel: string
   fixUrl: string
+  required: boolean
 }
 
 function getPreflightIssues(status: {
@@ -38,7 +47,8 @@ function getPreflightIssues(status: {
         'Git is required for Git projects, source control, and workspace management.'
       ),
       fixLabel: 'Install Git',
-      fixUrl: 'https://git-scm.com/downloads'
+      fixUrl: 'https://git-scm.com/downloads',
+      required: true
     })
   }
 
@@ -51,7 +61,8 @@ function getPreflightIssues(status: {
         'Janus Code uses the GitHub CLI (gh) to show pull requests, issues, and checks.'
       ),
       fixLabel: 'Install GitHub CLI',
-      fixUrl: 'https://cli.github.com'
+      fixUrl: 'https://cli.github.com',
+      required: false
     })
   } else if (!status.gh.authenticated) {
     issues.push({
@@ -62,7 +73,8 @@ function getPreflightIssues(status: {
         'Run "gh auth login" in a terminal to connect your GitHub account.'
       ),
       fixLabel: 'Learn more',
-      fixUrl: 'https://cli.github.com/manual/gh_auth_login'
+      fixUrl: 'https://cli.github.com/manual/gh_auth_login',
+      required: false
     })
   }
 
@@ -191,28 +203,124 @@ function GitHubStarButton({ hasRepos }: { hasRepos: boolean }): React.JSX.Elemen
 }
 
 function PreflightBanner({ issues }: { issues: PreflightIssue[] }): React.JSX.Element {
+  const requiredIssues = issues.filter((issue) => issue.required)
+  const optionalIssues = issues.filter((issue) => !issue.required)
+
   return (
-    <div className="w-full rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-3">
+    <div className="w-full rounded-lg border border-border bg-card p-4 space-y-4">
       <div className="flex items-center gap-2 text-yellow-500">
         <AlertTriangle className="size-4 shrink-0" />
         <span className="text-sm font-medium">
-          {translate('auto.components.Landing.ce44fad849', 'Missing dependencies')}
+          {translate('auto.components.Landing.ce44fad849', 'Setup checks')}
         </span>
       </div>
-      <div className="space-y-2.5">
-        {issues.map((issue) => (
-          <div key={issue.id} className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground">{issue.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{issue.description}</p>
+      {requiredIssues.length > 0 ? (
+        <PreflightIssueGroup
+          label={translate('auto.components.Landing.requiredSetup', 'Required before Git projects')}
+          issues={requiredIssues}
+        />
+      ) : null}
+      {optionalIssues.length > 0 ? (
+        <PreflightIssueGroup
+          label={translate(
+            'auto.components.Landing.optionalSetup',
+            'Optional source-control setup'
+          )}
+          issues={optionalIssues}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+function PreflightIssueGroup({
+  label,
+  issues
+}: {
+  label: string
+  issues: PreflightIssue[]
+}): React.JSX.Element {
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      {issues.map((issue) => (
+        <div key={issue.id} className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">{issue.title}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{issue.description}</p>
+          </div>
+          <button
+            className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+            onClick={() => window.api.shell.openUrl(issue.fixUrl)}
+          >
+            {issue.fixLabel}
+            <ExternalLink className="size-3" />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function FirstRunSetupPath({
+  canCreateWorktree,
+  hasRequiredIssues
+}: {
+  canCreateWorktree: boolean
+  hasRequiredIssues: boolean
+}): React.JSX.Element {
+  const steps = [
+    {
+      label: translate('auto.components.Landing.setupStepProject', 'Start with a project'),
+      description: translate(
+        'auto.components.Landing.setupStepProjectDescription',
+        'Add a local folder, clone a repository, or create a new project.'
+      ),
+      done: canCreateWorktree
+    },
+    {
+      label: translate('auto.components.Landing.setupStepRuntime', 'Connect Janus Code'),
+      description: translate(
+        'auto.components.Landing.setupStepRuntimeDescription',
+        'Pair this web client or use the desktop app so local actions can run.'
+      ),
+      done: false
+    },
+    {
+      label: translate('auto.components.Landing.setupStepGit', 'Install required Git'),
+      description: translate(
+        'auto.components.Landing.setupStepGitDescription',
+        'Git projects need Git before source control and workspace management work.'
+      ),
+      done: !hasRequiredIssues
+    },
+    {
+      label: translate('auto.components.Landing.setupStepAgent', 'Start an agent'),
+      description: translate(
+        'auto.components.Landing.setupStepAgentDescription',
+        'Once setup is ready, launch an agent from a workspace.'
+      ),
+      done: false
+    }
+  ]
+
+  return (
+    <div className="w-full rounded-lg border border-border bg-card p-4">
+      <p className="text-sm font-semibold text-foreground">
+        {translate('auto.components.Landing.setupPathTitle', 'First-run setup path')}
+      </p>
+      <div className="mt-3 space-y-3">
+        {steps.map((step, index) => (
+          <div key={step.label} className="grid grid-cols-[auto_1fr] gap-3">
+            <div className="flex size-6 items-center justify-center rounded-full border border-border bg-background text-[11px] font-medium text-muted-foreground">
+              {step.done ? <CheckCircle2 className="size-3.5 text-primary" /> : index + 1}
             </div>
-            <button
-              className="inline-flex items-center gap-1 shrink-0 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
-              onClick={() => window.api.shell.openUrl(issue.fixUrl)}
-            >
-              {issue.fixLabel}
-              <ExternalLink className="size-3" />
-            </button>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground">{step.label}</p>
+              <p className="text-xs text-muted-foreground">{step.description}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -229,6 +337,7 @@ export default function Landing(): React.JSX.Element {
   const canCreateWorktree = repos.length > 0
 
   const [preflightIssues, setPreflightIssues] = useState<PreflightIssue[]>([])
+  const requiredPreflightIssueCount = preflightIssues.filter((issue) => issue.required).length
 
   useEffect(() => {
     let cancelled = false
@@ -326,6 +435,11 @@ export default function Landing(): React.JSX.Element {
               : translate('auto.components.Landing.cd21242762', 'Add a project to get started.')}
           </p>
 
+          <FirstRunSetupPath
+            canCreateWorktree={canCreateWorktree}
+            hasRequiredIssues={requiredPreflightIssueCount > 0}
+          />
+
           <div className="flex items-center justify-center gap-2.5 flex-wrap">
             <button
               className="inline-flex items-center gap-1.5 bg-secondary/70 border border-border/80 text-foreground font-medium text-sm px-4 py-2 rounded-md cursor-pointer hover:bg-accent transition-colors"
@@ -340,7 +454,10 @@ export default function Landing(): React.JSX.Element {
               disabled={!canCreateWorktree}
               title={
                 !canCreateWorktree
-                  ? translate('auto.components.Landing.f05d237049', 'Add a project first')
+                  ? translate(
+                      'auto.components.Landing.f05d237049',
+                      'Add a project before creating a workspace.'
+                    )
                   : undefined
               }
               onClick={() => openModal('new-workspace-composer', { telemetrySource: 'unknown' })}
@@ -351,17 +468,29 @@ export default function Landing(): React.JSX.Element {
             </button>
           </div>
 
-          <div className="mt-6 w-full max-w-xs space-y-2">
-            {shortcuts.map((shortcut) => (
-              <div key={shortcut.id} className="grid grid-cols-[1fr_auto] items-center gap-3">
-                <span className="text-sm text-muted-foreground">{shortcut.action}</span>
-                <ShortcutKeyCombo
-                  keys={shortcut.keys}
-                  separatorClassName="mx-0.5 text-[10px] text-muted-foreground"
-                />
-              </div>
-            ))}
-          </div>
+          {!canCreateWorktree ? (
+            <div className="flex items-center gap-2 rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
+              <Plug className="size-3.5 shrink-0" />
+              {translate(
+                'auto.components.Landing.createWorkspaceBlocked',
+                'Add a project before creating a workspace.'
+              )}
+            </div>
+          ) : null}
+
+          {canCreateWorktree ? (
+            <div className="mt-6 w-full max-w-xs space-y-2">
+              {shortcuts.map((shortcut) => (
+                <div key={shortcut.id} className="grid grid-cols-[1fr_auto] items-center gap-3">
+                  <span className="text-sm text-muted-foreground">{shortcut.action}</span>
+                  <ShortcutKeyCombo
+                    keys={shortcut.keys}
+                    separatorClassName="mx-0.5 text-[10px] text-muted-foreground"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 

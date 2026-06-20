@@ -49,6 +49,12 @@ type AddRepoDialogStepContentProps = {
   canCreateProject?: boolean
   manualCreateParentEntry?: boolean
   browseHostKind?: 'local' | 'ssh' | 'runtime'
+  recoveryNotice?: {
+    title: string
+    description: string
+    actionLabel?: string
+    onAction?: () => void
+  } | null
   createDefaultParent: string
   createGitAvailability: GitAvailability
   createRuntimeParentStatus: 'idle' | 'checking' | 'failed'
@@ -119,6 +125,7 @@ export function AddRepoDialogStepContent({
   canCreateProject = true,
   manualCreateParentEntry = isRuntimeEnvironmentActive,
   browseHostKind = 'local',
+  recoveryNotice = null,
   createDefaultParent,
   createGitAvailability,
   createRuntimeParentStatus,
@@ -162,6 +169,7 @@ export function AddRepoDialogStepContent({
         showRemoteAction={showRemoteAction}
         canCreateProject={canCreateProject}
         browseHostKind={browseHostKind}
+        recoveryNotice={recoveryNotice}
         onBrowse={onBrowse}
         onOpenCloneStep={onOpenCloneStep}
         onOpenRemoteStep={onOpenRemoteStep}

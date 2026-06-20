@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   onGitRepoReady: vi.fn(),
   setIsAdding: vi.fn(),
   setAddProjectBusyLabel: vi.fn(),
+  setRecoveryNotice: vi.fn(),
   toastError: vi.fn()
 }))
 
@@ -76,7 +77,8 @@ describe('useAddRepoLocalFolderFlow', () => {
       showNestedRepoReview: mocks.showNestedRepoReview,
       onGitRepoReady: mocks.onGitRepoReady,
       setIsAdding: mocks.setIsAdding,
-      setAddProjectBusyLabel: mocks.setAddProjectBusyLabel
+      setAddProjectBusyLabel: mocks.setAddProjectBusyLabel,
+      setRecoveryNotice: mocks.setRecoveryNotice
     })
 
     await result.handleBrowse()
@@ -107,7 +109,8 @@ describe('useAddRepoLocalFolderFlow', () => {
       showNestedRepoReview: mocks.showNestedRepoReview,
       onGitRepoReady: mocks.onGitRepoReady,
       setIsAdding: mocks.setIsAdding,
-      setAddProjectBusyLabel: mocks.setAddProjectBusyLabel
+      setAddProjectBusyLabel: mocks.setAddProjectBusyLabel,
+      setRecoveryNotice: mocks.setRecoveryNotice
     })
 
     await result.handleBrowse()

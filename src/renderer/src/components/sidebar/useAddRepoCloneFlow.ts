@@ -9,6 +9,7 @@ import type { AddRepoDialogStep } from './add-repo-dialog-types'
 import { translate } from '@/i18n/i18n'
 import { extractIpcErrorMessage } from '@/lib/ipc-error'
 import { upsertAddedRepoWithProjectHostSetup } from './add-repo-store-upsert'
+import { getGitCloneUrlValidationError } from './git-clone-url-validation'
 
 export function useAddRepoCloneFlow({
   step,
@@ -109,6 +110,15 @@ export function useAddRepoCloneFlow({
   const handleClone = useCallback(async (): Promise<void> => {
     const trimmedUrl = cloneUrl.trim()
     if (!trimmedUrl || !cloneDestination.trim()) {
+      return
+    }
+    if (getGitCloneUrlValidationError(trimmedUrl)) {
+      setCloneError(
+        translate(
+          'auto.components.sidebar.useAddRepoCloneFlow.gitCloneUrlValidation',
+          'Enter a valid Git URL, such as https://github.com/user/repo.git.'
+        )
+      )
       return
     }
     const requestHostToken = hostTokenRef.current
