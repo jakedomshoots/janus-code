@@ -87,3 +87,7 @@ export function getRuntimeStatusPortingContractSampleManifest(): RuntimeStatusPo
     verificationCommand: RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_VERIFICATION_COMMAND
   }
 }
+
+export function getRuntimeStatusPortingContractSampleManifestJson(): string {
+  return JSON.stringify(getRuntimeStatusPortingContractSampleManifest())
+}

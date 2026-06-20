@@ -209,6 +209,7 @@ describe('runtime status porting contract', () => {
     const manifestPath = resolve(__dirname, './runtime-status-contract-samples.json')
     const sampleManifest = runtimeStatusContract as {
       getRuntimeStatusPortingContractSampleManifest?: () => unknown
+      getRuntimeStatusPortingContractSampleManifestJson?: () => string
     }
 
     expect(existsSync(manifestPath)).toBe(true)
@@ -250,6 +251,9 @@ describe('runtime status porting contract', () => {
     })
     expect(JSON.parse(readFileSync(manifestPath, 'utf8'))).toEqual(
       sampleManifest.getRuntimeStatusPortingContractSampleManifest?.()
+    )
+    expect(sampleManifest.getRuntimeStatusPortingContractSampleManifestJson?.()).toBe(
+      JSON.stringify(sampleManifest.getRuntimeStatusPortingContractSampleManifest?.())
     )
   })
 
