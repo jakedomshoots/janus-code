@@ -346,6 +346,41 @@ pub fn verify_runtime_status_artifact_enum_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_enum_values(
+    relative_path: &str,
+    field_name: &str,
+    expected_values: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_values = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumValues"))
+        .and_then(|enum_values| enum_values.get(field_name))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            format!("contract artifact must include summary.enumValues.{field_name} array")
+        })?;
+
+    let actual_values: Result<Vec<&str>, String> = enum_values
+        .iter()
+        .enumerate()
+        .map(|(index, value)| {
+            value
+                .as_str()
+                .ok_or_else(|| format!("summary.enumValues.{field_name}[{index}] must be a string"))
+        })
+        .collect();
+    let actual_values = actual_values?;
+
+    if actual_values.as_slice() == expected_values {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.enumValues.{field_name} {expected_values:?} but got {actual_values:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -700,6 +735,7 @@ mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
+        verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
@@ -752,6 +788,7 @@ mod tests {
         "hostPlatform",
     ];
     const ENUM_FIELDS: &[&str] = &["graphStatus", "hostPlatform"];
+    const GRAPH_STATUS_ENUM_VALUES: &[&str] = &["ready", "reloading", "unavailable"];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -855,6 +892,18 @@ mod tests {
             verify_runtime_status_artifact_enum_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 ENUM_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_graph_status_enum_values() {
+        assert_eq!(
+            verify_runtime_status_artifact_enum_values(
+                "src/shared/runtime-status-contract-artifact.json",
+                "graphStatus",
+                GRAPH_STATUS_ENUM_VALUES
             ),
             Ok(())
         );
