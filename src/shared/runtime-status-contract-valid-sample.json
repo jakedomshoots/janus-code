@@ -1,0 +1,24 @@
+{
+  "runtimeId": "runtime-a",
+  "rendererGraphEpoch": 1,
+  "graphStatus": "ready",
+  "authoritativeWindowId": null,
+  "liveTabCount": 2,
+  "liveLeafCount": 3,
+  "runtimeProtocolVersion": 3,
+  "minCompatibleRuntimeClientVersion": 2,
+  "capabilities": [
+    "runtime.status.compat.v1",
+    "runtime.environments.v1",
+    "remote-runtime.shared-control.v1",
+    "browser.screencast.v1",
+    "terminal.binary-stream.v1",
+    "terminal.multiplex.v1",
+    "workspace-ports.v1",
+    "mobile.tasks.v1",
+    "project-host-setup.v1",
+    "task-source-context.v1",
+    "workspace-run-context.v1"
+  ],
+  "hostPlatform": "darwin"
+}
