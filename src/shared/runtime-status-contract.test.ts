@@ -199,6 +199,7 @@ describe('runtime status porting contract', () => {
     expect(doc).toContain('stringFields')
     expect(doc).toContain('arrayFields')
     expect(doc).toContain('numericFields')
+    expect(doc).toContain('nullableFields')
     expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
   })
 
@@ -328,6 +329,7 @@ describe('runtime status porting contract', () => {
         'liveLeafCount',
         'authoritativeWindowId'
       ],
+      nullableFields: ['authoritativeWindowId'],
       invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
       enumValues: {
         graphStatus: ['ready', 'reloading', 'unavailable'],

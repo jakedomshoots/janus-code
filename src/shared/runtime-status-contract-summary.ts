@@ -41,6 +41,7 @@ export type RuntimeStatusPortingContractSummary = {
   stringFields: RuntimeStatusPortingField[]
   arrayFields: RuntimeStatusPortingField[]
   numericFields: RuntimeStatusPortingField[]
+  nullableFields: RuntimeStatusPortingField[]
   invalidatableFields: RuntimeStatusPortingField[]
   enumValues: {
     graphStatus: string[]
@@ -73,6 +74,9 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
     numericFields: Object.keys(
       RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
     ) as RuntimeStatusPortingField[],
+    nullableFields: Object.entries(RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS)
+      .filter(([, constraint]) => constraint.nullable)
+      .map(([field]) => field as RuntimeStatusPortingField),
     invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
     enumValues: {
       graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],

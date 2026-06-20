@@ -35,6 +35,7 @@
       "liveLeafCount",
       "authoritativeWindowId"
     ],
+    "nullableFields": ["authoritativeWindowId"],
     "invalidatableFields": [
       "runtimeProtocolVersion",
       "minCompatibleRuntimeClientVersion",
