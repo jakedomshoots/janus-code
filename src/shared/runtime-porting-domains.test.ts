@@ -119,6 +119,7 @@ describe('runtime porting domains', () => {
       firstSliceContractSampleManifestContractSchemaVersion: 1,
       firstSliceContractSampleManifestContractJsonSchemaDraftUri:
         RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
+      firstSliceContractSampleManifestContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractSampleManifestContractArtifactPath:
         'src/shared/runtime-status-contract-artifact.json',
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
@@ -245,6 +246,9 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractSampleManifestContractSchemaVersion: 1')
     expect(doc).toContain(
       `firstSliceContractSampleManifestContractJsonSchemaDraftUri: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI}`
+    )
+    expect(doc).toContain(
+      `firstSliceContractSampleManifestContractJsonSchemaId: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID}`
     )
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactPath')
     expect(doc).toContain('pnpm run verify:runtime-status-samples')
