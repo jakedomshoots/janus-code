@@ -70,6 +70,12 @@ impl RuntimeStatusGraphStatus {
     }
 }
 
+impl fmt::Display for RuntimeStatusGraphStatus {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
 impl FromStr for RuntimeStatusGraphStatus {
     type Err = String;
 
@@ -2485,6 +2491,16 @@ mod tests {
         assert_eq!(RuntimeStatusGraphStatus::Reloading.as_str(), "reloading");
         assert_eq!(
             RuntimeStatusGraphStatus::Unavailable.as_str(),
+            "unavailable"
+        );
+    }
+
+    #[test]
+    fn displays_runtime_status_graph_status_contract_values() {
+        assert_eq!(RuntimeStatusGraphStatus::Ready.to_string(), "ready");
+        assert_eq!(RuntimeStatusGraphStatus::Reloading.to_string(), "reloading");
+        assert_eq!(
+            RuntimeStatusGraphStatus::Unavailable.to_string(),
             "unavailable"
         );
     }
