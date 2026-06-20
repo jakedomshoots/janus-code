@@ -253,6 +253,33 @@ pub fn verify_runtime_status_artifact_json_schema_property_min_length(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_property_minimum(
+    relative_path: &str,
+    field_name: &str,
+    expected_minimum: i64,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let minimum = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .and_then(|properties| properties.get(field_name))
+        .and_then(|property| property.get("minimum"))
+        .and_then(Value::as_i64)
+        .ok_or_else(|| {
+            format!(
+                "contract artifact must include integer jsonSchema.properties.{field_name}.minimum"
+            )
+        })?;
+
+    if minimum == expected_minimum {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.properties.{field_name}.minimum {expected_minimum} but got {minimum}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_property_enum_values(
     relative_path: &str,
     field_name: &str,
@@ -1074,6 +1101,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_property_array_item_type,
         verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_min_length,
+        verify_runtime_status_artifact_json_schema_property_minimum,
         verify_runtime_status_artifact_json_schema_property_type,
         verify_runtime_status_artifact_json_schema_property_type_values,
         verify_runtime_status_artifact_json_schema_required_fields,
@@ -1241,6 +1269,18 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "authoritativeWindowId",
                 AUTHORITATIVE_WINDOW_ID_TYPE_VALUES
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_runtime_protocol_version_property_minimum() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_property_minimum(
+                "src/shared/runtime-status-contract-artifact.json",
+                "runtimeProtocolVersion",
+                1
             ),
             Ok(())
         );
