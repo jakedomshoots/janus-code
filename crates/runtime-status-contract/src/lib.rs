@@ -1149,6 +1149,89 @@ pub fn verify_runtime_status_artifact_numeric_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_numeric_constraints_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let numeric_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.numericConstraints object".to_string()
+        })?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (field_name, constraint) in numeric_constraints {
+        let constraint = constraint
+            .as_object()
+            .ok_or_else(|| format!("summary.numericConstraints.{field_name} must be an object"))?;
+        let integer = constraint
+            .get("integer")
+            .and_then(Value::as_bool)
+            .ok_or_else(|| {
+                format!("summary.numericConstraints.{field_name}.integer must be boolean")
+            })?;
+        let minimum = constraint
+            .get("minimum")
+            .and_then(Value::as_i64)
+            .ok_or_else(|| {
+                format!("summary.numericConstraints.{field_name}.minimum must be integer")
+            })?;
+        let nullable = constraint
+            .get("nullable")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+
+        let property = properties.get(field_name).ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name} object")
+        })?;
+        let actual_type = property.get("type").ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name}.type")
+        })?;
+        let numeric_type = actual_type.as_str() == Some("integer")
+            || actual_type
+                .as_array()
+                .is_some_and(|types| types.iter().any(|value| value.as_str() == Some("integer")));
+
+        if integer != numeric_type {
+            return Err(format!(
+                "contract artifact expected summary.numericConstraints.{field_name}.integer {integer} to match jsonSchema.properties.{field_name}.type {actual_type}"
+            ));
+        }
+
+        let schema_minimum = property
+            .get("minimum")
+            .and_then(Value::as_i64)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include integer jsonSchema.properties.{field_name}.minimum"
+                )
+            })?;
+
+        if minimum != schema_minimum {
+            return Err(format!(
+                "contract artifact expected summary.numericConstraints.{field_name}.minimum {minimum} to match jsonSchema.properties.{field_name}.minimum {schema_minimum}"
+            ));
+        }
+
+        let schema_nullable = actual_type
+            .as_array()
+            .is_some_and(|types| types.iter().any(|value| value.as_str() == Some("null")));
+
+        if nullable != schema_nullable {
+            return Err(format!(
+                "contract artifact expected summary.numericConstraints.{field_name}.nullable {nullable} to match jsonSchema.properties.{field_name}.type {actual_type}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_string_constraint(
     relative_path: &str,
     field_name: &str,
@@ -1597,6 +1680,7 @@ mod tests {
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_nullable_fields_schema_consistency,
         verify_runtime_status_artifact_numeric_constraint,
+        verify_runtime_status_artifact_numeric_constraints_schema_consistency,
         verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_numeric_fields_schema_consistency,
         verify_runtime_status_artifact_required_fields,
@@ -2038,6 +2122,16 @@ mod tests {
                 "runtimeProtocolVersion",
                 1,
                 false
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_numeric_constraints_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_numeric_constraints_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
