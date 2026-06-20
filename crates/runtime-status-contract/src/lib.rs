@@ -40,6 +40,14 @@ impl fmt::Display for RuntimeStatusHostPlatform {
     }
 }
 
+impl TryFrom<&str> for RuntimeStatusHostPlatform {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+
 impl FromStr for RuntimeStatusHostPlatform {
     type Err = String;
 
@@ -2459,6 +2467,22 @@ mod tests {
         assert_eq!("darwin".parse(), Ok(RuntimeStatusHostPlatform::Darwin));
         assert_eq!("linux".parse(), Ok(RuntimeStatusHostPlatform::Linux));
         assert_eq!("win32".parse(), Ok(RuntimeStatusHostPlatform::Win32));
+    }
+
+    #[test]
+    fn converts_runtime_status_host_platform_from_contract_values() {
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from("darwin"),
+            Ok(RuntimeStatusHostPlatform::Darwin)
+        );
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from("linux"),
+            Ok(RuntimeStatusHostPlatform::Linux)
+        );
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from("win32"),
+            Ok(RuntimeStatusHostPlatform::Win32)
+        );
     }
 
     #[test]
