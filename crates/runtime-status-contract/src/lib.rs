@@ -1357,6 +1357,66 @@ pub fn verify_runtime_status_artifact_array_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_array_constraints_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let array_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("arrayConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.arrayConstraints object".to_string()
+        })?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (field_name, constraint) in array_constraints {
+        let constraint = constraint
+            .as_object()
+            .ok_or_else(|| format!("summary.arrayConstraints.{field_name} must be an object"))?;
+        let item_type = constraint
+            .get("itemType")
+            .and_then(Value::as_str)
+            .ok_or_else(|| {
+                format!("summary.arrayConstraints.{field_name}.itemType must be string")
+            })?;
+
+        let property = properties.get(field_name).ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name} object")
+        })?;
+        let actual_type = property.get("type").ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name}.type")
+        })?;
+
+        if actual_type.as_str() != Some("array") {
+            return Err(format!(
+                "contract artifact expected summary.arrayConstraints.{field_name} to match array jsonSchema.properties.{field_name}.type but got {actual_type}"
+            ));
+        }
+
+        let schema_item_type = property
+            .get("items")
+            .and_then(|items| items.get("type"))
+            .and_then(Value::as_str)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include string jsonSchema.properties.{field_name}.items.type"
+                )
+            })?;
+
+        if item_type != schema_item_type {
+            return Err(format!(
+                "contract artifact expected summary.arrayConstraints.{field_name}.itemType {item_type} to match jsonSchema.properties.{field_name}.items.type {schema_item_type}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -1711,6 +1771,7 @@ mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
+        verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
         verify_runtime_status_artifact_array_fields_schema_consistency,
         verify_runtime_status_artifact_enum_fields,
@@ -2228,6 +2289,16 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "capabilities",
                 "string"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_array_constraints_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_array_constraints_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
