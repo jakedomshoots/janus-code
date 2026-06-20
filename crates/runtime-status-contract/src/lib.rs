@@ -866,6 +866,44 @@ pub fn verify_runtime_status_artifact_nullable_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_nullable_fields_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let nullable_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("nullableFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.nullableFields array".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (index, field) in nullable_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.nullableFields[{index}] must be a string"))?;
+        let actual_type = properties
+            .get(field_name)
+            .and_then(|property| property.get("type"))
+            .ok_or_else(|| {
+                format!("contract artifact must include jsonSchema.properties.{field_name}.type")
+            })?;
+        let nullable_type = actual_type
+            .as_array()
+            .is_some_and(|types| types.iter().any(|value| value.as_str() == Some("null")));
+
+        if !nullable_type {
+            return Err(format!(
+                "contract artifact expected summary.nullableFields entry {field_name} to include null jsonSchema.properties.{field_name}.type but got {actual_type}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_invalidatable_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -1450,6 +1488,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_type,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
+        verify_runtime_status_artifact_nullable_fields_schema_consistency,
         verify_runtime_status_artifact_numeric_constraint,
         verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_numeric_fields_schema_consistency,
@@ -1815,6 +1854,16 @@ mod tests {
             verify_runtime_status_artifact_nullable_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 NULLABLE_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_nullable_fields_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_nullable_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
