@@ -223,6 +223,20 @@ pub fn runtime_status_live_leaf_count(value: &Value) -> Result<u64, String> {
         .ok_or_else(|| "runtime status liveLeafCount must be a non-negative integer".to_string())
 }
 
+pub fn runtime_status_authoritative_window_id(value: &Value) -> Result<Option<u64>, String> {
+    let window_id = value
+        .get("authoritativeWindowId")
+        .ok_or_else(|| "runtime status is missing authoritativeWindowId".to_string())?;
+
+    if window_id.is_null() {
+        return Ok(None);
+    }
+
+    window_id.as_u64().map(Some).ok_or_else(|| {
+        "runtime status authoritativeWindowId must be null or a non-negative integer".to_string()
+    })
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2454,7 +2468,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
+        runtime_status_authoritative_window_id, runtime_status_graph_status,
+        runtime_status_host_platform, runtime_status_live_leaf_count,
         runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
         runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
         runtime_status_runtime_protocol_version, validate_runtime_status_sample,
@@ -2622,6 +2637,24 @@ mod tests {
         });
 
         assert_eq!(runtime_status_live_leaf_count(&status), Ok(4));
+    }
+
+    #[test]
+    fn extracts_runtime_status_authoritative_window_id_from_json_object() {
+        let status = serde_json::json!({
+            "authoritativeWindowId": 7,
+        });
+
+        assert_eq!(runtime_status_authoritative_window_id(&status), Ok(Some(7)));
+    }
+
+    #[test]
+    fn extracts_runtime_status_null_authoritative_window_id_from_json_object() {
+        let status = serde_json::json!({
+            "authoritativeWindowId": null,
+        });
+
+        assert_eq!(runtime_status_authoritative_window_id(&status), Ok(None));
     }
 
     #[test]
