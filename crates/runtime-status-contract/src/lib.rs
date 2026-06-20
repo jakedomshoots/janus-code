@@ -168,6 +168,14 @@ pub fn runtime_status_graph_status(value: &Value) -> Result<RuntimeStatusGraphSt
     )
 }
 
+pub fn runtime_status_runtime_id(value: &Value) -> Result<&str, String> {
+    value
+        .get("runtimeId")
+        .ok_or_else(|| "runtime status is missing runtimeId".to_string())?
+        .as_str()
+        .ok_or_else(|| "runtime status runtimeId must be a string".to_string())
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2399,8 +2407,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_graph_status, runtime_status_host_platform, validate_runtime_status_sample,
-        verify_runtime_status_artifact_array_constraint,
+        runtime_status_graph_status, runtime_status_host_platform, runtime_status_runtime_id,
+        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -2507,6 +2515,15 @@ mod tests {
             validate_runtime_status_sample("src/shared/runtime-status-contract-valid-sample.json"),
             Ok(())
         );
+    }
+
+    #[test]
+    fn extracts_runtime_status_runtime_id_from_json_object() {
+        let status = serde_json::json!({
+            "runtimeId": "janus-runtime",
+        });
+
+        assert_eq!(runtime_status_runtime_id(&status), Ok("janus-runtime"));
     }
 
     #[test]
