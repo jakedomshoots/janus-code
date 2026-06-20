@@ -43,6 +43,7 @@
       }
     }
   ],
+  "firstSliceContractSampleCount": 2,
   "firstSliceContractSampleVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSampleManifestPath": "src/shared/runtime-status-contract-samples.json",
   "firstSliceContractSampleManifestArtifactId": "janus-runtime-status-contract-samples",
