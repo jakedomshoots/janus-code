@@ -50,6 +50,14 @@
     "liveLeafCount"
   ],
   "firstSliceContractNullableFields": ["authoritativeWindowId"],
+  "firstSliceContractNumericFields": [
+    "runtimeProtocolVersion",
+    "minCompatibleRuntimeClientVersion",
+    "rendererGraphEpoch",
+    "liveTabCount",
+    "liveLeafCount",
+    "authoritativeWindowId"
+  ],
   "firstSliceContractNumericConstraints": {
     "runtimeProtocolVersion": {
       "integer": true,

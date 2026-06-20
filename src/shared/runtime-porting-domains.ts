@@ -14,6 +14,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
@@ -35,6 +36,7 @@ import {
   type RuntimePortingFirstSliceContractMethod,
   type RuntimePortingFirstSliceContractNonNegativeIntegerFields,
   type RuntimePortingFirstSliceContractNullableFields,
+  type RuntimePortingFirstSliceContractNumericFields,
   type RuntimePortingFirstSliceContractNumericConstraints,
   type RuntimePortingFirstSliceContractParams,
   type RuntimePortingFirstSliceContractRequiredFields,
@@ -99,6 +101,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractNullableFields: RuntimePortingFirstSliceContractNullableFields
+  firstSliceContractNumericFields: RuntimePortingFirstSliceContractNumericFields
   firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
@@ -235,6 +238,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractNonNegativeIntegerFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
     firstSliceContractNullableFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
+    firstSliceContractNumericFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS,
     firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
     firstSliceContractStringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
