@@ -167,6 +167,7 @@ describe('runtime porting domains', () => {
         'authoritativeWindowId',
         'capabilities'
       ],
+      firstSliceContractJsonSchemaPropertyCount: 10,
       firstSliceContractAdditionalProperties: false,
       firstSliceContractArrayFields: ['capabilities'],
       firstSliceContractArrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
@@ -314,6 +315,7 @@ describe('runtime porting domains', () => {
     )
     expect(doc).toContain('`firstSliceContractJsonSchema`')
     expect(doc).toContain('firstSliceContractJsonSchemaPropertyFields')
+    expect(doc).toContain('firstSliceContractJsonSchemaPropertyCount: 10')
     expect(doc).toContain('firstSliceContractAdditionalProperties: false')
     expect(doc).toContain('firstSliceContractArrayFields')
     expect(doc).toContain('firstSliceContractArrayConstraints')

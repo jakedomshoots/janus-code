@@ -250,6 +250,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractJsonSchema: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA,
     firstSliceContractJsonSchemaPropertyFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS,
+    firstSliceContractJsonSchemaPropertyCount:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS.length,
     firstSliceContractAdditionalProperties:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES,
     firstSliceContractArrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,

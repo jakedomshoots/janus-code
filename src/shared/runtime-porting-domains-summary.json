@@ -95,6 +95,7 @@
     "authoritativeWindowId",
     "capabilities"
   ],
+  "firstSliceContractJsonSchemaPropertyCount": 10,
   "firstSliceContractAdditionalProperties": false,
   "firstSliceContractArrayFields": ["capabilities"],
   "firstSliceContractArrayConstraints": {
