@@ -190,6 +190,33 @@ pub fn verify_runtime_status_artifact_json_schema_property_type(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_property_min_length(
+    relative_path: &str,
+    field_name: &str,
+    expected_min_length: u64,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let min_length = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .and_then(|properties| properties.get(field_name))
+        .and_then(|property| property.get("minLength"))
+        .and_then(Value::as_u64)
+        .ok_or_else(|| {
+            format!(
+                "contract artifact must include integer jsonSchema.properties.{field_name}.minLength"
+            )
+        })?;
+
+    if min_length == expected_min_length {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.properties.{field_name}.minLength {expected_min_length} but got {min_length}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_versioned_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -944,6 +971,7 @@ mod tests {
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
+        verify_runtime_status_artifact_json_schema_property_min_length,
         verify_runtime_status_artifact_json_schema_property_type,
         verify_runtime_status_artifact_json_schema_required_fields,
         verify_runtime_status_artifact_json_schema_type,
@@ -1061,6 +1089,18 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "runtimeId",
                 "string"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_runtime_id_property_min_length() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_property_min_length(
+                "src/shared/runtime-status-contract-artifact.json",
+                "runtimeId",
+                1
             ),
             Ok(())
         );
