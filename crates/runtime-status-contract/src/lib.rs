@@ -152,6 +152,14 @@ fn missing_runtime_status_fields(value: &Value) -> Vec<&'static str> {
         .collect()
 }
 
+pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPlatform, String> {
+    RuntimeStatusHostPlatform::try_from(
+        value
+            .get("hostPlatform")
+            .ok_or_else(|| "runtime status is missing hostPlatform".to_string())?,
+    )
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2383,7 +2391,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
+        runtime_status_host_platform, validate_runtime_status_sample,
+        verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -2528,6 +2537,18 @@ mod tests {
         assert_eq!(
             RuntimeStatusHostPlatform::try_from(&serde_json::json!("win32")),
             Ok(RuntimeStatusHostPlatform::Win32)
+        );
+    }
+
+    #[test]
+    fn extracts_runtime_status_host_platform_from_json_object() {
+        let status = serde_json::json!({
+            "hostPlatform": "darwin",
+        });
+
+        assert_eq!(
+            runtime_status_host_platform(&status),
+            Ok(RuntimeStatusHostPlatform::Darwin)
         );
     }
 
