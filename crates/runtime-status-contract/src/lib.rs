@@ -51,9 +51,46 @@ pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'s
     }
 }
 
+fn validation_result_json(result: Result<(), Vec<&'static str>>) -> Value {
+    match result {
+        Ok(()) => serde_json::json!({ "ok": true }),
+        Err(missing_fields) => serde_json::json!({
+            "ok": false,
+            "missingFields": missing_fields,
+        }),
+    }
+}
+
+pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let samples = manifest
+        .get("samples")
+        .and_then(Value::as_array)
+        .ok_or_else(|| "sample manifest must include a samples array".to_string())?;
+
+    for sample in samples {
+        let path = sample
+            .get("path")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "sample entry must include a string path".to_string())?;
+        let expected_result = sample
+            .get("expectedResult")
+            .ok_or_else(|| format!("sample {path} must include expectedResult"))?;
+        let actual_result = validation_result_json(validate_runtime_status_sample(path));
+
+        if &actual_result != expected_result {
+            return Err(format!(
+                "sample {path} expected {expected_result} but got {actual_result}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::validate_runtime_status_sample;
+    use super::{validate_runtime_status_sample, verify_runtime_status_sample_manifest};
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -70,6 +107,16 @@ mod tests {
                 "src/shared/runtime-status-contract-invalid-sample.json"
             ),
             Err(vec!["runtimeId"])
+        );
+    }
+
+    #[test]
+    fn verifies_every_sample_listed_in_the_checked_in_manifest() {
+        assert_eq!(
+            verify_runtime_status_sample_manifest(
+                "src/shared/runtime-status-contract-samples.json"
+            ),
+            Ok(())
         );
     }
 }
