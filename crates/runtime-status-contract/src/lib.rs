@@ -657,6 +657,44 @@ pub fn verify_runtime_status_artifact_string_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_string_fields_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let string_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("stringFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.stringFields array".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (index, field) in string_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.stringFields[{index}] must be a string"))?;
+        let actual_type = properties
+            .get(field_name)
+            .and_then(|property| property.get("type"))
+            .and_then(Value::as_str)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include string jsonSchema.properties.{field_name}.type"
+                )
+            })?;
+
+        if actual_type != "string" {
+            return Err(format!(
+                "contract artifact expected summary.stringFields entry {field_name} to have jsonSchema.properties.{field_name}.type string but got {actual_type}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_array_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -1338,6 +1376,7 @@ mod tests {
         verify_runtime_status_artifact_required_fields,
         verify_runtime_status_artifact_string_constraint,
         verify_runtime_status_artifact_string_fields,
+        verify_runtime_status_artifact_string_fields_schema_consistency,
         verify_runtime_status_artifact_versioned_fields,
         verify_runtime_status_manifest_artifact_id,
         verify_runtime_status_manifest_artifact_media_type,
@@ -1633,6 +1672,16 @@ mod tests {
             verify_runtime_status_artifact_string_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 STRING_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_string_fields_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_string_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
