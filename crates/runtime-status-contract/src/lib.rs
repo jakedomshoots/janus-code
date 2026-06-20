@@ -254,6 +254,29 @@ pub fn verify_runtime_status_artifact_json_schema_title(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_title_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let metadata_title = artifact
+        .get("jsonSchemaTitle")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchemaTitle".to_string())?;
+    let embedded_title = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("title"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchema.title".to_string())?;
+
+    if metadata_title == embedded_title {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchemaTitle {metadata_title} to match jsonSchema.title {embedded_title}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_additional_properties(
     relative_path: &str,
     expected_additional_properties: bool,
@@ -1242,6 +1265,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_property_type_values,
         verify_runtime_status_artifact_json_schema_required_fields,
         verify_runtime_status_artifact_json_schema_title,
+        verify_runtime_status_artifact_json_schema_title_consistency,
         verify_runtime_status_artifact_json_schema_type,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
@@ -1388,6 +1412,16 @@ mod tests {
             verify_runtime_status_artifact_json_schema_title(
                 "src/shared/runtime-status-contract-artifact.json",
                 "Janus Runtime status.get result"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_title_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_title_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
