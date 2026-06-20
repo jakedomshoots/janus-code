@@ -198,6 +198,7 @@ describe('runtime status porting contract', () => {
     expect(doc).toContain('nonNegativeIntegerFields')
     expect(doc).toContain('stringFields')
     expect(doc).toContain('arrayFields')
+    expect(doc).toContain('numericFields')
     expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
   })
 
@@ -319,6 +320,14 @@ describe('runtime status porting contract', () => {
         runtimeStatusContract.NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
       stringFields: ['runtimeId'],
       arrayFields: ['capabilities'],
+      numericFields: [
+        'runtimeProtocolVersion',
+        'minCompatibleRuntimeClientVersion',
+        'rendererGraphEpoch',
+        'liveTabCount',
+        'liveLeafCount',
+        'authoritativeWindowId'
+      ],
       invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
       enumValues: {
         graphStatus: ['ready', 'reloading', 'unavailable'],

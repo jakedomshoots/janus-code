@@ -27,6 +27,14 @@
     "nonNegativeIntegerFields": ["rendererGraphEpoch", "liveTabCount", "liveLeafCount"],
     "stringFields": ["runtimeId"],
     "arrayFields": ["capabilities"],
+    "numericFields": [
+      "runtimeProtocolVersion",
+      "minCompatibleRuntimeClientVersion",
+      "rendererGraphEpoch",
+      "liveTabCount",
+      "liveLeafCount",
+      "authoritativeWindowId"
+    ],
     "invalidatableFields": [
       "runtimeProtocolVersion",
       "minCompatibleRuntimeClientVersion",
