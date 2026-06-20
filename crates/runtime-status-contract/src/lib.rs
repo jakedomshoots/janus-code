@@ -237,6 +237,24 @@ pub fn runtime_status_authoritative_window_id(value: &Value) -> Result<Option<u6
     })
 }
 
+pub fn runtime_status_capabilities(value: &Value) -> Result<Vec<&str>, String> {
+    let capabilities = value
+        .get("capabilities")
+        .ok_or_else(|| "runtime status is missing capabilities".to_string())?;
+    let items = capabilities
+        .as_array()
+        .ok_or_else(|| "runtime status capabilities must be an array".to_string())?;
+
+    items
+        .iter()
+        .enumerate()
+        .map(|(index, item)| {
+            item.as_str()
+                .ok_or_else(|| format!("runtime status capabilities[{index}] must be a string"))
+        })
+        .collect()
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2468,8 +2486,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_authoritative_window_id, runtime_status_graph_status,
-        runtime_status_host_platform, runtime_status_live_leaf_count,
+        runtime_status_authoritative_window_id, runtime_status_capabilities,
+        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
         runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
         runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
         runtime_status_runtime_protocol_version, validate_runtime_status_sample,
@@ -2655,6 +2673,52 @@ mod tests {
         });
 
         assert_eq!(runtime_status_authoritative_window_id(&status), Ok(None));
+    }
+
+    #[test]
+    fn extracts_runtime_status_capabilities_from_json_object() {
+        let status = serde_json::json!({
+            "capabilities": ["runtime.status.compat.v1", "terminal.multiplex.v1"],
+        });
+
+        assert_eq!(
+            runtime_status_capabilities(&status),
+            Ok(vec!["runtime.status.compat.v1", "terminal.multiplex.v1"])
+        );
+    }
+
+    #[test]
+    fn rejects_missing_runtime_status_capabilities() {
+        let status = serde_json::json!({});
+
+        assert_eq!(
+            runtime_status_capabilities(&status),
+            Err("runtime status is missing capabilities".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_non_array_runtime_status_capabilities() {
+        let status = serde_json::json!({
+            "capabilities": "runtime.status.compat.v1",
+        });
+
+        assert_eq!(
+            runtime_status_capabilities(&status),
+            Err("runtime status capabilities must be an array".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_non_string_runtime_status_capabilities_items() {
+        let status = serde_json::json!({
+            "capabilities": ["runtime.status.compat.v1", 7],
+        });
+
+        assert_eq!(
+            runtime_status_capabilities(&status),
+            Err("runtime status capabilities[1] must be a string".to_string())
+        );
     }
 
     #[test]
