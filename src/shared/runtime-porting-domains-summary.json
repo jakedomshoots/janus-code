@@ -98,6 +98,7 @@
   "firstSliceContractJsonSchemaPropertyCount": 10,
   "firstSliceContractAdditionalProperties": false,
   "firstSliceContractArrayFields": ["capabilities"],
+  "firstSliceContractArrayFieldCount": 1,
   "firstSliceContractArrayConstraints": {
     "capabilities": {
       "itemType": "string"

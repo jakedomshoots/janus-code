@@ -117,6 +117,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaPropertyCount: number
   firstSliceContractAdditionalProperties: RuntimePortingFirstSliceContractAdditionalProperties
   firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields
+  firstSliceContractArrayFieldCount: number
   firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
   firstSliceContractEnumFields: RuntimePortingFirstSliceContractEnumFields
   firstSliceContractEnumFieldCount: number
