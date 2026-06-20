@@ -116,6 +116,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractSampleManifestInvalidSampleCount: number
   firstSliceContractSampleManifestSamplePaths: readonly string[]
   firstSliceContractSampleManifestExpectedResults: RuntimePortingFirstSliceContractSampleManifestSamples[number]['expectedResult'][]
+  firstSliceContractSampleManifestValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
   firstSliceContractSampleManifestVerificationCommand: RuntimePortingFirstSliceContractSampleManifestVerificationCommand
   firstSliceContractSchemaVersion: RuntimePortingFirstSliceContractSchemaVersion
   firstSliceContractParams: RuntimePortingFirstSliceContractParams

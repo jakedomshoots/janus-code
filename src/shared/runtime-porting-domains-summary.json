@@ -101,6 +101,9 @@
       "missingFields": ["runtimeId"]
     }
   ],
+  "firstSliceContractSampleManifestValidSampleExpectedResult": {
+    "ok": true
+  },
   "firstSliceContractSampleManifestVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
