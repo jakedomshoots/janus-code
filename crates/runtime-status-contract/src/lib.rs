@@ -16,6 +16,12 @@ const REQUIRED_FIELDS: &[&str] = &[
     "capabilities",
     "hostPlatform",
 ];
+const VERSIONED_FIELDS: &[&str] = &[
+    "runtimeProtocolVersion",
+    "minCompatibleRuntimeClientVersion",
+];
+const NON_NEGATIVE_INTEGER_FIELDS: &[&str] =
+    &["rendererGraphEpoch", "liveTabCount", "liveLeafCount"];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RuntimeStatusHostPlatform {
@@ -154,6 +160,70 @@ fn missing_runtime_status_fields(value: &Value) -> Vec<&'static str> {
 
 pub fn list_missing_runtime_status_porting_fields(value: &Value) -> Vec<&'static str> {
     missing_runtime_status_fields(value)
+}
+
+fn is_integer_at_least(value: Option<&Value>, minimum: u64) -> bool {
+    value
+        .and_then(Value::as_u64)
+        .is_some_and(|integer| integer >= minimum)
+}
+
+pub fn list_invalid_runtime_status_porting_fields(value: &Value) -> Vec<&'static str> {
+    let mut invalid_fields: Vec<&'static str> = VERSIONED_FIELDS
+        .iter()
+        .copied()
+        .filter(|field| !is_integer_at_least(value.get(field), 1))
+        .collect();
+
+    if !invalid_fields.contains(&"runtimeProtocolVersion")
+        && !invalid_fields.contains(&"minCompatibleRuntimeClientVersion")
+    {
+        let min_compatible_runtime_client_version =
+            runtime_status_min_compatible_runtime_client_version(value);
+        let runtime_protocol_version = runtime_status_runtime_protocol_version(value);
+        if matches!(
+            (
+                min_compatible_runtime_client_version,
+                runtime_protocol_version
+            ),
+            (Ok(min_compatible_runtime_client_version), Ok(runtime_protocol_version))
+                if min_compatible_runtime_client_version > runtime_protocol_version
+        ) {
+            invalid_fields.push("minCompatibleRuntimeClientVersion");
+        }
+    }
+
+    invalid_fields.extend(
+        NON_NEGATIVE_INTEGER_FIELDS
+            .iter()
+            .copied()
+            .filter(|field| !is_integer_at_least(value.get(field), 0)),
+    );
+
+    if runtime_status_capabilities(value).is_err() {
+        invalid_fields.push("capabilities");
+    }
+
+    if runtime_status_graph_status(value).is_err() {
+        invalid_fields.push("graphStatus");
+    }
+
+    if runtime_status_runtime_id(value)
+        .map(|runtime_id| runtime_id.trim().is_empty())
+        .unwrap_or(true)
+    {
+        invalid_fields.push("runtimeId");
+    }
+
+    if runtime_status_authoritative_window_id(value).is_err() {
+        invalid_fields.push("authoritativeWindowId");
+    }
+
+    if runtime_status_host_platform(value).is_err() {
+        invalid_fields.push("hostPlatform");
+    }
+
+    invalid_fields
 }
 
 pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPlatform, String> {
@@ -2490,12 +2560,13 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        list_missing_runtime_status_porting_fields, runtime_status_authoritative_window_id,
-        runtime_status_capabilities, runtime_status_graph_status, runtime_status_host_platform,
-        runtime_status_live_leaf_count, runtime_status_live_tab_count,
-        runtime_status_min_compatible_runtime_client_version, runtime_status_renderer_graph_epoch,
-        runtime_status_runtime_id, runtime_status_runtime_protocol_version,
-        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
+        list_invalid_runtime_status_porting_fields, list_missing_runtime_status_porting_fields,
+        runtime_status_authoritative_window_id, runtime_status_capabilities,
+        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
+        runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
+        runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
+        runtime_status_runtime_protocol_version, validate_runtime_status_sample,
+        verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -2595,6 +2666,21 @@ mod tests {
     const ENUM_FIELDS: &[&str] = &["graphStatus", "hostPlatform"];
     const GRAPH_STATUS_ENUM_VALUES: &[&str] = &["ready", "reloading", "unavailable"];
     const HOST_PLATFORM_ENUM_VALUES: &[&str] = &["darwin", "linux", "win32"];
+
+    fn runtime_status_fixture() -> serde_json::Value {
+        serde_json::json!({
+            "runtimeId": "janus-runtime",
+            "rendererGraphEpoch": 1,
+            "graphStatus": "ready",
+            "authoritativeWindowId": null,
+            "liveTabCount": 2,
+            "liveLeafCount": 3,
+            "runtimeProtocolVersion": 3,
+            "minCompatibleRuntimeClientVersion": 2,
+            "capabilities": ["runtime.status.compat.v1", "terminal.multiplex.v1"],
+            "hostPlatform": "darwin",
+        })
+    }
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -3454,6 +3540,56 @@ mod tests {
                 "minCompatibleRuntimeClientVersion",
                 "hostPlatform",
             ]
+        );
+    }
+
+    #[test]
+    fn lists_no_invalid_runtime_status_fields_for_valid_object() {
+        assert_eq!(
+            list_invalid_runtime_status_porting_fields(&runtime_status_fixture()),
+            Vec::<&str>::new()
+        );
+    }
+
+    #[test]
+    fn lists_invalid_runtime_status_fields_in_contract_order() {
+        let mut status = runtime_status_fixture();
+        status["runtimeProtocolVersion"] = serde_json::json!(0);
+        status["minCompatibleRuntimeClientVersion"] = serde_json::json!(4);
+        status["rendererGraphEpoch"] = serde_json::json!(-1);
+        status["liveTabCount"] = serde_json::json!(1.5);
+        status["liveLeafCount"] = serde_json::json!("3");
+        status["capabilities"] = serde_json::json!(["runtime.status.compat.v1", 7]);
+        status["graphStatus"] = serde_json::json!("warming-up");
+        status["runtimeId"] = serde_json::json!(" ");
+        status["authoritativeWindowId"] = serde_json::json!(-1);
+        status["hostPlatform"] = serde_json::json!("freebsd");
+
+        assert_eq!(
+            list_invalid_runtime_status_porting_fields(&status),
+            vec![
+                "runtimeProtocolVersion",
+                "rendererGraphEpoch",
+                "liveTabCount",
+                "liveLeafCount",
+                "capabilities",
+                "graphStatus",
+                "runtimeId",
+                "authoritativeWindowId",
+                "hostPlatform",
+            ]
+        );
+    }
+
+    #[test]
+    fn lists_invalid_runtime_status_protocol_compatibility_window() {
+        let mut status = runtime_status_fixture();
+        status["runtimeProtocolVersion"] = serde_json::json!(3);
+        status["minCompatibleRuntimeClientVersion"] = serde_json::json!(4);
+
+        assert_eq!(
+            list_invalid_runtime_status_porting_fields(&status),
+            vec!["minCompatibleRuntimeClientVersion"]
         );
     }
 

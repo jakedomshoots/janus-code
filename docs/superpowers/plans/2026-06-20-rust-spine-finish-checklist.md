@@ -29,7 +29,7 @@
 - [x] Rust exposes primitive accessors for `runtimeId`, protocol versions, graph epoch, tab count, leaf count, and authoritative window id.
 - [x] Rust exposes a public `capabilities` accessor.
 - [x] Rust exposes public missing-field list parity.
-- [ ] Rust exposes public invalid-field list parity.
+- [x] Rust exposes public invalid-field list parity.
 - [ ] Rust exposes full validation result parity.
 - [ ] Rust exposes assert-style validation parity.
 
@@ -37,13 +37,13 @@
 
 - [x] Add `runtime_status_capabilities(&Value)` with tests for valid string arrays, missing values, non-array values, and non-string items.
 - [x] Add public missing-field list API that returns the required fields in contract order.
-- [ ] Add Rust invalid-field validation for versioned fields, enforcing integer values greater than or equal to `1`.
-- [ ] Add Rust invalid-field validation for `minCompatibleRuntimeClientVersion <= runtimeProtocolVersion`.
-- [ ] Add Rust invalid-field validation for non-negative integer fields.
-- [ ] Add Rust invalid-field validation for `capabilities` as a string array.
-- [ ] Add Rust invalid-field validation for `graphStatus` and `hostPlatform` enum values.
-- [ ] Add Rust invalid-field validation for non-empty trimmed `runtimeId`.
-- [ ] Add Rust invalid-field validation for nullable non-negative integer `authoritativeWindowId`.
+- [x] Add Rust invalid-field validation for versioned fields, enforcing integer values greater than or equal to `1`.
+- [x] Add Rust invalid-field validation for `minCompatibleRuntimeClientVersion <= runtimeProtocolVersion`.
+- [x] Add Rust invalid-field validation for non-negative integer fields.
+- [x] Add Rust invalid-field validation for `capabilities` as a string array.
+- [x] Add Rust invalid-field validation for `graphStatus` and `hostPlatform` enum values.
+- [x] Add Rust invalid-field validation for non-empty trimmed `runtimeId`.
+- [x] Add Rust invalid-field validation for nullable non-negative integer `authoritativeWindowId`.
 - [ ] Add Rust `validate_runtime_status_porting_contract(&Value)` result parity.
 - [ ] Add Rust `assert_runtime_status_porting_contract(&Value)` parity.
 - [ ] Add sample-driven parity tests that compare valid and invalid samples to the expected TypeScript contract results.
