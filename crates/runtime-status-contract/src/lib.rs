@@ -103,6 +103,17 @@ impl TryFrom<&str> for RuntimeStatusGraphStatus {
     }
 }
 
+impl TryFrom<&Value> for RuntimeStatusGraphStatus {
+    type Error = String;
+
+    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+        value
+            .as_str()
+            .ok_or_else(|| "runtime status graphStatus must be a string".to_string())?
+            .parse()
+    }
+}
+
 impl FromStr for RuntimeStatusGraphStatus {
     type Err = String;
 
@@ -2556,6 +2567,22 @@ mod tests {
         );
         assert_eq!(
             RuntimeStatusGraphStatus::try_from("unavailable"),
+            Ok(RuntimeStatusGraphStatus::Unavailable)
+        );
+    }
+
+    #[test]
+    fn converts_runtime_status_graph_status_from_json_string_values() {
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from(&serde_json::json!("ready")),
+            Ok(RuntimeStatusGraphStatus::Ready)
+        );
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from(&serde_json::json!("reloading")),
+            Ok(RuntimeStatusGraphStatus::Reloading)
+        );
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from(&serde_json::json!("unavailable")),
             Ok(RuntimeStatusGraphStatus::Unavailable)
         );
     }
