@@ -47,6 +47,21 @@ export const FEATURE_TIPS = [
     'utf8'
   )
   writeFileSync(
+    path.join(sharedDir, 'contextual-tours.ts'),
+    `
+export const CONTEXTUAL_TOURS = [
+  { id: 'workspace-board', steps: [] },
+  { id: 'workspace-agent-sessions', steps: [] },
+  { id: 'browser', steps: [] },
+  { id: 'tasks', steps: [] },
+  { id: 'automations', steps: [] },
+  { id: 'floating-workspace', steps: [] },
+  { id: 'workspace-creation', steps: [] }
+] as const
+`,
+    'utf8'
+  )
+  writeFileSync(
     path.join(sharedDir, 'feature-wall-setup-steps.ts'),
     `
 export const FEATURE_WALL_SETUP_STEPS = [

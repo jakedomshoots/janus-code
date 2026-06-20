@@ -179,11 +179,20 @@ function collectFeatureWallReviewStepIds(sourceText) {
   return collectIds(match[1]).map((id) => `feature-wall-review-step:${id}`)
 }
 
+function collectContextualTourIds(sourceText) {
+  const match = sourceText.match(/export const CONTEXTUAL_TOURS[\s\S]*?= \[([\s\S]*?)\n\]/)
+  if (!match) {
+    return []
+  }
+  return collectIds(match[1]).map((id) => `contextual-tour:${id}`)
+}
+
 async function collectExpectedRows(root) {
   const [
     interactionsText,
     featureWallText,
     featureTipsText,
+    contextualToursText,
     rightSidebarRouteText,
     settingsText,
     tuiAgentConfigText,
@@ -199,6 +208,7 @@ async function collectExpectedRows(root) {
     fs.readFile(path.join(root, 'src', 'shared', 'feature-interaction-catalog.ts'), 'utf8'),
     fs.readFile(path.join(root, 'src', 'shared', 'feature-wall-tiles.ts'), 'utf8'),
     fs.readFile(path.join(root, 'src', 'shared', 'feature-tips.ts'), 'utf8'),
+    fs.readFile(path.join(root, 'src', 'shared', 'contextual-tours.ts'), 'utf8'),
     fs.readFile(
       path.join(root, 'src', 'renderer', 'src', 'store', 'right-sidebar-route.ts'),
       'utf8'
@@ -233,6 +243,7 @@ async function collectExpectedRows(root) {
     ...collectIds(interactionsText).map((id) => `interaction:${id}`),
     ...collectIds(featureWallText).map((id) => `feature-wall:${id}`),
     ...collectIds(featureTipsText).map((id) => `feature-tip:${id}`),
+    ...collectContextualTourIds(contextualToursText),
     ...collectRightSidebarRouteIds(rightSidebarRouteText),
     ...collectSettingsNavGroupIds(settingsText),
     ...collectSettingsSectionIds(settingsText),
