@@ -21,7 +21,10 @@ export type {
 export {
   getRuntimeStatusPortingContractSampleManifest,
   getRuntimeStatusPortingContractSampleManifestJson,
-  RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH
+  RUNTIME_STATUS_PORTING_CONTRACT_INVALID_SAMPLE_PATH,
+  RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH,
+  RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_VERIFICATION_COMMAND,
+  RUNTIME_STATUS_PORTING_CONTRACT_VALID_SAMPLE_PATH
 } from './runtime-status-contract-sample-manifest'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'

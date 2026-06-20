@@ -328,14 +328,19 @@ describe('runtime status porting contract', () => {
     )
   })
 
-  it('exports the checked-in runtime status sample manifest JSON path for tooling', () => {
-    const sampleManifest = runtimeStatusContract as {
-      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH?: string
-    }
+  it('exports checked-in runtime status sample manifest metadata for tooling', () => {
+    const sampleManifest = runtimeStatusContract as unknown as Record<string, string | undefined>
 
-    expect(sampleManifest.RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH).toBe(
-      'src/shared/runtime-status-contract-samples.json'
-    )
+    expect(sampleManifest).toMatchObject({
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH:
+        'src/shared/runtime-status-contract-samples.json',
+      RUNTIME_STATUS_PORTING_CONTRACT_VALID_SAMPLE_PATH:
+        'src/shared/runtime-status-contract-valid-sample.json',
+      RUNTIME_STATUS_PORTING_CONTRACT_INVALID_SAMPLE_PATH:
+        'src/shared/runtime-status-contract-invalid-sample.json',
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_VERIFICATION_COMMAND:
+        'pnpm run verify:runtime-status-samples'
+    })
   })
 
   it('keeps the validation result type in a dedicated diagnostics module', () => {
