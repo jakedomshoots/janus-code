@@ -14,12 +14,22 @@ export function selectPanesAfterProjectThreadUpdate({
   defaultThreadId: string | null
   hadProjectThreads: boolean
 }): AgentWorkspacePaneState[] {
+  function consumeSelectedDraftSession(pane: AgentWorkspacePaneState): AgentWorkspacePaneState {
+    if (!pane.selectedDraftSessionId) {
+      return pane
+    }
+    return {
+      ...pane,
+      draftSessions: pane.draftSessions.filter((draft) => draft.id !== pane.selectedDraftSessionId)
+    }
+  }
+
   return panes.map((pane) =>
     pane.pendingLaunchedThreadSelection && launchedThread
       ? {
           // Why: a completed-thread composer launch creates a fresh terminal
-          // asynchronously; follow that new running thread when it appears.
-          ...pane,
+          // asynchronously; follow it and consume the draft tab that launched it.
+          ...consumeSelectedDraftSession(pane),
           selectedThreadId: launchedThread.id,
           selectedDraftSessionId: null,
           pendingLaunchedThreadSelection: false
@@ -33,8 +43,8 @@ export function selectPanesAfterProjectThreadUpdate({
             pane.selectedDraftSessionId
           ? {
               // Why: a draft composer launch reports its real agent thread
-              // asynchronously; select it instead of leaving the pane blank.
-              ...pane,
+              // asynchronously; select it without leaving a duplicate draft tab.
+              ...consumeSelectedDraftSession(pane),
               selectedThreadId: defaultThreadId,
               selectedDraftSessionId: null,
               pendingLaunchedThreadSelection: false
