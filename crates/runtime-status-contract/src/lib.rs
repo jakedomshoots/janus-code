@@ -190,6 +190,42 @@ pub fn verify_runtime_status_artifact_json_schema_property_type(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_property_type_values(
+    relative_path: &str,
+    field_name: &str,
+    expected_types: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let type_values = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .and_then(|properties| properties.get(field_name))
+        .and_then(|property| property.get("type"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name}.type array")
+        })?;
+
+    let actual_types: Result<Vec<&str>, String> = type_values
+        .iter()
+        .enumerate()
+        .map(|(index, value)| {
+            value.as_str().ok_or_else(|| {
+                format!("jsonSchema.properties.{field_name}.type[{index}] must be a string")
+            })
+        })
+        .collect();
+    let actual_types = actual_types?;
+
+    if actual_types.as_slice() == expected_types {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.properties.{field_name}.type {expected_types:?} but got {actual_types:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_property_min_length(
     relative_path: &str,
     field_name: &str,
@@ -1039,6 +1075,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_min_length,
         verify_runtime_status_artifact_json_schema_property_type,
+        verify_runtime_status_artifact_json_schema_property_type_values,
         verify_runtime_status_artifact_json_schema_required_fields,
         verify_runtime_status_artifact_json_schema_type,
         verify_runtime_status_artifact_non_negative_integer_fields,
@@ -1081,6 +1118,7 @@ mod tests {
         "authoritativeWindowId",
     ];
     const NULLABLE_FIELDS: &[&str] = &["authoritativeWindowId"];
+    const AUTHORITATIVE_WINDOW_ID_TYPE_VALUES: &[&str] = &["integer", "null"];
     const INVALIDATABLE_FIELDS: &[&str] = &[
         "runtimeProtocolVersion",
         "minCompatibleRuntimeClientVersion",
@@ -1191,6 +1229,18 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "capabilities",
                 "string"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_authoritative_window_id_property_type_values() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_property_type_values(
+                "src/shared/runtime-status-contract-artifact.json",
+                "authoritativeWindowId",
+                AUTHORITATIVE_WINDOW_ID_TYPE_VALUES
             ),
             Ok(())
         );
