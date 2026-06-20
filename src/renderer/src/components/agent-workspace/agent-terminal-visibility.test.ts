@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   AGENT_TERMINAL_REVEAL_REASONS,
+  getAgentBrowserWorkbenchOverlayHostState,
   getAgentTerminalVisibilityState,
   isAgentTerminalRevealReason
 } from './agent-terminal-visibility'
@@ -87,6 +88,41 @@ describe('agent terminal visibility', () => {
       openReason: 'workbench',
       terminalWorkspaceMounted: true,
       terminalAvailable: true
+    })
+  })
+
+  it('keeps the preserved overlay host out of browser workbench mode', () => {
+    const visibility = getAgentTerminalVisibilityState({
+      guiAgentWorkspaceEnabled: true,
+      openReason: 'browser',
+      terminalAvailable: true
+    })
+
+    expect(
+      getAgentBrowserWorkbenchOverlayHostState({
+        guiAgentWorkspaceEnabled: true,
+        tabGroupWorkbenchOpen: visibility.tabGroupWorkbenchOpen
+      })
+    ).toBeNull()
+  })
+
+  it('uses a browser-suppressed preserved host for tab-group workbench mode', () => {
+    const visibility = getAgentTerminalVisibilityState({
+      guiAgentWorkspaceEnabled: true,
+      openReason: 'workbench',
+      terminalAvailable: true
+    })
+
+    expect(
+      getAgentBrowserWorkbenchOverlayHostState({
+        guiAgentWorkspaceEnabled: true,
+        tabGroupWorkbenchOpen: visibility.tabGroupWorkbenchOpen
+      })
+    ).toEqual({
+      agentBrowserWorkbenchOpen: true,
+      suppressBrowserOverlays: true,
+      suppressSimulatorOverlays: false,
+      suppressTerminalOverlays: true
     })
   })
 

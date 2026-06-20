@@ -111,6 +111,7 @@ import { AgentWorkspacePage } from './agent-workspace/AgentWorkspacePage'
 import { AgentTerminalDrawer } from './agent-workspace/AgentTerminalDrawer'
 import { syncAgentTerminalDrawerSurface } from './agent-workspace/agent-terminal-drawer-surface'
 import {
+  getAgentBrowserWorkbenchOverlayHostState,
   getAgentTerminalVisibilityState,
   type AgentTerminalRevealReason
 } from './agent-workspace/agent-terminal-visibility'
@@ -2137,6 +2138,10 @@ function Terminal(): React.JSX.Element | null {
     openReason: terminalDrawerReason,
     terminalAvailable
   })
+  const browserWorkbenchOverlayHostState = getAgentBrowserWorkbenchOverlayHostState({
+    guiAgentWorkspaceEnabled,
+    tabGroupWorkbenchOpen: terminalVisibility.tabGroupWorkbenchOpen
+  })
 
   useEffect(() => {
     if (!guiAgentWorkspaceEnabled && terminalDrawerReason !== null) {
@@ -2201,21 +2206,14 @@ function Terminal(): React.JSX.Element | null {
         />
       }
       browserWorkbenchOverlayHost={
-        guiAgentWorkspaceEnabled &&
-        (terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen) ? (
+        browserWorkbenchOverlayHostState ? (
           <TerminalWorkspace
-            agentBrowserWorkbenchOpen={
-              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
-            }
+            agentBrowserWorkbenchOpen={browserWorkbenchOverlayHostState.agentBrowserWorkbenchOpen}
             agentBrowserWorkbenchOverlayHost
             initialTerminalFallbackEnabled={false}
-            // Why: editor/simulator workbench renders inline in the agent pane;
-            // browser overlays must not paint over it when reason is 'workbench'.
-            suppressBrowserOverlays={terminalVisibility.tabGroupWorkbenchOpen}
-            suppressSimulatorOverlays={terminalVisibility.browserWorkbenchOpen}
-            suppressTerminalOverlays={
-              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
-            }
+            suppressBrowserOverlays={browserWorkbenchOverlayHostState.suppressBrowserOverlays}
+            suppressSimulatorOverlays={browserWorkbenchOverlayHostState.suppressSimulatorOverlays}
+            suppressTerminalOverlays={browserWorkbenchOverlayHostState.suppressTerminalOverlays}
           />
         ) : null
       }

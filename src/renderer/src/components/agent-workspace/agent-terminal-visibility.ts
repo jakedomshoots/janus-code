@@ -26,6 +26,13 @@ export type AgentTerminalVisibilityState = {
   readonly terminalAvailable: boolean
 }
 
+export type AgentBrowserWorkbenchOverlayHostState = {
+  readonly agentBrowserWorkbenchOpen: boolean
+  readonly suppressBrowserOverlays: boolean
+  readonly suppressSimulatorOverlays: boolean
+  readonly suppressTerminalOverlays: boolean
+}
+
 function isMainPaneWorkbenchReason(reason: AgentTerminalRevealReason | null): boolean {
   return reason === 'browser' || reason === 'workbench'
 }
@@ -53,5 +60,27 @@ export function getAgentTerminalVisibilityState({
     openReason: resolvedReason,
     terminalWorkspaceMounted: true,
     terminalAvailable
+  }
+}
+
+export function getAgentBrowserWorkbenchOverlayHostState({
+  guiAgentWorkspaceEnabled,
+  tabGroupWorkbenchOpen
+}: Pick<AgentTerminalVisibilityInput, 'guiAgentWorkspaceEnabled'> &
+  Pick<
+    AgentTerminalVisibilityState,
+    'tabGroupWorkbenchOpen'
+  >): AgentBrowserWorkbenchOverlayHostState | null {
+  if (!guiAgentWorkspaceEnabled || !tabGroupWorkbenchOpen) {
+    return null
+  }
+
+  return {
+    agentBrowserWorkbenchOpen: tabGroupWorkbenchOpen,
+    // Why: browser mode owns BrowserPaneOverlayLayer inline; this host is only
+    // for the generic tab-group workbench that needs a stable non-browser owner.
+    suppressBrowserOverlays: true,
+    suppressSimulatorOverlays: false,
+    suppressTerminalOverlays: tabGroupWorkbenchOpen
   }
 }
