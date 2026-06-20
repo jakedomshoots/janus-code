@@ -104,6 +104,10 @@
   "firstSliceContractSampleManifestValidSampleExpectedResult": {
     "ok": true
   },
+  "firstSliceContractSampleManifestInvalidSampleExpectedResult": {
+    "ok": false,
+    "missingFields": ["runtimeId"]
+  },
   "firstSliceContractSampleManifestVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,

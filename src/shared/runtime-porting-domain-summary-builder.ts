@@ -164,6 +164,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       ),
     firstSliceContractSampleManifestValidSampleExpectedResult:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT,
+    firstSliceContractSampleManifestInvalidSampleExpectedResult:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT,
     firstSliceContractSampleManifestVerificationCommand:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_VERIFICATION_COMMAND,
     firstSliceContractSchemaVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
