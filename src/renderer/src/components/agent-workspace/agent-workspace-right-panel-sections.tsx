@@ -10,12 +10,14 @@ export function PanelTabs({
   diffs,
   hasPlan,
   hasReview,
+  hasDocument,
   onSelectedTabChange
 }: {
   selectedTab: AgentWorkspaceRightPanelTab
   diffs: number
   hasPlan: boolean
   hasReview: boolean
+  hasDocument: boolean
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
 }): React.JSX.Element {
   const tabs: readonly {
@@ -41,6 +43,11 @@ export function PanelTabs({
       available: hasReview
     },
     {
+      id: 'document',
+      label: translate('auto.components.agentWorkspace.rightPanel.document', 'Document'),
+      available: hasDocument
+    },
+    {
       id: 'details',
       label: translate('auto.components.agentWorkspace.rightPanel.context', 'Context'),
       available: true
@@ -49,7 +56,8 @@ export function PanelTabs({
 
   return (
     <div
-      className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1"
+      className="mb-4 grid gap-1 rounded-2xl border border-border bg-background p-1"
+      style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       role="tablist"
       aria-label={translate(
         'auto.components.agentWorkspace.rightPanel.agentWorkspaceRightPanel',

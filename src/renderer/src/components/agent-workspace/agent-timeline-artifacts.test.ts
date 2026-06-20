@@ -28,6 +28,22 @@ describe('agent timeline artifacts', () => {
     ])
   })
 
+  it('normalizes file URL markdown links to filesystem paths', () => {
+    expect(
+      getAgentTimelineMarkdownArtifacts({
+        text: '[README.md](file:///Users/jakedom/Documents/alchemist-diet-pwa/README.md)',
+        cwd: '/repo'
+      })
+    ).toEqual([
+      {
+        id: '/Users/jakedom/Documents/alchemist-diet-pwa/README.md',
+        fileName: 'README.md',
+        filePath: '/Users/jakedom/Documents/alchemist-diet-pwa/README.md',
+        absolutePath: '/Users/jakedom/Documents/alchemist-diet-pwa/README.md'
+      }
+    ])
+  })
+
   it('summarizes changed files with totals and visible rows', () => {
     const summary = summarizeAgentTimelineDiffs([
       diff({ id: '1', filePath: 'a.md', additions: 4, deletions: 1 }),

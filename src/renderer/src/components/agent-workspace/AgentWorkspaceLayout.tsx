@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { translate } from '@/i18n/i18n'
-import { detectLanguage } from '@/lib/language-detect'
-import { joinPath } from '@/lib/path'
 import { useAppStore } from '@/store'
 import type {
   AgentWorkspaceDiffSummary,
-  AgentWorkspacePlan,
-  AgentWorkspaceReviewSummary,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
@@ -18,7 +14,6 @@ import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
-  type AgentWorkspaceRightPanelStateInput,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
@@ -33,8 +28,15 @@ import { getActiveAgentWorkspaceDraftSession } from './agent-workspace-draft-ses
 import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
-import { compareAgentTimelineEntries } from './agent-timeline-order'
-import { openAgentMarkdownArtifact } from './open-agent-markdown-artifact'
+import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
+import { openMarkdownArtifactInEditor } from './agent-markdown-artifact-editor-handoff'
+import { openAgentWorkspaceDiff } from './open-agent-workspace-diff'
+import { createLocalUserTimelineEntry } from './agent-workspace-local-user-entry'
+import { mergeAgentWorkspacePaneTimeline } from './agent-workspace-pane-timeline'
+import {
+  getRightPanelStateInput,
+  getRightPanelStateInputKey
+} from './agent-workspace-right-panel-state-input'
 import {
   getProjectThreads,
   getSelectedProject,
@@ -43,35 +45,6 @@ import {
   getThreadReview,
   getThreadTimeline
 } from './agent-workspace-layout-selectors'
-
-function getRightPanelStateInput(
-  thread: AgentWorkspaceThread | null,
-  diffs: readonly AgentWorkspaceDiffSummary[],
-  plan: AgentWorkspacePlan | null,
-  review: AgentWorkspaceReviewSummary | null
-): AgentWorkspaceRightPanelStateInput {
-  return {
-    thread,
-    diffs,
-    review,
-    hasStructuredPlan: plan !== null
-  }
-}
-
-function getRightPanelStateInputKey({
-  thread,
-  diffs,
-  review,
-  hasStructuredPlan
-}: AgentWorkspaceRightPanelStateInput): string {
-  return [
-    thread?.id ?? 'no-thread',
-    thread?.phase ?? 'no-phase',
-    hasStructuredPlan ? 'plan' : 'no-plan',
-    review?.id ?? 'no-review',
-    diffs.map((diff) => diff.id).join(',')
-  ].join(':')
-}
 
 export function AgentWorkspaceLayout({
   snapshot,
@@ -98,6 +71,8 @@ export function AgentWorkspaceLayout({
       )
     )
   )
+  const [selectedMarkdownArtifact, setSelectedMarkdownArtifact] =
+    useState<AgentTimelineMarkdownArtifact | null>(null)
   const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
   const {
     panes,
@@ -182,6 +157,7 @@ export function AgentWorkspaceLayout({
     if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
       previousRightPanelStateInputKeyRef.current = rightPanelStateInputKey
       setSelectedRightPanelState(getDefaultAgentWorkspaceRightPanelState(rightPanelStateInput))
+      setSelectedMarkdownArtifact(null)
     }
   }, [rightPanelStateInput, rightPanelStateInputKey])
 
@@ -250,28 +226,35 @@ export function AgentWorkspaceLayout({
   }
 
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
-    if (!selectedThread?.cwd || typeof openDiff !== 'function') {
-      return
-    }
-    openDiff(
-      selectedThread.worktreeId,
-      joinPath(selectedThread.cwd, diff.filePath),
-      diff.filePath,
-      detectLanguage(diff.filePath),
-      diff.area === 'staged'
-    )
+    openAgentWorkspaceDiff({ thread: selectedThread, diff, openDiff })
+  }
+
+  function handleOpenMarkdownArtifactPreview(artifact: AgentTimelineMarkdownArtifact): void {
+    setSelectedMarkdownArtifact(artifact)
+    setSelectedRightPanelState({
+      selectedTab: 'document',
+      collapsed: false
+    } satisfies AgentWorkspaceRightPanelState)
+  }
+
+  function handleOpenMarkdownArtifactInEditor(
+    thread: AgentWorkspaceThread | null,
+    artifact: AgentTimelineMarkdownArtifact
+  ): void {
+    openMarkdownArtifactInEditor({
+      thread,
+      artifact,
+      openFile,
+      onOpenWorkbench: () => onOpenTerminalDrawer?.('workbench')
+    })
   }
 
   const handleMessageSent: AgentComposerMessageSentHandler = (message) => {
     localUserTimelineSequenceRef.current += 1
-    const entry: AgentWorkspaceTimelineEntry = {
-      id: `${message.threadId}:local-user:${Date.now()}:${localUserTimelineSequenceRef.current}`,
-      threadId: message.threadId,
-      kind: 'user',
-      text: message.prompt,
-      createdAt: message.sentAt,
-      status: 'done'
-    }
+    const entry = createLocalUserTimelineEntry({
+      message,
+      sequence: localUserTimelineSequenceRef.current
+    })
     setLocalUserTimeline((current) => [entry, ...current].slice(0, 100))
   }
 
@@ -305,6 +288,7 @@ export function AgentWorkspaceLayout({
             approval={selectedApproval}
             diffs={diffs}
             review={selectedReview}
+            selectedMarkdownArtifact={selectedMarkdownArtifact}
             sourceControlBusy={sourceControlActions.sourceControlBusy}
             sourceControlError={sourceControlActions.sourceControlError}
             terminalAvailable={snapshot.terminalAvailable}
@@ -315,6 +299,9 @@ export function AgentWorkspaceLayout({
             onUnstageDiff={sourceControlActions.onUnstageDiff}
             onDiscardDiff={sourceControlActions.onDiscardDiff}
             onCommitStaged={sourceControlActions.onCommitStaged}
+            onOpenMarkdownArtifactInEditor={(artifact) =>
+              handleOpenMarkdownArtifactInEditor(selectedThread, artifact)
+            }
             onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )
@@ -332,22 +319,10 @@ export function AgentWorkspaceLayout({
           const paneApproval = getThreadApproval(snapshot, paneThread)
           const paneDiffs = getThreadDiffs(snapshot, paneThread)
           const backendTimeline = getThreadTimeline(snapshot, paneThread)
-          const backendUserPromptKeys = new Set(
-            backendTimeline
-              .filter((entry) => entry.kind === 'user')
-              .map((entry) => `${entry.threadId}:${entry.text}`)
-          )
-          const paneTimeline = [
-            ...backendTimeline,
-            ...localUserTimeline.filter(
-              (entry) =>
-                entry.threadId === paneThread?.id &&
-                !backendUserPromptKeys.has(`${entry.threadId}:${entry.text}`)
-            )
-          ].sort((a, b) => {
-            // Why: chat transcripts read oldest-to-newest; backend and local
-            // optimistic entries arrive from different sources and need one order.
-            return compareAgentTimelineEntries(a, b)
+          const paneTimeline = mergeAgentWorkspacePaneTimeline({
+            backendTimeline,
+            localUserTimeline,
+            threadId: paneThread?.id ?? null
           })
           return (
             <div
@@ -399,9 +374,7 @@ export function AgentWorkspaceLayout({
                 onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
                 onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
                 onMessageSent={handleMessageSent}
-                onOpenMarkdownArtifact={(artifact) =>
-                  openAgentMarkdownArtifact({ thread: paneThread, artifact, openFile })
-                }
+                onOpenMarkdownArtifact={handleOpenMarkdownArtifactPreview}
                 onReviewDiffs={() => (setActivePaneId(pane.id), handleRightPanelTabChange('diff'))}
                 onSplitPane={(direction) => {
                   const splitDirection =

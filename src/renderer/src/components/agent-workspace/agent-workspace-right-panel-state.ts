@@ -4,7 +4,7 @@ import type {
   AgentWorkspaceThread
 } from './agent-workspace-types'
 
-export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'review' | 'details'
+export type AgentWorkspaceRightPanelTab = 'plan' | 'diff' | 'review' | 'document' | 'details'
 
 export type AgentWorkspaceRightPanelState = {
   readonly selectedTab: AgentWorkspaceRightPanelTab
@@ -63,6 +63,7 @@ export function coerceAgentWorkspaceRightPanelTab(
     case 'plan':
     case 'diff':
     case 'review':
+    case 'document':
     case 'details':
       return value
     default:

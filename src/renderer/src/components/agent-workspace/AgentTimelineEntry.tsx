@@ -21,6 +21,7 @@ import {
   getAgentTimelineMarkdownArtifacts,
   type AgentTimelineMarkdownArtifact
 } from './agent-timeline-artifacts'
+import CommentMarkdown from '../sidebar/CommentMarkdown'
 
 export function AgentTimelineEntry({
   entry,
@@ -42,42 +43,56 @@ export function AgentTimelineEntry({
   const entryLabel = [roleLabel, statusLabel, slashCommand].filter(Boolean).join(', ')
   const markdownArtifacts =
     entry.kind === 'agent' ? getAgentTimelineMarkdownArtifacts({ text: entry.text, cwd }) : []
+  const avatar = (
+    <span
+      className={cn(
+        'agent-timeline-avatar mt-1 flex size-8 shrink-0 items-center justify-center rounded-full border',
+        isUser ? 'border-border bg-background text-foreground shadow-xs' : null,
+        isAgent ? 'border-border/80 bg-muted text-foreground shadow-xs' : null,
+        !isUser && !isAgent ? 'border-border bg-background text-muted-foreground' : null,
+        entry.kind === 'error' ? 'text-destructive' : null
+      )}
+      aria-hidden="true"
+    >
+      <Icon className={cn('size-3.5', isLive ? 'animate-spin' : null)} />
+    </span>
+  )
 
   return (
     <article
-      className={cn('group flex min-w-0', isUser ? 'justify-end' : 'justify-start')}
+      className={cn(
+        'group flex min-w-0 items-start gap-3',
+        isUser ? 'justify-end' : 'justify-start'
+      )}
       data-agent-timeline-entry-kind={entry.kind}
       data-agent-timeline-entry-status={entry.status}
       aria-label={entryLabel}
       aria-busy={isLive ? 'true' : undefined}
     >
+      {isUser ? null : avatar}
       <div
         className={cn(
-          'flex min-w-0 max-w-[78%] gap-3 rounded-xl border px-4 py-3',
+          'agent-timeline-bubble min-w-0 max-w-[min(74%,42rem)] rounded-2xl border px-4 py-3 shadow-xs',
           isUser
-            ? 'border-border bg-accent text-accent-foreground'
-            : 'border-border/80 bg-card text-card-foreground shadow-xs',
+            ? 'rounded-br-md border-border/80 bg-secondary text-secondary-foreground'
+            : 'rounded-bl-md border-border/80 bg-card/95 text-card-foreground',
           entry.kind === 'system' || entry.kind === 'tool' || entry.kind === 'approval'
-            ? 'bg-muted/40'
+            ? 'bg-muted/40 text-foreground'
             : null,
-          entry.kind === 'error' ? 'bg-destructive/10' : null
+          entry.kind === 'error' ? 'bg-destructive/10 text-destructive' : null
         )}
+        data-agent-timeline-bubble="true"
       >
-        <span
-          className={cn(
-            'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border',
-            isUser ? 'border-border bg-background text-foreground' : null,
-            isAgent ? 'border-border bg-muted text-foreground' : null,
-            !isUser && !isAgent ? 'border-border bg-background text-muted-foreground' : null,
-            entry.kind === 'error' ? 'text-destructive' : null
-          )}
-          aria-hidden="true"
-        >
-          <Icon className={cn('size-3.5', isLive ? 'animate-spin' : null)} />
-        </span>
         <div className={cn('min-w-0 flex-1', entry.kind === 'error' ? 'text-destructive' : null)}>
-          <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-foreground">{roleLabel}</span>
+          <div className="mb-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <span
+              className={cn(
+                'text-xs font-semibold',
+                isUser ? 'text-secondary-foreground' : 'text-foreground'
+              )}
+            >
+              {roleLabel}
+            </span>
             {statusLabel ? (
               <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                 <span className="size-1.5 rounded-full bg-muted-foreground/50" aria-hidden="true" />
@@ -92,7 +107,7 @@ export function AgentTimelineEntry({
             ) : null}
             {slashCommand ? (
               <span
-                className="inline-flex items-center gap-1 border border-border bg-background px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-background/70 px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
                 data-agent-command-label={slashCommand}
               >
                 {translate('auto.components.agentWorkspace.timeline.command', 'Command')}
@@ -100,9 +115,23 @@ export function AgentTimelineEntry({
               </span>
             ) : null}
           </div>
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
-            {entry.text}
-          </p>
+          {isAgent ? (
+            <CommentMarkdown
+              variant="document"
+              content={entry.text}
+              className="agent-timeline-markdown text-sm leading-6 text-foreground"
+            />
+          ) : (
+            <p
+              className={cn(
+                'whitespace-pre-wrap break-words text-sm leading-6',
+                isUser ? 'text-secondary-foreground' : 'text-foreground',
+                entry.kind === 'error' ? 'text-destructive' : null
+              )}
+            >
+              {entry.text}
+            </p>
+          )}
           {markdownArtifacts.map((artifact) => (
             <AgentMarkdownArtifactCard
               key={artifact.id}
@@ -112,6 +141,7 @@ export function AgentTimelineEntry({
           ))}
         </div>
       </div>
+      {isUser ? avatar : null}
     </article>
   )
 }

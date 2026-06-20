@@ -797,7 +797,7 @@
   background: transparent !important;
 }
 
-.theme-retro95 [data-agent-timeline-entry-kind] > div {
+.theme-retro95 [data-agent-timeline-entry-kind] .agent-timeline-bubble {
   max-width: min(78%, 680px);
   border: 0 !important;
   background: var(--win-surface) !important;
@@ -809,7 +809,7 @@
     inset -2px -2px 0 var(--win-border-dark) !important;
 }
 
-.theme-retro95 [data-agent-timeline-entry-kind='user'] > div {
+.theme-retro95 [data-agent-timeline-entry-kind='user'] .agent-timeline-bubble {
   background: linear-gradient(
     90deg,
     var(--win-titlebar) 0 4px,
@@ -817,7 +817,7 @@
   ) !important;
 }
 
-.theme-retro95 [data-agent-timeline-entry-kind='agent'] > div {
+.theme-retro95 [data-agent-timeline-entry-kind='agent'] .agent-timeline-bubble {
   background: linear-gradient(
     90deg,
     var(--win-highlight) 0 4px,
@@ -825,8 +825,8 @@
   ) !important;
 }
 
-.theme-retro95 [data-agent-timeline-entry-status='running'] > div,
-.theme-retro95 [data-agent-timeline-entry-status='pending'] > div {
+.theme-retro95 [data-agent-timeline-entry-status='running'] .agent-timeline-bubble,
+.theme-retro95 [data-agent-timeline-entry-status='pending'] .agent-timeline-bubble {
   outline: 1px dotted var(--win-border-black);
   outline-offset: -5px;
 }

@@ -212,6 +212,7 @@ function TerminalWorkspace({
   agentTerminalDrawerOpen = false,
   agentBrowserWorkbenchOpen = false,
   agentBrowserWorkbenchOverlayHost = false,
+  initialTerminalFallbackEnabled = true,
   suppressBrowserOverlays = false,
   suppressSimulatorOverlays = false,
   suppressTerminalOverlays = false
@@ -219,6 +220,7 @@ function TerminalWorkspace({
   agentTerminalDrawerOpen?: boolean
   agentBrowserWorkbenchOpen?: boolean
   agentBrowserWorkbenchOverlayHost?: boolean
+  initialTerminalFallbackEnabled?: boolean
   suppressBrowserOverlays?: boolean
   suppressSimulatorOverlays?: boolean
   suppressTerminalOverlays?: boolean
@@ -820,7 +822,11 @@ function TerminalWorkspace({
     // Re-running it on ordinary tab-count changes would recreate a terminal
     // immediately after the user intentionally closed the last visible one.
     const { renderableTabCount } = reconcileWorktreeTabModel(activeWorktreeId)
-    if (!shouldAutoCreateInitialTerminal(renderableTabCount)) {
+    if (
+      !shouldAutoCreateInitialTerminal(renderableTabCount, {
+        fallbackEnabled: initialTerminalFallbackEnabled
+      })
+    ) {
       return
     }
     // Why: this tab only exists because the user clicked a never-visited
@@ -828,7 +834,13 @@ function TerminalWorkspace({
     // activity and reshuffle the sidebar. Explicit "New Tab" actions
     // (handleNewTab below) still bump normally.
     createTab(activeWorktreeId, undefined, undefined, { pendingActivationSpawn: true })
-  }, [workspaceSessionReady, activeWorktreeId, createTab, reconcileWorktreeTabModel])
+  }, [
+    workspaceSessionReady,
+    activeWorktreeId,
+    createTab,
+    initialTerminalFallbackEnabled,
+    reconcileWorktreeTabModel
+  ])
 
   const handleNewTab = useCallback(
     (shellOverride?: string) => {
@@ -2196,6 +2208,7 @@ function Terminal(): React.JSX.Element | null {
               terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
             }
             agentBrowserWorkbenchOverlayHost
+            initialTerminalFallbackEnabled={false}
             // Why: editor/simulator workbench renders inline in the agent pane;
             // browser overlays must not paint over it when reason is 'workbench'.
             suppressBrowserOverlays={terminalVisibility.tabGroupWorkbenchOpen}
@@ -2216,6 +2229,7 @@ function Terminal(): React.JSX.Element | null {
           >
             <TerminalWorkspace
               agentTerminalDrawerOpen={terminalVisibility.drawerOpen}
+              initialTerminalFallbackEnabled={terminalVisibility.drawerOpen}
               suppressBrowserOverlays={
                 terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
               }

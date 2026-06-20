@@ -2,6 +2,7 @@
 
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
   AgentWorkspaceDiffSummary,
@@ -14,10 +15,34 @@ import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 const approvalMocks = vi.hoisted(() => ({
   respondToAgentWorkspaceApproval: vi.fn(async () => ({ status: 'sent' as const }))
 }))
+const runtimeFileMocks = vi.hoisted(() => ({
+  readRuntimeFileContent: vi.fn(async () => ({
+    content: `# Long Handoff\n\n${Array.from({ length: 80 }, (_, index) => `- Item ${index}`).join(
+      '\n'
+    )}`,
+    isBinary: false
+  }))
+}))
 
 vi.mock('./agent-workspace-approval-response', () => ({
   respondToAgentWorkspaceApproval: approvalMocks.respondToAgentWorkspaceApproval,
   getAgentWorkspaceApprovalResponseMessage: () => 'Approval sent to the agent terminal.'
+}))
+
+vi.mock('@/runtime/runtime-file-client', () => ({
+  readRuntimeFileContent: runtimeFileMocks.readRuntimeFileContent
+}))
+
+vi.mock('@/store', () => ({
+  useAppStore: (
+    selector: (state: { settings: { guiAgentWorkspaceEnabled: boolean } }) => unknown
+  ) => selector({ settings: { guiAgentWorkspaceEnabled: false } })
+}))
+
+vi.mock('../sidebar/CommentMarkdown', () => ({
+  default: ({ className, content }: { className?: string; content: string }) => (
+    <article className={className}>{content}</article>
+  )
 }))
 
 const runningThread: AgentWorkspaceThread = {
@@ -76,6 +101,7 @@ describe('AgentWorkspaceRightPanel', () => {
 
   afterEach(() => {
     act(() => root.unmount())
+    runtimeFileMocks.readRuntimeFileContent.mockClear()
     document.body.replaceChildren()
   })
 
@@ -161,5 +187,43 @@ describe('AgentWorkspaceRightPanel', () => {
       decision: 'deny',
       onOpenTerminalDrawer
     })
+  })
+
+  it('constrains the document preview so long markdown scrolls inside the panel', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceRightPanel
+        project={project}
+        thread={runningThread}
+        threads={[runningThread]}
+        plan={null}
+        approval={null}
+        diffs={[]}
+        review={null}
+        selectedMarkdownArtifact={{
+          id: 'docs/handoff.md',
+          fileName: 'handoff.md',
+          filePath: 'docs/handoff.md',
+          absolutePath: '/Users/jakedom/janus-code/docs/handoff.md'
+        }}
+        terminalAvailable
+        selectedTab="document"
+        onSelectedTabChange={() => undefined}
+      />
+    )
+    container.innerHTML = markup
+
+    const shell = container.querySelector('.agent-workspace-right-panel-shell')
+    const tabPanel = container.querySelector('[role="tabpanel"]')
+    const preview = container.querySelector('[data-agent-markdown-preview="docs/handoff.md"]')
+    const scroller = preview?.querySelector('.agent-markdown-artifact-preview-scroller')
+
+    expect(shell?.className).toContain('flex')
+    expect(shell?.className).toContain('flex-col')
+    expect(shell?.className).toContain('h-[calc(100vh-7rem)]')
+    expect(tabPanel?.className).toContain('min-h-0')
+    expect(tabPanel?.className).toContain('flex-1')
+    expect(tabPanel?.className).toContain('overflow-hidden')
+    expect(preview?.className).toContain('h-full')
+    expect(scroller?.className).toContain('overflow-auto')
   })
 })

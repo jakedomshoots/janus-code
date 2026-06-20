@@ -5,10 +5,12 @@ import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
 export function openAgentMarkdownArtifact({
   thread,
   artifact,
-  openFile
+  openFile,
+  targetGroupId
 }: {
   readonly thread: AgentWorkspaceThread | null
   readonly artifact: AgentTimelineMarkdownArtifact
+  readonly targetGroupId?: string | null
   readonly openFile:
     | ((
         file: {
@@ -18,7 +20,7 @@ export function openAgentMarkdownArtifact({
           language: string
           mode: 'edit'
         },
-        options?: { preview?: boolean }
+        options?: { preview?: boolean; targetGroupId?: string }
       ) => void)
     | undefined
 }): void {
@@ -33,6 +35,6 @@ export function openAgentMarkdownArtifact({
       language: detectLanguage(artifact.filePath),
       mode: 'edit'
     },
-    { preview: false }
+    { preview: false, targetGroupId: targetGroupId ?? undefined }
   )
 }

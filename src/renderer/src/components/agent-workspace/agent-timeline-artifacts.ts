@@ -61,7 +61,16 @@ export function summarizeAgentTimelineDiffs(
 }
 
 function normalizeMarkdownArtifactPath(value: string): string {
-  return value.trim().replace(TRAILING_PATH_PUNCTUATION, '').replaceAll('\\', '/')
+  const trimmed = value.trim().replace(TRAILING_PATH_PUNCTUATION, '')
+  if (trimmed.startsWith('file://')) {
+    try {
+      const url = new URL(trimmed)
+      return decodeURIComponent(url.pathname).replace(/^\/([A-Za-z]:\/)/, '$1')
+    } catch {
+      return trimmed.replaceAll('\\', '/')
+    }
+  }
+  return trimmed.replaceAll('\\', '/')
 }
 
 function getFileName(filePath: string): string {

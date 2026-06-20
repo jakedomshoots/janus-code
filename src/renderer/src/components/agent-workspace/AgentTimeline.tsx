@@ -71,7 +71,7 @@ export function AgentTimeline({
       aria-live="polite"
       aria-relevant="additions text"
     >
-      <div className="agent-workspace-timeline-inner mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-5">
+      <div className="agent-workspace-timeline-inner mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-5">
         {thread ? (
           <>
             <ThreadSummary thread={thread} />
@@ -83,7 +83,7 @@ export function AgentTimeline({
                 )}
               </div>
             ) : (
-              <div className="flex flex-col gap-4 pb-2">
+              <div className="flex flex-col gap-3 pb-2">
                 {timeline.length === 0 ? (
                   <AgentEditedFilesCard diffs={diffs} onReview={onReviewDiffs} />
                 ) : null}

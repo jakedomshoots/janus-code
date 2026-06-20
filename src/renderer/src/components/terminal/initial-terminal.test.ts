@@ -10,4 +10,8 @@ describe('shouldAutoCreateInitialTerminal', () => {
     expect(shouldAutoCreateInitialTerminal(1)).toBe(false)
     expect(shouldAutoCreateInitialTerminal(2)).toBe(false)
   })
+
+  it('does not create a terminal while the GUI drawer workspace is only preserved offscreen', () => {
+    expect(shouldAutoCreateInitialTerminal(0, { fallbackEnabled: false })).toBe(false)
+  })
 })

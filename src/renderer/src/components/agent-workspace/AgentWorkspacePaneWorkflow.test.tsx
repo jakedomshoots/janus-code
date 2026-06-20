@@ -27,6 +27,17 @@ const storeMocks = vi.hoisted(() => {
   const ensureWorktreeRootGroup = vi.fn()
   const createUnifiedTab = vi.fn()
   const closeBrowserTab = vi.fn()
+  const activateTab = vi.fn()
+  const markdownEditorTab = {
+    id: 'editor-handoff-tab',
+    worktreeId: 'worktree-1',
+    groupId: 'group-1',
+    entityId: '/Users/jakedom/janus-code/docs/reference/handoff.md',
+    label: 'handoff.md',
+    contentType: 'editor',
+    createdAt: 1,
+    updatedAt: 1
+  }
   const state = {
     browserDefaultUrl: 'data:text/html,',
     settings: { guiAgentWorkspaceEnabled: false, defaultTuiAgent: 'grok', disabledTuiAgents: [] },
@@ -38,7 +49,7 @@ const storeMocks = vi.hoisted(() => {
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
     activeBrowserTabIdByWorktree: {},
-    unifiedTabsByWorktree: {},
+    unifiedTabsByWorktree: { 'worktree-1': [markdownEditorTab] },
     remoteBrowserPageHandlesByPageId: {},
     activeGroupIdByWorktree: { 'worktree-1': 'group-1' },
     groupsByWorktree: { 'worktree-1': [{ id: 'group-1', activeTabId: null, tabOrder: [] }] },
@@ -46,6 +57,7 @@ const storeMocks = vi.hoisted(() => {
     focusBrowserTabInWorktree,
     ensureWorktreeRootGroup,
     createUnifiedTab,
+    activateTab,
     closeBrowserTab,
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
@@ -58,7 +70,8 @@ const storeMocks = vi.hoisted(() => {
     openFile: state.openFile,
     openModal: state.openModal,
     createBrowserTab,
-    focusBrowserTabInWorktree
+    focusBrowserTabInWorktree,
+    markdownEditorTab
   }
 })
 const launchMocks = vi.hoisted(() => ({
@@ -75,6 +88,9 @@ const launchMocks = vi.hoisted(() => ({
 }))
 const sendMocks = vi.hoisted(() => ({
   sendNotesToActiveAgentSession: vi.fn()
+}))
+const fsMocks = vi.hoisted(() => ({
+  readFile: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -261,13 +277,16 @@ afterEach(() => {
   storeMocks.openDiff.mockClear()
   storeMocks.openFile.mockClear()
   storeMocks.openModal.mockClear()
+  storeMocks.state.activateTab.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
   launchMocks.launchAgentInNewTab.mockClear()
   sendMocks.sendNotesToActiveAgentSession.mockReset()
+  fsMocks.readFile.mockReset()
   storeMocks.state.browserTabsByWorktree = {}
   storeMocks.state.browserAnnotationsByPageId = {}
   storeMocks.state.activeBrowserTabIdByWorktree = {}
+  storeMocks.state.unifiedTabsByWorktree = { 'worktree-1': [storeMocks.markdownEditorTab] }
   document.body.replaceChildren()
 })
 
@@ -450,6 +469,15 @@ describe('AgentWorkspace pane workflow', () => {
   })
 
   it('opens markdown artifact cards and routes edited files to the changes panel', async () => {
+    window.api = {
+      fs: {
+        readFile: fsMocks.readFile
+      }
+    } as unknown as typeof window.api
+    fsMocks.readFile.mockResolvedValue({
+      content: '# Release Handoff\n\n- Ship the polished chat surface.',
+      isBinary: false
+    })
     const thread = {
       id: 'thread-artifacts',
       worktreeId: 'worktree-1',
@@ -460,6 +488,7 @@ describe('AgentWorkspace pane workflow', () => {
       branchName: null,
       cwd: '/Users/jakedom/janus-code'
     }
+    const onOpenTerminalDrawer = vi.fn()
     const container = await renderLayout(
       baseSnapshot({
         threads: [thread],
@@ -491,7 +520,8 @@ describe('AgentWorkspace pane workflow', () => {
             status: 'modified'
           }
         ]
-      })
+      }),
+      { onOpenTerminalDrawer }
     )
 
     const openButton = buttons(container).find((button) => button.textContent === 'Open')
@@ -501,6 +531,22 @@ describe('AgentWorkspace pane workflow', () => {
     })
 
     expect(storeMocks.openDiff).not.toHaveBeenCalled()
+    expect(storeMocks.openFile).not.toHaveBeenCalled()
+    expect(fsMocks.readFile).toHaveBeenCalledWith({
+      filePath: '/Users/jakedom/janus-code/docs/reference/handoff.md',
+      connectionId: undefined
+    })
+    expect(container.textContent).toContain('Document')
+    expect(container.textContent).toContain('Release Handoff')
+    expect(container.textContent).toContain('Ship the polished chat surface.')
+
+    await act(async () => {
+      buttons(container)
+        .find((button) => button.textContent === 'Open in editor')
+        ?.click()
+      await Promise.resolve()
+    })
+
     expect(storeMocks.openFile).toHaveBeenCalledWith(
       {
         filePath: '/Users/jakedom/janus-code/docs/reference/handoff.md',
@@ -511,6 +557,8 @@ describe('AgentWorkspace pane workflow', () => {
       },
       { preview: false }
     )
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('workbench')
+    expect(storeMocks.state.activateTab).toHaveBeenCalledWith('editor-handoff-tab')
 
     await act(async () => {
       buttons(container)

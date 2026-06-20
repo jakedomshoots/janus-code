@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { GitStatusEntry } from '../../../../shared/types'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import {
   mapGitStatusToAgentWorkspaceDiffStatus,
+  resetAgentWorkspaceDiffBaselinesForTest,
   selectAgentWorkspaceDiffs,
   type AgentWorkspaceDiffSourceState
 } from './orca-agent-diff-selectors'
@@ -39,7 +40,13 @@ function entry(overrides: Partial<GitStatusEntry> & { path: string }): GitStatus
 }
 
 describe('orca agent diff selectors', () => {
+  beforeEach(() => {
+    resetAgentWorkspaceDiffBaselinesForTest()
+  })
+
   it('maps modified, added, deleted, and renamed git status entries', () => {
+    expect(selectAgentWorkspaceDiffs(sourceState([]), [thread])).toEqual([])
+
     const diffs = selectAgentWorkspaceDiffs(
       sourceState([
         entry({
@@ -102,7 +109,7 @@ describe('orca agent diff selectors', () => {
     expect(selectAgentWorkspaceDiffs({ gitStatusByWorktree: {} }, [thread])).toEqual([])
   })
 
-  it('attributes worktree source-control entries to every thread in that worktree', () => {
+  it('does not attribute pre-existing worktree changes to newly observed threads', () => {
     const siblingThread = {
       ...thread,
       id: 'thread-2',
@@ -110,13 +117,24 @@ describe('orca agent diff selectors', () => {
     } satisfies AgentWorkspaceThread
 
     expect(
+      selectAgentWorkspaceDiffs(sourceState([entry({ path: 'src/app.ts' })]), [thread])
+    ).toEqual([])
+
+    expect(
       selectAgentWorkspaceDiffs(sourceState([entry({ path: 'src/app.ts' })]), [
         thread,
         siblingThread
-      ]).map((diff) => [diff.threadId, diff.filePath])
+      ])
+    ).toEqual([])
+
+    expect(
+      selectAgentWorkspaceDiffs(
+        sourceState([entry({ path: 'src/app.ts' }), entry({ path: 'src/new-thread-file.ts' })]),
+        [thread, siblingThread]
+      ).map((diff) => [diff.threadId, diff.filePath])
     ).toEqual([
-      ['thread-1', 'src/app.ts'],
-      ['thread-2', 'src/app.ts']
+      ['thread-1', 'src/new-thread-file.ts'],
+      ['thread-2', 'src/new-thread-file.ts']
     ])
   })
 })

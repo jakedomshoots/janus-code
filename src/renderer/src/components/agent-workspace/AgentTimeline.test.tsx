@@ -79,6 +79,76 @@ describe('AgentTimeline', () => {
     expect(runningEntry?.querySelector('.animate-spin')).not.toBeNull()
   })
 
+  it('keeps avatar chrome outside the message bubble surface', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'user',
+        text: 'Polish this chat surface.',
+        status: 'done',
+        createdAt: '2026-06-18T14:01:00.000Z'
+      },
+      {
+        id: 'entry-2',
+        threadId: thread.id,
+        kind: 'agent',
+        text: 'I will make the timeline easier to scan.',
+        status: 'done',
+        createdAt: '2026-06-18T14:01:02.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const userEntry = container.querySelector('[data-agent-timeline-entry-kind="user"]')
+    const agentEntry = container.querySelector('[data-agent-timeline-entry-kind="agent"]')
+    const userBubble = userEntry?.querySelector('[data-agent-timeline-bubble="true"]')
+    const agentBubble = agentEntry?.querySelector('[data-agent-timeline-bubble="true"]')
+
+    expect(userEntry?.querySelector('.agent-timeline-avatar')).not.toBeNull()
+    expect(agentEntry?.querySelector('.agent-timeline-avatar')).not.toBeNull()
+    expect(userBubble?.querySelector('.agent-timeline-avatar')).toBeNull()
+    expect(agentBubble?.querySelector('.agent-timeline-avatar')).toBeNull()
+  })
+
+  it('renders agent response markdown as structured prose', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: [
+          'This project is the **Alchemist Diet PWA**.',
+          '',
+          '### Key Information',
+          '',
+          '* **Stack:** Next.js and TypeScript.',
+          '* **Core Flows:**',
+          '  * Onboarding.',
+          '  * Meal logging.'
+        ].join('\n'),
+        status: 'done',
+        createdAt: '2026-06-18T14:01:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const bubble = container.querySelector('[data-agent-timeline-bubble="true"]')
+
+    expect(bubble?.querySelector('.agent-timeline-markdown')).not.toBeNull()
+    expect(bubble?.querySelector('h3')?.textContent).toBe('Key Information')
+    expect(bubble?.querySelector('strong')?.textContent).toBe('Alchemist Diet PWA')
+    expect(bubble?.querySelectorAll('li')).toHaveLength(4)
+    expect(bubble?.textContent).not.toContain('###')
+    expect(bubble?.textContent).not.toContain('**')
+  })
+
   it('renders markdown artifact cards that open the document preview', () => {
     const onOpenMarkdownArtifact = vi.fn()
     const timeline: AgentWorkspaceTimelineEntry[] = [
