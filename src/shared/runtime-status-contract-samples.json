@@ -3,6 +3,9 @@
   "mediaType": "application/vnd.janus.runtime-status-contract-samples+json",
   "schemaVersion": 1,
   "contractArtifactId": "janus-runtime-status-contract",
+  "contractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
+  "contractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
+  "contractArtifactVersion": 1,
   "samples": [
     {
       "kind": "valid",
