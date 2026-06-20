@@ -1035,6 +1035,44 @@ pub fn verify_runtime_status_artifact_enum_values(
     }
 }
 
+pub fn verify_runtime_status_artifact_enum_values_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.enumFields array".to_string())?;
+    let enum_values = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumValues"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| "contract artifact must include summary.enumValues object".to_string())?;
+
+    let fields: Result<Vec<&str>, String> = enum_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.enumFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut fields = fields?;
+    let mut value_fields: Vec<&str> = enum_values.keys().map(String::as_str).collect();
+    fields.sort_unstable();
+    value_fields.sort_unstable();
+
+    if fields == value_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.enumFields {fields:?} to match summary.enumValues fields {value_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_enum_values_schema_consistency(
     relative_path: &str,
 ) -> Result<(), String> {
@@ -1898,6 +1936,7 @@ mod tests {
         verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_enum_fields_schema_consistency,
         verify_runtime_status_artifact_enum_values,
+        verify_runtime_status_artifact_enum_values_fields_consistency,
         verify_runtime_status_artifact_enum_values_schema_consistency,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
@@ -2361,6 +2400,16 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_enum_fields_schema_consistency() {
         assert_eq!(
             verify_runtime_status_artifact_enum_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_enum_values_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_enum_values_fields_consistency(
                 "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
