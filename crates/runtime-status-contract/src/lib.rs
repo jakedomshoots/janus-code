@@ -360,6 +360,25 @@ pub fn verify_runtime_status_manifest_params_null(relative_path: &str) -> Result
     }
 }
 
+pub fn verify_runtime_status_manifest_verification_command(
+    relative_path: &str,
+    expected_command: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_command = manifest
+        .get("verificationCommand")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string verificationCommand".to_string())?;
+
+    if actual_command == expected_command {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected verificationCommand {expected_command} but got {actual_command}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -374,7 +393,7 @@ mod tests {
         verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
         verify_runtime_status_manifest_params_null, verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
-        verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_verification_command, verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -465,6 +484,17 @@ mod tests {
         assert_eq!(
             verify_runtime_status_manifest_params_null(
                 "src/shared/runtime-status-contract-samples.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_runtime_status_sample_verification_command() {
+        assert_eq!(
+            verify_runtime_status_manifest_verification_command(
+                "src/shared/runtime-status-contract-samples.json",
+                "pnpm run verify:runtime-status-samples"
             ),
             Ok(())
         );
