@@ -148,6 +148,26 @@ pub fn verify_runtime_status_artifact_json_schema_property_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_draft_uri(
+    relative_path: &str,
+    expected_draft_uri: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let actual_draft_uri = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("$schema"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchema.$schema".to_string())?;
+
+    if actual_draft_uri == expected_draft_uri {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.$schema {expected_draft_uri} but got {actual_draft_uri}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_additional_properties(
     relative_path: &str,
     expected_additional_properties: bool,
@@ -1123,6 +1143,7 @@ mod tests {
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
+        verify_runtime_status_artifact_json_schema_draft_uri,
         verify_runtime_status_artifact_json_schema_property_array_item_type,
         verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_fields,
@@ -1224,6 +1245,17 @@ mod tests {
             verify_runtime_status_artifact_json_schema_property_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 REQUIRED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_draft_uri() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_draft_uri(
+                "src/shared/runtime-status-contract-artifact.json",
+                "https://json-schema.org/draft/2020-12/schema"
             ),
             Ok(())
         );
