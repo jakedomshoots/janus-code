@@ -6,6 +6,7 @@ import {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact'
+import { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
@@ -83,6 +84,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArtifactVersion: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION,
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
       firstSliceContractArtifactJsonPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
+      firstSliceContractSummary: getRuntimeStatusPortingContractSummary(),
       firstSliceContractValidSamplePath: 'src/shared/runtime-status-contract-valid-sample.json',
       firstSliceContractInvalidSamplePath: 'src/shared/runtime-status-contract-invalid-sample.json',
       firstSliceContractValidSampleExpectedResult: { ok: true },
@@ -253,6 +255,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractArtifactJsonPath: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH}`
     )
+    expect(doc).toContain('firstSliceContractSummary')
     expect(doc).toContain('firstSliceContractValidSamplePath')
     expect(doc).toContain('firstSliceContractInvalidSamplePath')
     expect(doc).toContain('firstSliceContractValidSampleExpectedResult')

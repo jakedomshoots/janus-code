@@ -46,6 +46,7 @@ import type {
   RuntimePortingFirstSliceContractSchemaVersion,
   RuntimePortingFirstSliceContractStringConstraints,
   RuntimePortingFirstSliceContractStringFields,
+  RuntimePortingFirstSliceContractSummary,
   RuntimePortingFirstSliceContractValidSampleExpectedResult,
   RuntimePortingFirstSliceContractValidSamplePath,
   RuntimePortingFirstSliceContractVersionedFields
@@ -78,6 +79,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceContractArtifactJsonPath: RuntimePortingFirstSliceContractArtifactJsonPath
+  firstSliceContractSummary: RuntimePortingFirstSliceContractSummary
   firstSliceContractValidSamplePath: RuntimePortingFirstSliceContractValidSamplePath
   firstSliceContractInvalidSamplePath: RuntimePortingFirstSliceContractInvalidSamplePath
   firstSliceContractValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
