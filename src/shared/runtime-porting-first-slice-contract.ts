@@ -53,6 +53,8 @@ export type RuntimePortingFirstSliceContractJsonSchemaId =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export type RuntimePortingFirstSliceContractJsonSchemaTitle =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export type RuntimePortingFirstSliceContractJsonSchemaPropertyFields =
+  readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractAdditionalProperties = false
 export type RuntimePortingFirstSliceContractEnumValues = {
   graphStatus: typeof VALID_RUNTIME_GRAPH_STATUSES
@@ -101,6 +103,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS: RuntimePortingFirstSliceContractJsonSchemaPropertyFields =
+  Object.keys(getRuntimeStatusPortingJsonSchema().properties) as RuntimeStatusPortingField[]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES: RuntimePortingFirstSliceContractAdditionalProperties =
   getRuntimeStatusPortingJsonSchema().additionalProperties
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS: RuntimePortingFirstSliceContractArrayConstraints =

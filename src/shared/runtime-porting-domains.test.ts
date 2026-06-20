@@ -88,6 +88,18 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+      firstSliceContractJsonSchemaPropertyFields: [
+        'runtimeId',
+        'graphStatus',
+        'hostPlatform',
+        'runtimeProtocolVersion',
+        'minCompatibleRuntimeClientVersion',
+        'rendererGraphEpoch',
+        'liveTabCount',
+        'liveLeafCount',
+        'authoritativeWindowId',
+        'capabilities'
+      ],
       firstSliceContractAdditionalProperties: false,
       firstSliceContractArrayFields: ['capabilities'],
       firstSliceContractArrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
@@ -184,6 +196,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
+    expect(doc).toContain('firstSliceContractJsonSchemaPropertyFields')
     expect(doc).toContain('firstSliceContractAdditionalProperties: false')
     expect(doc).toContain('firstSliceContractArrayFields')
     expect(doc).toContain('firstSliceContractArrayConstraints')

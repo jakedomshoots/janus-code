@@ -22,6 +22,18 @@
   "firstSliceContractJsonSchemaDraftUri": "https://json-schema.org/draft/2020-12/schema",
   "firstSliceContractJsonSchemaId": "urn:janus:runtime-status-contract:json-schema:1",
   "firstSliceContractJsonSchemaTitle": "Janus Runtime status.get result",
+  "firstSliceContractJsonSchemaPropertyFields": [
+    "runtimeId",
+    "graphStatus",
+    "hostPlatform",
+    "runtimeProtocolVersion",
+    "minCompatibleRuntimeClientVersion",
+    "rendererGraphEpoch",
+    "liveTabCount",
+    "liveLeafCount",
+    "authoritativeWindowId",
+    "capabilities"
+  ],
   "firstSliceContractAdditionalProperties": false,
   "firstSliceContractArrayFields": ["capabilities"],
   "firstSliceContractArrayConstraints": {

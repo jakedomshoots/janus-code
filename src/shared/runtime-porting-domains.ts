@@ -12,6 +12,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
@@ -37,6 +38,7 @@ import {
   type RuntimePortingFirstSliceContractInvalidatableFields,
   type RuntimePortingFirstSliceContractJsonSchemaDraftUri,
   type RuntimePortingFirstSliceContractJsonSchemaId,
+  type RuntimePortingFirstSliceContractJsonSchemaPropertyFields,
   type RuntimePortingFirstSliceContractJsonSchemaTitle,
   type RuntimePortingFirstSliceContractMethod,
   type RuntimePortingFirstSliceContractNonNegativeIntegerFields,
@@ -101,6 +103,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractJsonSchemaPropertyFields: RuntimePortingFirstSliceContractJsonSchemaPropertyFields
   firstSliceContractAdditionalProperties: RuntimePortingFirstSliceContractAdditionalProperties
   firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields
   firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
@@ -239,6 +242,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractJsonSchemaPropertyFields:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS,
     firstSliceContractAdditionalProperties:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES,
     firstSliceContractArrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
