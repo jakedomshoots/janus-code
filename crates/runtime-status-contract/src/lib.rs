@@ -123,6 +123,30 @@ pub fn verify_runtime_status_artifact_json_schema_required_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_required_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let summary_required_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("requiredFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.requiredFields array".to_string())?;
+    let json_schema_required_fields = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("required"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include jsonSchema.required array".to_string())?;
+
+    if summary_required_fields == json_schema_required_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.requiredFields {summary_required_fields:?} to match jsonSchema.required {json_schema_required_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_property_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -1264,6 +1288,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_property_type,
         verify_runtime_status_artifact_json_schema_property_type_values,
         verify_runtime_status_artifact_json_schema_required_fields,
+        verify_runtime_status_artifact_json_schema_required_fields_consistency,
         verify_runtime_status_artifact_json_schema_title,
         verify_runtime_status_artifact_json_schema_title_consistency,
         verify_runtime_status_artifact_json_schema_type,
@@ -1348,6 +1373,16 @@ mod tests {
             verify_runtime_status_artifact_json_schema_required_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 REQUIRED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_required_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_required_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
