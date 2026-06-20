@@ -53,6 +53,16 @@ pub enum RuntimeStatusGraphStatus {
     Unavailable,
 }
 
+impl RuntimeStatusGraphStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Ready => "ready",
+            Self::Reloading => "reloading",
+            Self::Unavailable => "unavailable",
+        }
+    }
+}
+
 impl FromStr for RuntimeStatusGraphStatus {
     type Err = String;
 
@@ -2452,6 +2462,16 @@ mod tests {
         assert_eq!(
             "unavailable".parse(),
             Ok(RuntimeStatusGraphStatus::Unavailable)
+        );
+    }
+
+    #[test]
+    fn returns_runtime_status_graph_status_contract_values() {
+        assert_eq!(RuntimeStatusGraphStatus::Ready.as_str(), "ready");
+        assert_eq!(RuntimeStatusGraphStatus::Reloading.as_str(), "reloading");
+        assert_eq!(
+            RuntimeStatusGraphStatus::Unavailable.as_str(),
+            "unavailable"
         );
     }
 
