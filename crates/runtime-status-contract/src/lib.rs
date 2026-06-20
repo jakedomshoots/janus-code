@@ -284,6 +284,27 @@ pub fn verify_runtime_status_manifest_target_schema_version(
     }
 }
 
+pub fn verify_runtime_status_manifest_json_schema_draft_uri(
+    relative_path: &str,
+    expected_draft_uri: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_draft_uri = manifest
+        .get("contractJsonSchemaDraftUri")
+        .and_then(Value::as_str)
+        .ok_or_else(|| {
+            "sample manifest must include a string contractJsonSchemaDraftUri".to_string()
+        })?;
+
+    if actual_draft_uri == expected_draft_uri {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractJsonSchemaDraftUri {expected_draft_uri} but got {actual_draft_uri}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -291,8 +312,10 @@ mod tests {
         verify_runtime_status_manifest_artifact_media_type,
         verify_runtime_status_manifest_artifact_path,
         verify_runtime_status_manifest_artifact_version, verify_runtime_status_manifest_id,
-        verify_runtime_status_manifest_json_path, verify_runtime_status_manifest_media_type,
-        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_manifest_json_path,
+        verify_runtime_status_manifest_json_schema_draft_uri,
+        verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
+        verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_sample_manifest,
     };
@@ -430,6 +453,17 @@ mod tests {
             verify_runtime_status_manifest_target_schema_version(
                 "src/shared/runtime-status-contract-samples.json",
                 1
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_the_runtime_status_json_schema_draft() {
+        assert_eq!(
+            verify_runtime_status_manifest_json_schema_draft_uri(
+                "src/shared/runtime-status-contract-samples.json",
+                "https://json-schema.org/draft/2020-12/schema"
             ),
             Ok(())
         );
