@@ -459,6 +459,35 @@ pub fn verify_runtime_status_artifact_string_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_array_constraint(
+    relative_path: &str,
+    field_name: &str,
+    expected_item_type: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let constraint = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("arrayConstraints"))
+        .and_then(|constraints| constraints.get(field_name))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            format!("contract artifact must include summary.arrayConstraints.{field_name} object")
+        })?;
+
+    let item_type = constraint
+        .get("itemType")
+        .and_then(Value::as_str)
+        .ok_or_else(|| format!("summary.arrayConstraints.{field_name}.itemType must be string"))?;
+
+    if item_type == expected_item_type {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.arrayConstraints.{field_name} itemType {expected_item_type} but got {item_type}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -812,6 +841,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
+        verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
@@ -1010,6 +1040,18 @@ mod tests {
                 "runtimeId",
                 1,
                 true
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_capabilities_array_constraint() {
+        assert_eq!(
+            verify_runtime_status_artifact_array_constraint(
+                "src/shared/runtime-status-contract-artifact.json",
+                "capabilities",
+                "string"
             ),
             Ok(())
         );
