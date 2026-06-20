@@ -36,6 +36,26 @@ impl FromStr for RuntimeStatusHostPlatform {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuntimeStatusGraphStatus {
+    Ready,
+    Reloading,
+    Unavailable,
+}
+
+impl FromStr for RuntimeStatusGraphStatus {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "ready" => Ok(Self::Ready),
+            "reloading" => Ok(Self::Reloading),
+            "unavailable" => Ok(Self::Unavailable),
+            _ => Err(format!("unsupported runtime status graphStatus {value}")),
+        }
+    }
+}
+
 fn repository_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .ancestors()
@@ -2291,8 +2311,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 #[cfg(test)]
 mod tests {
     use super::{
-        REQUIRED_FIELDS, RuntimeStatusHostPlatform, validate_runtime_status_sample,
-        verify_runtime_status_artifact_array_constraint,
+        REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
+        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -2406,6 +2426,16 @@ mod tests {
         assert_eq!("darwin".parse(), Ok(RuntimeStatusHostPlatform::Darwin));
         assert_eq!("linux".parse(), Ok(RuntimeStatusHostPlatform::Linux));
         assert_eq!("win32".parse(), Ok(RuntimeStatusHostPlatform::Win32));
+    }
+
+    #[test]
+    fn parses_runtime_status_graph_status_values() {
+        assert_eq!("ready".parse(), Ok(RuntimeStatusGraphStatus::Ready));
+        assert_eq!("reloading".parse(), Ok(RuntimeStatusGraphStatus::Reloading));
+        assert_eq!(
+            "unavailable".parse(),
+            Ok(RuntimeStatusGraphStatus::Unavailable)
+        );
     }
 
     #[test]
