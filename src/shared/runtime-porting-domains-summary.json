@@ -122,6 +122,7 @@
     "authoritativeWindowId",
     "hostPlatform"
   ],
+  "firstSliceContractInvalidatableFieldCount": 10,
   "firstSliceContractNonNegativeIntegerFields": [
     "rendererGraphEpoch",
     "liveTabCount",

@@ -123,6 +123,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractEnumFieldCount: number
   firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
+  firstSliceContractInvalidatableFieldCount: number
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractNonNegativeIntegerFieldCount: number
   firstSliceContractNullableFields: RuntimePortingFirstSliceContractNullableFields

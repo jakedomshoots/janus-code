@@ -179,6 +179,7 @@ describe('runtime porting domains', () => {
         hostPlatform: VALID_RUNTIME_HOST_PLATFORMS
       },
       firstSliceContractInvalidatableFields: INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
+      firstSliceContractInvalidatableFieldCount: 10,
       firstSliceContractNonNegativeIntegerFields:
         NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractNonNegativeIntegerFieldCount: 3,
@@ -331,6 +332,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractEnumFieldCount: 2')
     expect(doc).toContain('firstSliceContractEnumValues')
     expect(doc).toContain('firstSliceContractInvalidatableFields')
+    expect(doc).toContain('firstSliceContractInvalidatableFieldCount: 10')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFieldCount: 3')
     expect(doc).toContain('firstSliceContractNullableFields')
