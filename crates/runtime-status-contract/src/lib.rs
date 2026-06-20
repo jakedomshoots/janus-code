@@ -1,6 +1,7 @@
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 const REQUIRED_FIELDS: &[&str] = &[
     "runtimeId",
@@ -14,6 +15,26 @@ const REQUIRED_FIELDS: &[&str] = &[
     "capabilities",
     "hostPlatform",
 ];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuntimeStatusHostPlatform {
+    Darwin,
+    Linux,
+    Win32,
+}
+
+impl FromStr for RuntimeStatusHostPlatform {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "darwin" => Ok(Self::Darwin),
+            "linux" => Ok(Self::Linux),
+            "win32" => Ok(Self::Win32),
+            _ => Err(format!("unsupported runtime status hostPlatform {value}")),
+        }
+    }
+}
 
 fn repository_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -2270,7 +2291,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 #[cfg(test)]
 mod tests {
     use super::{
-        REQUIRED_FIELDS, validate_runtime_status_sample,
+        REQUIRED_FIELDS, RuntimeStatusHostPlatform, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
@@ -2378,6 +2399,13 @@ mod tests {
             validate_runtime_status_sample("src/shared/runtime-status-contract-valid-sample.json"),
             Ok(())
         );
+    }
+
+    #[test]
+    fn parses_runtime_status_host_platform_values() {
+        assert_eq!("darwin".parse(), Ok(RuntimeStatusHostPlatform::Darwin));
+        assert_eq!("linux".parse(), Ok(RuntimeStatusHostPlatform::Linux));
+        assert_eq!("win32".parse(), Ok(RuntimeStatusHostPlatform::Win32));
     }
 
     #[test]
