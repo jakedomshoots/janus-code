@@ -32,6 +32,7 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
+import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
 
 export type RuntimePortingFirstSliceContractDomainId =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID
@@ -47,6 +48,14 @@ export type RuntimePortingFirstSliceContractValidSamplePath =
   'src/shared/runtime-status-contract-valid-sample.json'
 export type RuntimePortingFirstSliceContractInvalidSamplePath =
   'src/shared/runtime-status-contract-invalid-sample.json'
+export type RuntimePortingFirstSliceContractValidSampleExpectedResult = Extract<
+  RuntimeStatusPortingValidationResult,
+  { ok: true }
+>
+export type RuntimePortingFirstSliceContractInvalidSampleExpectedResult = Extract<
+  RuntimeStatusPortingValidationResult,
+  { ok: false; missingFields: RuntimeStatusPortingField[] }
+>
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -99,6 +108,10 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH: RuntimePort
   'src/shared/runtime-status-contract-valid-sample.json'
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_PATH: RuntimePortingFirstSliceContractInvalidSamplePath =
   'src/shared/runtime-status-contract-invalid-sample.json'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT: RuntimePortingFirstSliceContractValidSampleExpectedResult =
+  { ok: true }
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT: RuntimePortingFirstSliceContractInvalidSampleExpectedResult =
+  { ok: false, missingFields: ['runtimeId'] }
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =

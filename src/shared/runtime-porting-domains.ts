@@ -9,6 +9,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_PATH,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
@@ -25,6 +26,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
   type RuntimePortingFirstSliceContractAdditionalProperties,
@@ -37,6 +39,7 @@ import {
   type RuntimePortingFirstSliceContractDomainId,
   type RuntimePortingFirstSliceContractEnumFields,
   type RuntimePortingFirstSliceContractEnumValues,
+  type RuntimePortingFirstSliceContractInvalidSampleExpectedResult,
   type RuntimePortingFirstSliceContractInvalidSamplePath,
   type RuntimePortingFirstSliceContractInvalidatableFields,
   type RuntimePortingFirstSliceContractJsonSchemaDraftUri,
@@ -53,6 +56,7 @@ import {
   type RuntimePortingFirstSliceContractSchemaVersion,
   type RuntimePortingFirstSliceContractStringFields,
   type RuntimePortingFirstSliceContractStringConstraints,
+  type RuntimePortingFirstSliceContractValidSampleExpectedResult,
   type RuntimePortingFirstSliceContractValidSamplePath,
   type RuntimePortingFirstSliceContractVersionedFields
 } from './runtime-porting-first-slice-contract'
@@ -103,6 +107,8 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceContractValidSamplePath: RuntimePortingFirstSliceContractValidSamplePath
   firstSliceContractInvalidSamplePath: RuntimePortingFirstSliceContractInvalidSamplePath
+  firstSliceContractValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
+  firstSliceContractInvalidSampleExpectedResult: RuntimePortingFirstSliceContractInvalidSampleExpectedResult
   firstSliceContractSchemaVersion: RuntimePortingFirstSliceContractSchemaVersion
   firstSliceContractParams: RuntimePortingFirstSliceContractParams
   firstSliceContractMethod: RuntimePortingFirstSliceContractMethod
@@ -243,6 +249,10 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
     firstSliceContractValidSamplePath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH,
     firstSliceContractInvalidSamplePath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_PATH,
+    firstSliceContractValidSampleExpectedResult:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT,
+    firstSliceContractInvalidSampleExpectedResult:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT,
     firstSliceContractSchemaVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
     firstSliceContractParams: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
     firstSliceContractMethod: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
