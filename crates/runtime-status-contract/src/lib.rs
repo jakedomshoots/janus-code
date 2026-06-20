@@ -107,6 +107,25 @@ pub fn verify_runtime_status_manifest_id(
     }
 }
 
+pub fn verify_runtime_status_manifest_media_type(
+    relative_path: &str,
+    expected_media_type: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_media_type = manifest
+        .get("mediaType")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string mediaType".to_string())?;
+
+    if actual_media_type == expected_media_type {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected mediaType {expected_media_type} but got {actual_media_type}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_manifest_method(
     relative_path: &str,
     expected_method: &str,
@@ -149,8 +168,8 @@ pub fn verify_runtime_status_manifest_artifact_id(
 mod tests {
     use super::{
         validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
-        verify_runtime_status_manifest_id, verify_runtime_status_manifest_method,
-        verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_id, verify_runtime_status_manifest_media_type,
+        verify_runtime_status_manifest_method, verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -187,6 +206,17 @@ mod tests {
             verify_runtime_status_manifest_id(
                 "src/shared/runtime-status-contract-samples.json",
                 "janus-runtime-status-contract-samples"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_declares_the_runtime_status_samples_media_type() {
+        assert_eq!(
+            verify_runtime_status_manifest_media_type(
+                "src/shared/runtime-status-contract-samples.json",
+                "application/vnd.janus.runtime-status-contract-samples+json"
             ),
             Ok(())
         );
