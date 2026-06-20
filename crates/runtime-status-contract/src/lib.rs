@@ -168,6 +168,26 @@ pub fn verify_runtime_status_artifact_json_schema_draft_uri(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_id(
+    relative_path: &str,
+    expected_schema_id: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let actual_schema_id = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("$id"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchema.$id".to_string())?;
+
+    if actual_schema_id == expected_schema_id {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.$id {expected_schema_id} but got {actual_schema_id}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_additional_properties(
     relative_path: &str,
     expected_additional_properties: bool,
@@ -1144,6 +1164,7 @@ mod tests {
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
+        verify_runtime_status_artifact_json_schema_id,
         verify_runtime_status_artifact_json_schema_property_array_item_type,
         verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_fields,
@@ -1256,6 +1277,17 @@ mod tests {
             verify_runtime_status_artifact_json_schema_draft_uri(
                 "src/shared/runtime-status-contract-artifact.json",
                 "https://json-schema.org/draft/2020-12/schema"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_id() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_id(
+                "src/shared/runtime-status-contract-artifact.json",
+                "urn:janus:runtime-status-contract:json-schema:1"
             ),
             Ok(())
         );
