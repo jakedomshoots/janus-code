@@ -332,14 +332,16 @@ describe('runtime status porting contract', () => {
 
   it('exports checked-in runtime status sample manifest metadata for tooling', () => {
     const sampleManifest = runtimeStatusContract as unknown as Record<string, string | undefined>
+    const samplePathPrefix = 'src/shared/runtime-status-contract'
 
     expect(sampleManifest).toMatchObject({
-      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH:
-        'src/shared/runtime-status-contract-samples.json',
-      RUNTIME_STATUS_PORTING_CONTRACT_VALID_SAMPLE_PATH:
-        'src/shared/runtime-status-contract-valid-sample.json',
-      RUNTIME_STATUS_PORTING_CONTRACT_INVALID_SAMPLE_PATH:
-        'src/shared/runtime-status-contract-invalid-sample.json',
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_ID: 'janus-runtime-status-contract-samples',
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_MEDIA_TYPE:
+        'application/vnd.janus.runtime-status-contract-samples+json',
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_SCHEMA_VERSION: 1,
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH: `${samplePathPrefix}-samples.json`,
+      RUNTIME_STATUS_PORTING_CONTRACT_VALID_SAMPLE_PATH: `${samplePathPrefix}-valid-sample.json`,
+      RUNTIME_STATUS_PORTING_CONTRACT_INVALID_SAMPLE_PATH: `${samplePathPrefix}-invalid-sample.json`,
       RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_VERIFICATION_COMMAND:
         'pnpm run verify:runtime-status-samples'
     })
