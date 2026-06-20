@@ -593,6 +593,49 @@ pub fn verify_runtime_status_artifact_versioned_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_versioned_fields_numeric_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let versioned_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("versionedFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.versionedFields array".to_string()
+        })?;
+    let numeric_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.numericFields array".to_string())?;
+
+    let numeric_fields: Result<Vec<&str>, String> = numeric_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.numericFields[{index}] must be a string"))
+        })
+        .collect();
+    let numeric_fields = numeric_fields?;
+
+    for (index, field) in versioned_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.versionedFields[{index}] must be a string"))?;
+
+        if !numeric_fields.contains(&field_name) {
+            return Err(format!(
+                "contract artifact expected summary.versionedFields entry {field_name} to be listed in summary.numericFields"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_non_negative_integer_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -2022,6 +2065,7 @@ mod tests {
         verify_runtime_status_artifact_string_fields,
         verify_runtime_status_artifact_string_fields_schema_consistency,
         verify_runtime_status_artifact_versioned_fields,
+        verify_runtime_status_artifact_versioned_fields_numeric_fields_consistency,
         verify_runtime_status_manifest_artifact_id,
         verify_runtime_status_manifest_artifact_media_type,
         verify_runtime_status_manifest_artifact_path,
@@ -2294,6 +2338,16 @@ mod tests {
             verify_runtime_status_artifact_versioned_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 VERSIONED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_versioned_fields_numeric_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_versioned_fields_numeric_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
