@@ -52,6 +52,7 @@ import type {
   RuntimePortingFirstSliceContractValidSamplePath,
   RuntimePortingFirstSliceContractVersionedFields
 } from './runtime-porting-first-slice-contract'
+import type { RuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type {
   RuntimePortingDomain,
   RuntimePortingDomainSummaryArtifactId,
@@ -75,6 +76,7 @@ export type RuntimePortingDomainSummary = {
   verificationCommand: RuntimePortingVerificationCommand
   firstSlice: RuntimePortingDomain
   firstSliceContractDomainId: RuntimePortingFirstSliceContractDomainId
+  firstSliceContractArtifact: RuntimeStatusPortingContractArtifact
   firstSliceContractArtifactId: RuntimePortingFirstSliceContractArtifactId
   firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
   firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion

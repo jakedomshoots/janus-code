@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
+  getRuntimeStatusPortingContractArtifact,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
@@ -85,6 +86,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArtifactVersion: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION,
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
       firstSliceContractArtifactJsonPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
+      firstSliceContractArtifact: getRuntimeStatusPortingContractArtifact(),
       firstSliceContractSummary: getRuntimeStatusPortingContractSummary(),
       firstSliceContractValidSamplePath: 'src/shared/runtime-status-contract-valid-sample.json',
       firstSliceContractInvalidSamplePath: 'src/shared/runtime-status-contract-invalid-sample.json',
@@ -257,6 +259,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractArtifactJsonPath: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH}`
     )
+    expect(doc).toContain('`firstSliceContractArtifact`')
     expect(doc).toContain('firstSliceContractSummary')
     expect(doc).toContain('firstSliceContractValidSamplePath')
     expect(doc).toContain('firstSliceContractInvalidSamplePath')

@@ -52,6 +52,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS
 } from './runtime-porting-first-slice-contract'
+import { getRuntimeStatusPortingContractArtifact } from './runtime-status-contract-artifact'
 import type { RuntimePortingDomainSummary } from './runtime-porting-domain-summary'
 export type { RuntimePortingDomainSummary } from './runtime-porting-domain-summary'
 export * from './runtime-porting-first-slice-contract'
@@ -190,6 +191,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     verificationCommand: RUNTIME_PORTING_VERIFICATION_COMMAND,
     firstSlice: getRuntimePortingFirstSliceDomain(),
     firstSliceContractDomainId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID,
+    firstSliceContractArtifact: getRuntimeStatusPortingContractArtifact(),
     firstSliceContractArtifactId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
     firstSliceContractArtifactMediaType: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
     firstSliceContractArtifactVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION,
