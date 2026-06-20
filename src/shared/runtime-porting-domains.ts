@@ -266,6 +266,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractNumericFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS,
     firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
+    firstSliceContractRequiredFieldCount:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS.length,
     firstSliceContractStringFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
     firstSliceContractStringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
     firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
