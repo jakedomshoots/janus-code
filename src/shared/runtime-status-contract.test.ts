@@ -221,6 +221,8 @@ describe('runtime status porting contract', () => {
       contractArtifactPath: 'src/shared/runtime-status-contract-artifact.json',
       contractArtifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
       contractArtifactVersion: 1,
+      contractMethod: 'status.get',
+      contractParams: null,
       samples: [
         {
           kind: 'valid',
@@ -268,6 +270,8 @@ describe('runtime status porting contract', () => {
       'contractArtifactMediaType: application/vnd.janus.runtime-status-contract+json'
     )
     expect(doc).toContain('contractArtifactVersion: 1')
+    expect(doc).toContain('contractMethod: status.get')
+    expect(doc).toContain('contractParams: null')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
     expect(doc).toContain('versionedFields')
     expect(doc).toContain('nonNegativeIntegerFields')
