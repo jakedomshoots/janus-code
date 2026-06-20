@@ -24,6 +24,7 @@
       "hostPlatform"
     ],
     "versionedFields": ["runtimeProtocolVersion", "minCompatibleRuntimeClientVersion"],
+    "nonNegativeIntegerFields": ["rendererGraphEpoch", "liveTabCount", "liveLeafCount"],
     "invalidatableFields": [
       "runtimeProtocolVersion",
       "minCompatibleRuntimeClientVersion",

@@ -195,6 +195,7 @@ describe('runtime status porting contract', () => {
     expect(doc).toContain('src/shared/runtime-status-contract-artifact.json')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
     expect(doc).toContain('versionedFields')
+    expect(doc).toContain('nonNegativeIntegerFields')
     expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
   })
 
@@ -312,6 +313,8 @@ describe('runtime status porting contract', () => {
       params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       requiredFields: listRuntimeStatusPortingRequiredFields(),
       versionedFields: runtimeStatusContract.VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
+      nonNegativeIntegerFields:
+        runtimeStatusContract.NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
       invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
       enumValues: {
         graphStatus: ['ready', 'reloading', 'unavailable'],

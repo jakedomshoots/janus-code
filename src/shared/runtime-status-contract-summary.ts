@@ -24,7 +24,10 @@ import {
   VALID_RUNTIME_GRAPH_STATUSES,
   VALID_RUNTIME_HOST_PLATFORMS
 } from './runtime-status-enum-values'
-import { VERSIONED_RUNTIME_STATUS_PORTING_FIELDS } from './runtime-status-field-groups'
+import {
+  NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
+  VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
+} from './runtime-status-field-groups'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 
 export type RuntimeStatusPortingContractSummary = {
@@ -34,6 +37,7 @@ export type RuntimeStatusPortingContractSummary = {
   params: null
   requiredFields: RuntimeStatusPortingField[]
   versionedFields: RuntimeStatusPortingField[]
+  nonNegativeIntegerFields: RuntimeStatusPortingField[]
   invalidatableFields: RuntimeStatusPortingField[]
   enumValues: {
     graphStatus: string[]
@@ -56,6 +60,7 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
     params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
     requiredFields: listRuntimeStatusPortingRequiredFields(),
     versionedFields: [...VERSIONED_RUNTIME_STATUS_PORTING_FIELDS],
+    nonNegativeIntegerFields: [...NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS],
     invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
     enumValues: {
       graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
