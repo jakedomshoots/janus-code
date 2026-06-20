@@ -1035,6 +1035,78 @@ pub fn verify_runtime_status_artifact_enum_values(
     }
 }
 
+pub fn verify_runtime_status_artifact_enum_values_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.enumFields array".to_string())?;
+    let enum_values = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumValues"))
+        .ok_or_else(|| "contract artifact must include summary.enumValues object".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (field_index, field) in enum_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.enumFields[{field_index}] must be a string"))?;
+        let summary_values = enum_values
+            .get(field_name)
+            .and_then(Value::as_array)
+            .ok_or_else(|| {
+                format!("contract artifact must include summary.enumValues.{field_name} array")
+            })?;
+        let schema_values = properties
+            .get(field_name)
+            .and_then(|property| property.get("enum"))
+            .and_then(Value::as_array)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include jsonSchema.properties.{field_name}.enum array"
+                )
+            })?;
+
+        let actual_summary_values: Result<Vec<&str>, String> = summary_values
+            .iter()
+            .enumerate()
+            .map(|(value_index, value)| {
+                value.as_str().ok_or_else(|| {
+                    format!("summary.enumValues.{field_name}[{value_index}] must be a string")
+                })
+            })
+            .collect();
+        let actual_summary_values = actual_summary_values?;
+
+        let actual_schema_values: Result<Vec<&str>, String> = schema_values
+            .iter()
+            .enumerate()
+            .map(|(value_index, value)| {
+                value.as_str().ok_or_else(|| {
+                    format!(
+                        "jsonSchema.properties.{field_name}.enum[{value_index}] must be a string"
+                    )
+                })
+            })
+            .collect();
+        let actual_schema_values = actual_schema_values?;
+
+        if actual_summary_values != actual_schema_values {
+            return Err(format!(
+                "contract artifact expected summary.enumValues.{field_name} {actual_summary_values:?} to match jsonSchema.properties.{field_name}.enum {actual_schema_values:?}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_numeric_constraint(
     relative_path: &str,
     field_name: &str,
@@ -1501,6 +1573,7 @@ mod tests {
         verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_enum_fields_schema_consistency,
         verify_runtime_status_artifact_enum_values,
+        verify_runtime_status_artifact_enum_values_schema_consistency,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
@@ -1942,6 +2015,16 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "graphStatus",
                 GRAPH_STATUS_ENUM_VALUES
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_enum_values_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_enum_values_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
