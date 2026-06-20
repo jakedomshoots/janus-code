@@ -207,6 +207,14 @@ pub fn runtime_status_renderer_graph_epoch(value: &Value) -> Result<u64, String>
         })
 }
 
+pub fn runtime_status_live_tab_count(value: &Value) -> Result<u64, String> {
+    value
+        .get("liveTabCount")
+        .ok_or_else(|| "runtime status is missing liveTabCount".to_string())?
+        .as_u64()
+        .ok_or_else(|| "runtime status liveTabCount must be a non-negative integer".to_string())
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2438,7 +2446,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_graph_status, runtime_status_host_platform,
+        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_tab_count,
         runtime_status_min_compatible_runtime_client_version, runtime_status_renderer_graph_epoch,
         runtime_status_runtime_id, runtime_status_runtime_protocol_version,
         validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
@@ -2587,6 +2595,15 @@ mod tests {
         });
 
         assert_eq!(runtime_status_renderer_graph_epoch(&status), Ok(2));
+    }
+
+    #[test]
+    fn extracts_runtime_status_live_tab_count_from_json_object() {
+        let status = serde_json::json!({
+            "liveTabCount": 3,
+        });
+
+        assert_eq!(runtime_status_live_tab_count(&status), Ok(3));
     }
 
     #[test]
