@@ -168,6 +168,29 @@ pub fn verify_runtime_status_artifact_json_schema_draft_uri(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_draft_uri_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let metadata_draft_uri = artifact
+        .get("jsonSchemaDraftUri")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchemaDraftUri".to_string())?;
+    let embedded_draft_uri = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("$schema"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchema.$schema".to_string())?;
+
+    if metadata_draft_uri == embedded_draft_uri {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchemaDraftUri {metadata_draft_uri} to match jsonSchema.$schema {embedded_draft_uri}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_json_schema_id(
     relative_path: &str,
     expected_schema_id: &str,
@@ -1184,6 +1207,7 @@ mod tests {
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
+        verify_runtime_status_artifact_json_schema_draft_uri_consistency,
         verify_runtime_status_artifact_json_schema_id,
         verify_runtime_status_artifact_json_schema_property_array_item_type,
         verify_runtime_status_artifact_json_schema_property_enum_values,
@@ -1298,6 +1322,16 @@ mod tests {
             verify_runtime_status_artifact_json_schema_draft_uri(
                 "src/shared/runtime-status-contract-artifact.json",
                 "https://json-schema.org/draft/2020-12/schema"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_draft_uri_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_draft_uri_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
