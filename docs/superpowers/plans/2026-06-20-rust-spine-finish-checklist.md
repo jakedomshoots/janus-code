@@ -31,7 +31,7 @@
 - [x] Rust exposes public missing-field list parity.
 - [x] Rust exposes public invalid-field list parity.
 - [x] Rust exposes full validation result parity.
-- [ ] Rust exposes assert-style validation parity.
+- [x] Rust exposes assert-style validation parity.
 
 ## Runtime-Status Contract Work
 
@@ -45,7 +45,7 @@
 - [x] Add Rust invalid-field validation for non-empty trimmed `runtimeId`.
 - [x] Add Rust invalid-field validation for nullable non-negative integer `authoritativeWindowId`.
 - [x] Add Rust `validate_runtime_status_porting_contract(&Value)` result parity.
-- [ ] Add Rust `assert_runtime_status_porting_contract(&Value)` parity.
+- [x] Add Rust `assert_runtime_status_porting_contract(&Value)` parity.
 - [ ] Add sample-driven parity tests that compare valid and invalid samples to the expected TypeScript contract results.
 
 ## Product And Integration Work

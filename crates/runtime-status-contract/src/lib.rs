@@ -249,6 +249,20 @@ pub fn validate_runtime_status_porting_contract(
     }
 }
 
+pub fn assert_runtime_status_porting_contract(value: &Value) -> Result<(), String> {
+    match validate_runtime_status_porting_contract(value) {
+        RuntimeStatusPortingValidationResult::Ok => Ok(()),
+        RuntimeStatusPortingValidationResult::MissingFields(fields) => Err(format!(
+            "Runtime status porting contract missing {}",
+            fields[0]
+        )),
+        RuntimeStatusPortingValidationResult::InvalidFields(fields) => Err(format!(
+            "Runtime status porting contract invalid {}",
+            fields[0]
+        )),
+    }
+}
+
 pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPlatform, String> {
     RuntimeStatusHostPlatform::try_from(
         value
@@ -2583,14 +2597,14 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        RuntimeStatusPortingValidationResult, list_invalid_runtime_status_porting_fields,
-        list_missing_runtime_status_porting_fields, runtime_status_authoritative_window_id,
-        runtime_status_capabilities, runtime_status_graph_status, runtime_status_host_platform,
-        runtime_status_live_leaf_count, runtime_status_live_tab_count,
-        runtime_status_min_compatible_runtime_client_version, runtime_status_renderer_graph_epoch,
-        runtime_status_runtime_id, runtime_status_runtime_protocol_version,
-        validate_runtime_status_porting_contract, validate_runtime_status_sample,
-        verify_runtime_status_artifact_array_constraint,
+        RuntimeStatusPortingValidationResult, assert_runtime_status_porting_contract,
+        list_invalid_runtime_status_porting_fields, list_missing_runtime_status_porting_fields,
+        runtime_status_authoritative_window_id, runtime_status_capabilities,
+        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
+        runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
+        runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
+        runtime_status_runtime_protocol_version, validate_runtime_status_porting_contract,
+        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -3655,6 +3669,35 @@ mod tests {
         assert_eq!(
             validate_runtime_status_porting_contract(&status),
             RuntimeStatusPortingValidationResult::InvalidFields(vec!["runtimeId"])
+        );
+    }
+
+    #[test]
+    fn asserts_runtime_status_porting_contract_for_valid_object() {
+        assert_eq!(
+            assert_runtime_status_porting_contract(&runtime_status_fixture()),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn rejects_runtime_status_porting_contract_with_first_missing_field() {
+        let status = serde_json::json!({});
+
+        assert_eq!(
+            assert_runtime_status_porting_contract(&status),
+            Err("Runtime status porting contract missing runtimeId".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_runtime_status_porting_contract_with_first_invalid_field() {
+        let mut status = runtime_status_fixture();
+        status["runtimeId"] = serde_json::json!("");
+
+        assert_eq!(
+            assert_runtime_status_porting_contract(&status),
+            Err("Runtime status porting contract invalid runtimeId".to_string())
         );
     }
 
