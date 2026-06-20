@@ -190,6 +190,7 @@ describe('runtime porting domains', () => {
         'liveLeafCount',
         'authoritativeWindowId'
       ],
+      firstSliceContractNumericFieldCount: 6,
       firstSliceContractNumericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
       firstSliceContractRequiredFields: REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractRequiredFieldCount: 10,
@@ -330,6 +331,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')
     expect(doc).toContain('firstSliceContractNullableFields')
     expect(doc).toContain('firstSliceContractNumericFields')
+    expect(doc).toContain('firstSliceContractNumericFieldCount: 6')
     expect(doc).toContain('firstSliceContractNumericConstraints')
     expect(doc).toContain('firstSliceContractRequiredFields')
     expect(doc).toContain('firstSliceContractRequiredFieldCount: 10')

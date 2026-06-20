@@ -126,6 +126,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
   firstSliceContractNullableFields: RuntimePortingFirstSliceContractNullableFields
   firstSliceContractNumericFields: RuntimePortingFirstSliceContractNumericFields
+  firstSliceContractNumericFieldCount: number
   firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractRequiredFieldCount: number
