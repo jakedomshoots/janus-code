@@ -45,6 +45,7 @@
   ],
   "firstSliceContractSampleCount": 2,
   "firstSliceContractSampleKinds": ["valid", "invalid"],
+  "firstSliceContractValidSampleCount": 1,
   "firstSliceContractSamplePaths": [
     "src/shared/runtime-status-contract-valid-sample.json",
     "src/shared/runtime-status-contract-invalid-sample.json"
