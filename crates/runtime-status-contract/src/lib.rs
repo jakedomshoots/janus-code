@@ -1333,6 +1333,13 @@ pub fn verify_runtime_status_artifact_enum_values(
     }
 }
 
+pub fn verify_runtime_status_artifact_host_platform_enum_values(
+    relative_path: &str,
+    expected_values: &[&str],
+) -> Result<(), String> {
+    verify_runtime_status_artifact_enum_values(relative_path, "hostPlatform", expected_values)
+}
+
 pub fn verify_runtime_status_artifact_enum_values_fields_consistency(
     relative_path: &str,
 ) -> Result<(), String> {
@@ -2236,6 +2243,7 @@ mod tests {
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_enum_values_fields_consistency,
         verify_runtime_status_artifact_enum_values_schema_consistency,
+        verify_runtime_status_artifact_host_platform_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_invalidatable_fields_required_fields_consistency,
         verify_runtime_status_artifact_json_schema_additional_properties,
@@ -2323,6 +2331,7 @@ mod tests {
     ];
     const ENUM_FIELDS: &[&str] = &["graphStatus", "hostPlatform"];
     const GRAPH_STATUS_ENUM_VALUES: &[&str] = &["ready", "reloading", "unavailable"];
+    const HOST_PLATFORM_ENUM_VALUES: &[&str] = &["darwin", "linux", "win32"];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -2789,6 +2798,17 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "graphStatus",
                 GRAPH_STATUS_ENUM_VALUES
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_host_platform_enum_values() {
+        assert_eq!(
+            verify_runtime_status_artifact_host_platform_enum_values(
+                "src/shared/runtime-status-contract-artifact.json",
+                HOST_PLATFORM_ENUM_VALUES
             ),
             Ok(())
         );
