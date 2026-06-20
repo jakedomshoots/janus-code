@@ -12,6 +12,7 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
   RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
@@ -83,6 +84,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArtifactPath: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH,
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
       firstSliceContractParams: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+      firstSliceContractMethod: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
@@ -159,6 +161,7 @@ describe('runtime porting domains', () => {
       `firstSliceContractSchemaVersion: ${RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION}`
     )
     expect(doc).toContain('firstSliceContractParams: null')
+    expect(doc).toContain(`firstSliceContractMethod: ${RUNTIME_STATUS_PORTING_CONTRACT_METHOD}`)
     expect(doc).toContain(
       `firstSliceContractJsonSchemaDraftUri: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI}`
     )

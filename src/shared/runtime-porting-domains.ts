@@ -74,6 +74,7 @@ export type RuntimePortingFirstSliceContractArtifactPath =
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
+export type RuntimePortingFirstSliceContractMethod = RuntimePortingFirstSliceMethod
 export type RuntimePortingFirstSliceContractJsonSchemaDraftUri =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI
 export type RuntimePortingFirstSliceContractJsonSchemaId =
@@ -116,6 +117,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
   firstSliceContractSchemaVersion: RuntimePortingFirstSliceContractSchemaVersion
   firstSliceContractParams: RuntimePortingFirstSliceContractParams
+  firstSliceContractMethod: RuntimePortingFirstSliceContractMethod
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
@@ -168,6 +170,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePorting
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD: RuntimePortingFirstSliceContractMethod =
+  RUNTIME_PORTING_FIRST_SLICE_METHOD
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI: RuntimePortingFirstSliceContractJsonSchemaDraftUri =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePortingFirstSliceContractJsonSchemaId =
@@ -286,6 +290,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractArtifactPath: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
     firstSliceContractSchemaVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
     firstSliceContractParams: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
+    firstSliceContractMethod: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
     firstSliceContractJsonSchemaDraftUri:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
