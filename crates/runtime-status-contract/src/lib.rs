@@ -88,6 +88,37 @@ pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), 
     Ok(())
 }
 
+pub fn verify_runtime_status_sample_manifest_kinds(
+    relative_path: &str,
+    expected_kinds: &[&str],
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let samples = manifest
+        .get("samples")
+        .and_then(Value::as_array)
+        .ok_or_else(|| "sample manifest must include a samples array".to_string())?;
+
+    let actual_kinds: Result<Vec<&str>, String> = samples
+        .iter()
+        .enumerate()
+        .map(|(index, sample)| {
+            sample
+                .get("kind")
+                .and_then(Value::as_str)
+                .ok_or_else(|| format!("sample entry {index} must include a string kind"))
+        })
+        .collect();
+    let actual_kinds = actual_kinds?;
+
+    if actual_kinds.as_slice() == expected_kinds {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected sample kinds {expected_kinds:?} but got {actual_kinds:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_manifest_id(
     relative_path: &str,
     expected_artifact_id: &str,
@@ -394,6 +425,7 @@ mod tests {
         verify_runtime_status_manifest_params_null, verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_manifest_verification_command, verify_runtime_status_sample_manifest,
+        verify_runtime_status_sample_manifest_kinds,
     };
 
     #[test]
@@ -495,6 +527,17 @@ mod tests {
             verify_runtime_status_manifest_verification_command(
                 "src/shared/runtime-status-contract-samples.json",
                 "pnpm run verify:runtime-status-samples"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_runtime_status_sample_kinds() {
+        assert_eq!(
+            verify_runtime_status_sample_manifest_kinds(
+                "src/shared/runtime-status-contract-samples.json",
+                &["valid", "invalid"]
             ),
             Ok(())
         );
