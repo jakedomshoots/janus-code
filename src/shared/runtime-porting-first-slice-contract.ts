@@ -8,6 +8,7 @@ import { RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID } from './runtime-status-cont
 import { RUNTIME_STATUS_PORTING_CONTRACT_PARAMS } from './runtime-status-contract-params'
 import { RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION } from './runtime-status-contract-schema-version'
 import { RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH } from './runtime-status-contract-sample-manifest'
+import type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import {
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
@@ -30,7 +31,8 @@ import {
   getRuntimeStatusPortingJsonSchema,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
-  RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+  RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+  type RuntimeStatusPortingJsonSchema
 } from './runtime-status-json-schema'
 import type { RuntimeStatusPortingField } from './runtime-status-porting-field'
 import type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'
@@ -116,6 +118,7 @@ export type RuntimePortingFirstSliceContractJsonSchemaId =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export type RuntimePortingFirstSliceContractJsonSchemaTitle =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export type RuntimePortingFirstSliceContractJsonSchema = RuntimeStatusPortingJsonSchema
 export type RuntimePortingFirstSliceContractJsonSchemaPropertyFields =
   readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractAdditionalProperties = false
@@ -143,25 +146,7 @@ export type RuntimePortingFirstSliceContractStringConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
 >
 export type RuntimePortingFirstSliceContractVersionedFields = readonly RuntimeStatusPortingField[]
-export type RuntimePortingFirstSliceContractSummary = {
-  schemaVersion: RuntimePortingFirstSliceContractSchemaVersion
-  domainId: RuntimePortingFirstSliceContractDomainId
-  method: RuntimePortingFirstSliceContractMethod
-  params: RuntimePortingFirstSliceContractParams
-  requiredFields: RuntimePortingFirstSliceContractRequiredFields
-  versionedFields: RuntimePortingFirstSliceContractVersionedFields
-  nonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
-  stringFields: RuntimePortingFirstSliceContractStringFields
-  arrayFields: RuntimePortingFirstSliceContractArrayFields
-  numericFields: RuntimePortingFirstSliceContractNumericFields
-  nullableFields: RuntimePortingFirstSliceContractNullableFields
-  invalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
-  enumFields: RuntimePortingFirstSliceContractEnumFields
-  enumValues: RuntimePortingFirstSliceContractEnumValues
-  numericConstraints: RuntimePortingFirstSliceContractNumericConstraints
-  stringConstraints: RuntimePortingFirstSliceContractStringConstraints
-  arrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
-}
+export type RuntimePortingFirstSliceContractSummary = RuntimeStatusPortingContractSummary
 
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID: RuntimePortingFirstSliceContractDomainId =
   RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID
@@ -243,6 +228,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA: RuntimePortingFirstSliceContractJsonSchema =
+  getRuntimeStatusPortingJsonSchema()
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_PROPERTY_FIELDS: RuntimePortingFirstSliceContractJsonSchemaPropertyFields =
   Object.keys(getRuntimeStatusPortingJsonSchema().properties) as RuntimeStatusPortingField[]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES: RuntimePortingFirstSliceContractAdditionalProperties =
@@ -284,16 +271,19 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SUMMARY: RuntimePortingFirstSl
     domainId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID,
     method: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
     params: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
-    requiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
-    versionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
-    nonNegativeIntegerFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
-    stringFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
-    arrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
-    numericFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS,
-    nullableFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
-    invalidatableFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
-    enumFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,
-    enumValues: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
+    requiredFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS],
+    versionedFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS],
+    nonNegativeIntegerFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS],
+    stringFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS],
+    arrayFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS],
+    numericFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS],
+    nullableFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS],
+    invalidatableFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS],
+    enumFields: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS],
+    enumValues: {
+      graphStatus: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES.graphStatus],
+      hostPlatform: [...RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES.hostPlatform]
+    },
     numericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     stringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
     arrayConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS

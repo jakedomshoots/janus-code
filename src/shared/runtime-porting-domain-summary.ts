@@ -14,6 +14,7 @@ import type {
   RuntimePortingFirstSliceContractInvalidSamplePath,
   RuntimePortingFirstSliceContractInvalidatableFields,
   RuntimePortingFirstSliceContractJsonSchemaDraftUri,
+  RuntimePortingFirstSliceContractJsonSchema,
   RuntimePortingFirstSliceContractJsonSchemaId,
   RuntimePortingFirstSliceContractJsonSchemaPropertyFields,
   RuntimePortingFirstSliceContractJsonSchemaTitle,
@@ -109,6 +110,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractJsonSchema: RuntimePortingFirstSliceContractJsonSchema
   firstSliceContractJsonSchemaPropertyFields: RuntimePortingFirstSliceContractJsonSchemaPropertyFields
   firstSliceContractAdditionalProperties: RuntimePortingFirstSliceContractAdditionalProperties
   firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields

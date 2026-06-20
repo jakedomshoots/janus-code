@@ -9,6 +9,7 @@ import {
 import { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
+  getRuntimeStatusPortingJsonSchema,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
@@ -151,6 +152,7 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+      firstSliceContractJsonSchema: getRuntimeStatusPortingJsonSchema(),
       firstSliceContractJsonSchemaPropertyFields: [
         'runtimeId',
         'graphStatus',
@@ -307,6 +309,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
+    expect(doc).toContain('`firstSliceContractJsonSchema`')
     expect(doc).toContain('firstSliceContractJsonSchemaPropertyFields')
     expect(doc).toContain('firstSliceContractAdditionalProperties: false')
     expect(doc).toContain('firstSliceContractArrayFields')
