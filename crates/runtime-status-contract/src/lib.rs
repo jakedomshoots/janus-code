@@ -123,6 +123,28 @@ pub fn verify_runtime_status_artifact_json_schema_required_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_additional_properties(
+    relative_path: &str,
+    expected_additional_properties: bool,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let additional_properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("additionalProperties"))
+        .and_then(Value::as_bool)
+        .ok_or_else(|| {
+            "contract artifact must include boolean jsonSchema.additionalProperties".to_string()
+        })?;
+
+    if additional_properties == expected_additional_properties {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.additionalProperties {expected_additional_properties} but got {additional_properties}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_versioned_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -876,6 +898,7 @@ mod tests {
         verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
+        verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_required_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
@@ -957,6 +980,17 @@ mod tests {
             verify_runtime_status_artifact_json_schema_required_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 REQUIRED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_rejects_additional_properties() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_additional_properties(
+                "src/shared/runtime-status-contract-artifact.json",
+                false
             ),
             Ok(())
         );
