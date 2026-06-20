@@ -315,6 +315,37 @@ pub fn verify_runtime_status_artifact_invalidatable_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_enum_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.enumFields array".to_string())?;
+
+    let actual_fields: Result<Vec<&str>, String> = enum_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.enumFields[{index}] must be a string"))
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.enumFields {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -668,7 +699,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
-        verify_runtime_status_artifact_array_fields,
+        verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
@@ -720,6 +751,7 @@ mod tests {
         "authoritativeWindowId",
         "hostPlatform",
     ];
+    const ENUM_FIELDS: &[&str] = &["graphStatus", "hostPlatform"];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -812,6 +844,17 @@ mod tests {
             verify_runtime_status_artifact_invalidatable_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 INVALIDATABLE_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_enum_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_enum_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                ENUM_FIELDS
             ),
             Ok(())
         );
