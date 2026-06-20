@@ -345,6 +345,21 @@ pub fn verify_runtime_status_manifest_json_schema_title(
     }
 }
 
+pub fn verify_runtime_status_manifest_params_null(relative_path: &str) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let params = manifest
+        .get("contractParams")
+        .ok_or_else(|| "sample manifest must include contractParams".to_string())?;
+
+    if params.is_null() {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractParams null but got {params}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -357,7 +372,7 @@ mod tests {
         verify_runtime_status_manifest_json_schema_id,
         verify_runtime_status_manifest_json_schema_title,
         verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
-        verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_manifest_params_null, verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_sample_manifest,
     };
@@ -440,6 +455,16 @@ mod tests {
             verify_runtime_status_manifest_method(
                 "src/shared/runtime-status-contract-samples.json",
                 "status.get"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_null_status_get_params() {
+        assert_eq!(
+            verify_runtime_status_manifest_params_null(
+                "src/shared/runtime-status-contract-samples.json"
             ),
             Ok(())
         );
