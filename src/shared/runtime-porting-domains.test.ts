@@ -182,6 +182,7 @@ describe('runtime porting domains', () => {
       firstSliceContractNonNegativeIntegerFields:
         NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceContractNullableFields: ['authoritativeWindowId'],
+      firstSliceContractNullableFieldCount: 1,
       firstSliceContractNumericFields: [
         'runtimeProtocolVersion',
         'minCompatibleRuntimeClientVersion',
@@ -331,6 +332,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')
     expect(doc).toContain('firstSliceContractNullableFields')
+    expect(doc).toContain('firstSliceContractNullableFieldCount: 1')
     expect(doc).toContain('firstSliceContractNumericFields')
     expect(doc).toContain('firstSliceContractNumericFieldCount: 6')
     expect(doc).toContain('firstSliceContractNumericConstraints')
