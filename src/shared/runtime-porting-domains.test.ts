@@ -104,6 +104,7 @@ describe('runtime porting domains', () => {
           }
         }
       ],
+      firstSliceContractSampleVerificationCommand: 'pnpm run verify:runtime-status-samples',
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
       firstSliceContractParams: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       firstSliceContractMethod: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
@@ -191,6 +192,9 @@ describe('runtime porting domains', () => {
     expect(packageJson.scripts['verify:runtime-porting-summary-artifact']).toBe(
       'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
     )
+    expect(packageJson.scripts['verify:runtime-status-samples']).toBe(
+      'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts --testNamePattern "runtime status sample"'
+    )
   })
 
   it('documents the runtime porting summary artifact for non-TypeScript tools', () => {
@@ -213,6 +217,8 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractValidSampleExpectedResult')
     expect(doc).toContain('firstSliceContractInvalidSampleExpectedResult')
     expect(doc).toContain('firstSliceContractSamples')
+    expect(doc).toContain('firstSliceContractSampleVerificationCommand')
+    expect(doc).toContain('pnpm run verify:runtime-status-samples')
     expect(doc).toContain(
       `firstSliceContractArtifactVersion: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION}`
     )

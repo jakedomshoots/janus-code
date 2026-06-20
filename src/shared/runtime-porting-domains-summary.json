@@ -42,6 +42,7 @@
       }
     }
   ],
+  "firstSliceContractSampleVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
   "firstSliceContractMethod": "status.get",
