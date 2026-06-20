@@ -92,6 +92,37 @@ pub fn verify_runtime_status_artifact_required_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_required_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let required_fields = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("required"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include jsonSchema.required array".to_string())?;
+
+    let actual_fields: Result<Vec<&str>, String> = required_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("jsonSchema.required[{index}] must be a string"))
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.required {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_versioned_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -845,6 +876,7 @@ mod tests {
         verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
+        verify_runtime_status_artifact_json_schema_required_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_numeric_constraint,
@@ -912,6 +944,17 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_required_fields() {
         assert_eq!(
             verify_runtime_status_artifact_required_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                REQUIRED_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_required_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_required_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 REQUIRED_FIELDS
             ),
