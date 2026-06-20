@@ -726,6 +726,44 @@ pub fn verify_runtime_status_artifact_array_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_array_fields_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let array_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("arrayFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.arrayFields array".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (index, field) in array_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.arrayFields[{index}] must be a string"))?;
+        let actual_type = properties
+            .get(field_name)
+            .and_then(|property| property.get("type"))
+            .and_then(Value::as_str)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include string jsonSchema.properties.{field_name}.type"
+                )
+            })?;
+
+        if actual_type != "array" {
+            return Err(format!(
+                "contract artifact expected summary.arrayFields entry {field_name} to have jsonSchema.properties.{field_name}.type array but got {actual_type}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_numeric_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -1348,8 +1386,9 @@ mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
-        verify_runtime_status_artifact_array_fields, verify_runtime_status_artifact_enum_fields,
-        verify_runtime_status_artifact_enum_values,
+        verify_runtime_status_artifact_array_fields,
+        verify_runtime_status_artifact_array_fields_schema_consistency,
+        verify_runtime_status_artifact_enum_fields, verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
@@ -1693,6 +1732,16 @@ mod tests {
             verify_runtime_status_artifact_array_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 ARRAY_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_array_fields_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_array_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
