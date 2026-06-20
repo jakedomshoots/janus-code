@@ -211,6 +211,32 @@ describe('VoicePane dictation switch', () => {
     expect(updateVoiceSettings).not.toHaveBeenCalled()
   })
 
+  it('renders dictation modes and persists Hold mode from the enabled settings pane', async () => {
+    const updateSettings = vi.fn()
+    const { container, root } = await renderVoicePane({
+      voiceEnabled: true,
+      markFeatureTipsSeen: vi.fn(),
+      updateSettings
+    })
+    const holdButton = [...container.querySelectorAll<HTMLButtonElement>('button')].find(
+      (button) => button.textContent === 'Hold'
+    )
+
+    expect(container.textContent).toContain('Toggle')
+    expect(holdButton).toBeTruthy()
+
+    await act(async () => {
+      holdButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    root.unmount()
+
+    expect(updateSettings).toHaveBeenCalledWith(
+      expect.objectContaining({
+        voice: expect.objectContaining({ enabled: true, dictationMode: 'hold' })
+      })
+    )
+  })
+
   it('does not record voice feature interaction from the settings switch', async () => {
     const recordFeatureInteraction = vi.fn()
     const { button, root } = await renderVoicePane({

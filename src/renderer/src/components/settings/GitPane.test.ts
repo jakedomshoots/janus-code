@@ -55,6 +55,16 @@ describe('GitPane', () => {
     expect(renderGitPane('command template')).toContain('Branch name command template')
   })
 
+  it('renders branch prefix options with the default Git username value', () => {
+    const markup = renderGitPane('branch naming')
+
+    expect(markup).toContain('Git Username')
+    expect(markup).toContain('Custom')
+    expect(markup).toContain('None')
+    expect(markup).toContain('value="brennan"')
+    expect(markup).toContain('readOnly=""')
+  })
+
   it('keeps auto-rename advanced controls collapsed without an advanced search match', () => {
     expect(shouldOpenAutoRenameBranchAdvanced('')).toBe(false)
     expect(shouldOpenAutoRenameBranchAdvanced('creature name')).toBe(false)
