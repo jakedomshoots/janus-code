@@ -88,9 +88,31 @@ pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), 
     Ok(())
 }
 
+pub fn verify_runtime_status_manifest_method(
+    relative_path: &str,
+    expected_method: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_method = manifest
+        .get("contractMethod")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string contractMethod".to_string())?;
+
+    if actual_method == expected_method {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractMethod {expected_method} but got {actual_method}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{validate_runtime_status_sample, verify_runtime_status_sample_manifest};
+    use super::{
+        validate_runtime_status_sample, verify_runtime_status_manifest_method,
+        verify_runtime_status_sample_manifest,
+    };
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -115,6 +137,17 @@ mod tests {
         assert_eq!(
             verify_runtime_status_sample_manifest(
                 "src/shared/runtime-status-contract-samples.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_status_get() {
+        assert_eq!(
+            verify_runtime_status_manifest_method(
+                "src/shared/runtime-status-contract-samples.json",
+                "status.get"
             ),
             Ok(())
         );
