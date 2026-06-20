@@ -83,6 +83,7 @@
     }
   ],
   "firstSliceContractSampleManifestSampleCount": 2,
+  "firstSliceContractSampleManifestSampleKinds": ["valid", "invalid"],
   "firstSliceContractSampleManifestSamplePaths": [
     "src/shared/runtime-status-contract-valid-sample.json",
     "src/shared/runtime-status-contract-invalid-sample.json"
