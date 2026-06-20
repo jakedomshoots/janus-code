@@ -70,6 +70,7 @@ export type RuntimePortingFirstSliceContractNumericFields = readonly RuntimeStat
 export type RuntimePortingFirstSliceContractNumericConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
 >
+export type RuntimePortingFirstSliceContractStringFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractStringConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingStringConstraint>
 >
@@ -120,6 +121,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS: RuntimePo
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =
   REQUIRED_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS: RuntimePortingFirstSliceContractStringFields =
+  Object.keys(RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS) as RuntimeStatusPortingField[]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS: RuntimePortingFirstSliceContractStringConstraints =
   RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS: RuntimePortingFirstSliceContractVersionedFields =

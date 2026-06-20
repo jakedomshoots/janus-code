@@ -108,6 +108,7 @@ describe('runtime porting domains', () => {
       ],
       firstSliceContractNumericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
       firstSliceContractRequiredFields: REQUIRED_RUNTIME_STATUS_PORTING_FIELDS,
+      firstSliceContractStringFields: ['runtimeId'],
       firstSliceContractStringConstraints: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
       firstSliceContractVersionedFields: VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
       firstSliceRationale: 'read-only-runtime-rpc',
@@ -190,6 +191,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractNumericFields')
     expect(doc).toContain('firstSliceContractNumericConstraints')
     expect(doc).toContain('firstSliceContractRequiredFields')
+    expect(doc).toContain('firstSliceContractStringFields')
     expect(doc).toContain('firstSliceContractStringConstraints')
     expect(doc).toContain('firstSliceContractVersionedFields')
     expect(doc).toContain(RUNTIME_PORTING_FIRST_SLICE_RATIONALE)

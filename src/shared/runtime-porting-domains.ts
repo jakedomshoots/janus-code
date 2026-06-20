@@ -19,6 +19,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
   type RuntimePortingFirstSliceContractArrayConstraints,
@@ -41,6 +42,7 @@ import {
   type RuntimePortingFirstSliceContractParams,
   type RuntimePortingFirstSliceContractRequiredFields,
   type RuntimePortingFirstSliceContractSchemaVersion,
+  type RuntimePortingFirstSliceContractStringFields,
   type RuntimePortingFirstSliceContractStringConstraints,
   type RuntimePortingFirstSliceContractVersionedFields
 } from './runtime-porting-first-slice-contract'
@@ -104,6 +106,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractNumericFields: RuntimePortingFirstSliceContractNumericFields
   firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
+  firstSliceContractStringFields: RuntimePortingFirstSliceContractStringFields
   firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
   firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale
@@ -241,6 +244,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractNumericFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_FIELDS,
     firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
+    firstSliceContractStringFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
     firstSliceContractStringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
     firstSliceContractVersionedFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
     firstSliceRationale: RUNTIME_PORTING_FIRST_SLICE_RATIONALE,

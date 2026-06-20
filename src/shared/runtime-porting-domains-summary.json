@@ -97,6 +97,7 @@
     "capabilities",
     "hostPlatform"
   ],
+  "firstSliceContractStringFields": ["runtimeId"],
   "firstSliceContractStringConstraints": {
     "runtimeId": {
       "minLength": 1,
