@@ -192,6 +192,7 @@
     "runtimeProtocolVersion",
     "minCompatibleRuntimeClientVersion"
   ],
+  "firstSliceContractVersionedFieldCount": 2,
   "firstSliceRationale": "read-only-runtime-rpc",
   "firstSliceMethod": "status.get",
   "nativeCandidates": [
