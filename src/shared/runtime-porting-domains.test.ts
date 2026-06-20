@@ -116,6 +116,7 @@ describe('runtime porting domains', () => {
       firstSliceContractSampleManifestContractArtifactMediaType:
         'application/vnd.janus.runtime-status-contract+json',
       firstSliceContractSampleManifestContractArtifactVersion: 1,
+      firstSliceContractSampleManifestContractSchemaVersion: 1,
       firstSliceContractSampleManifestContractArtifactPath:
         'src/shared/runtime-status-contract-artifact.json',
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
@@ -239,6 +240,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactId')
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactMediaType')
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactVersion: 1')
+    expect(doc).toContain('firstSliceContractSampleManifestContractSchemaVersion: 1')
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactPath')
     expect(doc).toContain('pnpm run verify:runtime-status-samples')
     expect(doc).toContain(
