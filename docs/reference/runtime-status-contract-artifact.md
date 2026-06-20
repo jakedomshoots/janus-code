@@ -4,6 +4,8 @@ Use `src/shared/runtime-status-contract-artifact.json` as the checked-in contrac
 
 Use `src/shared/runtime-status-contract-valid-sample.json` as a known-good `status.get` payload fixture for adapter smoke tests.
 
+Use `src/shared/runtime-status-contract-invalid-sample.json` as a known-bad `status.get` payload fixture for adapter rejection tests.
+
 The artifact is labeled with media type `application/vnd.janus.runtime-status-contract+json`, `jsonSchemaDraftUri: https://json-schema.org/draft/2020-12/schema`, `jsonSchemaId: urn:janus:runtime-status-contract:json-schema:1`, `jsonSchemaTitle: Janus Runtime status.get result`, and includes:
 
 - `summary`: portable contract metadata, required fields, `versionedFields`, `nonNegativeIntegerFields`, `stringFields`, `arrayFields`, `numericFields`, `nullableFields`, `enumFields`, enum values, and constraints.

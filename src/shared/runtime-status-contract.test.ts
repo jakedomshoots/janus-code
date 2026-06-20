@@ -189,6 +189,22 @@ describe('runtime status porting contract', () => {
     expect(sample).toEqual(makeRuntimeStatus())
   })
 
+  it('keeps a checked-in invalid runtime status sample for sidecar adapter tests', () => {
+    const samplePath = resolve(__dirname, './runtime-status-contract-invalid-sample.json')
+
+    expect(existsSync(samplePath)).toBe(true)
+    if (!existsSync(samplePath)) {
+      return
+    }
+
+    const sample = JSON.parse(readFileSync(samplePath, 'utf8')) as RuntimeStatus
+
+    expect(validateRuntimeStatusPortingContract(sample)).toEqual({
+      ok: false,
+      missingFields: ['runtimeId']
+    })
+  })
+
   it('exposes a package script for verifying the checked-in contract artifact', () => {
     const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../package.json'), 'utf8'))
 
@@ -208,6 +224,7 @@ describe('runtime status porting contract', () => {
     const doc = readFileSync(docPath, 'utf8')
     expect(doc).toContain('src/shared/runtime-status-contract-artifact.json')
     expect(doc).toContain('src/shared/runtime-status-contract-valid-sample.json')
+    expect(doc).toContain('src/shared/runtime-status-contract-invalid-sample.json')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
     expect(doc).toContain('versionedFields')
     expect(doc).toContain('nonNegativeIntegerFields')
