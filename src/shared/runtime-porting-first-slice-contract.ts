@@ -56,6 +56,19 @@ export type RuntimePortingFirstSliceContractInvalidSampleExpectedResult = Extrac
   RuntimeStatusPortingValidationResult,
   { ok: false; missingFields: RuntimeStatusPortingField[] }
 >
+export type RuntimePortingFirstSliceContractSample =
+  | {
+      kind: 'valid'
+      path: RuntimePortingFirstSliceContractValidSamplePath
+      expectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
+    }
+  | {
+      kind: 'invalid'
+      path: RuntimePortingFirstSliceContractInvalidSamplePath
+      expectedResult: RuntimePortingFirstSliceContractInvalidSampleExpectedResult
+    }
+export type RuntimePortingFirstSliceContractSamples =
+  readonly RuntimePortingFirstSliceContractSample[]
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -112,6 +125,19 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT: 
   { ok: true }
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT: RuntimePortingFirstSliceContractInvalidSampleExpectedResult =
   { ok: false, missingFields: ['runtimeId'] }
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLES: RuntimePortingFirstSliceContractSamples =
+  [
+    {
+      kind: 'valid',
+      path: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH,
+      expectedResult: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT
+    },
+    {
+      kind: 'invalid',
+      path: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_PATH,
+      expectedResult: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_EXPECTED_RESULT
+    }
+  ]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =

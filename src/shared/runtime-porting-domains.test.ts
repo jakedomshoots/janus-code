@@ -89,6 +89,21 @@ describe('runtime porting domains', () => {
         ok: false,
         missingFields: ['runtimeId']
       },
+      firstSliceContractSamples: [
+        {
+          kind: 'valid',
+          path: 'src/shared/runtime-status-contract-valid-sample.json',
+          expectedResult: { ok: true }
+        },
+        {
+          kind: 'invalid',
+          path: 'src/shared/runtime-status-contract-invalid-sample.json',
+          expectedResult: {
+            ok: false,
+            missingFields: ['runtimeId']
+          }
+        }
+      ],
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
       firstSliceContractParams: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       firstSliceContractMethod: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
@@ -197,6 +212,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractInvalidSamplePath')
     expect(doc).toContain('firstSliceContractValidSampleExpectedResult')
     expect(doc).toContain('firstSliceContractInvalidSampleExpectedResult')
+    expect(doc).toContain('firstSliceContractSamples')
     expect(doc).toContain(
       `firstSliceContractArtifactVersion: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION}`
     )

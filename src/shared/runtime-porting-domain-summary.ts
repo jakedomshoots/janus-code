@@ -23,6 +23,7 @@ import type {
   RuntimePortingFirstSliceContractNumericFields,
   RuntimePortingFirstSliceContractParams,
   RuntimePortingFirstSliceContractRequiredFields,
+  RuntimePortingFirstSliceContractSamples,
   RuntimePortingFirstSliceContractSchemaVersion,
   RuntimePortingFirstSliceContractStringConstraints,
   RuntimePortingFirstSliceContractStringFields,
@@ -61,6 +62,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractInvalidSamplePath: RuntimePortingFirstSliceContractInvalidSamplePath
   firstSliceContractValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
   firstSliceContractInvalidSampleExpectedResult: RuntimePortingFirstSliceContractInvalidSampleExpectedResult
+  firstSliceContractSamples: RuntimePortingFirstSliceContractSamples
   firstSliceContractSchemaVersion: RuntimePortingFirstSliceContractSchemaVersion
   firstSliceContractParams: RuntimePortingFirstSliceContractParams
   firstSliceContractMethod: RuntimePortingFirstSliceContractMethod
