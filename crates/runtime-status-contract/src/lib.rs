@@ -937,6 +937,55 @@ pub fn verify_runtime_status_artifact_invalidatable_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_invalidatable_fields_required_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let required_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("requiredFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.requiredFields array".to_string())?;
+    let invalidatable_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("invalidatableFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.invalidatableFields array".to_string()
+        })?;
+
+    let fields: Result<Vec<&str>, String> = required_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.requiredFields[{index}] must be a string"))
+        })
+        .collect();
+    let invalidatable: Result<Vec<&str>, String> = invalidatable_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.invalidatableFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut fields = fields?;
+    let mut invalidatable = invalidatable?;
+    fields.sort_unstable();
+    invalidatable.sort_unstable();
+
+    if fields == invalidatable {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.requiredFields {fields:?} to match summary.invalidatableFields {invalidatable:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_enum_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -1939,6 +1988,7 @@ mod tests {
         verify_runtime_status_artifact_enum_values_fields_consistency,
         verify_runtime_status_artifact_enum_values_schema_consistency,
         verify_runtime_status_artifact_invalidatable_fields,
+        verify_runtime_status_artifact_invalidatable_fields_required_fields_consistency,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
         verify_runtime_status_artifact_json_schema_draft_uri_consistency,
@@ -2380,6 +2430,16 @@ mod tests {
             verify_runtime_status_artifact_invalidatable_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 INVALIDATABLE_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_invalidatable_fields_required_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_invalidatable_fields_required_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
