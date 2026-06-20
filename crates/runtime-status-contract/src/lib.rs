@@ -1,4 +1,5 @@
 use serde_json::Value;
+use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -30,6 +31,12 @@ impl RuntimeStatusHostPlatform {
             Self::Linux => "linux",
             Self::Win32 => "win32",
         }
+    }
+}
+
+impl fmt::Display for RuntimeStatusHostPlatform {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_str())
     }
 }
 
@@ -2453,6 +2460,13 @@ mod tests {
         assert_eq!(RuntimeStatusHostPlatform::Darwin.as_str(), "darwin");
         assert_eq!(RuntimeStatusHostPlatform::Linux.as_str(), "linux");
         assert_eq!(RuntimeStatusHostPlatform::Win32.as_str(), "win32");
+    }
+
+    #[test]
+    fn displays_runtime_status_host_platform_contract_values() {
+        assert_eq!(RuntimeStatusHostPlatform::Darwin.to_string(), "darwin");
+        assert_eq!(RuntimeStatusHostPlatform::Linux.to_string(), "linux");
+        assert_eq!(RuntimeStatusHostPlatform::Win32.to_string(), "win32");
     }
 
     #[test]
