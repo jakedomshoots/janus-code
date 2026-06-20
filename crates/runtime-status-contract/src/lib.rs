@@ -1268,6 +1268,66 @@ pub fn verify_runtime_status_artifact_string_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_string_constraints_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let string_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("stringConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.stringConstraints object".to_string()
+        })?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (field_name, constraint) in string_constraints {
+        let constraint = constraint
+            .as_object()
+            .ok_or_else(|| format!("summary.stringConstraints.{field_name} must be an object"))?;
+        let min_length = constraint
+            .get("minLength")
+            .and_then(Value::as_u64)
+            .ok_or_else(|| {
+                format!("summary.stringConstraints.{field_name}.minLength must be integer")
+            })?;
+
+        let property = properties.get(field_name).ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name} object")
+        })?;
+        let actual_type = property.get("type").ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name}.type")
+        })?;
+        let string_type = actual_type.as_str() == Some("string");
+
+        if !string_type {
+            return Err(format!(
+                "contract artifact expected summary.stringConstraints.{field_name} to match string jsonSchema.properties.{field_name}.type but got {actual_type}"
+            ));
+        }
+
+        let schema_min_length = property
+            .get("minLength")
+            .and_then(Value::as_u64)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include integer jsonSchema.properties.{field_name}.minLength"
+                )
+            })?;
+
+        if min_length != schema_min_length {
+            return Err(format!(
+                "contract artifact expected summary.stringConstraints.{field_name}.minLength {min_length} to match jsonSchema.properties.{field_name}.minLength {schema_min_length}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_array_constraint(
     relative_path: &str,
     field_name: &str,
@@ -1685,6 +1745,7 @@ mod tests {
         verify_runtime_status_artifact_numeric_fields_schema_consistency,
         verify_runtime_status_artifact_required_fields,
         verify_runtime_status_artifact_string_constraint,
+        verify_runtime_status_artifact_string_constraints_schema_consistency,
         verify_runtime_status_artifact_string_fields,
         verify_runtime_status_artifact_string_fields_schema_consistency,
         verify_runtime_status_artifact_versioned_fields,
@@ -2145,6 +2206,16 @@ mod tests {
                 "runtimeId",
                 1,
                 true
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_string_constraints_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_string_constraints_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
