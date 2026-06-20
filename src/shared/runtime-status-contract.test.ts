@@ -222,6 +222,7 @@ describe('runtime status porting contract', () => {
       artifactId: 'janus-runtime-status-contract-samples',
       mediaType: 'application/vnd.janus.runtime-status-contract-samples+json',
       schemaVersion: 1,
+      artifactJsonPath: 'src/shared/runtime-status-contract-samples.json',
       contractArtifactId: 'janus-runtime-status-contract',
       contractArtifactPath: 'src/shared/runtime-status-contract-artifact.json',
       contractArtifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
@@ -280,6 +281,7 @@ describe('runtime status porting contract', () => {
     expect(doc).toContain('src/shared/runtime-status-contract-samples.json')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract-samples+json')
     expect(doc).toContain('janus-runtime-status-contract-samples')
+    expect(doc).toContain('artifactJsonPath: src/shared/runtime-status-contract-samples.json')
     expect(doc).toContain('contractArtifactPath: src/shared/runtime-status-contract-artifact.json')
     expect(doc).toContain(
       'contractArtifactMediaType: application/vnd.janus.runtime-status-contract+json'
