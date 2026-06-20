@@ -88,6 +88,25 @@ pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), 
     Ok(())
 }
 
+pub fn verify_runtime_status_manifest_id(
+    relative_path: &str,
+    expected_artifact_id: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_artifact_id = manifest
+        .get("artifactId")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string artifactId".to_string())?;
+
+    if actual_artifact_id == expected_artifact_id {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected artifactId {expected_artifact_id} but got {actual_artifact_id}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_manifest_method(
     relative_path: &str,
     expected_method: &str,
@@ -130,7 +149,8 @@ pub fn verify_runtime_status_manifest_artifact_id(
 mod tests {
     use super::{
         validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
-        verify_runtime_status_manifest_method, verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_id, verify_runtime_status_manifest_method,
+        verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -156,6 +176,17 @@ mod tests {
         assert_eq!(
             verify_runtime_status_sample_manifest(
                 "src/shared/runtime-status-contract-samples.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_identifies_the_runtime_status_samples() {
+        assert_eq!(
+            verify_runtime_status_manifest_id(
+                "src/shared/runtime-status-contract-samples.json",
+                "janus-runtime-status-contract-samples"
             ),
             Ok(())
         );
