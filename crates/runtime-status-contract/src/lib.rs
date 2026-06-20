@@ -1437,6 +1437,46 @@ pub fn verify_runtime_status_artifact_array_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_array_constraints_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let array_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("arrayFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.arrayFields array".to_string())?;
+    let array_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("arrayConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.arrayConstraints object".to_string()
+        })?;
+
+    let fields: Result<Vec<&str>, String> = array_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.arrayFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut fields = fields?;
+    let mut constraint_fields: Vec<&str> = array_constraints.keys().map(String::as_str).collect();
+    fields.sort_unstable();
+    constraint_fields.sort_unstable();
+
+    if fields == constraint_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.arrayFields {fields:?} to match summary.arrayConstraints fields {constraint_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_array_constraints_schema_consistency(
     relative_path: &str,
 ) -> Result<(), String> {
@@ -1851,6 +1891,7 @@ mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
+        verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
         verify_runtime_status_artifact_array_fields_schema_consistency,
@@ -2226,6 +2267,16 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_array_fields_schema_consistency() {
         assert_eq!(
             verify_runtime_status_artifact_array_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_array_constraints_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_array_constraints_fields_consistency(
                 "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
