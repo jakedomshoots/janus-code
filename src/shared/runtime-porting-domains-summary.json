@@ -127,6 +127,7 @@
     "liveTabCount",
     "liveLeafCount"
   ],
+  "firstSliceContractNonNegativeIntegerFieldCount": 3,
   "firstSliceContractNullableFields": ["authoritativeWindowId"],
   "firstSliceContractNullableFieldCount": 1,
   "firstSliceContractNumericFields": [

@@ -264,6 +264,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
     firstSliceContractNonNegativeIntegerFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
+    firstSliceContractNonNegativeIntegerFieldCount:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS.length,
     firstSliceContractNullableFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
     firstSliceContractNullableFieldCount:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS.length,
