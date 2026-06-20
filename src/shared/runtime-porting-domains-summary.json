@@ -27,6 +27,7 @@
       "itemType": "string"
     }
   },
+  "firstSliceContractEnumFields": ["graphStatus", "hostPlatform"],
   "firstSliceContractEnumValues": {
     "graphStatus": ["ready", "reloading", "unavailable"],
     "hostPlatform": ["darwin", "linux", "win32"]
