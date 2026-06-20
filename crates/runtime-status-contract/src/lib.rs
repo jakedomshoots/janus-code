@@ -669,6 +669,49 @@ pub fn verify_runtime_status_artifact_non_negative_integer_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_non_negative_integer_fields_numeric_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let non_negative_integer_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("nonNegativeIntegerFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.nonNegativeIntegerFields array".to_string()
+        })?;
+    let numeric_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.numericFields array".to_string())?;
+
+    let numeric_fields: Result<Vec<&str>, String> = numeric_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.numericFields[{index}] must be a string"))
+        })
+        .collect();
+    let numeric_fields = numeric_fields?;
+
+    for (index, field) in non_negative_integer_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.nonNegativeIntegerFields[{index}] must be a string"))?;
+
+        if !numeric_fields.contains(&field_name) {
+            return Err(format!(
+                "contract artifact expected summary.nonNegativeIntegerFields entry {field_name} to be listed in summary.numericFields"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_string_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -2051,6 +2094,7 @@ mod tests {
         verify_runtime_status_artifact_json_schema_title_consistency,
         verify_runtime_status_artifact_json_schema_type,
         verify_runtime_status_artifact_non_negative_integer_fields,
+        verify_runtime_status_artifact_non_negative_integer_fields_numeric_fields_consistency,
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_nullable_fields_schema_consistency,
         verify_runtime_status_artifact_numeric_constraint,
@@ -2359,6 +2403,17 @@ mod tests {
             verify_runtime_status_artifact_non_negative_integer_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 NON_NEGATIVE_INTEGER_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_non_negative_integer_fields_numeric_fields_consistency()
+     {
+        assert_eq!(
+            verify_runtime_status_artifact_non_negative_integer_fields_numeric_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
