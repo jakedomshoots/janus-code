@@ -222,6 +222,9 @@ describe('runtime status porting contract', () => {
       contractArtifactMediaType: 'application/vnd.janus.runtime-status-contract+json',
       contractArtifactVersion: 1,
       contractSchemaVersion: 1,
+      contractJsonSchemaDraftUri: 'https://json-schema.org/draft/2020-12/schema',
+      contractJsonSchemaId: 'urn:janus:runtime-status-contract:json-schema:1',
+      contractJsonSchemaTitle: 'Janus Runtime status.get result',
       contractMethod: 'status.get',
       contractParams: null,
       samples: [
@@ -272,6 +275,11 @@ describe('runtime status porting contract', () => {
     )
     expect(doc).toContain('contractArtifactVersion: 1')
     expect(doc).toContain('contractSchemaVersion: 1')
+    expect(doc).toContain(
+      'contractJsonSchemaDraftUri: https://json-schema.org/draft/2020-12/schema'
+    )
+    expect(doc).toContain('contractJsonSchemaId: urn:janus:runtime-status-contract:json-schema:1')
+    expect(doc).toContain('contractJsonSchemaTitle: Janus Runtime status.get result')
     expect(doc).toContain('contractMethod: status.get')
     expect(doc).toContain('contractParams: null')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
