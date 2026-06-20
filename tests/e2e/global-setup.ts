@@ -16,6 +16,8 @@ import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'fs'
 import path from 'path'
 import os from 'os'
 
+import { runWithElectronE2eBuildLock } from '../../config/scripts/electron-e2e-build-lock.mjs'
+
 /** Temp file where the test repo path is stored for the fixture to read. */
 export const TEST_REPO_PATH_FILE = path.join(os.tmpdir(), 'orca-e2e-test-repo-path.txt')
 const ELECTRON_E2E_BUILD_TIMEOUT_MS = 300_000
@@ -28,18 +30,20 @@ export default function globalSetup(): void {
   if (process.env.SKIP_BUILD && existsSync(outMain)) {
     console.log('[e2e] SKIP_BUILD set and out/main/index.js exists — skipping build')
   } else {
-    // Why: --mode e2e is the build-time signal that exposes window.__store;
-    // the explicit env var keeps older local overrides working too.
-    console.log('[e2e] Building Electron app with electron-vite build --mode e2e...')
-    execSync('npx electron-vite build --mode e2e', {
-      env: { ...process.env, VITE_EXPOSE_STORE: 'true' },
-      cwd: root,
-      stdio: 'inherit',
-      // Why: Windows renderer builds can exceed 120s on local/CI hosts even
-      // when healthy; global setup should not fail before specs can run.
-      timeout: ELECTRON_E2E_BUILD_TIMEOUT_MS
+    runWithElectronE2eBuildLock(root, () => {
+      // Why: separate Playwright invocations can overlap in local audits;
+      // electron-vite's temporary config loading is not safe to build in parallel.
+      console.log('[e2e] Building Electron app with electron-vite build --mode e2e...')
+      execSync('npx electron-vite build --mode e2e', {
+        env: { ...process.env, VITE_EXPOSE_STORE: 'true' },
+        cwd: root,
+        stdio: 'inherit',
+        // Why: Windows renderer builds can exceed 120s on local/CI hosts even
+        // when healthy; global setup should not fail before specs can run.
+        timeout: ELECTRON_E2E_BUILD_TIMEOUT_MS
+      })
+      console.log('[e2e] Build complete.')
     })
-    console.log('[e2e] Build complete.')
   }
   if (process.env.ORCA_E2E_SSH_LOCALHOST === '1' || process.env.ORCA_E2E_SSH_DOCKER === '1') {
     // Why: the SSH specs deploy Orca's relay from out/relay. The

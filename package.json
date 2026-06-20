@@ -31,6 +31,7 @@
     "verify:runtime-status-contract-artifact": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts src/shared/runtime-porting-domains.test.ts",
     "verify:runtime-porting-summary-artifact": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts",
     "verify:runtime-status-samples": "pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts --testNamePattern \"runtime status sample\"",
+    "verify:feature-user-stories": "node config/scripts/verify-feature-user-story-status.mjs",
     "vendor:feature-wall-assets": "node config/scripts/vendor-feature-wall-assets.mjs",
     "tc:node": "pnpm run typecheck:node",
     "tc:cli": "pnpm run typecheck:cli",
