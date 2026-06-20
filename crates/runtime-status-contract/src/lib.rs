@@ -305,6 +305,25 @@ pub fn verify_runtime_status_manifest_json_schema_draft_uri(
     }
 }
 
+pub fn verify_runtime_status_manifest_json_schema_id(
+    relative_path: &str,
+    expected_schema_id: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_schema_id = manifest
+        .get("contractJsonSchemaId")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string contractJsonSchemaId".to_string())?;
+
+    if actual_schema_id == expected_schema_id {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractJsonSchemaId {expected_schema_id} but got {actual_schema_id}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -314,8 +333,8 @@ mod tests {
         verify_runtime_status_manifest_artifact_version, verify_runtime_status_manifest_id,
         verify_runtime_status_manifest_json_path,
         verify_runtime_status_manifest_json_schema_draft_uri,
-        verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
-        verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_manifest_json_schema_id, verify_runtime_status_manifest_media_type,
+        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_sample_manifest,
     };
@@ -464,6 +483,17 @@ mod tests {
             verify_runtime_status_manifest_json_schema_draft_uri(
                 "src/shared/runtime-status-contract-samples.json",
                 "https://json-schema.org/draft/2020-12/schema"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_the_runtime_status_json_schema_id() {
+        assert_eq!(
+            verify_runtime_status_manifest_json_schema_id(
+                "src/shared/runtime-status-contract-samples.json",
+                "urn:janus:runtime-status-contract:json-schema:1"
             ),
             Ok(())
         );
