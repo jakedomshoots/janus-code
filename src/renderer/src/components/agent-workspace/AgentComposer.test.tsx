@@ -539,6 +539,14 @@ describe('AgentComposer', () => {
       launchSource: 'new_workspace_composer',
       onPromptDelivered: expect.any(Function)
     })
+    expect(textarea?.value).toBe('Use OpenCode for this workspace.')
+
+    const launchArgs = mocks.launchAgentInNewTab.mock.calls.at(-1)?.[0] as
+      | { onPromptDelivered?: () => void }
+      | undefined
+    await act(async () => {
+      launchArgs?.onPromptDelivered?.()
+    })
     expect(textarea?.value).toBe('')
   })
 

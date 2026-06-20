@@ -334,10 +334,19 @@ describe('AgentComposer completed-thread recovery', () => {
         agent: 'antigravity',
         worktreeId: 'worktree-1',
         prompt: 'hello',
-        promptDelivery: 'auto-submit'
+        promptDelivery: 'auto-submit',
+        onPromptDelivered: expect.any(Function)
       })
     )
     expect(container.textContent).not.toContain('not a recognized agent session')
+    expect(textarea?.value).toBe('hello')
+
+    const launchArgs = mocks.launchAgentInNewTab.mock.calls.at(-1)?.[0] as
+      | { onPromptDelivered?: () => void }
+      | undefined
+    await act(async () => {
+      launchArgs?.onPromptDelivered?.()
+    })
     expect(textarea?.value).toBe('')
   })
 })

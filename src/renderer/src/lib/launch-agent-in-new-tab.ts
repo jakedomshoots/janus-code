@@ -22,6 +22,7 @@ import {
 } from '../../../shared/tui-agent-launch-defaults'
 import { TUI_AGENT_CONFIG } from '../../../shared/tui-agent-config'
 import { makePaneKey } from '../../../shared/stable-pane-id'
+import { bootstrapPendingAgentLaunch } from '@/lib/pending-agent-launch-bootstrap'
 import type { TuiAgent } from '../../../shared/types'
 import type { LaunchSource } from '../../../shared/telemetry-events'
 import { translate } from '@/i18n/i18n'
@@ -230,6 +231,8 @@ export function launchAgentInNewTab(args: LaunchAgentInNewTabArgs): LaunchAgentI
     return null
   }
 
+  const shouldSeedInitialAgentStatus =
+    hasPrompt && promptDelivery === 'auto-submit' && pasteDraftAfterLaunch === null
   const runtimeEnvironmentId = getRuntimeEnvironmentIdForWorktree(store, worktreeId)
   if (isWebRuntimeSessionActive(runtimeEnvironmentId) && pasteDraftAfterLaunch === null) {
     // Why: paired web tabs are host-owned and return tabId: null on success.
@@ -281,12 +284,23 @@ export function launchAgentInNewTab(args: LaunchAgentInNewTabArgs): LaunchAgentI
     launchAgent: agent,
     quickCommandLabel
   })
+  const pendingLaunchPaneKey = shouldSeedInitialAgentStatus
+    ? bootstrapPendingAgentLaunch({
+        store,
+        tabId: tab.id,
+        worktreeId,
+        agent,
+        prompt: trimmedPrompt
+      })
+    : null
   store.queueTabStartupCommand(tab.id, {
     command: startupPlan.launchCommand,
     ...(startupPlan.env ? { env: startupPlan.env } : {}),
-    ...(agent === 'command-code' && hasPrompt && promptDelivery === 'auto-submit'
+    ...(shouldSeedInitialAgentStatus
       ? { initialAgentStatus: { agent, prompt: trimmedPrompt } }
       : {}),
+    ...(shouldSeedInitialAgentStatus && onPromptDelivered ? { onPromptDelivered } : {}),
+    ...(pendingLaunchPaneKey ? { pendingLaunchPaneKey } : {}),
     telemetry: {
       agent_kind: tuiAgentToAgentKind(agent),
       launch_source: launchSource ?? 'tab_bar_quick_launch',
@@ -351,7 +365,7 @@ export function launchAgentInNewTab(args: LaunchAgentInNewTabArgs): LaunchAgentI
         onPromptDelivered?.()
       }
     })
-  } else if (hasPrompt) {
+  } else if (hasPrompt && !shouldSeedInitialAgentStatus) {
     onPromptDelivered?.()
   }
 

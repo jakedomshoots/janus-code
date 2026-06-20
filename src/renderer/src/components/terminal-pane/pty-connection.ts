@@ -1255,6 +1255,8 @@ export function connectPanePty(
       },
       terminalTitle
     )
+    useAppStore.getState().clearPendingAgentLaunch(paneStartup?.pendingLaunchPaneKey ?? cacheKey)
+    paneStartup?.onPromptDelivered?.()
   }
 
   const seedCommandCodeOutputWorkingStatus = (prompt: string): void => {

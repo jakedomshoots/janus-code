@@ -1,9 +1,11 @@
 import type { AppState } from '@/store'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
   AgentStatusConversationTurn,
   AgentStatusEntry,
   AgentStatusToolEventStatus
 } from '../../../../shared/agent-status-types'
+import type { PendingAgentLaunch } from '@/store/slices/terminals'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import { isAgentWorkspaceVisibleUserPrompt } from './agent-visible-user-prompt'
 import { compareAgentTimelineEntries } from './agent-timeline-order'
@@ -201,6 +203,32 @@ function appendTimelineEntries(
   }
 }
 
+function appendPendingLaunchTimelineEntries(
+  timeline: AgentWorkspaceTimelineEntry[],
+  thread: AgentWorkspaceThread,
+  launch: PendingAgentLaunch
+): void {
+  const prompt = launch.prompt.trim()
+  if (isAgentWorkspaceVisibleUserPrompt(prompt)) {
+    timeline.push({
+      id: `${thread.id}:pending-launch:user`,
+      threadId: thread.id,
+      kind: 'user',
+      text: prompt,
+      createdAt: getIsoTimestamp(launch.startedAt),
+      status: 'done'
+    })
+  }
+  timeline.push({
+    id: `${thread.id}:pending-launch:system`,
+    threadId: thread.id,
+    kind: 'system',
+    text: `Starting ${formatAgentTypeLabel(launch.agent)}...`,
+    createdAt: getIsoTimestamp(launch.startedAt),
+    status: 'running'
+  })
+}
+
 export function selectAgentWorkspaceTimeline(
   state: AppState,
   threads: readonly AgentWorkspaceThread[]
@@ -214,6 +242,17 @@ export function selectAgentWorkspaceTimeline(
       continue
     }
     appendTimelineEntries(timeline, thread, entry)
+  }
+
+  for (const [paneKey, launch] of Object.entries(state.pendingAgentLaunchesByPaneKey)) {
+    if (paneKey in state.agentStatusByPaneKey) {
+      continue
+    }
+    const thread = threadsById.get(paneKey)
+    if (!thread) {
+      continue
+    }
+    appendPendingLaunchTimelineEntries(timeline, thread, launch)
   }
 
   for (const [paneKey, retained] of Object.entries(state.retainedAgentsByPaneKey)) {

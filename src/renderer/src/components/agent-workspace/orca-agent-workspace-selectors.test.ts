@@ -179,6 +179,49 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
+  it('shows pending GUI-launched CLI agents as starting threads immediately', () => {
+    const active = worktree('wt-pending', {
+      path: '/repo/janus-code/worktrees/pending-agent',
+      displayName: 'Pending Agent',
+      branch: 'refs/heads/feature/pending-agent'
+    })
+    const pendingPaneKey = makePaneKey('tab-pending', '66666666-6666-4666-8666-666666666666')
+
+    const snapshot = selectAgentWorkspaceSnapshot(
+      stateWithWorktree(active, {
+        activeWorktreeId: active.id,
+        tabsByWorktree: { [active.id]: [tab('tab-pending', active.id)] },
+        ...({
+          pendingAgentLaunchesByPaneKey: {
+            [pendingPaneKey]: {
+              paneKey: pendingPaneKey,
+              tabId: 'tab-pending',
+              worktreeId: active.id,
+              agent: 'codex',
+              prompt: 'Make the CLI launch feel instant.',
+              startedAt: Date.UTC(2026, 5, 20, 18, 0)
+            }
+          }
+        } as unknown as Partial<AppState>)
+      })
+    )
+
+    expect(snapshot.threads).toEqual([
+      expect.objectContaining({
+        id: pendingPaneKey,
+        worktreeId: active.id,
+        title: 'Make the CLI launch feel instant.',
+        agentKind: 'codex',
+        phase: 'starting',
+        updatedAt: '2026-06-20T18:00:00.000Z'
+      })
+    ])
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Make the CLI launch feel instant.', 'done'],
+      ['system', 'Starting Codex...', 'running']
+    ])
+  })
+
   it('returns a stable snapshot reference when the backing state slices have not changed', () => {
     const active = worktree('wt-stable', {
       path: '/repo/janus-code/worktrees/stable',

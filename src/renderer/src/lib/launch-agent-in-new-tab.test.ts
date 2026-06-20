@@ -5,6 +5,8 @@ const mockQueueTabStartupCommand = vi.fn()
 const mockSetActiveTabType = vi.fn()
 const mockSetTabBarOrder = vi.fn()
 const mockSetAgentStatus = vi.fn()
+const mockSetTabLayout = vi.fn()
+const mockQueuePendingAgentLaunch = vi.fn()
 const mockPasteDraftWhenAgentReady = vi.fn()
 const mockTrack = vi.fn()
 
@@ -24,6 +26,8 @@ const store = {
   queueTabStartupCommand: mockQueueTabStartupCommand,
   setActiveTabType: mockSetActiveTabType,
   setTabBarOrder: mockSetTabBarOrder,
+  setTabLayout: mockSetTabLayout,
+  queuePendingAgentLaunch: mockQueuePendingAgentLaunch,
   setAgentStatus: mockSetAgentStatus
 }
 
@@ -79,6 +83,8 @@ describe('launchAgentInNewTab', () => {
     store.tabBarOrderByWorktree = {}
     store.terminalLayoutsByTabId = {}
     mockCreateTab.mockReturnValue({ id: 'tab-1' })
+    mockSetTabLayout.mockReset()
+    mockQueuePendingAgentLaunch.mockReset()
     mockPasteDraftWhenAgentReady.mockResolvedValue(true)
   })
 
@@ -182,6 +188,69 @@ describe('launchAgentInNewTab', () => {
         }
       })
     )
+  })
+
+  it('queues initial working status for Codex argv prompt launches', async () => {
+    const { launchAgentInNewTab } = await import('./launch-agent-in-new-tab')
+    const onPromptDelivered = vi.fn()
+
+    launchAgentInNewTab({
+      agent: 'codex',
+      worktreeId: 'wt-1',
+      prompt: 'fix messages in new cli tabs',
+      onPromptDelivered
+    })
+
+    expect(mockQueueTabStartupCommand).toHaveBeenCalledWith(
+      'tab-1',
+      expect.objectContaining({
+        initialAgentStatus: {
+          agent: 'codex',
+          prompt: 'fix messages in new cli tabs'
+        },
+        onPromptDelivered: expect.any(Function)
+      })
+    )
+    expect(onPromptDelivered).not.toHaveBeenCalled()
+
+    const startup = mockQueueTabStartupCommand.mock.calls.at(-1)?.[1] as
+      | { onPromptDelivered?: () => void }
+      | undefined
+    startup?.onPromptDelivered?.()
+    expect(onPromptDelivered).toHaveBeenCalledTimes(1)
+  })
+
+  it('prepares an instant pending thread for GUI argv prompt launches', async () => {
+    const { launchAgentInNewTab } = await import('./launch-agent-in-new-tab')
+
+    launchAgentInNewTab({
+      agent: 'codex',
+      worktreeId: 'wt-1',
+      prompt: 'make launch instant'
+    })
+
+    expect(mockSetTabLayout).toHaveBeenCalledWith(
+      'tab-1',
+      expect.objectContaining({
+        root: expect.objectContaining({ type: 'leaf' }),
+        activeLeafId: expect.any(String)
+      })
+    )
+    expect(mockQueuePendingAgentLaunch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tabId: 'tab-1',
+        worktreeId: 'wt-1',
+        agent: 'codex',
+        prompt: 'make launch instant'
+      })
+    )
+    const queuedLaunch = mockQueuePendingAgentLaunch.mock.calls.at(-1)?.[0] as
+      | { paneKey?: string }
+      | undefined
+    const queuedStartup = mockQueueTabStartupCommand.mock.calls.at(-1)?.[1] as
+      | { pendingLaunchPaneKey?: string }
+      | undefined
+    expect(queuedStartup?.pendingLaunchPaneKey).toBe(queuedLaunch?.paneKey)
   })
 
   it('does not track prompt-sent for argv prompt launches', async () => {

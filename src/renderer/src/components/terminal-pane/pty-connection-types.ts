@@ -18,8 +18,12 @@ export type PtyConnectionDeps = {
     /** Telemetry payload for `agent_started`. Forwarded to `pty:spawn`
      *  so main fires the event only after the spawn succeeds. */
     telemetry?: EventProps<'agent_started'>
-    /** Initial prompt-start status for agents that lack native prompt hooks. */
+    /** Initial prompt-start status for launch-command prompts submitted before hooks fire. */
     initialAgentStatus?: { agent: TuiAgent; prompt: string }
+    /** Fires after the initial prompt status has been seeded into the transcript. */
+    onPromptDelivered?: () => void
+    /** Pane-key for the optimistic launch row that real status replaces. */
+    pendingLaunchPaneKey?: string
   } | null
   restoredLeafId?: string | null
   restoredPtyIdByLeafId?: Record<string, string>

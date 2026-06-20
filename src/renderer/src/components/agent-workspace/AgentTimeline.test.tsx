@@ -76,6 +76,7 @@ describe('AgentTimeline', () => {
     expect(commandBadge?.textContent).toContain('Command')
     expect(runningEntry?.getAttribute('aria-busy')).toBe('true')
     expect(runningEntry?.getAttribute('aria-label')).toContain('Agent')
+    expect(runningEntry?.querySelector('.animate-spin')).not.toBeNull()
   })
 
   it('renders markdown artifact cards that open the document preview', () => {

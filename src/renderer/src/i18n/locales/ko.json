@@ -11417,6 +11417,11 @@
       "DesktopShellRequired": {
         "title": "Open Janus Code in the desktop app",
         "description": "This URL is the Electron dev renderer and only works inside the Janus Code window launched by pnpm dev. For browser testing, use the paired web client at http://127.0.0.1:5175/ instead."
+      },
+      "terminalPane": {
+        "overlay": {
+          "openingCliAgent": "Opening CLI agent..."
+        }
       }
     },
     "i18n": {

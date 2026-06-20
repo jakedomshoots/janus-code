@@ -1,10 +1,12 @@
 import type { AppState } from '@/store'
+import type { PendingAgentLaunch } from '@/store/slices/terminals'
 import { branchName } from '@/lib/git-utils'
 import { getRuntimePathBasename } from '../../../../shared/cross-platform-path'
 import { parsePaneKey } from '../../../../shared/stable-pane-id'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
 import type { TerminalTab, Worktree } from '../../../../shared/types'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
   AgentWorkspaceProject,
   AgentWorkspaceSnapshot,
@@ -43,6 +45,7 @@ type SnapshotCache = {
   tabsByWorktree: AppState['tabsByWorktree']
   agentStatusByPaneKey: AppState['agentStatusByPaneKey']
   retainedAgentsByPaneKey: AppState['retainedAgentsByPaneKey']
+  pendingAgentLaunchesByPaneKey: AppState['pendingAgentLaunchesByPaneKey']
   gitStatusByWorktree: AppState['gitStatusByWorktree']
   hostedReviewCache: AppState['hostedReviewCache']
   activeWorktreeId: AppState['activeWorktreeId']
@@ -152,6 +155,24 @@ function toAgentWorkspaceThread(
   }
 }
 
+function toPendingAgentWorkspaceThread(
+  paneKey: string,
+  launch: PendingAgentLaunch,
+  workspaceMeta: Map<string, WorkspaceThreadMeta>
+): AgentWorkspaceThread {
+  const meta = workspaceMeta.get(launch.worktreeId)
+  return {
+    id: paneKey,
+    worktreeId: launch.worktreeId,
+    title: nonEmpty(launch.prompt) ?? formatAgentTypeLabel(launch.agent),
+    agentKind: launch.agent,
+    phase: 'starting',
+    updatedAt: getIsoTimestamp(launch.startedAt),
+    cwd: meta?.path ?? null,
+    branchName: meta?.branchName ?? null
+  }
+}
+
 export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWorkspaceProject[] {
   const projects: AgentWorkspaceProject[] = []
   for (const worktrees of Object.values(state.worktreesByRepo)) {
@@ -211,6 +232,13 @@ export function selectAgentWorkspaceThreads(state: AppState): readonly AgentWork
     threads.push(toAgentWorkspaceThread(paneKey, entry, worktreeId, tabMatch?.tab, workspaceMeta))
   }
 
+  for (const [paneKey, launch] of Object.entries(state.pendingAgentLaunchesByPaneKey)) {
+    if (paneKey in state.agentStatusByPaneKey) {
+      continue
+    }
+    threads.push(toPendingAgentWorkspaceThread(paneKey, launch, workspaceMeta))
+  }
+
   for (const [paneKey, retained] of Object.entries(state.retainedAgentsByPaneKey)) {
     if (paneKey in state.agentStatusByPaneKey) {
       continue
@@ -250,6 +278,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     snapshotCache.tabsByWorktree === state.tabsByWorktree &&
     snapshotCache.agentStatusByPaneKey === state.agentStatusByPaneKey &&
     snapshotCache.retainedAgentsByPaneKey === state.retainedAgentsByPaneKey &&
+    snapshotCache.pendingAgentLaunchesByPaneKey === state.pendingAgentLaunchesByPaneKey &&
     snapshotCache.gitStatusByWorktree === state.gitStatusByWorktree &&
     snapshotCache.hostedReviewCache === state.hostedReviewCache &&
     snapshotCache.activeWorktreeId === state.activeWorktreeId
@@ -284,6 +313,7 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     tabsByWorktree: state.tabsByWorktree,
     agentStatusByPaneKey: state.agentStatusByPaneKey,
     retainedAgentsByPaneKey: state.retainedAgentsByPaneKey,
+    pendingAgentLaunchesByPaneKey: state.pendingAgentLaunchesByPaneKey,
     gitStatusByWorktree: state.gitStatusByWorktree,
     hostedReviewCache: state.hostedReviewCache,
     activeWorktreeId: state.activeWorktreeId,

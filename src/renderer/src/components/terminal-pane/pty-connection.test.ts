@@ -91,6 +91,7 @@ type StoreState = {
   observeTerminalGitHubPullRequestLink: ReturnType<typeof vi.fn>
   recordTerminalInput: ReturnType<typeof vi.fn>
   setAgentStatus: ReturnType<typeof vi.fn>
+  clearPendingAgentLaunch: ReturnType<typeof vi.fn>
   removeAgentStatus: ReturnType<typeof vi.fn>
   dropAgentStatus: ReturnType<typeof vi.fn>
   markTerminalTabUnread: ReturnType<typeof vi.fn>
@@ -497,6 +498,7 @@ describe('connectPanePty', () => {
           stateHistory: []
         }
       }),
+      clearPendingAgentLaunch: vi.fn(),
       removeAgentStatus: vi.fn(),
       dropAgentStatus: vi.fn(),
       markTerminalTabUnread: vi.fn(),
@@ -866,10 +868,12 @@ describe('connectPanePty', () => {
 
     const pane = createPane(1)
     const manager = createManager(1)
+    const onPromptDelivered = vi.fn()
     const deps = createDeps({
       startup: {
         command: "command-code --trust 'Fix the status'",
-        initialAgentStatus: { agent: 'command-code', prompt: 'Fix the status' }
+        initialAgentStatus: { agent: 'command-code', prompt: 'Fix the status' },
+        onPromptDelivered
       }
     })
 
@@ -890,6 +894,10 @@ describe('connectPanePty', () => {
       },
       undefined
     )
+    expect(mockStoreState.clearPendingAgentLaunch).toHaveBeenCalledWith(
+      makePaneKey('tab-1', LEAF_1)
+    )
+    expect(onPromptDelivered).toHaveBeenCalledTimes(1)
   })
 
   it('seeds a working status from Command Code thinking output without a startup prompt', async () => {

@@ -3,6 +3,7 @@ import {
   CircleAlert,
   ClipboardCheck,
   Clock3,
+  Loader2,
   ShieldQuestion,
   User,
   Wrench
@@ -30,7 +31,6 @@ export function AgentTimelineEntry({
   cwd?: string | null
   onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
 }): React.JSX.Element {
-  const Icon = getTimelineEntryIcon(entry.kind)
   const isUser = entry.kind === 'user'
   const isAgent = entry.kind === 'agent'
   const statusLabel = entry.status ? formatAgentWorkspaceTimelineStatus(entry.status) : null
@@ -38,6 +38,7 @@ export function AgentTimelineEntry({
   const roleLabel = getTimelineEntryRoleLabel(entry.kind)
   const slashCommand = getTimelineSlashCommand(entry)
   const isLive = entry.status === 'pending' || entry.status === 'running'
+  const Icon = isLive ? Loader2 : getTimelineEntryIcon(entry.kind)
   const entryLabel = [roleLabel, statusLabel, slashCommand].filter(Boolean).join(', ')
   const markdownArtifacts =
     entry.kind === 'agent' ? getAgentTimelineMarkdownArtifacts({ text: entry.text, cwd }) : []
@@ -72,7 +73,7 @@ export function AgentTimelineEntry({
           )}
           aria-hidden="true"
         >
-          <Icon className="size-3.5" />
+          <Icon className={cn('size-3.5', isLive ? 'animate-spin' : null)} />
         </span>
         <div className={cn('min-w-0 flex-1', entry.kind === 'error' ? 'text-destructive' : null)}>
           <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2">

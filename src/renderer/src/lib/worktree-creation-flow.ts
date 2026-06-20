@@ -35,9 +35,9 @@ function buildStartupOpt(
   return {
     command: plan.launchCommand,
     ...(plan.env ? { env: plan.env } : {}),
-    // Why: command-code shows its prompt in the tab status before the first
-    // hook fires, so the prompt is threaded through here.
-    ...(request.agent === 'command-code' && request.quickPrompt.trim().length > 0
+    // Why: launch-command prompts are already submitted before provider hooks
+    // can create a transcript row, so seed the first user turn immediately.
+    ...(request.agent && request.quickPrompt.trim().length > 0
       ? { initialAgentStatus: { agent: request.agent, prompt: request.quickPrompt.trim() } }
       : {}),
     ...(request.quickTelemetry ? { telemetry: request.quickTelemetry } : {})

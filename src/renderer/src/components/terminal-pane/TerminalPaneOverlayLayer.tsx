@@ -1,8 +1,10 @@
 import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Loader2 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import type { Tab, TabGroup, TerminalTab } from '../../../../shared/types'
 import { useAppStore } from '../../store'
+import { translate } from '@/i18n/i18n'
 import { SYNC_FIT_PANES_EVENT } from '@/constants/terminal'
 import { tabGroupBodyAnchorName } from '../tab-group/tab-group-body-anchor'
 import {
@@ -77,6 +79,14 @@ const TerminalOverlaySlot = memo(function TerminalOverlaySlot({
   const [shouldMeasureHiddenStartup] = useState(
     () => useAppStore.getState().pendingStartupByTabId[terminalTabId] !== undefined
   )
+  const pendingLaunch = useAppStore((state) => {
+    for (const launch of Object.values(state.pendingAgentLaunchesByPaneKey)) {
+      if (launch.tabId === terminalTabId) {
+        return launch
+      }
+    }
+    return null
+  })
   useLayoutEffect(() => {
     if (!anchorName || shouldUseCssAnchorPositioning() || !groupId) {
       return
@@ -233,6 +243,17 @@ const TerminalOverlaySlot = memo(function TerminalOverlaySlot({
       onFocusCapture={focusGroup}
     >
       {terminalPane}
+      {isVisible && pendingLaunch ? (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-background/50">
+          <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card/95 px-3 py-2 text-xs font-medium text-muted-foreground shadow-xs">
+            <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+            {translate(
+              'auto.components.terminalPane.overlay.openingCliAgent',
+              'Opening CLI agent...'
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 })

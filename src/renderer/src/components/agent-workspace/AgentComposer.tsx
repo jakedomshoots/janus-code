@@ -247,7 +247,6 @@ export function AgentComposer({
           setSubmitting(false)
           if (fallbackResult.status === 'launching') {
             onPendingAgentLaunch?.()
-            setPrompt('')
           }
           return
         }
@@ -260,7 +259,7 @@ export function AgentComposer({
       if (canSendToSelectedThread && result.status === 'sent') {
         notifyAgentComposerMessageSent(onMessageSent, result)
       }
-      if ((canSendToSelectedThread && result.status === 'sent') || result.status === 'launching') {
+      if (canSendToSelectedThread && result.status === 'sent') {
         setPrompt('')
       }
       if (canSendToSelectedThread && result.status === 'sent') {

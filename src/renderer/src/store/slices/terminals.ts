@@ -54,6 +54,15 @@ import { createRegisteredWebRuntimeSessionTerminal } from '@/runtime/web-runtime
 
 type AgentStartedTelemetry = EventProps<'agent_started'>
 
+export type PendingAgentLaunch = {
+  paneKey: string
+  tabId: string
+  worktreeId: string
+  agent: TuiAgent
+  prompt: string
+  startedAt: number
+}
+
 function getNextTerminalOrdinal(tabs: TerminalTab[]): number {
   const usedOrdinals = new Set<number>()
   for (const tab of tabs) {
@@ -289,14 +298,22 @@ export type TerminalSlice = {
        *  semantics before the submit Enter. */
       delivery?: 'terminal-paste'
       env?: Record<string, string>
-      /** Initial prompt-start status for agents that lack native prompt hooks. */
+      /** Initial prompt-start status for launch-command prompts submitted before hooks fire. */
       initialAgentStatus?: { agent: TuiAgent; prompt: string }
+      /** Fires after the initial prompt status has been seeded into the transcript. */
+      onPromptDelivered?: () => void
+      /** Pane-key for the optimistic launch row that should be replaced by real status. */
+      pendingLaunchPaneKey?: string
       /** Telemetry metadata for the `agent_started` event. Threaded all the
        *  way to the `pty:spawn` IPC handler in main so the event fires only
        *  after spawn confirms — never on click-intent. */
       telemetry?: AgentStartedTelemetry
     }
   >
+  /** Optimistic agent-launch rows keyed by the same paneKey real status will use. */
+  pendingAgentLaunchesByPaneKey: Record<string, PendingAgentLaunch>
+  queuePendingAgentLaunch: (launch: PendingAgentLaunch) => void
+  clearPendingAgentLaunch: (paneKey: string) => void
   /** Queued setup-split requests — when present, TerminalPane creates the
    *  initial pane clean, then splits (vertical or horizontal per user setting)
    *  and runs the command in the new pane so the main terminal stays
@@ -427,9 +444,15 @@ export type TerminalSlice = {
       telemetry?: AgentStartedTelemetry
     }
   ) => void
-  consumeTabStartupCommand: (
-    tabId: string
-  ) => { command: string; env?: Record<string, string>; telemetry?: AgentStartedTelemetry } | null
+  consumeTabStartupCommand: (tabId: string) => {
+    command: string
+    delivery?: 'terminal-paste'
+    env?: Record<string, string>
+    initialAgentStatus?: { agent: TuiAgent; prompt: string }
+    onPromptDelivered?: () => void
+    pendingLaunchPaneKey?: string
+    telemetry?: AgentStartedTelemetry
+  } | null
   queueTabSetupSplit: (
     tabId: string,
     startup: { command: string; env?: Record<string, string>; direction: SetupSplitDirection }
@@ -487,6 +510,7 @@ export const createTerminalSlice: StateCreator<AppState, [], [], TerminalSlice> 
   canExpandPaneByTabId: {},
   terminalLayoutsByTabId: {},
   pendingStartupByTabId: {},
+  pendingAgentLaunchesByPaneKey: {},
   pendingSetupSplitByTabId: {},
   pendingIssueCommandSplitByTabId: {},
   tabBarOrderByWorktree: {},
@@ -956,6 +980,11 @@ export const createTerminalSlice: StateCreator<AppState, [], [], TerminalSlice> 
         canExpandPaneByTabId: nextCanExpand,
         terminalLayoutsByTabId: nextLayouts,
         pendingStartupByTabId: nextPendingStartupByTabId,
+        pendingAgentLaunchesByPaneKey: Object.fromEntries(
+          Object.entries(s.pendingAgentLaunchesByPaneKey).filter(
+            ([paneKey]) => !paneKey.startsWith(`${tabId}:`)
+          )
+        ),
         pendingSetupSplitByTabId: nextPendingSetupSplitByTabId,
         pendingIssueCommandSplitByTabId: nextPendingIssueCommandSplitByTabId,
         cacheTimerByKey: nextCacheTimer,
@@ -1952,6 +1981,26 @@ export const createTerminalSlice: StateCreator<AppState, [], [], TerminalSlice> 
         [tabId]: startup
       }
     }))
+  },
+
+  queuePendingAgentLaunch: (launch) => {
+    set((s) => ({
+      pendingAgentLaunchesByPaneKey: {
+        ...s.pendingAgentLaunchesByPaneKey,
+        [launch.paneKey]: launch
+      }
+    }))
+  },
+
+  clearPendingAgentLaunch: (paneKey) => {
+    set((s) => {
+      if (!(paneKey in s.pendingAgentLaunchesByPaneKey)) {
+        return {}
+      }
+      const next = { ...s.pendingAgentLaunchesByPaneKey }
+      delete next[paneKey]
+      return { pendingAgentLaunchesByPaneKey: next }
+    })
   },
 
   consumeTabStartupCommand: (tabId) => {
