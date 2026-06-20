@@ -381,6 +381,48 @@ pub fn verify_runtime_status_artifact_enum_values(
     }
 }
 
+pub fn verify_runtime_status_artifact_numeric_constraint(
+    relative_path: &str,
+    field_name: &str,
+    expected_minimum: i64,
+    expected_nullable: bool,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let constraint = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericConstraints"))
+        .and_then(|constraints| constraints.get(field_name))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            format!("contract artifact must include summary.numericConstraints.{field_name} object")
+        })?;
+
+    let integer = constraint
+        .get("integer")
+        .and_then(Value::as_bool)
+        .ok_or_else(|| {
+            format!("summary.numericConstraints.{field_name}.integer must be boolean")
+        })?;
+    let minimum = constraint
+        .get("minimum")
+        .and_then(Value::as_i64)
+        .ok_or_else(|| {
+            format!("summary.numericConstraints.{field_name}.minimum must be integer")
+        })?;
+    let nullable = constraint
+        .get("nullable")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+
+    if integer && minimum == expected_minimum && nullable == expected_nullable {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.numericConstraints.{field_name} integer true minimum {expected_minimum} nullable {expected_nullable} but got integer {integer} minimum {minimum} nullable {nullable}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -739,6 +781,7 @@ mod tests {
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
+        verify_runtime_status_artifact_numeric_constraint,
         verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_required_fields,
         verify_runtime_status_artifact_string_fields,
@@ -904,6 +947,19 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "graphStatus",
                 GRAPH_STATUS_ENUM_VALUES
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_runtime_protocol_version_numeric_constraint() {
+        assert_eq!(
+            verify_runtime_status_artifact_numeric_constraint(
+                "src/shared/runtime-status-contract-artifact.json",
+                "runtimeProtocolVersion",
+                1,
+                false
             ),
             Ok(())
         );
