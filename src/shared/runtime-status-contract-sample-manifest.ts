@@ -21,6 +21,8 @@ export const RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_ID =
 export const RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_MEDIA_TYPE =
   'application/vnd.janus.runtime-status-contract-samples+json'
 export const RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_SCHEMA_VERSION = 1
+export const RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH =
+  'src/shared/runtime-status-contract-samples.json'
 export const RUNTIME_STATUS_PORTING_CONTRACT_VALID_SAMPLE_PATH =
   'src/shared/runtime-status-contract-valid-sample.json'
 export const RUNTIME_STATUS_PORTING_CONTRACT_INVALID_SAMPLE_PATH =

@@ -328,6 +328,16 @@ describe('runtime status porting contract', () => {
     )
   })
 
+  it('exports the checked-in runtime status sample manifest JSON path for tooling', () => {
+    const sampleManifest = runtimeStatusContract as {
+      RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH?: string
+    }
+
+    expect(sampleManifest.RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH).toBe(
+      'src/shared/runtime-status-contract-samples.json'
+    )
+  })
+
   it('keeps the validation result type in a dedicated diagnostics module', () => {
     const source = readFileSync(resolve(__dirname, './runtime-status-contract.ts'), 'utf8')
 

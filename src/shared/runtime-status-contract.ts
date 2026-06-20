@@ -20,7 +20,8 @@ export type {
 } from './runtime-status-contract-sample-manifest'
 export {
   getRuntimeStatusPortingContractSampleManifest,
-  getRuntimeStatusPortingContractSampleManifestJson
+  getRuntimeStatusPortingContractSampleManifestJson,
+  RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH
 } from './runtime-status-contract-sample-manifest'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
