@@ -148,6 +148,13 @@ describe('runtime porting domains', () => {
     )
   })
 
+  it('keeps the runtime porting domain summary type in a dedicated module', () => {
+    const source = readFileSync(resolve(__dirname, './runtime-porting-domains.ts'), 'utf8')
+
+    expect(source).toContain("from './runtime-porting-domain-summary'")
+    expect(source).not.toContain('export type RuntimePortingDomainSummary =')
+  })
+
   it('keeps a checked-in JSON summary for non-TypeScript porting tools', () => {
     expect(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH).toBe(
       'src/shared/runtime-porting-domains-summary.json'

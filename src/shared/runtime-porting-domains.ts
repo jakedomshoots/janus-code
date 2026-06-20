@@ -28,38 +28,10 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_EXPECTED_RESULT,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
-  type RuntimePortingFirstSliceContractAdditionalProperties,
-  type RuntimePortingFirstSliceContractArrayConstraints,
-  type RuntimePortingFirstSliceContractArrayFields,
-  type RuntimePortingFirstSliceContractArtifactId,
-  type RuntimePortingFirstSliceContractArtifactMediaType,
-  type RuntimePortingFirstSliceContractArtifactPath,
-  type RuntimePortingFirstSliceContractArtifactVersion,
-  type RuntimePortingFirstSliceContractDomainId,
-  type RuntimePortingFirstSliceContractEnumFields,
-  type RuntimePortingFirstSliceContractEnumValues,
-  type RuntimePortingFirstSliceContractInvalidSampleExpectedResult,
-  type RuntimePortingFirstSliceContractInvalidSamplePath,
-  type RuntimePortingFirstSliceContractInvalidatableFields,
-  type RuntimePortingFirstSliceContractJsonSchemaDraftUri,
-  type RuntimePortingFirstSliceContractJsonSchemaId,
-  type RuntimePortingFirstSliceContractJsonSchemaPropertyFields,
-  type RuntimePortingFirstSliceContractJsonSchemaTitle,
-  type RuntimePortingFirstSliceContractMethod,
-  type RuntimePortingFirstSliceContractNonNegativeIntegerFields,
-  type RuntimePortingFirstSliceContractNullableFields,
-  type RuntimePortingFirstSliceContractNumericFields,
-  type RuntimePortingFirstSliceContractNumericConstraints,
-  type RuntimePortingFirstSliceContractParams,
-  type RuntimePortingFirstSliceContractRequiredFields,
-  type RuntimePortingFirstSliceContractSchemaVersion,
-  type RuntimePortingFirstSliceContractStringFields,
-  type RuntimePortingFirstSliceContractStringConstraints,
-  type RuntimePortingFirstSliceContractValidSampleExpectedResult,
-  type RuntimePortingFirstSliceContractValidSamplePath,
-  type RuntimePortingFirstSliceContractVersionedFields
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS
 } from './runtime-porting-first-slice-contract'
+import type { RuntimePortingDomainSummary } from './runtime-porting-domain-summary'
+export type { RuntimePortingDomainSummary } from './runtime-porting-domain-summary'
 export * from './runtime-porting-first-slice-contract'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
@@ -91,53 +63,6 @@ export type RuntimePortingTargetRuntime = 'tauri'
 export type RuntimePortingVerificationCommand =
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export type RuntimePortingFirstSliceRationale = 'read-only-runtime-rpc'
-export type RuntimePortingDomainSummary = {
-  artifactId: RuntimePortingDomainSummaryArtifactId
-  mediaType: RuntimePortingDomainSummaryMediaType
-  schemaVersion: RuntimePortingDomainSummarySchemaVersion
-  migrationStrategy: RuntimePortingMigrationStrategy
-  sourceRuntime: RuntimePortingSourceRuntime
-  targetRuntime: RuntimePortingTargetRuntime
-  verificationCommand: RuntimePortingVerificationCommand
-  firstSlice: RuntimePortingDomain
-  firstSliceContractDomainId: RuntimePortingFirstSliceContractDomainId
-  firstSliceContractArtifactId: RuntimePortingFirstSliceContractArtifactId
-  firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
-  firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
-  firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
-  firstSliceContractValidSamplePath: RuntimePortingFirstSliceContractValidSamplePath
-  firstSliceContractInvalidSamplePath: RuntimePortingFirstSliceContractInvalidSamplePath
-  firstSliceContractValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
-  firstSliceContractInvalidSampleExpectedResult: RuntimePortingFirstSliceContractInvalidSampleExpectedResult
-  firstSliceContractSchemaVersion: RuntimePortingFirstSliceContractSchemaVersion
-  firstSliceContractParams: RuntimePortingFirstSliceContractParams
-  firstSliceContractMethod: RuntimePortingFirstSliceContractMethod
-  firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
-  firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
-  firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
-  firstSliceContractJsonSchemaPropertyFields: RuntimePortingFirstSliceContractJsonSchemaPropertyFields
-  firstSliceContractAdditionalProperties: RuntimePortingFirstSliceContractAdditionalProperties
-  firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields
-  firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
-  firstSliceContractEnumFields: RuntimePortingFirstSliceContractEnumFields
-  firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
-  firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
-  firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
-  firstSliceContractNullableFields: RuntimePortingFirstSliceContractNullableFields
-  firstSliceContractNumericFields: RuntimePortingFirstSliceContractNumericFields
-  firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
-  firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
-  firstSliceContractStringFields: RuntimePortingFirstSliceContractStringFields
-  firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
-  firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
-  firstSliceRationale: RuntimePortingFirstSliceRationale
-  firstSliceMethod: RuntimePortingFirstSliceMethod
-  nativeCandidates: readonly RuntimePortingDomain[]
-  retainedElectron: readonly RuntimePortingDomain[]
-  totalDomainCount: number
-  nativeCandidateCount: number
-  retainedElectronCount: number
-}
 
 export type RuntimePortingFirstSliceMethod = 'status.get'
 
