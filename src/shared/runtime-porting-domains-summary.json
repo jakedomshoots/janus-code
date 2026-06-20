@@ -92,6 +92,15 @@
     "src/shared/runtime-status-contract-valid-sample.json",
     "src/shared/runtime-status-contract-invalid-sample.json"
   ],
+  "firstSliceContractSampleManifestExpectedResults": [
+    {
+      "ok": true
+    },
+    {
+      "ok": false,
+      "missingFields": ["runtimeId"]
+    }
+  ],
   "firstSliceContractSampleManifestVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
