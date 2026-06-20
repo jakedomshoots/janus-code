@@ -1149,6 +1149,46 @@ pub fn verify_runtime_status_artifact_numeric_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_numeric_constraints_fields_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let numeric_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.numericFields array".to_string())?;
+    let numeric_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.numericConstraints object".to_string()
+        })?;
+
+    let fields: Result<Vec<&str>, String> = numeric_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.numericFields[{index}] must be a string"))
+        })
+        .collect();
+    let mut fields = fields?;
+    let mut constraint_fields: Vec<&str> = numeric_constraints.keys().map(String::as_str).collect();
+    fields.sort_unstable();
+    constraint_fields.sort_unstable();
+
+    if fields == constraint_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.numericFields {fields:?} to match summary.numericConstraints fields {constraint_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_numeric_constraints_schema_consistency(
     relative_path: &str,
 ) -> Result<(), String> {
@@ -1801,6 +1841,7 @@ mod tests {
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_nullable_fields_schema_consistency,
         verify_runtime_status_artifact_numeric_constraint,
+        verify_runtime_status_artifact_numeric_constraints_fields_consistency,
         verify_runtime_status_artifact_numeric_constraints_schema_consistency,
         verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_numeric_fields_schema_consistency,
@@ -2155,6 +2196,16 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_numeric_fields_schema_consistency() {
         assert_eq!(
             verify_runtime_status_artifact_numeric_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_numeric_constraints_fields_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_numeric_constraints_fields_consistency(
                 "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
