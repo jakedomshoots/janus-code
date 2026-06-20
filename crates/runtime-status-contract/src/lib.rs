@@ -423,6 +423,42 @@ pub fn verify_runtime_status_artifact_numeric_constraint(
     }
 }
 
+pub fn verify_runtime_status_artifact_string_constraint(
+    relative_path: &str,
+    field_name: &str,
+    expected_min_length: u64,
+    expected_trim: bool,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let constraint = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("stringConstraints"))
+        .and_then(|constraints| constraints.get(field_name))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            format!("contract artifact must include summary.stringConstraints.{field_name} object")
+        })?;
+
+    let min_length = constraint
+        .get("minLength")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| {
+            format!("summary.stringConstraints.{field_name}.minLength must be integer")
+        })?;
+    let trim = constraint
+        .get("trim")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+
+    if min_length == expected_min_length && trim == expected_trim {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.stringConstraints.{field_name} minLength {expected_min_length} trim {expected_trim} but got minLength {min_length} trim {trim}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -784,6 +820,7 @@ mod tests {
         verify_runtime_status_artifact_numeric_constraint,
         verify_runtime_status_artifact_numeric_fields,
         verify_runtime_status_artifact_required_fields,
+        verify_runtime_status_artifact_string_constraint,
         verify_runtime_status_artifact_string_fields,
         verify_runtime_status_artifact_versioned_fields,
         verify_runtime_status_manifest_artifact_id,
@@ -960,6 +997,19 @@ mod tests {
                 "runtimeProtocolVersion",
                 1,
                 false
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_runtime_id_string_constraint() {
+        assert_eq!(
+            verify_runtime_status_artifact_string_constraint(
+                "src/shared/runtime-status-contract-artifact.json",
+                "runtimeId",
+                1,
+                true
             ),
             Ok(())
         );
