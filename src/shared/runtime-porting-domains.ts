@@ -257,6 +257,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     firstSliceContractArrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
     firstSliceContractArrayConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
     firstSliceContractEnumFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,
+    firstSliceContractEnumFieldCount: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS.length,
     firstSliceContractEnumValues: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
     firstSliceContractInvalidatableFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,

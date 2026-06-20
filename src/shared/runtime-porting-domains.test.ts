@@ -172,6 +172,7 @@ describe('runtime porting domains', () => {
       firstSliceContractArrayFields: ['capabilities'],
       firstSliceContractArrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
       firstSliceContractEnumFields: ['graphStatus', 'hostPlatform'],
+      firstSliceContractEnumFieldCount: 2,
       firstSliceContractEnumValues: {
         graphStatus: VALID_RUNTIME_GRAPH_STATUSES,
         hostPlatform: VALID_RUNTIME_HOST_PLATFORMS
@@ -321,6 +322,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractArrayFields')
     expect(doc).toContain('firstSliceContractArrayConstraints')
     expect(doc).toContain('firstSliceContractEnumFields')
+    expect(doc).toContain('firstSliceContractEnumFieldCount: 2')
     expect(doc).toContain('firstSliceContractEnumValues')
     expect(doc).toContain('firstSliceContractInvalidatableFields')
     expect(doc).toContain('firstSliceContractNonNegativeIntegerFields')

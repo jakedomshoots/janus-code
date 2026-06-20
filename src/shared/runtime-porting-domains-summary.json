@@ -104,6 +104,7 @@
     }
   },
   "firstSliceContractEnumFields": ["graphStatus", "hostPlatform"],
+  "firstSliceContractEnumFieldCount": 2,
   "firstSliceContractEnumValues": {
     "graphStatus": ["ready", "reloading", "unavailable"],
     "hostPlatform": ["darwin", "linux", "win32"]
