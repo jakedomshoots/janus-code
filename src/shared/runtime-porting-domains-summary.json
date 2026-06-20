@@ -11,6 +11,7 @@
     "boundary": "runtime-rpc",
     "disposition": "first-slice"
   },
+  "firstSliceContractDomainId": "runtime-status-diagnostics",
   "firstSliceContractArtifactId": "janus-runtime-status-contract",
   "firstSliceContractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
   "firstSliceContractArtifactVersion": 1,

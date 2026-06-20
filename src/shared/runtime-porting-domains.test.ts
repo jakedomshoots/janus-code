@@ -12,6 +12,7 @@ import {
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
   RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
+  RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS,
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS,
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
@@ -75,6 +76,7 @@ describe('runtime porting domains', () => {
       verificationCommand:
         'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts',
       firstSlice: getRuntimePortingDomain('runtime-status-diagnostics'),
+      firstSliceContractDomainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
       firstSliceContractArtifactId: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID,
       firstSliceContractArtifactMediaType: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
       firstSliceContractArtifactVersion: RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION,
@@ -144,6 +146,9 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_JSON_PATH)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_ARTIFACT_ID)
     expect(doc).toContain(RUNTIME_PORTING_DOMAIN_SUMMARY_MEDIA_TYPE)
+    expect(doc).toContain(
+      `firstSliceContractDomainId: ${RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID}`
+    )
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID)
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE)
     expect(doc).toContain(RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH)

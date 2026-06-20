@@ -4,6 +4,7 @@ import {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact-metadata'
+import { RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID } from './runtime-status-contract-domain-id'
 import { RUNTIME_STATUS_PORTING_CONTRACT_PARAMS } from './runtime-status-contract-params'
 import { RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION } from './runtime-status-contract-schema-version'
 import {
@@ -60,6 +61,8 @@ export type RuntimePortingTargetRuntime = 'tauri'
 export type RuntimePortingVerificationCommand =
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export type RuntimePortingFirstSliceRationale = 'read-only-runtime-rpc'
+export type RuntimePortingFirstSliceContractDomainId =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID
 export type RuntimePortingFirstSliceContractArtifactId =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export type RuntimePortingFirstSliceContractArtifactMediaType =
@@ -106,6 +109,7 @@ export type RuntimePortingDomainSummary = {
   targetRuntime: RuntimePortingTargetRuntime
   verificationCommand: RuntimePortingVerificationCommand
   firstSlice: RuntimePortingDomain
+  firstSliceContractDomainId: RuntimePortingFirstSliceContractDomainId
   firstSliceContractArtifactId: RuntimePortingFirstSliceContractArtifactId
   firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
   firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
@@ -150,6 +154,8 @@ export const RUNTIME_PORTING_VERIFICATION_COMMAND: RuntimePortingVerificationCom
   'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-porting-domains.test.ts'
 export const RUNTIME_PORTING_FIRST_SLICE_RATIONALE: RuntimePortingFirstSliceRationale =
   'read-only-runtime-rpc'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID: RuntimePortingFirstSliceContractDomainId =
+  RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID: RuntimePortingFirstSliceContractArtifactId =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE: RuntimePortingFirstSliceContractArtifactMediaType =
@@ -273,6 +279,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
     targetRuntime: RUNTIME_PORTING_TARGET_RUNTIME,
     verificationCommand: RUNTIME_PORTING_VERIFICATION_COMMAND,
     firstSlice: getRuntimePortingFirstSliceDomain(),
+    firstSliceContractDomainId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID,
     firstSliceContractArtifactId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
     firstSliceContractArtifactMediaType: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
     firstSliceContractArtifactVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION,
