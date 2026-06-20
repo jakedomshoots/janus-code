@@ -152,6 +152,10 @@ fn missing_runtime_status_fields(value: &Value) -> Vec<&'static str> {
         .collect()
 }
 
+pub fn list_missing_runtime_status_porting_fields(value: &Value) -> Vec<&'static str> {
+    missing_runtime_status_fields(value)
+}
+
 pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPlatform, String> {
     RuntimeStatusHostPlatform::try_from(
         value
@@ -2486,12 +2490,12 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_authoritative_window_id, runtime_status_capabilities,
-        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
-        runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
-        runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
-        runtime_status_runtime_protocol_version, validate_runtime_status_sample,
-        verify_runtime_status_artifact_array_constraint,
+        list_missing_runtime_status_porting_fields, runtime_status_authoritative_window_id,
+        runtime_status_capabilities, runtime_status_graph_status, runtime_status_host_platform,
+        runtime_status_live_leaf_count, runtime_status_live_tab_count,
+        runtime_status_min_compatible_runtime_client_version, runtime_status_renderer_graph_epoch,
+        runtime_status_runtime_id, runtime_status_runtime_protocol_version,
+        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -3428,6 +3432,28 @@ mod tests {
                 "src/shared/runtime-status-contract-invalid-sample.json"
             ),
             Err(vec!["runtimeId"])
+        );
+    }
+
+    #[test]
+    fn lists_missing_runtime_status_fields_in_contract_order() {
+        let status = serde_json::json!({
+            "runtimeId": "janus-runtime",
+            "graphStatus": "ready",
+            "liveTabCount": 1,
+            "runtimeProtocolVersion": 1,
+            "capabilities": ["runtime.status.compat.v1"],
+        });
+
+        assert_eq!(
+            list_missing_runtime_status_porting_fields(&status),
+            vec![
+                "rendererGraphEpoch",
+                "authoritativeWindowId",
+                "liveLeafCount",
+                "minCompatibleRuntimeClientVersion",
+                "hostPlatform",
+            ]
         );
     }
 

@@ -12,7 +12,7 @@
 
 ## Finished State Definition
 
-- [ ] Rust exposes typed accessors for every required runtime-status field in `src/shared/runtime-status-contract-artifact.json`.
+- [x] Rust exposes typed accessors for every required runtime-status field in `src/shared/runtime-status-contract-artifact.json`.
 - [ ] Rust exposes full missing-field and invalid-field validation parity with `src/shared/runtime-status-contract-validation.ts`.
 - [ ] Rust validates the checked-in valid and invalid samples with the same field results as TypeScript.
 - [ ] Rust verifies artifact summary, JSON schema, sample manifest, enum fields, numeric constraints, nullable fields, array constraints, and string constraints.
@@ -27,16 +27,16 @@
 - [x] Rust verifies the checked-in runtime-status contract artifact and sample manifest.
 - [x] Rust parses `graphStatus` and `hostPlatform` as typed enums.
 - [x] Rust exposes primitive accessors for `runtimeId`, protocol versions, graph epoch, tab count, leaf count, and authoritative window id.
-- [ ] Rust exposes a public `capabilities` accessor.
-- [ ] Rust exposes public missing-field list parity.
+- [x] Rust exposes a public `capabilities` accessor.
+- [x] Rust exposes public missing-field list parity.
 - [ ] Rust exposes public invalid-field list parity.
 - [ ] Rust exposes full validation result parity.
 - [ ] Rust exposes assert-style validation parity.
 
 ## Runtime-Status Contract Work
 
-- [ ] Add `runtime_status_capabilities(&Value)` with tests for valid string arrays, missing values, non-array values, and non-string items.
-- [ ] Add public missing-field list API that returns the required fields in contract order.
+- [x] Add `runtime_status_capabilities(&Value)` with tests for valid string arrays, missing values, non-array values, and non-string items.
+- [x] Add public missing-field list API that returns the required fields in contract order.
 - [ ] Add Rust invalid-field validation for versioned fields, enforcing integer values greater than or equal to `1`.
 - [ ] Add Rust invalid-field validation for `minCompatibleRuntimeClientVersion <= runtimeProtocolVersion`.
 - [ ] Add Rust invalid-field validation for non-negative integer fields.
