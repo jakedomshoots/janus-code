@@ -57,6 +57,7 @@ export type RuntimePortingFirstSliceContractEnumValues = {
   hostPlatform: typeof VALID_RUNTIME_HOST_PLATFORMS
 }
 export type RuntimePortingFirstSliceContractEnumFields = readonly RuntimeStatusPortingField[]
+export type RuntimePortingFirstSliceContractArrayFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractArrayConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingArrayConstraint>
 >
@@ -100,6 +101,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePort
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS: RuntimePortingFirstSliceContractArrayConstraints =
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS: RuntimePortingFirstSliceContractArrayFields =
+  Object.keys(RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS) as RuntimeStatusPortingField[]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES: RuntimePortingFirstSliceContractEnumValues =
   {
     graphStatus: VALID_RUNTIME_GRAPH_STATUSES,

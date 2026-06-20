@@ -1,5 +1,6 @@
 import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
@@ -23,6 +24,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
   type RuntimePortingFirstSliceContractArrayConstraints,
+  type RuntimePortingFirstSliceContractArrayFields,
   type RuntimePortingFirstSliceContractArtifactId,
   type RuntimePortingFirstSliceContractArtifactMediaType,
   type RuntimePortingFirstSliceContractArtifactPath,
@@ -97,6 +99,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields
   firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
   firstSliceContractEnumFields: RuntimePortingFirstSliceContractEnumFields
   firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
@@ -233,6 +236,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractArrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
     firstSliceContractArrayConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
     firstSliceContractEnumFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,
     firstSliceContractEnumValues: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
