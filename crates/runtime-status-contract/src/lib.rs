@@ -282,6 +282,39 @@ pub fn verify_runtime_status_artifact_nullable_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_invalidatable_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let invalidatable_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("invalidatableFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.invalidatableFields array".to_string()
+        })?;
+
+    let actual_fields: Result<Vec<&str>, String> = invalidatable_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.invalidatableFields[{index}] must be a string"))
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.invalidatableFields {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -636,6 +669,7 @@ mod tests {
     use super::{
         REQUIRED_FIELDS, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_fields,
+        verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_numeric_fields,
@@ -674,6 +708,18 @@ mod tests {
         "authoritativeWindowId",
     ];
     const NULLABLE_FIELDS: &[&str] = &["authoritativeWindowId"];
+    const INVALIDATABLE_FIELDS: &[&str] = &[
+        "runtimeProtocolVersion",
+        "minCompatibleRuntimeClientVersion",
+        "rendererGraphEpoch",
+        "liveTabCount",
+        "liveLeafCount",
+        "capabilities",
+        "graphStatus",
+        "runtimeId",
+        "authoritativeWindowId",
+        "hostPlatform",
+    ];
 
     #[test]
     fn accepts_the_checked_in_valid_runtime_status_sample() {
@@ -755,6 +801,17 @@ mod tests {
             verify_runtime_status_artifact_nullable_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 NULLABLE_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_invalidatable_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_invalidatable_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                INVALIDATABLE_FIELDS
             ),
             Ok(())
         );
