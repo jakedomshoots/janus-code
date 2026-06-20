@@ -324,6 +324,27 @@ pub fn verify_runtime_status_manifest_json_schema_id(
     }
 }
 
+pub fn verify_runtime_status_manifest_json_schema_title(
+    relative_path: &str,
+    expected_schema_title: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_schema_title = manifest
+        .get("contractJsonSchemaTitle")
+        .and_then(Value::as_str)
+        .ok_or_else(|| {
+            "sample manifest must include a string contractJsonSchemaTitle".to_string()
+        })?;
+
+    if actual_schema_title == expected_schema_title {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractJsonSchemaTitle {expected_schema_title} but got {actual_schema_title}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -333,8 +354,10 @@ mod tests {
         verify_runtime_status_manifest_artifact_version, verify_runtime_status_manifest_id,
         verify_runtime_status_manifest_json_path,
         verify_runtime_status_manifest_json_schema_draft_uri,
-        verify_runtime_status_manifest_json_schema_id, verify_runtime_status_manifest_media_type,
-        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_manifest_json_schema_id,
+        verify_runtime_status_manifest_json_schema_title,
+        verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
+        verify_runtime_status_manifest_schema_version,
         verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_sample_manifest,
     };
@@ -494,6 +517,17 @@ mod tests {
             verify_runtime_status_manifest_json_schema_id(
                 "src/shared/runtime-status-contract-samples.json",
                 "urn:janus:runtime-status-contract:json-schema:1"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_the_runtime_status_json_schema_title() {
+        assert_eq!(
+            verify_runtime_status_manifest_json_schema_title(
+                "src/shared/runtime-status-contract-samples.json",
+                "Janus Runtime status.get result"
             ),
             Ok(())
         );
