@@ -58,6 +58,23 @@
   "firstSliceContractSampleManifestContractMethod": "status.get",
   "firstSliceContractSampleManifestContractParams": null,
   "firstSliceContractSampleManifestContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
+  "firstSliceContractSampleManifestSamples": [
+    {
+      "kind": "valid",
+      "path": "src/shared/runtime-status-contract-valid-sample.json",
+      "expectedResult": {
+        "ok": true
+      }
+    },
+    {
+      "kind": "invalid",
+      "path": "src/shared/runtime-status-contract-invalid-sample.json",
+      "expectedResult": {
+        "ok": false,
+        "missingFields": ["runtimeId"]
+      }
+    }
+  ],
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
   "firstSliceContractMethod": "status.get",
