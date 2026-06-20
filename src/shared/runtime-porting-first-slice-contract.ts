@@ -26,6 +26,7 @@ import {
   VERSIONED_RUNTIME_STATUS_PORTING_FIELDS
 } from './runtime-status-field-groups'
 import {
+  getRuntimeStatusPortingJsonSchema,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
@@ -52,6 +53,7 @@ export type RuntimePortingFirstSliceContractJsonSchemaId =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export type RuntimePortingFirstSliceContractJsonSchemaTitle =
   typeof RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export type RuntimePortingFirstSliceContractAdditionalProperties = false
 export type RuntimePortingFirstSliceContractEnumValues = {
   graphStatus: typeof VALID_RUNTIME_GRAPH_STATUSES
   hostPlatform: typeof VALID_RUNTIME_HOST_PLATFORMS
@@ -99,6 +101,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID: RuntimePorting
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE: RuntimePortingFirstSliceContractJsonSchemaTitle =
   RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES: RuntimePortingFirstSliceContractAdditionalProperties =
+  getRuntimeStatusPortingJsonSchema().additionalProperties
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS: RuntimePortingFirstSliceContractArrayConstraints =
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS: RuntimePortingFirstSliceContractArrayFields =

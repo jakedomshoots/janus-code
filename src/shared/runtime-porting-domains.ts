@@ -1,4 +1,5 @@
 import {
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
@@ -23,6 +24,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS,
+  type RuntimePortingFirstSliceContractAdditionalProperties,
   type RuntimePortingFirstSliceContractArrayConstraints,
   type RuntimePortingFirstSliceContractArrayFields,
   type RuntimePortingFirstSliceContractArtifactId,
@@ -99,6 +101,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractJsonSchemaDraftUri: RuntimePortingFirstSliceContractJsonSchemaDraftUri
   firstSliceContractJsonSchemaId: RuntimePortingFirstSliceContractJsonSchemaId
   firstSliceContractJsonSchemaTitle: RuntimePortingFirstSliceContractJsonSchemaTitle
+  firstSliceContractAdditionalProperties: RuntimePortingFirstSliceContractAdditionalProperties
   firstSliceContractArrayFields: RuntimePortingFirstSliceContractArrayFields
   firstSliceContractArrayConstraints: RuntimePortingFirstSliceContractArrayConstraints
   firstSliceContractEnumFields: RuntimePortingFirstSliceContractEnumFields
@@ -236,6 +239,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
     firstSliceContractJsonSchemaId: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
     firstSliceContractJsonSchemaTitle: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
+    firstSliceContractAdditionalProperties:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ADDITIONAL_PROPERTIES,
     firstSliceContractArrayFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_FIELDS,
     firstSliceContractArrayConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
     firstSliceContractEnumFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,

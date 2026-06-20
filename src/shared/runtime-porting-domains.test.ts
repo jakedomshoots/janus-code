@@ -88,6 +88,7 @@ describe('runtime porting domains', () => {
       firstSliceContractJsonSchemaDraftUri: RUNTIME_STATUS_PORTING_JSON_SCHEMA_DRAFT_URI,
       firstSliceContractJsonSchemaId: RUNTIME_STATUS_PORTING_JSON_SCHEMA_ID,
       firstSliceContractJsonSchemaTitle: RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
+      firstSliceContractAdditionalProperties: false,
       firstSliceContractArrayFields: ['capabilities'],
       firstSliceContractArrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
       firstSliceContractEnumFields: ['graphStatus', 'hostPlatform'],
@@ -183,6 +184,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractJsonSchemaTitle: ${RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE}`
     )
+    expect(doc).toContain('firstSliceContractAdditionalProperties: false')
     expect(doc).toContain('firstSliceContractArrayFields')
     expect(doc).toContain('firstSliceContractArrayConstraints')
     expect(doc).toContain('firstSliceContractEnumFields')
