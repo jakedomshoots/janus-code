@@ -263,6 +263,27 @@ pub fn verify_runtime_status_manifest_artifact_version(
     }
 }
 
+pub fn verify_runtime_status_manifest_target_schema_version(
+    relative_path: &str,
+    expected_schema_version: u64,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_schema_version = manifest
+        .get("contractSchemaVersion")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| {
+            "sample manifest must include an integer contractSchemaVersion".to_string()
+        })?;
+
+    if actual_schema_version == expected_schema_version {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected contractSchemaVersion {expected_schema_version} but got {actual_schema_version}"
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -272,6 +293,7 @@ mod tests {
         verify_runtime_status_manifest_artifact_version, verify_runtime_status_manifest_id,
         verify_runtime_status_manifest_json_path, verify_runtime_status_manifest_media_type,
         verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_manifest_target_schema_version,
         verify_runtime_status_sample_manifest,
     };
 
@@ -395,6 +417,17 @@ mod tests {
     fn verifies_the_checked_in_manifest_targets_the_runtime_status_contract_artifact_version() {
         assert_eq!(
             verify_runtime_status_manifest_artifact_version(
+                "src/shared/runtime-status-contract-samples.json",
+                1
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_targets_the_runtime_status_contract_schema_version() {
+        assert_eq!(
+            verify_runtime_status_manifest_target_schema_version(
                 "src/shared/runtime-status-contract-samples.json",
                 1
             ),
