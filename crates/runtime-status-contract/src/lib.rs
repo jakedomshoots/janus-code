@@ -217,6 +217,42 @@ pub fn verify_runtime_status_artifact_json_schema_property_min_length(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_property_enum_values(
+    relative_path: &str,
+    field_name: &str,
+    expected_values: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_values = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .and_then(|properties| properties.get(field_name))
+        .and_then(|property| property.get("enum"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            format!("contract artifact must include jsonSchema.properties.{field_name}.enum array")
+        })?;
+
+    let actual_values: Result<Vec<&str>, String> = enum_values
+        .iter()
+        .enumerate()
+        .map(|(index, value)| {
+            value.as_str().ok_or_else(|| {
+                format!("jsonSchema.properties.{field_name}.enum[{index}] must be a string")
+            })
+        })
+        .collect();
+    let actual_values = actual_values?;
+
+    if actual_values.as_slice() == expected_values {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.properties.{field_name}.enum {expected_values:?} but got {actual_values:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_versioned_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -971,6 +1007,7 @@ mod tests {
         verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
+        verify_runtime_status_artifact_json_schema_property_enum_values,
         verify_runtime_status_artifact_json_schema_property_min_length,
         verify_runtime_status_artifact_json_schema_property_type,
         verify_runtime_status_artifact_json_schema_required_fields,
@@ -1101,6 +1138,18 @@ mod tests {
                 "src/shared/runtime-status-contract-artifact.json",
                 "runtimeId",
                 1
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_graph_status_property_enum_values() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_property_enum_values(
+                "src/shared/runtime-status-contract-artifact.json",
+                "graphStatus",
+                GRAPH_STATUS_ENUM_VALUES
             ),
             Ok(())
         );
