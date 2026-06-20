@@ -247,6 +247,8 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES,
     firstSliceContractSampleManifestSampleCount:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES.length,
+    firstSliceContractSampleManifestSamplePaths:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES.map((sample) => sample.path),
     firstSliceContractSampleManifestVerificationCommand:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_VERIFICATION_COMMAND,
     firstSliceContractSchemaVersion: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,

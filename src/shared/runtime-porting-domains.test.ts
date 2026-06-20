@@ -154,6 +154,10 @@ describe('runtime porting domains', () => {
         }
       ],
       firstSliceContractSampleManifestSampleCount: 2,
+      firstSliceContractSampleManifestSamplePaths: [
+        'src/shared/runtime-status-contract-valid-sample.json',
+        'src/shared/runtime-status-contract-invalid-sample.json'
+      ],
       firstSliceContractSampleManifestVerificationCommand: 'pnpm run verify:runtime-status-samples',
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
       firstSliceContractParams: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
@@ -312,6 +316,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactPath')
     expect(doc).toContain('firstSliceContractSampleManifestSamples')
     expect(doc).toContain('firstSliceContractSampleManifestSampleCount: 2')
+    expect(doc).toContain('firstSliceContractSampleManifestSamplePaths')
     expect(doc).toContain(
       'firstSliceContractSampleManifestVerificationCommand: pnpm run verify:runtime-status-samples'
     )
