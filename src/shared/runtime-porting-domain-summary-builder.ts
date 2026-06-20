@@ -152,6 +152,10 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES.filter(
         (sample) => sample.kind === 'valid'
       ).length,
+    firstSliceContractSampleManifestInvalidSampleCount:
+      RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES.filter(
+        (sample) => sample.kind === 'invalid'
+      ).length,
     firstSliceContractSampleManifestSamplePaths:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SAMPLES.map((sample) => sample.path),
     firstSliceContractSampleManifestVerificationCommand:
