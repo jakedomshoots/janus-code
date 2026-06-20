@@ -131,6 +131,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractRequiredFieldCount: number
   firstSliceContractStringFields: RuntimePortingFirstSliceContractStringFields
+  firstSliceContractStringFieldCount: number
   firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
   firstSliceContractVersionedFields: RuntimePortingFirstSliceContractVersionedFields
   firstSliceRationale: RuntimePortingFirstSliceRationale

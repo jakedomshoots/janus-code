@@ -178,6 +178,7 @@
   ],
   "firstSliceContractRequiredFieldCount": 10,
   "firstSliceContractStringFields": ["runtimeId"],
+  "firstSliceContractStringFieldCount": 1,
   "firstSliceContractStringConstraints": {
     "runtimeId": {
       "minLength": 1,
