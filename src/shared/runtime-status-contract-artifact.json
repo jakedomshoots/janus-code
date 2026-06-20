@@ -23,6 +23,7 @@
       "capabilities",
       "hostPlatform"
     ],
+    "versionedFields": ["runtimeProtocolVersion", "minCompatibleRuntimeClientVersion"],
     "invalidatableFields": [
       "runtimeProtocolVersion",
       "minCompatibleRuntimeClientVersion",

@@ -194,6 +194,7 @@ describe('runtime status porting contract', () => {
     const doc = readFileSync(docPath, 'utf8')
     expect(doc).toContain('src/shared/runtime-status-contract-artifact.json')
     expect(doc).toContain('application/vnd.janus.runtime-status-contract+json')
+    expect(doc).toContain('versionedFields')
     expect(doc).toContain('pnpm run verify:runtime-status-contract-artifact')
   })
 
@@ -310,6 +311,7 @@ describe('runtime status porting contract', () => {
       method: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
       params: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       requiredFields: listRuntimeStatusPortingRequiredFields(),
+      versionedFields: runtimeStatusContract.VERSIONED_RUNTIME_STATUS_PORTING_FIELDS,
       invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
       enumValues: {
         graphStatus: ['ready', 'reloading', 'unavailable'],
