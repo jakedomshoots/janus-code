@@ -14,6 +14,11 @@ export {
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_MEDIA_TYPE,
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 } from './runtime-status-contract-artifact'
+export type {
+  RuntimeStatusPortingContractSample,
+  RuntimeStatusPortingContractSampleManifest
+} from './runtime-status-contract-sample-manifest'
+export { getRuntimeStatusPortingContractSampleManifest } from './runtime-status-contract-sample-manifest'
 export type { RuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export { getRuntimeStatusPortingContractSummary } from './runtime-status-contract-summary'
 export type { RuntimeStatusPortingValidationResult } from './runtime-status-validation-result'

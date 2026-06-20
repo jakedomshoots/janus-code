@@ -81,7 +81,7 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
       RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
     ) as RuntimeStatusPortingField[],
     nullableFields: Object.entries(RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS)
-      .filter(([, constraint]) => constraint.nullable)
+      .filter(([, constraint]) => 'nullable' in constraint && constraint.nullable)
       .map(([field]) => field as RuntimeStatusPortingField),
     invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
     enumFields: Object.keys(enumValues) as RuntimeStatusPortingField[],

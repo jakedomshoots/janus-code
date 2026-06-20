@@ -207,12 +207,16 @@ describe('runtime status porting contract', () => {
 
   it('keeps a checked-in runtime status sample manifest for sidecar adapter tests', () => {
     const manifestPath = resolve(__dirname, './runtime-status-contract-samples.json')
+    const sampleManifest = runtimeStatusContract as {
+      getRuntimeStatusPortingContractSampleManifest?: () => unknown
+    }
 
     expect(existsSync(manifestPath)).toBe(true)
     if (!existsSync(manifestPath)) {
       return
     }
 
+    expect(typeof sampleManifest.getRuntimeStatusPortingContractSampleManifest).toBe('function')
     expect(JSON.parse(readFileSync(manifestPath, 'utf8'))).toEqual({
       artifactId: 'janus-runtime-status-contract-samples',
       mediaType: 'application/vnd.janus.runtime-status-contract-samples+json',
@@ -244,6 +248,9 @@ describe('runtime status porting contract', () => {
       ],
       verificationCommand: 'pnpm run verify:runtime-status-samples'
     })
+    expect(JSON.parse(readFileSync(manifestPath, 'utf8'))).toEqual(
+      sampleManifest.getRuntimeStatusPortingContractSampleManifest?.()
+    )
   })
 
   it('exposes a package script for verifying the checked-in contract artifact', () => {
