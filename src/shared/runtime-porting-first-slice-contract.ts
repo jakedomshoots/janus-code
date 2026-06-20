@@ -45,6 +45,8 @@ export type RuntimePortingFirstSliceContractArtifactVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export type RuntimePortingFirstSliceContractArtifactPath =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export type RuntimePortingFirstSliceContractArtifactJsonPath =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 export type RuntimePortingFirstSliceContractValidSamplePath =
   'src/shared/runtime-status-contract-valid-sample.json'
 export type RuntimePortingFirstSliceContractInvalidSamplePath =
@@ -151,6 +153,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE: RuntimePo
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION: RuntimePortingFirstSliceContractArtifactVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
+  RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_JSON_PATH: RuntimePortingFirstSliceContractArtifactJsonPath =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH: RuntimePortingFirstSliceContractValidSamplePath =
   'src/shared/runtime-status-contract-valid-sample.json'

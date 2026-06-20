@@ -3,6 +3,7 @@ import type {
   RuntimePortingFirstSliceContractArrayConstraints,
   RuntimePortingFirstSliceContractArrayFields,
   RuntimePortingFirstSliceContractArtifactId,
+  RuntimePortingFirstSliceContractArtifactJsonPath,
   RuntimePortingFirstSliceContractArtifactMediaType,
   RuntimePortingFirstSliceContractArtifactPath,
   RuntimePortingFirstSliceContractArtifactVersion,
@@ -76,6 +77,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractArtifactMediaType: RuntimePortingFirstSliceContractArtifactMediaType
   firstSliceContractArtifactVersion: RuntimePortingFirstSliceContractArtifactVersion
   firstSliceContractArtifactPath: RuntimePortingFirstSliceContractArtifactPath
+  firstSliceContractArtifactJsonPath: RuntimePortingFirstSliceContractArtifactJsonPath
   firstSliceContractValidSamplePath: RuntimePortingFirstSliceContractValidSamplePath
   firstSliceContractInvalidSamplePath: RuntimePortingFirstSliceContractInvalidSamplePath
   firstSliceContractValidSampleExpectedResult: RuntimePortingFirstSliceContractValidSampleExpectedResult
