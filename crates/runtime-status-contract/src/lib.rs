@@ -160,6 +160,14 @@ pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPl
     )
 }
 
+pub fn runtime_status_graph_status(value: &Value) -> Result<RuntimeStatusGraphStatus, String> {
+    RuntimeStatusGraphStatus::try_from(
+        value
+            .get("graphStatus")
+            .ok_or_else(|| "runtime status is missing graphStatus".to_string())?,
+    )
+}
+
 pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'static str>> {
     let value = load_json(relative_path);
     let missing_fields = missing_runtime_status_fields(&value);
@@ -2391,7 +2399,7 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        runtime_status_host_platform, validate_runtime_status_sample,
+        runtime_status_graph_status, runtime_status_host_platform, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
@@ -2605,6 +2613,18 @@ mod tests {
         assert_eq!(
             RuntimeStatusGraphStatus::try_from(&serde_json::json!("unavailable")),
             Ok(RuntimeStatusGraphStatus::Unavailable)
+        );
+    }
+
+    #[test]
+    fn extracts_runtime_status_graph_status_from_json_object() {
+        let status = serde_json::json!({
+            "graphStatus": "ready",
+        });
+
+        assert_eq!(
+            runtime_status_graph_status(&status),
+            Ok(RuntimeStatusGraphStatus::Ready)
         );
     }
 
