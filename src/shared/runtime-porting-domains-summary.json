@@ -44,6 +44,10 @@
     }
   ],
   "firstSliceContractSampleCount": 2,
+  "firstSliceContractSamplePaths": [
+    "src/shared/runtime-status-contract-valid-sample.json",
+    "src/shared/runtime-status-contract-invalid-sample.json"
+  ],
   "firstSliceContractSampleVerificationCommand": "pnpm run verify:runtime-status-samples",
   "firstSliceContractSampleManifestPath": "src/shared/runtime-status-contract-samples.json",
   "firstSliceContractSampleManifestArtifactId": "janus-runtime-status-contract-samples",
