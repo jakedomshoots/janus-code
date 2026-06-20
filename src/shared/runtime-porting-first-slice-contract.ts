@@ -73,6 +73,11 @@ export type RuntimePortingFirstSliceContractSampleVerificationCommand =
   'pnpm run verify:runtime-status-samples'
 export type RuntimePortingFirstSliceContractSampleManifestPath =
   'src/shared/runtime-status-contract-samples.json'
+export type RuntimePortingFirstSliceContractSampleManifestArtifactId =
+  'janus-runtime-status-contract-samples'
+export type RuntimePortingFirstSliceContractSampleManifestMediaType =
+  'application/vnd.janus.runtime-status-contract-samples+json'
+export type RuntimePortingFirstSliceContractSampleManifestSchemaVersion = 1
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -146,6 +151,11 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_VERIFICATION_COMMAND: R
   'pnpm run verify:runtime-status-samples'
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_PATH: RuntimePortingFirstSliceContractSampleManifestPath =
   'src/shared/runtime-status-contract-samples.json'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_ARTIFACT_ID: RuntimePortingFirstSliceContractSampleManifestArtifactId =
+  'janus-runtime-status-contract-samples'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_MEDIA_TYPE: RuntimePortingFirstSliceContractSampleManifestMediaType =
+  'application/vnd.janus.runtime-status-contract-samples+json'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SCHEMA_VERSION: RuntimePortingFirstSliceContractSampleManifestSchemaVersion = 1
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =
