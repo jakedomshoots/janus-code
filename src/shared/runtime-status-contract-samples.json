@@ -6,6 +6,7 @@
   "contractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "contractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
   "contractArtifactVersion": 1,
+  "contractSchemaVersion": 1,
   "contractMethod": "status.get",
   "contractParams": null,
   "samples": [
