@@ -61,6 +61,37 @@ fn validation_result_json(result: Result<(), Vec<&'static str>>) -> Value {
     }
 }
 
+pub fn verify_runtime_status_artifact_required_fields(
+    relative_path: &str,
+    expected_fields: &[&str],
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let required_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("requiredFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.requiredFields array".to_string())?;
+
+    let actual_fields: Result<Vec<&str>, String> = required_fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| {
+            field
+                .as_str()
+                .ok_or_else(|| format!("summary.requiredFields[{index}] must be a string"))
+        })
+        .collect();
+    let actual_fields = actual_fields?;
+
+    if actual_fields.as_slice() == expected_fields {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected summary.requiredFields {expected_fields:?} but got {actual_fields:?}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_sample_manifest(relative_path: &str) -> Result<(), String> {
     let manifest = load_json(relative_path);
     let samples = manifest
@@ -413,7 +444,8 @@ pub fn verify_runtime_status_manifest_verification_command(
 #[cfg(test)]
 mod tests {
     use super::{
-        validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
+        REQUIRED_FIELDS, validate_runtime_status_sample,
+        verify_runtime_status_artifact_required_fields, verify_runtime_status_manifest_artifact_id,
         verify_runtime_status_manifest_artifact_media_type,
         verify_runtime_status_manifest_artifact_path,
         verify_runtime_status_manifest_artifact_version, verify_runtime_status_manifest_id,
@@ -432,6 +464,17 @@ mod tests {
     fn accepts_the_checked_in_valid_runtime_status_sample() {
         assert_eq!(
             validate_runtime_status_sample("src/shared/runtime-status-contract-valid-sample.json"),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_required_fields() {
+        assert_eq!(
+            verify_runtime_status_artifact_required_fields(
+                "src/shared/runtime-status-contract-artifact.json",
+                REQUIRED_FIELDS
+            ),
             Ok(())
         );
     }
