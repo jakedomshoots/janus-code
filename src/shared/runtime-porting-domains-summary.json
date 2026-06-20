@@ -16,6 +16,8 @@
   "firstSliceContractArtifactMediaType": "application/vnd.janus.runtime-status-contract+json",
   "firstSliceContractArtifactVersion": 1,
   "firstSliceContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
+  "firstSliceContractValidSamplePath": "src/shared/runtime-status-contract-valid-sample.json",
+  "firstSliceContractInvalidSamplePath": "src/shared/runtime-status-contract-invalid-sample.json",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
   "firstSliceContractMethod": "status.get",

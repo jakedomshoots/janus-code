@@ -43,6 +43,10 @@ export type RuntimePortingFirstSliceContractArtifactVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export type RuntimePortingFirstSliceContractArtifactPath =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export type RuntimePortingFirstSliceContractValidSamplePath =
+  'src/shared/runtime-status-contract-valid-sample.json'
+export type RuntimePortingFirstSliceContractInvalidSamplePath =
+  'src/shared/runtime-status-contract-invalid-sample.json'
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -91,6 +95,10 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION: RuntimePorti
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH: RuntimePortingFirstSliceContractArtifactPath =
   RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_JSON_PATH
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VALID_SAMPLE_PATH: RuntimePortingFirstSliceContractValidSamplePath =
+  'src/shared/runtime-status-contract-valid-sample.json'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALID_SAMPLE_PATH: RuntimePortingFirstSliceContractInvalidSamplePath =
+  'src/shared/runtime-status-contract-invalid-sample.json'
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =
