@@ -43,6 +43,7 @@ export type RuntimeStatusPortingContractSummary = {
   numericFields: RuntimeStatusPortingField[]
   nullableFields: RuntimeStatusPortingField[]
   invalidatableFields: RuntimeStatusPortingField[]
+  enumFields: RuntimeStatusPortingField[]
   enumValues: {
     graphStatus: string[]
     hostPlatform: string[]
@@ -57,6 +58,11 @@ export type RuntimeStatusPortingContractSummary = {
 }
 
 export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingContractSummary {
+  const enumValues = {
+    graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
+    hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
+  }
+
   return {
     schemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
     domainId: RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID,
@@ -78,10 +84,8 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
       .filter(([, constraint]) => constraint.nullable)
       .map(([field]) => field as RuntimeStatusPortingField),
     invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
-    enumValues: {
-      graphStatus: [...VALID_RUNTIME_GRAPH_STATUSES],
-      hostPlatform: [...VALID_RUNTIME_HOST_PLATFORMS]
-    },
+    enumFields: Object.keys(enumValues) as RuntimeStatusPortingField[],
+    enumValues,
     numericConstraints: RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
     stringConstraints: RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS,
     arrayConstraints: RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS

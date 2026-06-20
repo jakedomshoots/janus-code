@@ -48,6 +48,7 @@
       "authoritativeWindowId",
       "hostPlatform"
     ],
+    "enumFields": ["graphStatus", "hostPlatform"],
     "enumValues": {
       "graphStatus": ["ready", "reloading", "unavailable"],
       "hostPlatform": ["darwin", "linux", "win32"]
