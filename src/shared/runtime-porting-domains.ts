@@ -13,6 +13,7 @@ import {
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
+  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
   RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
@@ -33,6 +34,7 @@ import {
   type RuntimePortingFirstSliceContractJsonSchemaTitle,
   type RuntimePortingFirstSliceContractMethod,
   type RuntimePortingFirstSliceContractNonNegativeIntegerFields,
+  type RuntimePortingFirstSliceContractNullableFields,
   type RuntimePortingFirstSliceContractNumericConstraints,
   type RuntimePortingFirstSliceContractParams,
   type RuntimePortingFirstSliceContractRequiredFields,
@@ -40,51 +42,7 @@ import {
   type RuntimePortingFirstSliceContractStringConstraints,
   type RuntimePortingFirstSliceContractVersionedFields
 } from './runtime-porting-first-slice-contract'
-
-export type {
-  RuntimePortingFirstSliceContractArrayConstraints,
-  RuntimePortingFirstSliceContractArtifactId,
-  RuntimePortingFirstSliceContractArtifactMediaType,
-  RuntimePortingFirstSliceContractArtifactPath,
-  RuntimePortingFirstSliceContractArtifactVersion,
-  RuntimePortingFirstSliceContractDomainId,
-  RuntimePortingFirstSliceContractEnumFields,
-  RuntimePortingFirstSliceContractEnumValues,
-  RuntimePortingFirstSliceContractInvalidatableFields,
-  RuntimePortingFirstSliceContractJsonSchemaDraftUri,
-  RuntimePortingFirstSliceContractJsonSchemaId,
-  RuntimePortingFirstSliceContractJsonSchemaTitle,
-  RuntimePortingFirstSliceContractMethod,
-  RuntimePortingFirstSliceContractNonNegativeIntegerFields,
-  RuntimePortingFirstSliceContractNumericConstraints,
-  RuntimePortingFirstSliceContractParams,
-  RuntimePortingFirstSliceContractRequiredFields,
-  RuntimePortingFirstSliceContractSchemaVersion,
-  RuntimePortingFirstSliceContractStringConstraints,
-  RuntimePortingFirstSliceContractVersionedFields
-} from './runtime-porting-first-slice-contract'
-export {
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARRAY_CONSTRAINTS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_ID,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_MEDIA_TYPE,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_PATH,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ARTIFACT_VERSION,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_DOMAIN_ID,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_FIELDS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_ENUM_VALUES,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_DRAFT_URI,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_ID,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_JSON_SCHEMA_TITLE,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_METHOD,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,
-  RUNTIME_PORTING_FIRST_SLICE_CONTRACT_VERSIONED_FIELDS
-} from './runtime-porting-first-slice-contract'
+export * from './runtime-porting-first-slice-contract'
 
 export type RuntimePortingDomainBoundary = 'runtime-rpc' | 'electron-host' | 'host-service'
 
@@ -140,6 +98,7 @@ export type RuntimePortingDomainSummary = {
   firstSliceContractEnumValues: RuntimePortingFirstSliceContractEnumValues
   firstSliceContractInvalidatableFields: RuntimePortingFirstSliceContractInvalidatableFields
   firstSliceContractNonNegativeIntegerFields: RuntimePortingFirstSliceContractNonNegativeIntegerFields
+  firstSliceContractNullableFields: RuntimePortingFirstSliceContractNullableFields
   firstSliceContractNumericConstraints: RuntimePortingFirstSliceContractNumericConstraints
   firstSliceContractRequiredFields: RuntimePortingFirstSliceContractRequiredFields
   firstSliceContractStringConstraints: RuntimePortingFirstSliceContractStringConstraints
@@ -275,6 +234,7 @@ export function getRuntimePortingDomainSummary(): RuntimePortingDomainSummary {
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS,
     firstSliceContractNonNegativeIntegerFields:
       RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS,
+    firstSliceContractNullableFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS,
     firstSliceContractNumericConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS,
     firstSliceContractRequiredFields: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS,
     firstSliceContractStringConstraints: RUNTIME_PORTING_FIRST_SLICE_CONTRACT_STRING_CONSTRAINTS,

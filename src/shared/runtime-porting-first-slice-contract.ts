@@ -65,6 +65,7 @@ export type RuntimePortingFirstSliceContractInvalidatableFields =
   readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractNonNegativeIntegerFields =
   readonly RuntimeStatusPortingField[]
+export type RuntimePortingFirstSliceContractNullableFields = readonly RuntimeStatusPortingField[]
 export type RuntimePortingFirstSliceContractNumericConstraints = Partial<
   Record<RuntimeStatusPortingField, RuntimeStatusPortingNumericConstraint>
 >
@@ -108,6 +109,10 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_INVALIDATABLE_FIELDS: RuntimeP
   INVALIDATABLE_RUNTIME_STATUS_PORTING_FIELDS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NON_NEGATIVE_INTEGER_FIELDS: RuntimePortingFirstSliceContractNonNegativeIntegerFields =
   NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NULLABLE_FIELDS: RuntimePortingFirstSliceContractNullableFields =
+  Object.entries(RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS)
+    .filter(([, constraint]) => constraint.nullable)
+    .map(([field]) => field as RuntimeStatusPortingField)
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_NUMERIC_CONSTRAINTS: RuntimePortingFirstSliceContractNumericConstraints =
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_REQUIRED_FIELDS: RuntimePortingFirstSliceContractRequiredFields =

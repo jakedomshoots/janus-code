@@ -49,6 +49,7 @@
     "liveTabCount",
     "liveLeafCount"
   ],
+  "firstSliceContractNullableFields": ["authoritativeWindowId"],
   "firstSliceContractNumericConstraints": {
     "runtimeProtocolVersion": {
       "integer": true,
