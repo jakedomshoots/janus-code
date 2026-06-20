@@ -84,6 +84,14 @@ impl fmt::Display for RuntimeStatusGraphStatus {
     }
 }
 
+impl TryFrom<&str> for RuntimeStatusGraphStatus {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+
 impl FromStr for RuntimeStatusGraphStatus {
     type Err = String;
 
@@ -2505,6 +2513,22 @@ mod tests {
         assert_eq!("reloading".parse(), Ok(RuntimeStatusGraphStatus::Reloading));
         assert_eq!(
             "unavailable".parse(),
+            Ok(RuntimeStatusGraphStatus::Unavailable)
+        );
+    }
+
+    #[test]
+    fn converts_runtime_status_graph_status_from_contract_values() {
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from("ready"),
+            Ok(RuntimeStatusGraphStatus::Ready)
+        );
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from("reloading"),
+            Ok(RuntimeStatusGraphStatus::Reloading)
+        );
+        assert_eq!(
+            RuntimeStatusGraphStatus::try_from("unavailable"),
             Ok(RuntimeStatusGraphStatus::Unavailable)
         );
     }
