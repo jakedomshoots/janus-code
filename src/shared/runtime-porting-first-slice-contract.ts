@@ -7,6 +7,7 @@ import {
 import { RUNTIME_STATUS_PORTING_CONTRACT_DOMAIN_ID } from './runtime-status-contract-domain-id'
 import { RUNTIME_STATUS_PORTING_CONTRACT_PARAMS } from './runtime-status-contract-params'
 import { RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION } from './runtime-status-contract-schema-version'
+import { RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH } from './runtime-status-contract-sample-manifest'
 import {
   RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS,
   RUNTIME_STATUS_PORTING_NUMERIC_CONSTRAINTS,
@@ -78,6 +79,8 @@ export type RuntimePortingFirstSliceContractSampleManifestArtifactId =
 export type RuntimePortingFirstSliceContractSampleManifestMediaType =
   'application/vnd.janus.runtime-status-contract-samples+json'
 export type RuntimePortingFirstSliceContractSampleManifestSchemaVersion = 1
+export type RuntimePortingFirstSliceContractSampleManifestArtifactJsonPath =
+  typeof RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -156,6 +159,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_ARTIFACT_ID: R
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_MEDIA_TYPE: RuntimePortingFirstSliceContractSampleManifestMediaType =
   'application/vnd.janus.runtime-status-contract-samples+json'
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_SCHEMA_VERSION: RuntimePortingFirstSliceContractSampleManifestSchemaVersion = 1
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_ARTIFACT_JSON_PATH: RuntimePortingFirstSliceContractSampleManifestArtifactJsonPath =
+  RUNTIME_STATUS_PORTING_CONTRACT_SAMPLE_MANIFEST_JSON_PATH
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =
