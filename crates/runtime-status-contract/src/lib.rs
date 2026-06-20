@@ -636,6 +636,60 @@ pub fn verify_runtime_status_artifact_versioned_fields_numeric_fields_consistenc
     Ok(())
 }
 
+pub fn verify_runtime_status_artifact_versioned_fields_numeric_constraints_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let versioned_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("versionedFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| {
+            "contract artifact must include summary.versionedFields array".to_string()
+        })?;
+    let numeric_constraints = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("numericConstraints"))
+        .and_then(Value::as_object)
+        .ok_or_else(|| {
+            "contract artifact must include summary.numericConstraints object".to_string()
+        })?;
+
+    for (index, field) in versioned_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.versionedFields[{index}] must be a string"))?;
+        let constraint = numeric_constraints
+            .get(field_name)
+            .and_then(Value::as_object)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include summary.numericConstraints.{field_name} object"
+                )
+            })?;
+        let integer = constraint
+            .get("integer")
+            .and_then(Value::as_bool)
+            .ok_or_else(|| {
+                format!("summary.numericConstraints.{field_name}.integer must be boolean")
+            })?;
+        let minimum = constraint
+            .get("minimum")
+            .and_then(Value::as_i64)
+            .ok_or_else(|| {
+                format!("summary.numericConstraints.{field_name}.minimum must be integer")
+            })?;
+
+        if !integer || minimum != 1 {
+            return Err(format!(
+                "contract artifact expected summary.versionedFields entry {field_name} to have summary.numericConstraints.{field_name} integer true minimum 1 but got integer {integer} minimum {minimum}"
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_non_negative_integer_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -2164,6 +2218,7 @@ mod tests {
         verify_runtime_status_artifact_string_fields,
         verify_runtime_status_artifact_string_fields_schema_consistency,
         verify_runtime_status_artifact_versioned_fields,
+        verify_runtime_status_artifact_versioned_fields_numeric_constraints_consistency,
         verify_runtime_status_artifact_versioned_fields_numeric_fields_consistency,
         verify_runtime_status_manifest_artifact_id,
         verify_runtime_status_manifest_artifact_media_type,
@@ -2446,6 +2501,16 @@ mod tests {
     fn verifies_the_checked_in_artifact_summary_versioned_fields_numeric_fields_consistency() {
         assert_eq!(
             verify_runtime_status_artifact_versioned_fields_numeric_fields_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_versioned_fields_numeric_constraints_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_versioned_fields_numeric_constraints_consistency(
                 "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
