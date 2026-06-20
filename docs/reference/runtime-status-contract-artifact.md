@@ -27,6 +27,8 @@ pnpm run verify:runtime-status-rust-samples
 
 The Rust verifier lives at `crates/runtime-status-contract/Cargo.toml`.
 
+Rust adapters should validate `status.get` payloads through the Rust contract crate before treating runtime diagnostics as authoritative. Use `validate_runtime_status_porting_contract(&Value)` when the caller needs a typed `RuntimeStatusPortingValidationResult`, `assert_runtime_status_porting_contract(&Value)` when the caller needs the first contract failure as an error string, and the field-level accessors when an adapter needs typed values for a narrower bridge. Use `validate_runtime_status_sample_porting_contract(relative_path)` for checked-in sample smoke tests.
+
 The TypeScript builders in `src/shared/runtime-status-contract.ts` remain the source of truth. The verifier ensures the checked-in JSON artifact stays in sync with those builders and the runtime porting domain mapping.
 
 ## Runtime Porting Summary

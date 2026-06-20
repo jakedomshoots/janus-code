@@ -16,7 +16,7 @@
 - [x] Rust exposes full missing-field and invalid-field validation parity with `src/shared/runtime-status-contract-validation.ts`.
 - [x] Rust validates the checked-in valid and invalid samples with the same field results as TypeScript.
 - [x] Rust verifies artifact summary, JSON schema, sample manifest, enum fields, numeric constraints, nullable fields, array constraints, and string constraints.
-- [ ] Runtime-status docs explain how non-TypeScript adapters should use the Rust crate and checked-in artifacts.
+- [x] Runtime-status docs explain how non-TypeScript adapters should use the Rust crate and checked-in artifacts.
 - [ ] Every Rust-spine slice has a red test first, a focused green check, broad verification, and a scoped commit.
 - [ ] The branch has no unresolved Rust-spine TODOs, a clean worktree, and current verification evidence.
 - [ ] Any later Electron/Tauri/native integration preserves SSH behavior, cross-platform behavior, and existing product workflows.
