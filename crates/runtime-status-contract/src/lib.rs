@@ -133,6 +133,13 @@ impl FromStr for RuntimeStatusGraphStatus {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuntimeStatusPortingValidationResult {
+    Ok,
+    MissingFields(Vec<&'static str>),
+    InvalidFields(Vec<&'static str>),
+}
+
 fn repository_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .ancestors()
@@ -224,6 +231,22 @@ pub fn list_invalid_runtime_status_porting_fields(value: &Value) -> Vec<&'static
     }
 
     invalid_fields
+}
+
+pub fn validate_runtime_status_porting_contract(
+    value: &Value,
+) -> RuntimeStatusPortingValidationResult {
+    let missing_fields = list_missing_runtime_status_porting_fields(value);
+    if !missing_fields.is_empty() {
+        return RuntimeStatusPortingValidationResult::MissingFields(missing_fields);
+    }
+
+    let invalid_fields = list_invalid_runtime_status_porting_fields(value);
+    if invalid_fields.is_empty() {
+        RuntimeStatusPortingValidationResult::Ok
+    } else {
+        RuntimeStatusPortingValidationResult::InvalidFields(invalid_fields)
+    }
 }
 
 pub fn runtime_status_host_platform(value: &Value) -> Result<RuntimeStatusHostPlatform, String> {
@@ -2560,12 +2583,13 @@ pub fn verify_runtime_status_manifest_verification_command(
 mod tests {
     use super::{
         REQUIRED_FIELDS, RuntimeStatusGraphStatus, RuntimeStatusHostPlatform,
-        list_invalid_runtime_status_porting_fields, list_missing_runtime_status_porting_fields,
-        runtime_status_authoritative_window_id, runtime_status_capabilities,
-        runtime_status_graph_status, runtime_status_host_platform, runtime_status_live_leaf_count,
-        runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
-        runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
-        runtime_status_runtime_protocol_version, validate_runtime_status_sample,
+        RuntimeStatusPortingValidationResult, list_invalid_runtime_status_porting_fields,
+        list_missing_runtime_status_porting_fields, runtime_status_authoritative_window_id,
+        runtime_status_capabilities, runtime_status_graph_status, runtime_status_host_platform,
+        runtime_status_live_leaf_count, runtime_status_live_tab_count,
+        runtime_status_min_compatible_runtime_client_version, runtime_status_renderer_graph_epoch,
+        runtime_status_runtime_id, runtime_status_runtime_protocol_version,
+        validate_runtime_status_porting_contract, validate_runtime_status_sample,
         verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
@@ -3590,6 +3614,47 @@ mod tests {
         assert_eq!(
             list_invalid_runtime_status_porting_fields(&status),
             vec!["minCompatibleRuntimeClientVersion"]
+        );
+    }
+
+    #[test]
+    fn validates_runtime_status_porting_contract_for_valid_object() {
+        assert_eq!(
+            validate_runtime_status_porting_contract(&runtime_status_fixture()),
+            RuntimeStatusPortingValidationResult::Ok
+        );
+    }
+
+    #[test]
+    fn validates_runtime_status_porting_contract_with_missing_field_precedence() {
+        let status = serde_json::json!({
+            "runtimeProtocolVersion": 0,
+        });
+
+        assert_eq!(
+            validate_runtime_status_porting_contract(&status),
+            RuntimeStatusPortingValidationResult::MissingFields(vec![
+                "runtimeId",
+                "rendererGraphEpoch",
+                "graphStatus",
+                "authoritativeWindowId",
+                "liveTabCount",
+                "liveLeafCount",
+                "minCompatibleRuntimeClientVersion",
+                "capabilities",
+                "hostPlatform",
+            ])
+        );
+    }
+
+    #[test]
+    fn validates_runtime_status_porting_contract_with_invalid_fields() {
+        let mut status = runtime_status_fixture();
+        status["runtimeId"] = serde_json::json!("");
+
+        assert_eq!(
+            validate_runtime_status_porting_contract(&status),
+            RuntimeStatusPortingValidationResult::InvalidFields(vec!["runtimeId"])
         );
     }
 

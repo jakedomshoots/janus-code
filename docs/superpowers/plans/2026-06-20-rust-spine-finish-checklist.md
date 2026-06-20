@@ -13,7 +13,7 @@
 ## Finished State Definition
 
 - [x] Rust exposes typed accessors for every required runtime-status field in `src/shared/runtime-status-contract-artifact.json`.
-- [ ] Rust exposes full missing-field and invalid-field validation parity with `src/shared/runtime-status-contract-validation.ts`.
+- [x] Rust exposes full missing-field and invalid-field validation parity with `src/shared/runtime-status-contract-validation.ts`.
 - [ ] Rust validates the checked-in valid and invalid samples with the same field results as TypeScript.
 - [ ] Rust verifies artifact summary, JSON schema, sample manifest, enum fields, numeric constraints, nullable fields, array constraints, and string constraints.
 - [ ] Runtime-status docs explain how non-TypeScript adapters should use the Rust crate and checked-in artifacts.
@@ -30,7 +30,7 @@
 - [x] Rust exposes a public `capabilities` accessor.
 - [x] Rust exposes public missing-field list parity.
 - [x] Rust exposes public invalid-field list parity.
-- [ ] Rust exposes full validation result parity.
+- [x] Rust exposes full validation result parity.
 - [ ] Rust exposes assert-style validation parity.
 
 ## Runtime-Status Contract Work
@@ -44,7 +44,7 @@
 - [x] Add Rust invalid-field validation for `graphStatus` and `hostPlatform` enum values.
 - [x] Add Rust invalid-field validation for non-empty trimmed `runtimeId`.
 - [x] Add Rust invalid-field validation for nullable non-negative integer `authoritativeWindowId`.
-- [ ] Add Rust `validate_runtime_status_porting_contract(&Value)` result parity.
+- [x] Add Rust `validate_runtime_status_porting_contract(&Value)` result parity.
 - [ ] Add Rust `assert_runtime_status_porting_contract(&Value)` parity.
 - [ ] Add sample-driven parity tests that compare valid and invalid samples to the expected TypeScript contract results.
 
