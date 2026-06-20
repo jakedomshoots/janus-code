@@ -145,6 +145,25 @@ pub fn verify_runtime_status_manifest_schema_version(
     }
 }
 
+pub fn verify_runtime_status_manifest_json_path(
+    relative_path: &str,
+    expected_json_path: &str,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_json_path = manifest
+        .get("artifactJsonPath")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "sample manifest must include a string artifactJsonPath".to_string())?;
+
+    if actual_json_path == expected_json_path {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected artifactJsonPath {expected_json_path} but got {actual_json_path}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_manifest_method(
     relative_path: &str,
     expected_method: &str,
@@ -187,9 +206,9 @@ pub fn verify_runtime_status_manifest_artifact_id(
 mod tests {
     use super::{
         validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
-        verify_runtime_status_manifest_id, verify_runtime_status_manifest_media_type,
-        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
-        verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_id, verify_runtime_status_manifest_json_path,
+        verify_runtime_status_manifest_media_type, verify_runtime_status_manifest_method,
+        verify_runtime_status_manifest_schema_version, verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -248,6 +267,17 @@ mod tests {
             verify_runtime_status_manifest_schema_version(
                 "src/shared/runtime-status-contract-samples.json",
                 1
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_json_path() {
+        assert_eq!(
+            verify_runtime_status_manifest_json_path(
+                "src/shared/runtime-status-contract-samples.json",
+                "src/shared/runtime-status-contract-samples.json"
             ),
             Ok(())
         );
