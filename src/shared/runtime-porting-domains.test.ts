@@ -123,6 +123,7 @@ describe('runtime porting domains', () => {
       firstSliceContractSampleManifestContractJsonSchemaTitle:
         RUNTIME_STATUS_PORTING_JSON_SCHEMA_TITLE,
       firstSliceContractSampleManifestContractMethod: RUNTIME_STATUS_PORTING_CONTRACT_METHOD,
+      firstSliceContractSampleManifestContractParams: RUNTIME_STATUS_PORTING_CONTRACT_PARAMS,
       firstSliceContractSampleManifestContractArtifactPath:
         'src/shared/runtime-status-contract-artifact.json',
       firstSliceContractSchemaVersion: RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION,
@@ -259,6 +260,7 @@ describe('runtime porting domains', () => {
     expect(doc).toContain(
       `firstSliceContractSampleManifestContractMethod: ${RUNTIME_STATUS_PORTING_CONTRACT_METHOD}`
     )
+    expect(doc).toContain('firstSliceContractSampleManifestContractParams: null')
     expect(doc).toContain('firstSliceContractSampleManifestContractArtifactPath')
     expect(doc).toContain('pnpm run verify:runtime-status-samples')
     expect(doc).toContain(

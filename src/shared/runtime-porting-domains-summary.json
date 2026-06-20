@@ -56,6 +56,7 @@
   "firstSliceContractSampleManifestContractJsonSchemaId": "urn:janus:runtime-status-contract:json-schema:1",
   "firstSliceContractSampleManifestContractJsonSchemaTitle": "Janus Runtime status.get result",
   "firstSliceContractSampleManifestContractMethod": "status.get",
+  "firstSliceContractSampleManifestContractParams": null,
   "firstSliceContractSampleManifestContractArtifactPath": "src/shared/runtime-status-contract-artifact.json",
   "firstSliceContractSchemaVersion": 1,
   "firstSliceContractParams": null,
