@@ -1,4 +1,8 @@
 {
+  "artifactId": "janus-runtime-status-contract-samples",
+  "mediaType": "application/vnd.janus.runtime-status-contract-samples+json",
+  "schemaVersion": 1,
+  "contractArtifactId": "janus-runtime-status-contract",
   "samples": [
     {
       "kind": "valid",

@@ -6,7 +6,7 @@ Use `src/shared/runtime-status-contract-valid-sample.json` as a known-good `stat
 
 Use `src/shared/runtime-status-contract-invalid-sample.json` as a known-bad `status.get` payload fixture for adapter rejection tests.
 
-Use `src/shared/runtime-status-contract-samples.json` as the checked-in sample manifest for non-TypeScript adapter smoke tests.
+Use `src/shared/runtime-status-contract-samples.json` as the checked-in sample manifest for non-TypeScript adapter smoke tests. The manifest is labeled with media type `application/vnd.janus.runtime-status-contract-samples+json` and `artifactId: janus-runtime-status-contract-samples`.
 
 The artifact is labeled with media type `application/vnd.janus.runtime-status-contract+json`, `jsonSchemaDraftUri: https://json-schema.org/draft/2020-12/schema`, `jsonSchemaId: urn:janus:runtime-status-contract:json-schema:1`, `jsonSchemaTitle: Janus Runtime status.get result`, and includes:
 
