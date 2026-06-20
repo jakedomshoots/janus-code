@@ -145,6 +145,26 @@ pub fn verify_runtime_status_artifact_json_schema_additional_properties(
     }
 }
 
+pub fn verify_runtime_status_artifact_json_schema_type(
+    relative_path: &str,
+    expected_type: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let actual_type = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("type"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "contract artifact must include string jsonSchema.type".to_string())?;
+
+    if actual_type == expected_type {
+        Ok(())
+    } else {
+        Err(format!(
+            "contract artifact expected jsonSchema.type {expected_type} but got {actual_type}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_artifact_versioned_fields(
     relative_path: &str,
     expected_fields: &[&str],
@@ -900,6 +920,7 @@ mod tests {
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_required_fields,
+        verify_runtime_status_artifact_json_schema_type,
         verify_runtime_status_artifact_non_negative_integer_fields,
         verify_runtime_status_artifact_nullable_fields,
         verify_runtime_status_artifact_numeric_constraint,
@@ -991,6 +1012,17 @@ mod tests {
             verify_runtime_status_artifact_json_schema_additional_properties(
                 "src/shared/runtime-status-contract-artifact.json",
                 false
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_json_schema_type() {
+        assert_eq!(
+            verify_runtime_status_artifact_json_schema_type(
+                "src/shared/runtime-status-contract-artifact.json",
+                "object"
             ),
             Ok(())
         );
