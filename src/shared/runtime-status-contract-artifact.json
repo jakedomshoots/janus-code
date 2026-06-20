@@ -26,6 +26,7 @@
     "versionedFields": ["runtimeProtocolVersion", "minCompatibleRuntimeClientVersion"],
     "nonNegativeIntegerFields": ["rendererGraphEpoch", "liveTabCount", "liveLeafCount"],
     "stringFields": ["runtimeId"],
+    "arrayFields": ["capabilities"],
     "invalidatableFields": [
       "runtimeProtocolVersion",
       "minCompatibleRuntimeClientVersion",

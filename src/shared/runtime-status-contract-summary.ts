@@ -39,6 +39,7 @@ export type RuntimeStatusPortingContractSummary = {
   versionedFields: RuntimeStatusPortingField[]
   nonNegativeIntegerFields: RuntimeStatusPortingField[]
   stringFields: RuntimeStatusPortingField[]
+  arrayFields: RuntimeStatusPortingField[]
   invalidatableFields: RuntimeStatusPortingField[]
   enumValues: {
     graphStatus: string[]
@@ -64,6 +65,9 @@ export function getRuntimeStatusPortingContractSummary(): RuntimeStatusPortingCo
     nonNegativeIntegerFields: [...NON_NEGATIVE_INTEGER_RUNTIME_STATUS_PORTING_FIELDS],
     stringFields: Object.keys(
       RUNTIME_STATUS_PORTING_STRING_CONSTRAINTS
+    ) as RuntimeStatusPortingField[],
+    arrayFields: Object.keys(
+      RUNTIME_STATUS_PORTING_ARRAY_CONSTRAINTS
     ) as RuntimeStatusPortingField[],
     invalidatableFields: listRuntimeStatusPortingInvalidatableFields(),
     enumValues: {
