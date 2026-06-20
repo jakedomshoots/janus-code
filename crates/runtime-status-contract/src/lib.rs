@@ -48,6 +48,17 @@ impl TryFrom<&str> for RuntimeStatusHostPlatform {
     }
 }
 
+impl TryFrom<&Value> for RuntimeStatusHostPlatform {
+    type Error = String;
+
+    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+        value
+            .as_str()
+            .ok_or_else(|| "runtime status hostPlatform must be a string".to_string())?
+            .parse()
+    }
+}
+
 impl FromStr for RuntimeStatusHostPlatform {
     type Err = String;
 
@@ -2489,6 +2500,22 @@ mod tests {
         );
         assert_eq!(
             RuntimeStatusHostPlatform::try_from("win32"),
+            Ok(RuntimeStatusHostPlatform::Win32)
+        );
+    }
+
+    #[test]
+    fn converts_runtime_status_host_platform_from_json_string_values() {
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from(&serde_json::json!("darwin")),
+            Ok(RuntimeStatusHostPlatform::Darwin)
+        );
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from(&serde_json::json!("linux")),
+            Ok(RuntimeStatusHostPlatform::Linux)
+        );
+        assert_eq!(
+            RuntimeStatusHostPlatform::try_from(&serde_json::json!("win32")),
             Ok(RuntimeStatusHostPlatform::Win32)
         );
     }
