@@ -19,6 +19,14 @@ Run this verifier after changing the runtime status contract:
 pnpm run verify:runtime-status-contract-artifact
 ```
 
+Run this Rust-side smoke verifier for the checked-in `status.get` samples:
+
+```sh
+pnpm run verify:runtime-status-rust-samples
+```
+
+The Rust verifier lives at `crates/runtime-status-contract/Cargo.toml`.
+
 The TypeScript builders in `src/shared/runtime-status-contract.ts` remain the source of truth. The verifier ensures the checked-in JSON artifact stays in sync with those builders and the runtime porting domain mapping.
 
 ## Runtime Porting Summary

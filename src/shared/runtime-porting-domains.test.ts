@@ -284,6 +284,12 @@ describe('runtime porting domains', () => {
     expect(packageJson.scripts['verify:runtime-status-samples']).toBe(
       'pnpm vitest run --config config/vitest.config.ts src/shared/runtime-status-contract.test.ts --testNamePattern "runtime status sample"'
     )
+    expect(packageJson.scripts['verify:runtime-status-rust-samples']).toBe(
+      'cargo test --manifest-path crates/runtime-status-contract/Cargo.toml'
+    )
+    expect(existsSync(resolve(__dirname, '../../crates/runtime-status-contract/Cargo.toml'))).toBe(
+      true
+    )
   })
 
   it('documents the runtime porting summary artifact for non-TypeScript tools', () => {
@@ -354,6 +360,8 @@ describe('runtime porting domains', () => {
       'firstSliceContractSampleManifestVerificationCommand: pnpm run verify:runtime-status-samples'
     )
     expect(doc).toContain('pnpm run verify:runtime-status-samples')
+    expect(doc).toContain('crates/runtime-status-contract/Cargo.toml')
+    expect(doc).toContain('pnpm run verify:runtime-status-rust-samples')
     expect(doc).toContain(
       `firstSliceContractArtifactVersion: ${RUNTIME_STATUS_PORTING_CONTRACT_ARTIFACT_VERSION}`
     )
