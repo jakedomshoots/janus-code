@@ -14,8 +14,8 @@
 
 - [x] Rust exposes typed accessors for every required runtime-status field in `src/shared/runtime-status-contract-artifact.json`.
 - [x] Rust exposes full missing-field and invalid-field validation parity with `src/shared/runtime-status-contract-validation.ts`.
-- [ ] Rust validates the checked-in valid and invalid samples with the same field results as TypeScript.
-- [ ] Rust verifies artifact summary, JSON schema, sample manifest, enum fields, numeric constraints, nullable fields, array constraints, and string constraints.
+- [x] Rust validates the checked-in valid and invalid samples with the same field results as TypeScript.
+- [x] Rust verifies artifact summary, JSON schema, sample manifest, enum fields, numeric constraints, nullable fields, array constraints, and string constraints.
 - [ ] Runtime-status docs explain how non-TypeScript adapters should use the Rust crate and checked-in artifacts.
 - [ ] Every Rust-spine slice has a red test first, a focused green check, broad verification, and a scoped commit.
 - [ ] The branch has no unresolved Rust-spine TODOs, a clean worktree, and current verification evidence.
@@ -46,7 +46,7 @@
 - [x] Add Rust invalid-field validation for nullable non-negative integer `authoritativeWindowId`.
 - [x] Add Rust `validate_runtime_status_porting_contract(&Value)` result parity.
 - [x] Add Rust `assert_runtime_status_porting_contract(&Value)` parity.
-- [ ] Add sample-driven parity tests that compare valid and invalid samples to the expected TypeScript contract results.
+- [x] Add sample-driven parity tests that compare valid and invalid samples to the expected TypeScript contract results.
 
 ## Product And Integration Work
 

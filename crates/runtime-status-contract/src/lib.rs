@@ -377,6 +377,13 @@ pub fn validate_runtime_status_sample(relative_path: &str) -> Result<(), Vec<&'s
     }
 }
 
+pub fn validate_runtime_status_sample_porting_contract(
+    relative_path: &str,
+) -> RuntimeStatusPortingValidationResult {
+    let value = load_json(relative_path);
+    validate_runtime_status_porting_contract(&value)
+}
+
 fn validation_result_json(result: Result<(), Vec<&'static str>>) -> Value {
     match result {
         Ok(()) => serde_json::json!({ "ok": true }),
@@ -2604,7 +2611,8 @@ mod tests {
         runtime_status_live_tab_count, runtime_status_min_compatible_runtime_client_version,
         runtime_status_renderer_graph_epoch, runtime_status_runtime_id,
         runtime_status_runtime_protocol_version, validate_runtime_status_porting_contract,
-        validate_runtime_status_sample, verify_runtime_status_artifact_array_constraint,
+        validate_runtime_status_sample, validate_runtime_status_sample_porting_contract,
+        verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_constraints_fields_consistency,
         verify_runtime_status_artifact_array_constraints_schema_consistency,
         verify_runtime_status_artifact_array_fields,
@@ -3698,6 +3706,26 @@ mod tests {
         assert_eq!(
             assert_runtime_status_porting_contract(&status),
             Err("Runtime status porting contract invalid runtimeId".to_string())
+        );
+    }
+
+    #[test]
+    fn validates_the_checked_in_valid_runtime_status_sample_with_full_contract() {
+        assert_eq!(
+            validate_runtime_status_sample_porting_contract(
+                "src/shared/runtime-status-contract-valid-sample.json"
+            ),
+            RuntimeStatusPortingValidationResult::Ok
+        );
+    }
+
+    #[test]
+    fn validates_the_checked_in_invalid_runtime_status_sample_with_full_contract() {
+        assert_eq!(
+            validate_runtime_status_sample_porting_contract(
+                "src/shared/runtime-status-contract-invalid-sample.json"
+            ),
+            RuntimeStatusPortingValidationResult::MissingFields(vec!["runtimeId"])
         );
     }
 
