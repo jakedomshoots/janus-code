@@ -71,6 +71,8 @@ export type RuntimePortingFirstSliceContractSamples =
   readonly RuntimePortingFirstSliceContractSample[]
 export type RuntimePortingFirstSliceContractSampleVerificationCommand =
   'pnpm run verify:runtime-status-samples'
+export type RuntimePortingFirstSliceContractSampleManifestPath =
+  'src/shared/runtime-status-contract-samples.json'
 export type RuntimePortingFirstSliceContractSchemaVersion =
   typeof RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export type RuntimePortingFirstSliceContractParams = typeof RUNTIME_STATUS_PORTING_CONTRACT_PARAMS
@@ -142,6 +144,8 @@ export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLES: RuntimePortingFirstSl
   ]
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_VERIFICATION_COMMAND: RuntimePortingFirstSliceContractSampleVerificationCommand =
   'pnpm run verify:runtime-status-samples'
+export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SAMPLE_MANIFEST_PATH: RuntimePortingFirstSliceContractSampleManifestPath =
+  'src/shared/runtime-status-contract-samples.json'
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_SCHEMA_VERSION: RuntimePortingFirstSliceContractSchemaVersion =
   RUNTIME_STATUS_PORTING_CONTRACT_SCHEMA_VERSION
 export const RUNTIME_PORTING_FIRST_SLICE_CONTRACT_PARAMS: RuntimePortingFirstSliceContractParams =
