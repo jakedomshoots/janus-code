@@ -968,6 +968,38 @@ pub fn verify_runtime_status_artifact_enum_fields(
     }
 }
 
+pub fn verify_runtime_status_artifact_enum_fields_schema_consistency(
+    relative_path: &str,
+) -> Result<(), String> {
+    let artifact = load_json(relative_path);
+    let enum_fields = artifact
+        .get("summary")
+        .and_then(|summary| summary.get("enumFields"))
+        .and_then(Value::as_array)
+        .ok_or_else(|| "contract artifact must include summary.enumFields array".to_string())?;
+    let properties = artifact
+        .get("jsonSchema")
+        .and_then(|json_schema| json_schema.get("properties"))
+        .ok_or_else(|| "contract artifact must include jsonSchema.properties object".to_string())?;
+
+    for (index, field) in enum_fields.iter().enumerate() {
+        let field_name = field
+            .as_str()
+            .ok_or_else(|| format!("summary.enumFields[{index}] must be a string"))?;
+        properties
+            .get(field_name)
+            .and_then(|property| property.get("enum"))
+            .and_then(Value::as_array)
+            .ok_or_else(|| {
+                format!(
+                    "contract artifact must include jsonSchema.properties.{field_name}.enum array"
+                )
+            })?;
+    }
+
+    Ok(())
+}
+
 pub fn verify_runtime_status_artifact_enum_values(
     relative_path: &str,
     field_name: &str,
@@ -1466,7 +1498,9 @@ mod tests {
         verify_runtime_status_artifact_array_constraint,
         verify_runtime_status_artifact_array_fields,
         verify_runtime_status_artifact_array_fields_schema_consistency,
-        verify_runtime_status_artifact_enum_fields, verify_runtime_status_artifact_enum_values,
+        verify_runtime_status_artifact_enum_fields,
+        verify_runtime_status_artifact_enum_fields_schema_consistency,
+        verify_runtime_status_artifact_enum_values,
         verify_runtime_status_artifact_invalidatable_fields,
         verify_runtime_status_artifact_json_schema_additional_properties,
         verify_runtime_status_artifact_json_schema_draft_uri,
@@ -1886,6 +1920,16 @@ mod tests {
             verify_runtime_status_artifact_enum_fields(
                 "src/shared/runtime-status-contract-artifact.json",
                 ENUM_FIELDS
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_artifact_summary_enum_fields_schema_consistency() {
+        assert_eq!(
+            verify_runtime_status_artifact_enum_fields_schema_consistency(
+                "src/shared/runtime-status-contract-artifact.json"
             ),
             Ok(())
         );
