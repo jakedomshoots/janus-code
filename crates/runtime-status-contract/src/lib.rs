@@ -126,6 +126,25 @@ pub fn verify_runtime_status_manifest_media_type(
     }
 }
 
+pub fn verify_runtime_status_manifest_schema_version(
+    relative_path: &str,
+    expected_schema_version: u64,
+) -> Result<(), String> {
+    let manifest = load_json(relative_path);
+    let actual_schema_version = manifest
+        .get("schemaVersion")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| "sample manifest must include an integer schemaVersion".to_string())?;
+
+    if actual_schema_version == expected_schema_version {
+        Ok(())
+    } else {
+        Err(format!(
+            "sample manifest expected schemaVersion {expected_schema_version} but got {actual_schema_version}"
+        ))
+    }
+}
+
 pub fn verify_runtime_status_manifest_method(
     relative_path: &str,
     expected_method: &str,
@@ -169,7 +188,8 @@ mod tests {
     use super::{
         validate_runtime_status_sample, verify_runtime_status_manifest_artifact_id,
         verify_runtime_status_manifest_id, verify_runtime_status_manifest_media_type,
-        verify_runtime_status_manifest_method, verify_runtime_status_sample_manifest,
+        verify_runtime_status_manifest_method, verify_runtime_status_manifest_schema_version,
+        verify_runtime_status_sample_manifest,
     };
 
     #[test]
@@ -217,6 +237,17 @@ mod tests {
             verify_runtime_status_manifest_media_type(
                 "src/shared/runtime-status-contract-samples.json",
                 "application/vnd.janus.runtime-status-contract-samples+json"
+            ),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn verifies_the_checked_in_manifest_schema_version() {
+        assert_eq!(
+            verify_runtime_status_manifest_schema_version(
+                "src/shared/runtime-status-contract-samples.json",
+                1
             ),
             Ok(())
         );
