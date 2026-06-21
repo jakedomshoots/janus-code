@@ -71,7 +71,7 @@ export function AgentTimeline({
       aria-live="polite"
       aria-relevant="additions text"
     >
-      <div className="agent-workspace-timeline-inner mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-5">
+      <div className="agent-workspace-timeline-inner mr-auto flex w-full max-w-[900px] flex-1 flex-col gap-5">
         {thread ? (
           <>
             <ThreadSummary thread={thread} />

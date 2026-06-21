@@ -46,6 +46,17 @@ describe('AgentTimeline', () => {
     expect(log?.getAttribute('aria-label')).toBe('Agent conversation timeline')
   })
 
+  it('left-aligns the transcript rail so floating context does not cover messages', () => {
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={[]} />)
+    })
+
+    const rail = container.querySelector('.agent-workspace-timeline-inner')
+
+    expect(rail?.className).toContain('mr-auto')
+    expect(rail?.className).not.toContain('mx-auto')
+  })
+
   it('labels slash commands and marks running entries as busy', () => {
     const timeline: AgentWorkspaceTimelineEntry[] = [
       {

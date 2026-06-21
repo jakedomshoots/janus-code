@@ -192,6 +192,7 @@ describe('AgentComposer', () => {
 
     const form = container.querySelector('form')
     const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const rail = container.querySelector('.agent-workspace-composer > div')
     const panel = textarea?.parentElement
     const footerLayout = container.querySelector(
       '#agent-workspace-composer-status'
@@ -199,6 +200,8 @@ describe('AgentComposer', () => {
 
     expect(form?.className).toContain('border-t')
     expect(form?.className).toContain('bg-background/95')
+    expect(rail?.className).toContain('mr-auto')
+    expect(rail?.className).not.toContain('mx-auto')
     expect(textarea?.className).toContain('min-h-24')
     expect(textarea?.getAttribute('rows')).toBe('2')
     expect(panel?.className).toContain('rounded-xl')
