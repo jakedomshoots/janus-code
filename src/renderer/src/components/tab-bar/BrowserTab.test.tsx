@@ -11,6 +11,9 @@ vi.mock('react', async () => {
   return {
     ...actual,
     useEffect: () => {},
+    useRef<T>(initial: T) {
+      return { current: initial }
+    },
     useState<T>(initial: T | (() => T)) {
       const stateIndex = reactHookRuntime.index++
       if (!(stateIndex in reactHookRuntime.states)) {
@@ -128,7 +131,10 @@ function baseBrowserTab(overrides: Partial<BrowserTabState> = {}): BrowserTabSta
   }
 }
 
-async function renderBrowserTab(tab: BrowserTabState): Promise<unknown> {
+async function renderBrowserTab(
+  tab: BrowserTabState,
+  overrides: Partial<Record<string, unknown>> = {}
+): Promise<unknown> {
   reactHookRuntime.index = 0
   const module = await browserTabModulePromise
   return module.default({
@@ -151,7 +157,8 @@ async function renderBrowserTab(tab: BrowserTabState): Promise<unknown> {
       tabType: 'browser',
       label: tab.title
     },
-    dropIndicator: undefined
+    dropIndicator: undefined,
+    ...overrides
   })
 }
 
@@ -195,6 +202,33 @@ function findElementsByType(node: unknown, typeName: string): ReactElementLike[]
   }
   visit(node)
   return results
+}
+
+function findElementByDataTabId(node: unknown, tabId: string): ReactElementLike {
+  const visit = (current: unknown): ReactElementLike | null => {
+    if (current == null || typeof current === 'string' || typeof current === 'number') {
+      return null
+    }
+    if (Array.isArray(current)) {
+      for (const child of current) {
+        const found = visit(child)
+        if (found) {
+          return found
+        }
+      }
+      return null
+    }
+    const el = current as ReactElementLike
+    if (el.props?.['data-tab-id'] === tabId) {
+      return el
+    }
+    return visit(el.props?.children)
+  }
+  const found = visit(node)
+  if (!found) {
+    throw new Error(`Missing tab root: ${tabId}`)
+  }
+  return found
 }
 
 async function renderExpandedBrowserTab(tab: BrowserTabState): Promise<unknown> {
@@ -274,5 +308,25 @@ describe('BrowserTab favicon', () => {
     expect(images).toHaveLength(1)
     expect(images[0].props.src).toBe(nextIconUrl)
     expect(findElementsByType(resetRender, 'Globe')).toHaveLength(0)
+  })
+
+  it('activates on pointer release instead of competing with drag start on pointer down', async () => {
+    const onActivate = vi.fn()
+    const tab = baseBrowserTab()
+    const element = expandNode(await renderBrowserTab(tab, { onActivate }))
+    const tabRoot = findElementByDataTabId(element, tab.id)
+    const pointerEvent = {
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+      pointerId: 1
+    }
+
+    ;(tabRoot.props.onPointerDown as (event: typeof pointerEvent) => void)(pointerEvent)
+
+    expect(onActivate).not.toHaveBeenCalled()
+
+    ;(tabRoot.props.onPointerUp as (event: typeof pointerEvent) => void)(pointerEvent)
+    expect(onActivate).toHaveBeenCalledTimes(1)
   })
 })

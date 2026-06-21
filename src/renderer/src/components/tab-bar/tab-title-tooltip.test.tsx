@@ -170,10 +170,10 @@ function firstOpeningTag(markup: string): string {
 
 function expectTabContainerWidth(markup: string, root: string): void {
   const container = firstOpeningTag(markup)
-  const widthClasses = 'min-w-[88px] max-w-[280px] flex-[1_1_180px] min-[1280px]:flex-[1_1_220px]'
+  const widthClasses = 'min-w-[88px] max-w-[240px] w-fit flex-[0_1_auto]'
   expect(container).toContain(widthClasses)
   expect(root).not.toContain('min-w-[88px]')
-  expect(root).not.toContain('max-w-[280px]')
+  expect(root).not.toContain('max-w-[240px]')
   expect(root).not.toContain('flex-[1_1_180px]')
 }
 

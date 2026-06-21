@@ -28,6 +28,13 @@ import { canOpenMarkdownPreview } from '@/components/editor/markdown-preview-con
 import { EditorFileTabContextMenu } from './EditorFileTabContextMenu'
 import { translate } from '@/i18n/i18n'
 import { TAB_CONTAINER_WIDTH_CLASSES, TAB_LABEL_WIDTH_CLASSES } from './tab-width-rules'
+import {
+  beginTabActivationGesture,
+  cancelTabActivationGesture,
+  createTabActivationGesture,
+  finishTabActivationGesture,
+  updateTabActivationGesture
+} from './tab-activation-gesture'
 
 export default function EditorFileTab({
   file,
@@ -95,6 +102,7 @@ export default function EditorFileTab({
   const [isRenaming, setIsRenaming] = useState(false)
   const renameInputRef = useRef<HTMLInputElement>(null)
   const renameFocusFrameRef = useRef<number | null>(null)
+  const activationGestureRef = useRef(createTabActivationGesture())
   const skipMenuFocusRestoreRef = useRef(false)
   // Escape fires setIsRenaming(false), which unmounts the input. The browser
   // still fires focusout as the focused node is removed, so onBlur can invoke
@@ -211,9 +219,16 @@ export default function EditorFileTab({
         if (e.button !== 0) {
           return
         }
-        onActivate()
+        beginTabActivationGesture(activationGestureRef.current, e)
         listeners?.onPointerDown?.(e)
       }}
+      onPointerMove={(e) => updateTabActivationGesture(activationGestureRef.current, e)}
+      onPointerUp={(e) => {
+        if (finishTabActivationGesture(activationGestureRef.current, e)) {
+          onActivate()
+        }
+      }}
+      onPointerCancel={() => cancelTabActivationGesture(activationGestureRef.current)}
       onDoubleClick={() => {
         if (file.isPreview && onMakePermanent) {
           onMakePermanent()

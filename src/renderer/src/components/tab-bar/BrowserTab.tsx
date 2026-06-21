@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { Globe, X, ExternalLink, Columns2, Rows2, Copy, Pin, PinOff } from 'lucide-react'
 import {
@@ -25,6 +25,13 @@ import {
 import { preventMiddleButtonDefault } from './middle-button-default-guard'
 import { translate } from '@/i18n/i18n'
 import { TAB_CONTAINER_WIDTH_CLASSES, TAB_LABEL_WIDTH_CLASSES } from './tab-width-rules'
+import {
+  beginTabActivationGesture,
+  cancelTabActivationGesture,
+  createTabActivationGesture,
+  finishTabActivationGesture,
+  updateTabActivationGesture
+} from './tab-activation-gesture'
 
 function formatBrowserTabUrlLabel(url: string): string {
   if (url === ORCA_BROWSER_BLANK_URL || url === 'about:blank') {
@@ -134,6 +141,7 @@ export default function BrowserTab({
     id: tab.id,
     data: dragData
   })
+  const activationGestureRef = useRef(createTabActivationGesture())
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPoint, setMenuPoint] = useState({ x: 0, y: 0 })
 
@@ -182,9 +190,16 @@ export default function BrowserTab({
         if (e.button !== 0) {
           return
         }
-        onActivate()
+        beginTabActivationGesture(activationGestureRef.current, e)
         listeners?.onPointerDown?.(e)
       }}
+      onPointerMove={(e) => updateTabActivationGesture(activationGestureRef.current, e)}
+      onPointerUp={(e) => {
+        if (finishTabActivationGesture(activationGestureRef.current, e)) {
+          onActivate()
+        }
+      }}
+      onPointerCancel={() => cancelTabActivationGesture(activationGestureRef.current)}
       onMouseDown={(e) => {
         if (e.button === 1) {
           e.preventDefault()

@@ -22,6 +22,13 @@ import { preventMiddleButtonDefault } from './middle-button-default-guard'
 import { SortableTabContextMenu } from './SortableTabContextMenu'
 import { translate } from '@/i18n/i18n'
 import { TAB_CONTAINER_WIDTH_CLASSES, TAB_LABEL_WIDTH_CLASSES } from './tab-width-rules'
+import {
+  beginTabActivationGesture,
+  cancelTabActivationGesture,
+  createTabActivationGesture,
+  finishTabActivationGesture,
+  updateTabActivationGesture
+} from './tab-activation-gesture'
 
 type SortableTabProps = {
   tab: TerminalTab
@@ -109,6 +116,7 @@ export default function SortableTab({
   const showActivityAffordance = hasUnreadActivity && !isEditing
   const [renameValue, setRenameValue] = useState('')
   const renameFocusFrameRef = useRef<number | null>(null)
+  const activationGestureRef = useRef(createTabActivationGesture())
   // Why: React's synthetic onBlur fires during the Input's unmount when isEditing flips
   // to false. Without this guard, pressing Escape (or committing via Enter) would cause
   // the blur handler to run commitRename a second time and overwrite the title with the
@@ -230,9 +238,16 @@ export default function SortableTab({
         if (isEditing || e.button !== 0) {
           return
         }
-        onActivate(tab.id)
+        beginTabActivationGesture(activationGestureRef.current, e)
         dragListeners?.onPointerDown?.(e)
       }}
+      onPointerMove={(e) => updateTabActivationGesture(activationGestureRef.current, e)}
+      onPointerUp={(e) => {
+        if (!isEditing && finishTabActivationGesture(activationGestureRef.current, e)) {
+          onActivate(tab.id)
+        }
+      }}
+      onPointerCancel={() => cancelTabActivationGesture(activationGestureRef.current)}
       onMouseDown={(e) => {
         // Why: prevent default browser middle-click behavior (auto-scroll)
         // but do NOT close here — closing removes the element before mouseup,
