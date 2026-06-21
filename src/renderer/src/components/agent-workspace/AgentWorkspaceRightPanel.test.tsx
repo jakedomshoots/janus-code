@@ -203,7 +203,7 @@ describe('AgentWorkspaceRightPanel', () => {
     })
   })
 
-  it('constrains the document preview so long markdown scrolls inside the panel', () => {
+  it('keeps document previews out of the floating info card', () => {
     const markup = renderToStaticMarkup(
       <AgentWorkspaceRightPanel
         project={project}
@@ -227,17 +227,11 @@ describe('AgentWorkspaceRightPanel', () => {
     container.innerHTML = markup
 
     const shell = container.querySelector('.agent-workspace-right-panel-shell')
-    const tabPanel = container.querySelector('[role="tabpanel"]')
     const preview = container.querySelector('[data-agent-markdown-preview="docs/handoff.md"]')
-    const scroller = preview?.querySelector('.agent-markdown-artifact-preview-scroller')
 
-    expect(shell?.className).toContain('flex')
-    expect(shell?.className).toContain('flex-col')
     expect(shell?.className).toContain('max-h-[min(440px,calc(100vh-7rem))]')
-    expect(tabPanel?.className).toContain('min-h-0')
-    expect(tabPanel?.className).toContain('flex-1')
-    expect(tabPanel?.className).toContain('overflow-hidden')
-    expect(preview?.className).toContain('h-full')
-    expect(scroller?.className).toContain('overflow-auto')
+    expect(container.textContent).toContain('Sources')
+    expect(preview).toBeNull()
+    expect(container.textContent).not.toContain('Open in editor')
   })
 })

@@ -9,6 +9,7 @@ import type {
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
+import { AgentWorkspaceMarkdownArtifactSidePanel } from './AgentWorkspaceMarkdownArtifactSidePanel'
 import { AgentWorkspacePane } from './AgentWorkspacePane'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import {
@@ -237,6 +238,18 @@ export function AgentWorkspaceLayout({
     } satisfies AgentWorkspaceRightPanelState)
   }
 
+  function handleCloseMarkdownArtifactPreview(): void {
+    setSelectedMarkdownArtifact(null)
+    setSelectedRightPanelState(
+      getDefaultAgentWorkspaceRightPanelState({
+        thread: selectedThread,
+        diffs,
+        review: selectedReview,
+        hasStructuredPlan: selectedPlan !== null
+      })
+    )
+  }
+
   function handleOpenMarkdownArtifactInEditor(
     thread: AgentWorkspaceThread | null,
     artifact: AgentTimelineMarkdownArtifact
@@ -279,32 +292,42 @@ export function AgentWorkspaceLayout({
         />
       }
       rightPanel={
-        selectedRightPanelState.collapsed ? null : (
-          <AgentWorkspaceRightPanel
-            project={selectedProject}
-            thread={selectedThread}
-            threads={projectThreads}
-            plan={selectedPlan}
-            approval={selectedApproval}
-            diffs={diffs}
-            review={selectedReview}
-            selectedMarkdownArtifact={selectedMarkdownArtifact}
-            sourceControlBusy={sourceControlActions.sourceControlBusy}
-            sourceControlError={sourceControlActions.sourceControlError}
-            terminalAvailable={snapshot.terminalAvailable}
-            selectedTab={selectedRightPanelState.selectedTab}
-            onSelectedTabChange={handleRightPanelTabChange}
-            onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
-            onStageDiff={sourceControlActions.onStageDiff}
-            onUnstageDiff={sourceControlActions.onUnstageDiff}
-            onDiscardDiff={sourceControlActions.onDiscardDiff}
-            onCommitStaged={sourceControlActions.onCommitStaged}
-            onOpenMarkdownArtifactInEditor={(artifact) =>
-              handleOpenMarkdownArtifactInEditor(selectedThread, artifact)
-            }
-            onOpenTerminalDrawer={onOpenTerminalDrawer}
-          />
-        )
+        <>
+          {selectedMarkdownArtifact && selectedRightPanelState.selectedTab === 'document' ? (
+            <AgentWorkspaceMarkdownArtifactSidePanel
+              artifact={selectedMarkdownArtifact}
+              thread={selectedThread}
+              onClose={handleCloseMarkdownArtifactPreview}
+              onOpenInEditor={(artifact) =>
+                handleOpenMarkdownArtifactInEditor(selectedThread, artifact)
+              }
+            />
+          ) : null}
+          {selectedRightPanelState.collapsed ||
+          selectedRightPanelState.selectedTab === 'document' ? null : (
+            <AgentWorkspaceRightPanel
+              project={selectedProject}
+              thread={selectedThread}
+              threads={projectThreads}
+              plan={selectedPlan}
+              approval={selectedApproval}
+              diffs={diffs}
+              review={selectedReview}
+              selectedMarkdownArtifact={selectedMarkdownArtifact}
+              sourceControlBusy={sourceControlActions.sourceControlBusy}
+              sourceControlError={sourceControlActions.sourceControlError}
+              terminalAvailable={snapshot.terminalAvailable}
+              selectedTab={selectedRightPanelState.selectedTab}
+              onSelectedTabChange={handleRightPanelTabChange}
+              onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
+              onStageDiff={sourceControlActions.onStageDiff}
+              onUnstageDiff={sourceControlActions.onUnstageDiff}
+              onDiscardDiff={sourceControlActions.onDiscardDiff}
+              onCommitStaged={sourceControlActions.onCommitStaged}
+              onOpenTerminalDrawer={onOpenTerminalDrawer}
+            />
+          )}
+        </>
       }
     >
       <div

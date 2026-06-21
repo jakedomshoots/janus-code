@@ -17,7 +17,6 @@ import { EmptyPanelState, InfoSection, ItemList } from './agent-workspace-right-
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { PlanProgress } from './AgentWorkspaceRightPanelSummary'
-import { AgentWorkspaceMarkdownArtifactPreview } from './AgentWorkspaceMarkdownArtifactPreview'
 import { clampAgentWorkspaceContextCardWidth } from './agent-workspace-right-panel-geometry'
 import { AgentWorkspaceContextChannels } from './AgentWorkspaceContextChannels'
 
@@ -35,7 +34,6 @@ export function AgentWorkspaceRightPanel({
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
-  onOpenMarkdownArtifactInEditor,
   onOpenTerminalDrawer
 }: {
   project: AgentWorkspaceProject | null
@@ -56,7 +54,6 @@ export function AgentWorkspaceRightPanel({
   onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
-  onOpenMarkdownArtifactInEditor?: (artifact: AgentTimelineMarkdownArtifact) => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [panelWidth, setPanelWidth] = useState(DEFAULT_RIGHT_PANEL_WIDTH)
@@ -80,8 +77,7 @@ export function AgentWorkspaceRightPanel({
     diffs,
     review
   })
-  const showsDetailPanel =
-    selectedTab === 'plan' || selectedTab === 'review' || selectedTab === 'document'
+  const showsDetailPanel = selectedTab === 'plan' || selectedTab === 'review'
 
   useEffect(() => {
     function handlePointerMove(event: PointerEvent): void {
@@ -165,10 +161,7 @@ export function AgentWorkspaceRightPanel({
             model={model}
             plan={plan}
             review={review}
-            thread={thread}
             selectedTab={selectedTab}
-            selectedMarkdownArtifact={selectedMarkdownArtifact}
-            onOpenMarkdownArtifactInEditor={onOpenMarkdownArtifactInEditor}
           />
         ) : null}
         <ApprovalActions
@@ -187,18 +180,12 @@ function AgentWorkspaceRightPanelDetail({
   model,
   plan,
   review,
-  thread,
-  selectedTab,
-  selectedMarkdownArtifact,
-  onOpenMarkdownArtifactInEditor
+  selectedTab
 }: {
   model: ReturnType<typeof buildAgentWorkspaceRightCardModel>
   plan: AgentWorkspacePlan | null
   review: AgentWorkspaceReviewSummary | null
-  thread: AgentWorkspaceThread | null
   selectedTab: AgentWorkspaceRightPanelTab
-  selectedMarkdownArtifact?: AgentTimelineMarkdownArtifact | null
-  onOpenMarkdownArtifactInEditor?: (artifact: AgentTimelineMarkdownArtifact) => void
 }): React.JSX.Element {
   return (
     <div
@@ -245,13 +232,6 @@ function AgentWorkspaceRightPanelDetail({
             iconKind="output"
           />
         </InfoSection>
-      ) : null}
-      {selectedTab === 'document' ? (
-        <AgentWorkspaceMarkdownArtifactPreview
-          artifact={selectedMarkdownArtifact ?? null}
-          thread={thread}
-          onOpenInEditor={onOpenMarkdownArtifactInEditor}
-        />
       ) : null}
       {selectedTab !== 'plan' && selectedTab !== 'review' && selectedTab !== 'document' ? (
         <EmptyPanelState
