@@ -11203,7 +11203,8 @@
           "oneChange": "1 change",
           "changeCount": "{{count}} changes",
           "completedThreadFollowUp": "This conversation is complete, but you can keep chatting in the same thread.",
-          "agentConversationTimeline": "Agent conversation timeline"
+          "agentConversationTimeline": "Agent conversation timeline",
+          "resizeTerminalDrawer": "Resize terminal drawer"
         },
         "composer": {
           "enterMessageBeforeSending": "Escribe un mensaje antes de enviar.",
@@ -11282,7 +11283,25 @@
           "sentToCompletedThreadRecovery": "Sent to {{agent}}. If nothing changes, restore this message and try again or open the terminal drawer.",
           "restoreMessage": "Restore message",
           "sendAgain": "Send again",
-          "openTerminal": "Open terminal"
+          "openTerminal": "Open terminal",
+          "usageAndContext": "Usage and context",
+          "context": "Context",
+          "contextWindow": "Context window",
+          "usageRemaining": "Usage remaining",
+          "usageLive": "Live",
+          "refreshing": "Refreshing",
+          "needsCheck": "Needs check",
+          "unavailable": "Unavailable",
+          "local": "Local",
+          "notTracked": "Not tracked",
+          "systemTools": "System tools",
+          "systemPrompt": "System prompt",
+          "skills": "Skills",
+          "metaContext": "Meta context",
+          "fiveHours": "5 hours",
+          "weekly": "Weekly",
+          "toolCalls": "Tool calls",
+          "messages": "Messages"
         },
         "page": {
           "agentWorkspace": "Espacio de trabajo de agentes"
@@ -11395,7 +11414,23 @@
           "nowStep": "Now: {{title}}",
           "environment": "Environment",
           "branch": "Branch",
-          "workingDirectory": "Working directory"
+          "workingDirectory": "Working directory",
+          "addSource": "Add source",
+          "worktree": "Worktree",
+          "noBranch": "No branch",
+          "commitOrPush": "Commit or push",
+          "createPullRequest": "Create pull request",
+          "sideChat": "Side chat",
+          "document": "Document",
+          "noDocumentSelected": "No document selected",
+          "noDocumentSelectedDetail": "Open a document from an agent reply to preview it here.",
+          "openInEditor": "Open in editor",
+          "markdownArtifactBinary": "This document is binary and cannot be previewed.",
+          "markdownArtifactLoadFailed": "Could not load this document.",
+          "loadingDocument": "Loading document",
+          "resizePanel": "Resize right panel",
+          "noDetails": "No details",
+          "noDetailsDetail": "Select a document, review, or side chat to open an expanded view."
         },
         "timelineRole": {
           "you": "You",
@@ -11412,6 +11447,11 @@
           "showFewerFiles": "Show fewer",
           "showOneMoreFile": "Show 1 more file",
           "showMoreFiles": "Show {{count}} more files"
+        },
+        "documentSidePanel": {
+          "documentPreview": "Document preview",
+          "document": "Document",
+          "closeDocumentPreview": "Close document preview"
         }
       },
       "DesktopShellRequired": {

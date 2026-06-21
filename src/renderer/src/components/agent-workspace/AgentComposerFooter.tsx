@@ -18,6 +18,7 @@ import {
 } from './AgentComposerChatDropdown'
 import { AgentComposerAgentSettingsPopover } from './AgentComposerAgentSettingsPopover'
 import { AgentComposerToolCluster } from './AgentComposerToolCluster'
+import { AgentComposerUsagePopover } from './AgentComposerUsagePopover'
 
 type AgentComposerFooterProps = {
   statusMessage: string | null
@@ -166,19 +167,22 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
               </span>
             </div>
           ) : (
-            <AgentComposerAgentSettingsPopover
-              thinkingMode={thinkingMode}
-              onThinkingModeChange={onThinkingModeChange}
-              availableAgents={availableAgents}
-              selectedAgent={selectedAgent}
-              modelOptions={modelOptions}
-              selectedModel={selectedModel}
-              modelDiscoveryLoading={modelDiscoveryLoading}
-              modelDiscoveryError={modelDiscoveryError}
-              detectingAgents={detectingAgents}
-              onSelectedAgentChange={onSelectedAgentChange}
-              onSelectedModelChange={onSelectedModelChange}
-            />
+            <>
+              <AgentComposerUsagePopover selectedAgent={selectedAgent} />
+              <AgentComposerAgentSettingsPopover
+                thinkingMode={thinkingMode}
+                onThinkingModeChange={onThinkingModeChange}
+                availableAgents={availableAgents}
+                selectedAgent={selectedAgent}
+                modelOptions={modelOptions}
+                selectedModel={selectedModel}
+                modelDiscoveryLoading={modelDiscoveryLoading}
+                modelDiscoveryError={modelDiscoveryError}
+                detectingAgents={detectingAgents}
+                onSelectedAgentChange={onSelectedAgentChange}
+                onSelectedModelChange={onSelectedModelChange}
+              />
+            </>
           )}
         </div>
         <Button
