@@ -171,12 +171,17 @@ export function AgentTerminalDrawer({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="absolute left-1/2 top-0 z-20 h-8 w-32 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize rounded-full border border-border bg-muted/80 p-0 text-muted-foreground shadow-xs hover:bg-accent"
+        className="group absolute left-1/2 top-0 z-20 h-8 w-32 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize rounded-full border-transparent bg-transparent p-0 text-muted-foreground hover:bg-transparent focus-visible:ring-2 focus-visible:ring-ring/60"
         onPointerDown={startResize}
         onKeyDown={handleResizeKeyDown}
         aria-label={resizeLabel}
       >
-        <span className="h-0.5 w-8 rounded-full bg-current opacity-70" aria-hidden="true" />
+        <span
+          className="flex h-3 w-20 items-center justify-center rounded-full border border-border/80 bg-muted/70 shadow-xs transition-colors group-hover:border-muted-foreground/35 group-hover:bg-accent"
+          aria-hidden="true"
+        >
+          <span className="h-0.5 w-8 rounded-full bg-current opacity-70" />
+        </span>
       </Button>
       <Button
         type="button"
