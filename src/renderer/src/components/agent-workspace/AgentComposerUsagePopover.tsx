@@ -7,6 +7,11 @@ import { useAppStore } from '@/store'
 import type { ClaudeUsageSummary } from '../../../../shared/claude-usage-types'
 import type { CodexUsageSummary } from '../../../../shared/codex-usage-types'
 import type { OpenCodeUsageSummary } from '../../../../shared/opencode-usage-types'
+import {
+  AI_VAULT_AGENTS,
+  type AiVaultAgent,
+  type AiVaultSession
+} from '../../../../shared/ai-vault-types'
 import type { RateLimitState } from '../../../../shared/rate-limit-types'
 import type { TuiAgent } from '../../../../shared/types'
 import {
@@ -33,6 +38,9 @@ export function AgentComposerUsagePopover({
   selectedAgent: TuiAgent | null
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
+  const [aiVaultTokenTotals, setAiVaultTokenTotals] = useState<
+    Partial<Record<AiVaultAgent, number>>
+  >({})
   const rateLimits = useAppStore((state) => state.rateLimits) ?? EMPTY_RATE_LIMITS
   const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
   const fetchCodexUsage = useAppStore((state) => state.fetchCodexUsage)
@@ -47,9 +55,10 @@ export function AgentComposerUsagePopover({
         selectedAgent,
         codexUsageSummary,
         claudeUsageSummary,
-        openCodeUsageSummary
+        openCodeUsageSummary,
+        aiVaultTokenTotals
       }),
-    [claudeUsageSummary, codexUsageSummary, openCodeUsageSummary, selectedAgent]
+    [aiVaultTokenTotals, claudeUsageSummary, codexUsageSummary, openCodeUsageSummary, selectedAgent]
   )
   const summary = useMemo(
     () =>
@@ -60,6 +69,7 @@ export function AgentComposerUsagePopover({
       }),
     [rateLimits, selectedAgent, usageSummary]
   )
+  const aiVaultAgent = usageSummary.provider === 'ai-vault' ? usageSummary.agent : null
 
   useEffect(() => {
     if (open) {
@@ -74,6 +84,23 @@ export function AgentComposerUsagePopover({
         case 'opencode':
           void fetchOpenCodeUsage?.({ forceRefresh: true })
           break
+        case 'ai-vault':
+          if (!aiVaultAgent) {
+            break
+          }
+          // Why: AI Vault owns transcript scans for CLI agents without a
+          // dedicated usage store, so the composer must not borrow Codex totals.
+          void fetchAiVaultTotalForAgent(aiVaultAgent)
+            .then((totalTokens) => {
+              setAiVaultTokenTotals((current) => ({
+                ...current,
+                [aiVaultAgent]: totalTokens
+              }))
+            })
+            .catch((error) => {
+              console.error('Failed to fetch AI Vault usage for composer:', error)
+            })
+          break
         case 'untracked':
           break
       }
@@ -84,6 +111,7 @@ export function AgentComposerUsagePopover({
     fetchOpenCodeUsage,
     open,
     refreshRateLimits,
+    aiVaultAgent,
     usageSummary.provider
   ])
 
@@ -180,12 +208,14 @@ function getUsageSummaryForAgent({
   selectedAgent,
   codexUsageSummary,
   claudeUsageSummary,
-  openCodeUsageSummary
+  openCodeUsageSummary,
+  aiVaultTokenTotals
 }: {
   selectedAgent: TuiAgent | null
   codexUsageSummary: CodexUsageSummary | null
   claudeUsageSummary: ClaudeUsageSummary | null
   openCodeUsageSummary: OpenCodeUsageSummary | null
+  aiVaultTokenTotals: Partial<Record<AiVaultAgent, number>>
 }): ComposerAgentUsageSummary {
   switch (selectedAgent) {
     case 'codex':
@@ -196,11 +226,45 @@ function getUsageSummaryForAgent({
       return { provider: 'claude', summary: claudeUsageSummary }
     case 'opencode':
     case 'omp':
-    case 'pi':
       return { provider: 'opencode', summary: openCodeUsageSummary }
     default:
-      return { provider: 'untracked', summary: null }
+      return getAiVaultSummaryForAgent(selectedAgent, aiVaultTokenTotals)
   }
+}
+
+function getAiVaultSummaryForAgent(
+  selectedAgent: TuiAgent | null,
+  aiVaultTokenTotals: Partial<Record<AiVaultAgent, number>>
+): ComposerAgentUsageSummary {
+  const aiVaultAgent = getAiVaultAgent(selectedAgent)
+  if (aiVaultAgent) {
+    return {
+      provider: 'ai-vault',
+      agent: aiVaultAgent,
+      totalTokens: aiVaultTokenTotals[aiVaultAgent] ?? null
+    }
+  }
+  return { provider: 'untracked', summary: null }
+}
+
+function getAiVaultAgent(selectedAgent: TuiAgent | null): AiVaultAgent | null {
+  if (!selectedAgent) {
+    return null
+  }
+  return (AI_VAULT_AGENTS as readonly string[]).includes(selectedAgent)
+    ? (selectedAgent as AiVaultAgent)
+    : null
+}
+
+async function fetchAiVaultTotalForAgent(agent: AiVaultAgent): Promise<number> {
+  const sessions = await window.api?.aiVault?.listSessions?.({ force: true, limit: 500 })
+  if (!sessions || !Array.isArray(sessions.sessions)) {
+    return 0
+  }
+
+  return sessions.sessions
+    .filter((session: AiVaultSession) => session.agent === agent)
+    .reduce((total: number, session: AiVaultSession) => total + Math.max(0, session.totalTokens), 0)
 }
 
 function UsageRow({ row }: { row: ComposerUsageMeter }): React.JSX.Element {

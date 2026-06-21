@@ -1,6 +1,7 @@
 import type { ClaudeUsageSummary } from '../../../../shared/claude-usage-types'
 import type { CodexUsageSummary } from '../../../../shared/codex-usage-types'
 import type { OpenCodeUsageSummary } from '../../../../shared/opencode-usage-types'
+import type { AiVaultAgent } from '../../../../shared/ai-vault-types'
 import type {
   ProviderRateLimits,
   RateLimitBucket,
@@ -30,6 +31,7 @@ export type ComposerAgentUsageSummary =
   | { provider: 'codex'; summary: CodexUsageSummary | null }
   | { provider: 'claude'; summary: ClaudeUsageSummary | null }
   | { provider: 'opencode'; summary: OpenCodeUsageSummary | null }
+  | { provider: 'ai-vault'; agent: AiVaultAgent; totalTokens: number | null }
   | { provider: 'untracked'; summary: null }
 
 const DEFAULT_CONTEXT_WINDOW_TOKENS = 1_000_000
@@ -105,21 +107,22 @@ function buildContextRows(usageSummary: ComposerAgentUsageSummary): ComposerUsag
 }
 
 function getUsageTotalTokens(usageSummary: ComposerAgentUsageSummary): number | null {
-  if (!usageSummary.summary) {
-    return null
-  }
-
   switch (usageSummary.provider) {
     case 'codex':
     case 'opencode':
-      return usageSummary.summary.totalTokens
+      return usageSummary.summary?.totalTokens ?? null
     case 'claude':
+      if (!usageSummary.summary) {
+        return null
+      }
       return (
         usageSummary.summary.inputTokens +
         usageSummary.summary.outputTokens +
         usageSummary.summary.cacheReadTokens +
         usageSummary.summary.cacheWriteTokens
       )
+    case 'ai-vault':
+      return usageSummary.totalTokens
     default:
       return null
   }
