@@ -353,11 +353,18 @@ export function AgentComposer({
     setComposerModelSelections
   })
 
-  const handleAttachBrowserContext = useAgentComposerBrowserContextAttachment({
+  const attachBrowserContext = useAgentComposerBrowserContextAttachment({
     browserAnnotationMarkdown: browserWorkbench.browserAnnotationMarkdown,
     setPrompt,
     setSubmitResult
   })
+  const handleAttachBrowserContext = useCallback((): void => {
+    if (browserWorkbench.canAttachBrowserContext) {
+      attachBrowserContext()
+      return
+    }
+    browserWorkbench.openBrowserWorkbench()
+  }, [attachBrowserContext, browserWorkbench])
 
   function handleSelectedAgentChange(agent: TuiAgent | null): void {
     setSelectedAgent(agent)
@@ -379,7 +386,9 @@ export function AgentComposer({
       onOpenTerminalDrawer={onOpenTerminalDrawer}
       canOpenBrowserWorkbench={browserWorkbench.browserAvailable}
       onOpenBrowserWorkbench={browserWorkbench.openBrowserWorkbench}
-      canAttachBrowserContext={browserWorkbench.canAttachBrowserContext}
+      canAttachBrowserContext={
+        browserWorkbench.canAttachBrowserContext || browserWorkbench.browserAvailable
+      }
       browserAnnotationCount={browserWorkbench.browserAnnotationCount}
       onAttachBrowserContext={handleAttachBrowserContext}
       canSendToSelectedThread={canSendToSelectedThread}

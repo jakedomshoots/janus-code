@@ -101,4 +101,50 @@ describe('AgentTerminalDrawer', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('resizes the bottom drawer with bounded height physics', async () => {
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 700
+    })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    await act(async () => {
+      root?.render(
+        <AgentTerminalDrawer open reason="debug-button" terminalAvailable onClose={() => undefined}>
+          {preservedTerminal}
+        </AgentTerminalDrawer>
+      )
+    })
+
+    const drawer = container.querySelector<HTMLElement>('[data-agent-terminal-drawer="true"]')
+    const resizeHandle = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Resize terminal drawer"]'
+    )
+    expect(drawer?.style.height).toBe('322px')
+    expect(resizeHandle).not.toBeNull()
+
+    const pointerDown = new Event('pointerdown', { bubbles: true }) as PointerEvent
+    Object.defineProperty(pointerDown, 'clientY', { value: 300 })
+    const pointerMoveUp = new Event('pointermove') as PointerEvent
+    Object.defineProperty(pointerMoveUp, 'clientY', { value: 0 })
+    const pointerMoveDown = new Event('pointermove') as PointerEvent
+    Object.defineProperty(pointerMoveDown, 'clientY', { value: 1000 })
+
+    await act(async () => {
+      resizeHandle?.dispatchEvent(pointerDown)
+      window.dispatchEvent(pointerMoveUp)
+    })
+
+    expect(drawer?.style.height).toBe('580px')
+
+    await act(async () => {
+      window.dispatchEvent(pointerMoveDown)
+      window.dispatchEvent(new Event('pointerup'))
+    })
+
+    expect(drawer?.style.height).toBe('224px')
+  })
 })

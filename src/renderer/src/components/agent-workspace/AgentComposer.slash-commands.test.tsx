@@ -446,6 +446,42 @@ describe('AgentComposer slash commands', () => {
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
   })
 
+  it('opens the browser workbench from the context button when no annotations are attached', async () => {
+    const openBrowserWorkbench = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={runningThread}
+          terminalAvailable={true}
+          browserWorkbench={{
+            browserWorkbenchReady: true,
+            canOpenBrowserDrawer: true,
+            browserAvailable: true,
+            browserTabCount: 0,
+            browserAnnotationCount: 0,
+            browserAnnotationMarkdown: '',
+            canAttachBrowserContext: false,
+            openBrowserWorkbench
+          }}
+        />
+      )
+    })
+
+    const attachButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.getAttribute('aria-label') === 'Attach browser context'
+    )
+    expect(attachButton).not.toBeNull()
+    expect(attachButton?.disabled).toBe(false)
+
+    await act(async () => {
+      attachButton?.click()
+    })
+
+    expect(openBrowserWorkbench).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps the terminal drawer route available for SSH selected projects', async () => {
     const onOpenTerminalDrawer = vi.fn()
 
