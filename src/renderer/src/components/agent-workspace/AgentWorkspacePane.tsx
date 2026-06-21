@@ -13,6 +13,7 @@ import type {
   AgentWorkspaceApproval,
   AgentWorkspaceDiffSummary,
   AgentWorkspaceProject,
+  AgentWorkspaceReviewSummary,
   AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
@@ -71,6 +72,7 @@ export function AgentWorkspacePane({
   approval,
   timeline,
   diffs,
+  review,
   terminalAvailable,
   browserWorkbenchActive,
   tabGroupWorkbenchActive,
@@ -103,6 +105,7 @@ export function AgentWorkspacePane({
   approval: AgentWorkspaceApproval | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
   diffs: readonly AgentWorkspaceDiffSummary[]
+  review: AgentWorkspaceReviewSummary | null
   terminalAvailable: boolean
   browserWorkbenchActive: boolean
   tabGroupWorkbenchActive: boolean
@@ -221,6 +224,8 @@ export function AgentWorkspacePane({
               selectedProject={project}
               selectedThread={thread}
               timeline={timeline}
+              diffs={diffs}
+              review={review}
               draftSessionId={thread ? null : (activeDraftSession?.id ?? null)}
               terminalAvailable={terminalAvailable}
               browserWorkbench={browserWorkbench}

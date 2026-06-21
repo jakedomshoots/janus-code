@@ -8,11 +8,43 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
-import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
+import type {
+  AgentWorkspaceProject,
+  AgentWorkspaceThread,
+  AgentWorkspaceThreadChromeAttentionState,
+  AgentWorkspaceThreadChromeSummary
+} from './agent-workspace-types'
+
+function formatChangedFileCount(count: number): string {
+  return count === 1
+    ? translate('auto.components.agentWorkspace.header.oneFileChanged', '1 file')
+    : translate('auto.components.agentWorkspace.header.changedFileCount', '{{count}} files', {
+        count
+      })
+}
+
+function formatAttentionState(state: AgentWorkspaceThreadChromeAttentionState): string {
+  switch (state) {
+    case 'idle':
+      return translate('auto.components.agentWorkspace.header.attentionIdle', 'Idle')
+    case 'running':
+      return translate('auto.components.agentWorkspace.header.attentionRunning', 'Running')
+    case 'needs-attention':
+      return translate(
+        'auto.components.agentWorkspace.header.attentionNeedsAttention',
+        'Needs attention'
+      )
+    case 'failed':
+      return translate('auto.components.agentWorkspace.header.attentionFailed', 'Failed')
+    case 'done':
+      return translate('auto.components.agentWorkspace.header.attentionDone', 'Done')
+  }
+}
 
 export function AgentWorkspaceHeader({
   project,
   thread,
+  runSummary = null,
   rightPanelCollapsed = false,
   terminalAvailable = false,
   browserAvailable = false,
@@ -25,6 +57,7 @@ export function AgentWorkspaceHeader({
 }: {
   project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
+  runSummary?: AgentWorkspaceThreadChromeSummary | null
   rightPanelCollapsed?: boolean
   terminalAvailable?: boolean
   browserAvailable?: boolean
@@ -68,10 +101,51 @@ export function AgentWorkspaceHeader({
             {project?.label ??
               translate('auto.components.agentWorkspace.header.workspace', 'Workspace')}
           </span>
-          <span className="truncate text-[11px] text-muted-foreground">
-            {thread?.title ??
-              translate('auto.components.agentWorkspace.header.ready', 'Ready for Janus Code')}
-          </span>
+          <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+            <span className="truncate">
+              {thread?.title ??
+                translate('auto.components.agentWorkspace.header.ready', 'Ready for Janus Code')}
+            </span>
+            {runSummary ? (
+              <span
+                className="hidden min-w-0 items-center gap-1.5 lg:flex"
+                aria-label={translate(
+                  'auto.components.agentWorkspace.header.runSummary',
+                  'Run summary'
+                )}
+              >
+                <span className="text-muted-foreground/70" aria-hidden="true">
+                  ·
+                </span>
+                <span className="max-w-32 truncate" title={runSummary.currentStep}>
+                  {runSummary.currentStep}
+                </span>
+                {runSummary.lastCommand ? (
+                  <>
+                    <span className="text-muted-foreground/70" aria-hidden="true">
+                      ·
+                    </span>
+                    <span
+                      className="max-w-40 truncate font-mono text-[10px]"
+                      title={runSummary.lastCommand}
+                    >
+                      {runSummary.lastCommand}
+                    </span>
+                  </>
+                ) : null}
+                <span className="text-muted-foreground/70" aria-hidden="true">
+                  ·
+                </span>
+                <span className="shrink-0">
+                  {formatChangedFileCount(runSummary.changedFileCount)}
+                </span>
+                <span className="text-muted-foreground/70" aria-hidden="true">
+                  ·
+                </span>
+                <span className="shrink-0">{formatAttentionState(runSummary.attentionState)}</span>
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
       <div

@@ -304,6 +304,8 @@ export function getDefaultSettings(homedir: string): GlobalSettings {
     agentModelSelections: {},
     agentThinkingMode: 'standard',
     agentYoloDefaultsMigrated: true,
+    agentTaskFitHintsEnabled: true,
+    protectedResourcePolicies: [],
     agentStatusHooksEnabled: true,
     tabAutoGenerateTitle: false,
     keepComputerAwakeWhileAgentsRun: false,

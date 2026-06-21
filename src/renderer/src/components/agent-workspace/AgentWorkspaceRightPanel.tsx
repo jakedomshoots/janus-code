@@ -1,4 +1,5 @@
-import { Check, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { SearchCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -7,7 +8,10 @@ import type {
   AgentWorkspacePlan,
   AgentWorkspaceProject,
   AgentWorkspaceReviewSummary,
-  AgentWorkspaceThread
+  AgentWorkspaceRunEvent,
+  AgentWorkspaceRunReplayContext,
+  AgentWorkspaceThread,
+  AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
 import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-model'
@@ -23,6 +27,20 @@ import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
 import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
+import { AgentWorkspaceRunLedger } from './AgentWorkspaceRunLedger'
+import { AgentWorkspaceMemoryInspector } from './AgentWorkspaceMemoryInspector'
+import type { AgentReviewOnlyLaunchSurface } from './agent-review-only-launch'
+import type { AgentReviewFinding } from './agent-review-findings'
+import type { MemorySnapshot } from '../../../../shared/types'
+import { buildAgentRunReplayMarkdown } from './agent-run-replay-export'
+import {
+  ApprovalActions,
+  ReviewFindingsList,
+  RunReplayExportAction
+} from './AgentWorkspaceRightPanelActions'
+
+const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
+const EMPTY_REVIEW_FINDINGS: readonly AgentReviewFinding[] = []
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -31,9 +49,16 @@ export function AgentWorkspaceRightPanel({
   plan,
   approval,
   diffs,
+  runEvents,
+  timeline = EMPTY_AGENT_TIMELINE,
+  runReplayContext = null,
   review,
+  reviewFindings = EMPTY_REVIEW_FINDINGS,
   sourceControlBusy,
   sourceControlError,
+  reviewOnlyWarning = null,
+  memorySnapshot = null,
+  memorySnapshotError = null,
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
@@ -41,6 +66,7 @@ export function AgentWorkspaceRightPanel({
   onUnstageDiff,
   onDiscardDiff,
   onCommitStaged,
+  onLaunchReviewOnly,
   onOpenTerminalDrawer
 }: {
   project: AgentWorkspaceProject | null
@@ -49,9 +75,16 @@ export function AgentWorkspaceRightPanel({
   plan: AgentWorkspacePlan | null
   approval: AgentWorkspaceApproval | null
   diffs: readonly AgentWorkspaceDiffSummary[]
+  runEvents: readonly AgentWorkspaceRunEvent[]
+  timeline?: readonly AgentWorkspaceTimelineEntry[]
+  runReplayContext?: AgentWorkspaceRunReplayContext | null
   review: AgentWorkspaceReviewSummary | null
+  reviewFindings?: readonly AgentReviewFinding[]
   sourceControlBusy?: boolean
   sourceControlError?: string | null
+  reviewOnlyWarning?: string | null
+  memorySnapshot?: MemorySnapshot | null
+  memorySnapshotError?: string | null
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
@@ -60,8 +93,10 @@ export function AgentWorkspaceRightPanel({
   onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
+  onLaunchReviewOnly?: (source: AgentReviewOnlyLaunchSurface) => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
+  const [replayCopyStatus, setReplayCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
   const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
     useAgentWorkspaceApprovalResponse({
       thread,
@@ -77,6 +112,32 @@ export function AgentWorkspaceRightPanel({
     diffs,
     review
   })
+  const runReplayMarkdown = useMemo(
+    () =>
+      buildAgentRunReplayMarkdown({
+        project,
+        thread,
+        timeline,
+        runEvents,
+        diffs,
+        approvals: approval ? [approval] : [],
+        replayContext: runReplayContext,
+        exportedAt: new Date().toISOString()
+      }),
+    [approval, diffs, project, runEvents, runReplayContext, thread, timeline]
+  )
+
+  async function handleCopyRunReplay(): Promise<void> {
+    if (!thread) {
+      return
+    }
+    try {
+      await window.api.ui.writeClipboardText(runReplayMarkdown)
+      setReplayCopyStatus('copied')
+    } catch {
+      setReplayCopyStatus('failed')
+    }
+  }
 
   return (
     <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[24rem] shrink-0">
@@ -92,7 +153,7 @@ export function AgentWorkspaceRightPanel({
           selectedTab={selectedTab}
           diffs={diffs.length}
           hasPlan={plan !== null}
-          hasReview={review !== null}
+          hasReview={review !== null || reviewFindings.length > 0}
           onSelectedTabChange={onSelectedTabChange}
         />
         <div
@@ -126,6 +187,10 @@ export function AgentWorkspaceRightPanel({
                   diffs={diffs}
                   sourceControlBusy={sourceControlBusy}
                   sourceControlError={sourceControlError}
+                  reviewOnlyWarning={reviewOnlyWarning}
+                  onLaunchReviewOnly={
+                    onLaunchReviewOnly ? () => onLaunchReviewOnly('diff') : undefined
+                  }
                   onStageDiff={onStageDiff}
                   onUnstageDiff={onUnstageDiff}
                   onDiscardDiff={onDiscardDiff}
@@ -153,6 +218,26 @@ export function AgentWorkspaceRightPanel({
                 'No review yet'
               )}
             >
+              <ReviewFindingsList findings={reviewFindings} />
+              {review && onLaunchReviewOnly ? (
+                <div className="mb-3 space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onLaunchReviewOnly('review')}
+                  >
+                    <SearchCheck className="size-3.5" aria-hidden="true" />
+                    {translate(
+                      'auto.components.agentWorkspace.reviewOnly.reviewOnly',
+                      'Review only'
+                    )}
+                  </Button>
+                  {reviewOnlyWarning ? (
+                    <p className="text-xs text-muted-foreground">{reviewOnlyWarning}</p>
+                  ) : null}
+                </div>
+              ) : null}
               <ItemList
                 items={
                   review
@@ -171,6 +256,14 @@ export function AgentWorkspaceRightPanel({
           ) : null}
           {selectedTab === 'details' ? (
             <>
+              <RunReplayExportAction
+                disabled={!thread}
+                status={replayCopyStatus}
+                onCopy={handleCopyRunReplay}
+              />
+              <SectionDivider />
+              <AgentWorkspaceRunLedger runEvents={runEvents} changedFileCount={diffs.length} />
+              <SectionDivider />
               <InfoSection
                 title={translate(
                   'auto.components.agentWorkspace.rightPanel.subagents',
@@ -194,6 +287,12 @@ export function AgentWorkspaceRightPanel({
                 <ItemList items={model.sources} iconKind="source" />
                 <SourceGlyphRow sources={model.sources} />
               </InfoSection>
+              <SectionDivider />
+              <AgentWorkspaceMemoryInspector
+                project={project}
+                snapshot={memorySnapshot}
+                error={memorySnapshotError}
+              />
             </>
           ) : null}
         </div>
@@ -206,55 +305,5 @@ export function AgentWorkspaceRightPanel({
         />
       </div>
     </aside>
-  )
-}
-
-function ApprovalActions({
-  approval,
-  canRespondInTerminal,
-  approvalBusy,
-  approvalFeedback,
-  onDecision
-}: {
-  approval: AgentWorkspaceApproval | null
-  canRespondInTerminal: boolean
-  approvalBusy: boolean
-  approvalFeedback: string | null
-  onDecision: (decision: 'approve' | 'deny') => void | Promise<void>
-}): React.JSX.Element | null {
-  if (approval?.status !== 'requested') {
-    return null
-  }
-
-  return (
-    <div className="mt-4 rounded-xl border border-border bg-background/60 p-3">
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="default"
-          size="sm"
-          className="flex-1"
-          disabled={!canRespondInTerminal || approvalBusy}
-          onClick={() => void onDecision('approve')}
-        >
-          <Check className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.rightPanel.approve', 'Approve')}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          disabled={!canRespondInTerminal || approvalBusy}
-          onClick={() => void onDecision('deny')}
-        >
-          <X className="size-3.5" aria-hidden="true" />
-          {translate('auto.components.agentWorkspace.rightPanel.deny', 'Deny')}
-        </Button>
-      </div>
-      {approvalFeedback ? (
-        <p className="mt-2 text-xs text-muted-foreground">{approvalFeedback}</p>
-      ) : null}
-    </div>
   )
 }

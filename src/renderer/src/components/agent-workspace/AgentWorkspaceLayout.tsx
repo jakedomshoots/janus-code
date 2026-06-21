@@ -1,26 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
-import { translate } from '@/i18n/i18n'
 import { detectLanguage } from '@/lib/language-detect'
 import { joinPath } from '@/lib/path'
+import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { useAppStore } from '@/store'
-import type {
-  AgentWorkspaceDiffSummary,
-  AgentWorkspacePlan,
-  AgentWorkspaceReviewSummary,
-  AgentWorkspaceSnapshot,
-  AgentWorkspaceThread,
-  AgentWorkspaceTimelineEntry
-} from './agent-workspace-types'
+import type { AgentWorkspaceDiffSummary, AgentWorkspaceSnapshot } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
-import { AgentWorkspacePane } from './AgentWorkspacePane'
+import { AgentWorkspacePaneStack } from './AgentWorkspacePaneStack'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
+import { AgentWorkspaceAttemptCompare } from './AgentWorkspaceAttemptCompare'
+import { AgentWorkspaceRunBoard } from './AgentWorkspaceRunBoard'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
-  type AgentWorkspaceRightPanelStateInput,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
+import {
+  getRightPanelStateInput,
+  getRightPanelStateInputKey
+} from './agent-workspace-right-panel-state-input'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { selectAgentWorkspacePlanForThread } from './orca-agent-plan-selectors'
 import { useAgentWorkspaceSourceControlActions } from './useAgentWorkspaceSourceControlActions'
@@ -29,49 +27,31 @@ import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 import { useTabGroupWorkspaceModel } from '@/components/tab-group/useTabGroupWorkspaceModel'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { isWebRuntimeSessionActive } from '@/runtime/web-runtime-session'
-import { getActiveAgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
 import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
-import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
-import { compareAgentTimelineEntries } from './agent-timeline-order'
-import { openAgentMarkdownArtifact } from './open-agent-markdown-artifact'
+import { useAgentWorkspaceLocalTimeline } from './useAgentWorkspaceLocalTimeline'
+import { selectAgentRunBoardGroups, type AgentRunBoardRow } from './agent-run-board-selectors'
+import {
+  selectAgentWorktreeCompareGroups,
+  type AgentWorktreeCompareAttempt
+} from './agent-worktree-compare-selectors'
+import {
+  getAgentReviewOnlyLaunchProfile,
+  getAgentReviewOnlyPreferredAgent,
+  launchAgentReviewOnly,
+  type AgentReviewOnlyLaunchSurface
+} from './agent-review-only-launch'
+import { selectAgentReviewFindingsFromTimeline } from './agent-review-findings'
 import {
   getProjectThreads,
   getSelectedProject,
+  getThreadChromeSummary,
   getThreadApproval,
   getThreadDiffs,
+  getThreadRunEvents,
   getThreadReview,
   getThreadTimeline
 } from './agent-workspace-layout-selectors'
-
-function getRightPanelStateInput(
-  thread: AgentWorkspaceThread | null,
-  diffs: readonly AgentWorkspaceDiffSummary[],
-  plan: AgentWorkspacePlan | null,
-  review: AgentWorkspaceReviewSummary | null
-): AgentWorkspaceRightPanelStateInput {
-  return {
-    thread,
-    diffs,
-    review,
-    hasStructuredPlan: plan !== null
-  }
-}
-
-function getRightPanelStateInputKey({
-  thread,
-  diffs,
-  review,
-  hasStructuredPlan
-}: AgentWorkspaceRightPanelStateInput): string {
-  return [
-    thread?.id ?? 'no-thread',
-    thread?.phase ?? 'no-phase',
-    hasStructuredPlan ? 'plan' : 'no-plan',
-    review?.id ?? 'no-review',
-    diffs.map((diff) => diff.id).join(',')
-  ].join(':')
-}
 
 export function AgentWorkspaceLayout({
   snapshot,
@@ -83,44 +63,39 @@ export function AgentWorkspaceLayout({
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
-  const [localUserTimeline, setLocalUserTimeline] = useState<AgentWorkspaceTimelineEntry[]>([])
-  const localUserTimelineSequenceRef = useRef(0)
+  const { localUserTimeline, handleMessageSent } = useAgentWorkspaceLocalTimeline()
+  const pendingRunBoardSelectionRef = useRef<{
+    worktreeId: string
+    threadId: string
+  } | null>(null)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const projectThreads = getProjectThreads(snapshot, selectedProject)
   const defaultThread = projectThreads[0] ?? null
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
-      getRightPanelStateInput(
-        defaultThread,
-        getThreadDiffs(snapshot, defaultThread),
-        selectAgentWorkspacePlanForThread(snapshot, defaultThread),
-        getThreadReview(snapshot, defaultThread)
-      )
+      getRightPanelStateInput({
+        thread: defaultThread,
+        diffs: getThreadDiffs(snapshot, defaultThread),
+        plan: selectAgentWorkspacePlanForThread(snapshot, defaultThread),
+        review: getThreadReview(snapshot, defaultThread)
+      })
     )
   )
   const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
-  const {
-    panes,
-    activePaneId,
-    activePane,
-    splitDirection,
-    setActivePaneId,
-    handlePaneThreadSelect,
-    handleNewSession,
-    handleBeginDraftAgentSession,
-    handlePendingAgentLaunch,
-    handleUpdateDraftSessionAgent,
-    handleSelectDraftSession,
-    handleCloseDraftSession,
-    handleCloseThread,
-    handleSplitPane,
-    handleClosePane
-  } = useAgentWorkspacePanes({
+  const panesController = useAgentWorkspacePanes({
     defaultThreadId: defaultThread?.id ?? null,
     projectThreads,
     projectThreadIdsKey,
     onOpenTerminalDrawer
   })
+  const {
+    activePaneId,
+    activePane,
+    setActivePaneId,
+    handlePaneThreadSelect,
+    handleNewSession,
+    handleBeginDraftAgentSession
+  } = panesController
   const selectedThread = activePane?.selectedThreadId
     ? (projectThreads.find((thread) => thread.id === activePane.selectedThreadId) ?? null)
     : null
@@ -131,24 +106,44 @@ export function AgentWorkspaceLayout({
   )
   const setRightSidebarOpen = useAppStore((state) => state.setRightSidebarOpen)
   const showRightSidebarFiles = useAppStore((state) => state.showRightSidebarFiles)
+  const settings = useAppStore((state) => state.settings)
+  const memorySnapshot = useAppStore((state) => state.memorySnapshot ?? null)
+  const memorySnapshotError = useAppStore((state) => state.memorySnapshotError ?? null)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
   const selectedApproval = getThreadApproval(snapshot, selectedThread)
-  const selectedReview = getThreadReview(snapshot, selectedThread)
-  const rightPanelStateInput = getRightPanelStateInput(
+  const selectedRunEvents = getThreadRunEvents(snapshot, selectedThread)
+  const selectedTimeline = getThreadTimeline(snapshot, selectedThread)
+  const selectedRunReplayContext = selectedThread
+    ? (snapshot.runReplayContexts?.find((context) => context.threadId === selectedThread.id) ??
+      null)
+    : null
+  const selectedThreadChromeSummary = getThreadChromeSummary(
     selectedThread,
-    diffs,
-    selectedPlan,
-    selectedReview
+    selectedRunEvents,
+    diffs
   )
+  const selectedReview = getThreadReview(snapshot, selectedThread)
+  const selectedReviewFindings = selectAgentReviewFindingsFromTimeline({
+    thread: selectedThread,
+    timeline: selectedTimeline
+  })
+  const runBoardGroups = selectAgentRunBoardGroups(snapshot)
+  const worktreeCompareGroups = selectAgentWorktreeCompareGroups(snapshot)
+  const rightPanelStateInput = getRightPanelStateInput({
+    thread: selectedThread,
+    diffs,
+    plan: selectedPlan,
+    review: selectedReview,
+    reviewFindingCount: selectedReviewFindings.length
+  })
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
+  const previousActiveWorktreeIdForSidebarRef = useRef(snapshot.activeWorktreeId)
   const lastPrunedAgentBrowserWorktreeRef = useRef<string | null>(null)
 
   const closeBrowserTab = useAppStore((state) => state.closeBrowserTab)
-  const guiAgentWorkspaceEnabled = useAppStore(
-    (state) => state.settings?.guiAgentWorkspaceEnabled === true
-  )
+  const guiAgentWorkspaceEnabled = settings?.guiAgentWorkspaceEnabled === true
   const focusedGroupId = useAppStore((state) =>
     snapshot.activeWorktreeId
       ? (state.activeGroupIdByWorktree?.[snapshot.activeWorktreeId] ??
@@ -165,6 +160,10 @@ export function AgentWorkspaceLayout({
     browserWorkbenchActive: terminalDrawerReason === 'browser',
     onOpenTerminalDrawer
   })
+  const reviewOnlyAgent = getAgentReviewOnlyPreferredAgent(settings)
+  const reviewOnlyProfile = reviewOnlyAgent
+    ? getAgentReviewOnlyLaunchProfile({ agent: reviewOnlyAgent, settings })
+    : null
 
   useAgentWorkspaceActionBridgeRegistration({
     activePaneId,
@@ -178,12 +177,17 @@ export function AgentWorkspaceLayout({
     terminalDrawerReason
   })
 
-  useEffect(() => {
-    if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
-      previousRightPanelStateInputKeyRef.current = rightPanelStateInputKey
-      setSelectedRightPanelState(getDefaultAgentWorkspaceRightPanelState(rightPanelStateInput))
-    }
-  }, [rightPanelStateInput, rightPanelStateInputKey])
+  if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
+    previousRightPanelStateInputKeyRef.current = rightPanelStateInputKey
+    setSelectedRightPanelState(getDefaultAgentWorkspaceRightPanelState(rightPanelStateInput))
+  }
+
+  if (previousActiveWorktreeIdForSidebarRef.current !== snapshot.activeWorktreeId) {
+    previousActiveWorktreeIdForSidebarRef.current = snapshot.activeWorktreeId
+    // Why: persisted UI can restore explorer open; agent workspace should start
+    // distraction-free until the user clicks Files or uses the explorer shortcut.
+    setRightSidebarOpen(false)
+  }
 
   useEffect(() => {
     const expanded = !selectedRightPanelState.collapsed
@@ -194,10 +198,22 @@ export function AgentWorkspaceLayout({
   }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
 
   useEffect(() => {
-    // Why: persisted UI can restore explorer open; agent workspace should start
-    // distraction-free until the user clicks Files or uses the explorer shortcut.
-    setRightSidebarOpen(false)
-  }, [snapshot.activeWorktreeId, setRightSidebarOpen])
+    const pending = pendingRunBoardSelectionRef.current
+    if (!pending || pending.worktreeId !== snapshot.activeWorktreeId) {
+      return
+    }
+    if (!projectThreads.some((thread) => thread.id === pending.threadId)) {
+      return
+    }
+    pendingRunBoardSelectionRef.current = null
+    handlePaneThreadSelect(activePaneId, pending.threadId)
+  }, [
+    activePaneId,
+    handlePaneThreadSelect,
+    projectThreadIdsKey,
+    projectThreads,
+    snapshot.activeWorktreeId
+  ])
 
   useEffect(() => {
     if (terminalDrawerReason === 'browser') {
@@ -262,17 +278,48 @@ export function AgentWorkspaceLayout({
     )
   }
 
-  const handleMessageSent: AgentComposerMessageSentHandler = (message) => {
-    localUserTimelineSequenceRef.current += 1
-    const entry: AgentWorkspaceTimelineEntry = {
-      id: `${message.threadId}:local-user:${Date.now()}:${localUserTimelineSequenceRef.current}`,
-      threadId: message.threadId,
-      kind: 'user',
-      text: message.prompt,
-      createdAt: message.sentAt,
-      status: 'done'
+  function handleOpenWorkspaceThread({
+    worktreeId,
+    threadId
+  }: {
+    worktreeId: string
+    threadId: string
+  }): void {
+    pendingRunBoardSelectionRef.current = {
+      worktreeId,
+      threadId
     }
-    setLocalUserTimeline((current) => [entry, ...current].slice(0, 100))
+    if (worktreeId !== snapshot.activeWorktreeId) {
+      const activated = activateAndRevealWorktree(worktreeId)
+      if (!activated) {
+        pendingRunBoardSelectionRef.current = null
+      }
+      return
+    }
+    pendingRunBoardSelectionRef.current = null
+    handlePaneThreadSelect(activePaneId, threadId)
+  }
+
+  function handleOpenRunBoardRow(row: AgentRunBoardRow): void {
+    handleOpenWorkspaceThread(row)
+  }
+
+  function handleOpenCompareAttempt(attempt: AgentWorktreeCompareAttempt): void {
+    handleOpenWorkspaceThread(attempt)
+  }
+
+  function handleLaunchReviewOnly(_source: AgentReviewOnlyLaunchSurface): void {
+    if (!snapshot.activeWorktreeId || !reviewOnlyAgent) {
+      return
+    }
+    launchAgentReviewOnly({
+      agent: reviewOnlyAgent,
+      worktreeId: snapshot.activeWorktreeId,
+      groupId: focusedGroupId,
+      diffs,
+      review: selectedReview,
+      settings
+    })
   }
 
   return (
@@ -281,6 +328,7 @@ export function AgentWorkspaceLayout({
         <AgentWorkspaceHeader
           project={selectedProject}
           thread={selectedThread}
+          runSummary={selectedThreadChromeSummary}
           rightPanelCollapsed={selectedRightPanelState.collapsed}
           terminalAvailable={snapshot.terminalAvailable}
           browserAvailable={browserWorkbench.browserAvailable}
@@ -295,6 +343,19 @@ export function AgentWorkspaceLayout({
           }}
         />
       }
+      runBoard={
+        <>
+          <AgentWorkspaceRunBoard
+            groups={runBoardGroups}
+            activeWorktreeId={snapshot.activeWorktreeId}
+            onOpenRun={handleOpenRunBoardRow}
+          />
+          <AgentWorkspaceAttemptCompare
+            groups={worktreeCompareGroups}
+            onOpenAttempt={handleOpenCompareAttempt}
+          />
+        </>
+      }
       rightPanel={
         selectedRightPanelState.collapsed ? null : (
           <AgentWorkspaceRightPanel
@@ -304,9 +365,15 @@ export function AgentWorkspaceLayout({
             plan={selectedPlan}
             approval={selectedApproval}
             diffs={diffs}
+            runEvents={selectedRunEvents}
+            timeline={selectedTimeline}
+            runReplayContext={selectedRunReplayContext}
             review={selectedReview}
+            reviewFindings={selectedReviewFindings}
             sourceControlBusy={sourceControlActions.sourceControlBusy}
             sourceControlError={sourceControlActions.sourceControlError}
+            memorySnapshot={memorySnapshot}
+            memorySnapshotError={memorySnapshotError}
             terminalAvailable={snapshot.terminalAvailable}
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}
@@ -315,106 +382,28 @@ export function AgentWorkspaceLayout({
             onUnstageDiff={sourceControlActions.onUnstageDiff}
             onDiscardDiff={sourceControlActions.onDiscardDiff}
             onCommitStaged={sourceControlActions.onCommitStaged}
+            reviewOnlyWarning={reviewOnlyProfile?.warning ?? null}
+            onLaunchReviewOnly={reviewOnlyAgent ? handleLaunchReviewOnly : undefined}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )
       }
     >
-      <div
-        className="flex min-w-0 flex-1 overflow-hidden"
-        style={{ flexDirection: splitDirection === 'horizontal' ? 'row' : 'column' }}
-      >
-        {panes.map((pane, index) => {
-          const paneThread = pane.selectedThreadId
-            ? (projectThreads.find((thread) => thread.id === pane.selectedThreadId) ?? null)
-            : null
-          const activeDraftSession = getActiveAgentWorkspaceDraftSession(pane)
-          const paneApproval = getThreadApproval(snapshot, paneThread)
-          const paneDiffs = getThreadDiffs(snapshot, paneThread)
-          const backendTimeline = getThreadTimeline(snapshot, paneThread)
-          const backendUserPromptKeys = new Set(
-            backendTimeline
-              .filter((entry) => entry.kind === 'user')
-              .map((entry) => `${entry.threadId}:${entry.text}`)
-          )
-          const paneTimeline = [
-            ...backendTimeline,
-            ...localUserTimeline.filter(
-              (entry) =>
-                entry.threadId === paneThread?.id &&
-                !backendUserPromptKeys.has(`${entry.threadId}:${entry.text}`)
-            )
-          ].sort((a, b) => {
-            // Why: chat transcripts read oldest-to-newest; backend and local
-            // optimistic entries arrive from different sources and need one order.
-            return compareAgentTimelineEntries(a, b)
-          })
-          return (
-            <div
-              key={pane.id}
-              className={`flex min-h-0 min-w-0 flex-1 overflow-hidden ${
-                index > 0
-                  ? splitDirection === 'horizontal'
-                    ? 'border-l border-border'
-                    : 'border-t border-border'
-                  : ''
-              }`}
-            >
-              <AgentWorkspacePane
-                activeWorktreeId={snapshot.activeWorktreeId}
-                project={selectedProject}
-                paneLabel={translate(
-                  'auto.components.agentWorkspace.layout.paneLabel',
-                  'Pane {{index}}',
-                  {
-                    index: String(index + 1)
-                  }
-                )}
-                active={pane.id === activePaneId}
-                hasSplitPanes={panes.length > 1}
-                threads={projectThreads}
-                thread={paneThread}
-                draftSessions={pane.draftSessions}
-                selectedDraftSessionId={pane.selectedDraftSessionId}
-                activeDraftSession={activeDraftSession}
-                approval={paneApproval}
-                timeline={paneTimeline}
-                diffs={paneDiffs}
-                terminalAvailable={snapshot.terminalAvailable}
-                browserWorkbenchActive={terminalDrawerReason === 'browser'}
-                tabGroupWorkbenchActive={terminalDrawerReason === 'workbench'}
-                onFocusPane={() => setActivePaneId(pane.id)}
-                onSelectThread={(threadId) => handlePaneThreadSelect(pane.id, threadId)}
-                onCloseThread={(threadId) => handleCloseThread(pane.id, threadId)}
-                onNewSession={() => handleNewSession(pane.id)}
-                onSelectDraftSession={(draftSessionId) =>
-                  handleSelectDraftSession(pane.id, draftSessionId)
-                }
-                onCloseDraftSession={(draftSessionId) =>
-                  handleCloseDraftSession(pane.id, draftSessionId)
-                }
-                onUpdateDraftSessionAgent={(draftSessionId, agent) =>
-                  handleUpdateDraftSessionAgent(pane.id, draftSessionId, agent)
-                }
-                onBeginDraftAgentSession={(agent) => handleBeginDraftAgentSession(agent, pane.id)}
-                onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
-                onMessageSent={handleMessageSent}
-                onOpenMarkdownArtifact={(artifact) =>
-                  openAgentMarkdownArtifact({ thread: paneThread, artifact, openFile })
-                }
-                onReviewDiffs={() => (setActivePaneId(pane.id), handleRightPanelTabChange('diff'))}
-                onSplitPane={(direction) => {
-                  const splitDirection =
-                    direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'
-                  handleSplitPane(pane.id, splitDirection)
-                }}
-                onClosePane={() => handleClosePane(pane.id)}
-                onOpenTerminalDrawer={onOpenTerminalDrawer}
-              />
-            </div>
-          )
-        })}
-      </div>
+      <AgentWorkspacePaneStack
+        snapshot={snapshot}
+        selectedProject={selectedProject}
+        projectThreads={projectThreads}
+        panesController={panesController}
+        localUserTimeline={localUserTimeline}
+        terminalDrawerReason={terminalDrawerReason}
+        openFile={openFile}
+        onReviewDiffs={(paneId) => {
+          setActivePaneId(paneId)
+          handleRightPanelTabChange('diff')
+        }}
+        onMessageSent={handleMessageSent}
+        onOpenTerminalDrawer={onOpenTerminalDrawer}
+      />
     </AgentWorkspaceChrome>
   )
 }

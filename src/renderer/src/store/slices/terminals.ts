@@ -11,6 +11,7 @@ import type {
   WorkspaceKey,
   WorkspaceSessionState
 } from '../../../../shared/types'
+import type { AgentStatusVerification } from '../../../../shared/agent-status-types'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
 import {
   folderWorkspaceKey,
@@ -51,6 +52,7 @@ import { sanitizeTerminalLayoutPaneTitles } from '@/lib/terminal-pane-title-sani
 import { focusTerminalTabSurface } from '@/lib/focus-terminal-tab-surface'
 import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { createRegisteredWebRuntimeSessionTerminal } from '@/runtime/web-runtime-session-actions'
+import type { AgentComposerContextManifest } from '@/components/agent-workspace/agent-composer-context-manifest'
 
 type AgentStartedTelemetry = EventProps<'agent_started'>
 
@@ -61,6 +63,8 @@ export type PendingAgentLaunch = {
   agent: TuiAgent
   prompt: string
   startedAt: number
+  verification?: AgentStatusVerification
+  promptContextManifest?: AgentComposerContextManifest
 }
 
 function getNextTerminalOrdinal(tabs: TerminalTab[]): number {
@@ -299,7 +303,11 @@ export type TerminalSlice = {
       delivery?: 'terminal-paste'
       env?: Record<string, string>
       /** Initial prompt-start status for launch-command prompts submitted before hooks fire. */
-      initialAgentStatus?: { agent: TuiAgent; prompt: string }
+      initialAgentStatus?: {
+        agent: TuiAgent
+        prompt: string
+        verification?: AgentStatusVerification
+      }
       /** Fires after the initial prompt status has been seeded into the transcript. */
       onPromptDelivered?: () => void
       /** Pane-key for the optimistic launch row that should be replaced by real status. */
@@ -440,7 +448,11 @@ export type TerminalSlice = {
       command: string
       delivery?: 'terminal-paste'
       env?: Record<string, string>
-      initialAgentStatus?: { agent: TuiAgent; prompt: string }
+      initialAgentStatus?: {
+        agent: TuiAgent
+        prompt: string
+        verification?: AgentStatusVerification
+      }
       telemetry?: AgentStartedTelemetry
     }
   ) => void
@@ -448,7 +460,7 @@ export type TerminalSlice = {
     command: string
     delivery?: 'terminal-paste'
     env?: Record<string, string>
-    initialAgentStatus?: { agent: TuiAgent; prompt: string }
+    initialAgentStatus?: { agent: TuiAgent; prompt: string; verification?: AgentStatusVerification }
     onPromptDelivered?: () => void
     pendingLaunchPaneKey?: string
     telemetry?: AgentStartedTelemetry

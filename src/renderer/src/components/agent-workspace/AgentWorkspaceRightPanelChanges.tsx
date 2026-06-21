@@ -1,4 +1,4 @@
-import { FileText, GitCommit, Minus, Plus, RotateCcw } from 'lucide-react'
+import { FileText, GitCommit, Minus, Plus, RotateCcw, SearchCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
@@ -23,6 +23,8 @@ export function AgentWorkspaceRightPanelChanges({
   diffs,
   sourceControlBusy = false,
   sourceControlError = null,
+  reviewOnlyWarning = null,
+  onLaunchReviewOnly,
   onStageDiff,
   onUnstageDiff,
   onDiscardDiff,
@@ -31,6 +33,8 @@ export function AgentWorkspaceRightPanelChanges({
   diffs: readonly AgentWorkspaceDiffSummary[]
   sourceControlBusy?: boolean
   sourceControlError?: string | null
+  reviewOnlyWarning?: string | null
+  onLaunchReviewOnly?: () => void
   onStageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
@@ -80,14 +84,35 @@ export function AgentWorkspaceRightPanelChanges({
         <h2 className="text-sm font-medium text-muted-foreground">
           {translate('auto.components.agentWorkspace.layout.sourceControlChanges', 'Changes')}
         </h2>
-        <span className="text-xs text-muted-foreground tabular-nums">
-          {diffs.length === 1
-            ? translate('auto.components.agentWorkspace.layout.oneChange', '1 change')
-            : translate('auto.components.agentWorkspace.layout.changeCount', '{{count}} changes', {
-                count: diffs.length
-              })}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {diffs.length === 1
+              ? translate('auto.components.agentWorkspace.layout.oneChange', '1 change')
+              : translate(
+                  'auto.components.agentWorkspace.layout.changeCount',
+                  '{{count}} changes',
+                  {
+                    count: diffs.length
+                  }
+                )}
+          </span>
+          {onLaunchReviewOnly ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              disabled={sourceControlBusy}
+              onClick={onLaunchReviewOnly}
+            >
+              <SearchCheck className="size-3.5" aria-hidden="true" />
+              {translate('auto.components.agentWorkspace.reviewOnly.reviewOnly', 'Review only')}
+            </Button>
+          ) : null}
+        </div>
       </div>
+      {reviewOnlyWarning && onLaunchReviewOnly ? (
+        <p className="mb-2 text-xs text-muted-foreground">{reviewOnlyWarning}</p>
+      ) : null}
       <div className="space-y-1">
         {diffs.slice(0, 4).map((diff) => (
           <button

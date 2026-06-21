@@ -3,8 +3,16 @@ import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import {
+  AgentComposerVoiceButton,
+  type AgentComposerVoicePromptState
+} from './AgentComposerVoiceButton'
 
 type AgentComposerToolClusterProps = {
+  voicePromptVisible: boolean
+  voicePromptState: AgentComposerVoicePromptState
+  voicePromptDisabled: boolean
+  onToggleVoicePrompt: () => void
   canOpenTerminalDrawer: boolean
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
   canOpenBrowserWorkbench: boolean
@@ -15,6 +23,10 @@ type AgentComposerToolClusterProps = {
 }
 
 export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
+  voicePromptVisible,
+  voicePromptState,
+  voicePromptDisabled,
+  onToggleVoicePrompt,
   canOpenTerminalDrawer,
   onOpenTerminalDrawer,
   canOpenBrowserWorkbench,
@@ -29,6 +41,12 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
       className="flex h-9 shrink-0 items-center gap-0.5 rounded-none border border-border bg-background p-0.5"
       aria-label={translate('auto.components.agentWorkspace.composer.tools', 'Tools')}
     >
+      <AgentComposerVoiceButton
+        visible={voicePromptVisible}
+        state={voicePromptState}
+        disabled={voicePromptDisabled}
+        onToggle={onToggleVoicePrompt}
+      />
       <Button
         type="button"
         variant="ghost"

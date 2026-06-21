@@ -4,6 +4,7 @@ import { translate } from '@/i18n/i18n'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceApproval, AgentWorkspaceThread } from './agent-workspace-types'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
+import { AgentCommandRiskBadge } from './AgentCommandRiskBadge'
 
 export function AgentApprovalBanner({
   thread,
@@ -40,6 +41,7 @@ export function AgentApprovalBanner({
               )}
             </p>
             <p className="truncate text-sm text-muted-foreground">{approvalTitle}</p>
+            {approval.risk ? <AgentCommandRiskBadge risk={approval.risk} /> : null}
             {approval.fallbackText ? (
               <p className="line-clamp-2 text-xs text-muted-foreground">{approval.fallbackText}</p>
             ) : null}

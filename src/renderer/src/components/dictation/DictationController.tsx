@@ -13,6 +13,11 @@ import { formatFinalTranscriptSegment } from './dictation-final-segments'
 import { recordStoppedSession, waitForStoppedSession } from './dictation-stopped-sessions'
 import { keybindingMatchesAction } from '../../../../shared/keybindings'
 import { translate } from '@/i18n/i18n'
+import {
+  DICTATION_TOGGLE_REQUEST_EVENT,
+  dispatchDictationFinalInserted,
+  dispatchDictationSessionFailed
+} from './dictation-session-events'
 
 export function DictationController() {
   const dictationState = useAppStore((s) => s.dictationState)
@@ -84,6 +89,14 @@ export function DictationController() {
     },
     [setDictationState, setPartialTranscript, stopCapture, getCapturedChunkCount]
   )
+
+  const getInsertionTargetElement = useCallback((): HTMLElement | null => {
+    const target = insertionTargetRef.current
+    if (!target || target.kind === 'terminal') {
+      return null
+    }
+    return target.element
+  }, [])
 
   const startDictation = useCallback(async () => {
     if (dictationStateRef.current !== 'idle') {
@@ -180,6 +193,7 @@ export function DictationController() {
       }
       discardBufferedAudio()
       const message = String(err)
+      const failedTargetElement = getInsertionTargetElement()
       insertionTargetRef.current = null
       intentionalTargetCancellationRef.current = false
       stopRequestedDuringStartRef.current = false
@@ -193,6 +207,10 @@ export function DictationController() {
         setDictationState('idle')
         return
       }
+      dispatchDictationSessionFailed({
+        error: message,
+        targetElement: failedTargetElement
+      })
       dictationStateRef.current = 'error'
       setDictationState('error')
       if (message.includes('Permission') || message.includes('NotAllowed')) {
@@ -239,7 +257,8 @@ export function DictationController() {
     finishDictationSession,
     drainStoppedSession,
     setPartialTranscript,
-    recordFeatureInteraction
+    recordFeatureInteraction,
+    getInsertionTargetElement
   ])
 
   const stopDictation = useCallback(async () => {
@@ -262,6 +281,21 @@ export function DictationController() {
     await finishDictationSession(sessionId)
   }, [finishDictationSession, setDictationState, stopCapture])
 
+  const toggleDictation = useCallback((): void => {
+    if (
+      !settings?.voice?.enabled ||
+      !settings.voice.sttModel ||
+      dictationStateRef.current === 'stopping'
+    ) {
+      return
+    }
+    if (dictationStateRef.current === 'listening' || dictationStateRef.current === 'starting') {
+      void stopDictation()
+    } else {
+      void startDictation()
+    }
+  }, [settings?.voice?.enabled, settings?.voice?.sttModel, startDictation, stopDictation])
+
   // Toggle mode: use IPC from main process (before-input-event intercepts
   // the keyDown so Cmd+E doesn't reach xterm or trigger system shortcuts).
   useEffect(() => {
@@ -271,18 +305,7 @@ export function DictationController() {
     }
 
     const handleKeyDown = (): void => {
-      if (
-        !settings?.voice?.enabled ||
-        !settings.voice.sttModel ||
-        dictationStateRef.current === 'stopping'
-      ) {
-        return
-      }
-      if (dictationStateRef.current === 'listening' || dictationStateRef.current === 'starting') {
-        void stopDictation()
-      } else {
-        void startDictation()
-      }
+      toggleDictation()
     }
 
     const cleanup = window.api.ui.onDictationKeyDown(handleKeyDown)
@@ -291,9 +314,17 @@ export function DictationController() {
     settings?.voice?.dictationMode,
     settings?.voice?.enabled,
     settings?.voice?.sttModel,
-    startDictation,
-    stopDictation
+    toggleDictation
   ])
+
+  useEffect(() => {
+    const handleToggleRequest = (): void => {
+      toggleDictation()
+    }
+
+    window.addEventListener(DICTATION_TOGGLE_REQUEST_EVENT, handleToggleRequest)
+    return () => window.removeEventListener(DICTATION_TOGGLE_REQUEST_EVENT, handleToggleRequest)
+  }, [toggleDictation])
 
   // Why: hold mode uses renderer-side DOM events instead of the IPC path
   // (before-input-event). When before-input-event calls preventDefault()
@@ -393,6 +424,10 @@ export function DictationController() {
           insertedFinalTranscriptRef.current
         )
         insertText(textToInsert, target)
+        dispatchDictationFinalInserted({
+          text: textToInsert,
+          targetElement: getInsertionTargetElement()
+        })
         insertedFinalTranscriptRef.current += textToInsert
       } else if (!intentionalTargetCancellationRef.current) {
         toast.message(
@@ -416,6 +451,10 @@ export function DictationController() {
       erroredSessionIdsRef.current.add(sessionId)
       dictationRunRef.current += 1
       activeSessionIdRef.current = null
+      dispatchDictationSessionFailed({
+        error: data.error,
+        targetElement: getInsertionTargetElement()
+      })
       toast.error(
         translate(
           'auto.components.dictation.DictationController.de136f1199',
@@ -447,7 +486,13 @@ export function DictationController() {
       cleanupStopped()
       cleanupError()
     }
-  }, [setPartialTranscript, setDictationState, stopCapture, discardBufferedAudio])
+  }, [
+    setPartialTranscript,
+    setDictationState,
+    stopCapture,
+    discardBufferedAudio,
+    getInsertionTargetElement
+  ])
 
   return <DictationIndicator />
 }

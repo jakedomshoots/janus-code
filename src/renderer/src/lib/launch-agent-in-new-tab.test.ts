@@ -226,7 +226,23 @@ describe('launchAgentInNewTab', () => {
     launchAgentInNewTab({
       agent: 'codex',
       worktreeId: 'wt-1',
-      prompt: 'make launch instant'
+      prompt: 'make launch instant',
+      verificationCommand: 'pnpm test',
+      verificationExecutionContext: {
+        hostKind: 'ssh',
+        cwd: '/home/jake/janus-code',
+        platform: 'linux',
+        connectionId: 'ssh-1'
+      },
+      promptContextManifest: {
+        items: [
+          {
+            id: 'verification-command',
+            kind: 'verification',
+            command: 'pnpm test'
+          }
+        ]
+      }
     })
 
     expect(mockSetTabLayout).toHaveBeenCalledWith(
@@ -241,16 +257,53 @@ describe('launchAgentInNewTab', () => {
         tabId: 'tab-1',
         worktreeId: 'wt-1',
         agent: 'codex',
-        prompt: 'make launch instant'
+        prompt: 'make launch instant',
+        verification: {
+          command: 'pnpm test',
+          status: 'not-run',
+          executionContext: {
+            hostKind: 'ssh',
+            cwd: '/home/jake/janus-code',
+            platform: 'linux',
+            connectionId: 'ssh-1'
+          }
+        },
+        promptContextManifest: {
+          items: [
+            {
+              id: 'verification-command',
+              kind: 'verification',
+              command: 'pnpm test'
+            }
+          ]
+        }
       })
     )
     const queuedLaunch = mockQueuePendingAgentLaunch.mock.calls.at(-1)?.[0] as
       | { paneKey?: string }
       | undefined
     const queuedStartup = mockQueueTabStartupCommand.mock.calls.at(-1)?.[1] as
-      | { pendingLaunchPaneKey?: string }
+      | {
+          initialAgentStatus?: {
+            verification?: {
+              executionContext?: {
+                hostKind: string
+                cwd: string
+                platform: string
+                connectionId?: string
+              }
+            }
+          }
+          pendingLaunchPaneKey?: string
+        }
       | undefined
     expect(queuedStartup?.pendingLaunchPaneKey).toBe(queuedLaunch?.paneKey)
+    expect(queuedStartup?.initialAgentStatus?.verification?.executionContext).toEqual({
+      hostKind: 'ssh',
+      cwd: '/home/jake/janus-code',
+      platform: 'linux',
+      connectionId: 'ssh-1'
+    })
   })
 
   it('does not track prompt-sent for argv prompt launches', async () => {

@@ -1,4 +1,7 @@
 import type { GitPushTarget, GitStagingArea } from '../../../../shared/types'
+import type { AgentCommandRisk } from '../../../../shared/agent-command-risk'
+import type { ProtectedResourcePolicyMatch } from '../../../../shared/protected-resource-policy'
+import type { AgentComposerContextManifest } from './agent-composer-context-manifest'
 
 export type AgentWorkspacePhase =
   | 'idle'
@@ -71,6 +74,8 @@ export type AgentWorkspaceApproval = {
   readonly toolInput: string | null
   readonly fallbackText: string
   readonly updatedAt: string | null
+  readonly risk?: AgentCommandRisk
+  readonly protectedResourcePolicyMatches?: readonly ProtectedResourcePolicyMatch[]
 }
 
 export type AgentWorkspaceTimelineEntry = {
@@ -80,6 +85,33 @@ export type AgentWorkspaceTimelineEntry = {
   readonly text: string
   readonly createdAt: string | null
   readonly status?: 'pending' | 'running' | 'done' | 'failed'
+}
+
+export type AgentWorkspaceRunEvent = {
+  readonly id: string
+  readonly threadId: string
+  readonly kind: 'state' | 'tool' | 'approval' | 'error' | 'files' | 'telemetry' | 'verification'
+  readonly title: string
+  readonly detail: string
+  readonly createdAt: string | null
+  readonly status: 'pending' | 'running' | 'done' | 'failed' | 'unknown'
+  readonly telemetry: 'structured' | 'partial'
+  readonly risk?: AgentCommandRisk
+  readonly protectedResourcePolicyMatches?: readonly ProtectedResourcePolicyMatch[]
+}
+
+export type AgentWorkspaceThreadChromeAttentionState =
+  | 'idle'
+  | 'running'
+  | 'needs-attention'
+  | 'failed'
+  | 'done'
+
+export type AgentWorkspaceThreadChromeSummary = {
+  readonly currentStep: string
+  readonly lastCommand: string | null
+  readonly changedFileCount: number
+  readonly attentionState: AgentWorkspaceThreadChromeAttentionState
 }
 
 export type AgentWorkspaceDiffSummary = {
@@ -106,14 +138,22 @@ export type AgentWorkspaceReviewSummary = {
   readonly updatedAt: string
 }
 
+export type AgentWorkspaceRunReplayContext = {
+  readonly threadId: string
+  readonly prompt: string | null
+  readonly promptContextManifest?: AgentComposerContextManifest
+}
+
 export type AgentWorkspaceSnapshot = {
   readonly activeWorktreeId: string | null
   readonly projects: readonly AgentWorkspaceProject[]
   readonly threads: readonly AgentWorkspaceThread[]
   readonly plans: readonly AgentWorkspacePlan[]
   readonly timeline: readonly AgentWorkspaceTimelineEntry[]
+  readonly runEvents?: readonly AgentWorkspaceRunEvent[]
   readonly approvals: readonly AgentWorkspaceApproval[]
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
   readonly reviews?: readonly AgentWorkspaceReviewSummary[]
+  readonly runReplayContexts?: readonly AgentWorkspaceRunReplayContext[]
   readonly terminalAvailable: boolean
 }

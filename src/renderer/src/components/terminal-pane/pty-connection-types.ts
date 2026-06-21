@@ -1,6 +1,9 @@
 import type { PtyTransport } from './pty-transport'
 import type { ReplayingPanesRef } from './replay-guard'
-import type { ParsedAgentStatusPayload } from '../../../../shared/agent-status-types'
+import type {
+  AgentStatusVerification,
+  ParsedAgentStatusPayload
+} from '../../../../shared/agent-status-types'
 import type { EventProps } from '../../../../shared/telemetry-events'
 import type { TerminalColorSchemeMode } from '../../../../shared/terminal-color-scheme-protocol'
 import type { TuiAgent } from '../../../../shared/types'
@@ -19,7 +22,7 @@ export type PtyConnectionDeps = {
      *  so main fires the event only after the spawn succeeds. */
     telemetry?: EventProps<'agent_started'>
     /** Initial prompt-start status for launch-command prompts submitted before hooks fire. */
-    initialAgentStatus?: { agent: TuiAgent; prompt: string }
+    initialAgentStatus?: { agent: TuiAgent; prompt: string; verification?: AgentStatusVerification }
     /** Fires after the initial prompt status has been seeded into the transcript. */
     onPromptDelivered?: () => void
     /** Pane-key for the optimistic launch row that real status replaces. */

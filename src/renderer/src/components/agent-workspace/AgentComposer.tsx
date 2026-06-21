@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useDetectedAgents } from '@/hooks/useDetectedAgents'
 import { useAppStore } from '@/store'
 import { resolveAgentPermissionModeSummary } from '../../../../shared/tui-agent-permissions'
@@ -8,6 +8,8 @@ import {
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID
 } from '../../../../shared/tui-agent-models'
 import type { TuiAgent } from '../../../../shared/types'
+import { agentKindToTuiAgent } from '../../../../shared/agent-kind'
+import type { AgentKind } from '../../../../shared/telemetry-events'
 import { stripInjectedBrowserGrabDump } from '../browser-pane/strip-browser-grab-dump'
 import { AgentComposerForm } from './AgentComposerForm'
 import type { AgentComposerProps } from './agent-composer-props'
@@ -17,34 +19,46 @@ import {
   getAgentComposerReadinessMessage,
   isSelectedThreadReady
 } from './agent-composer-readiness'
-import { createPromptDeliveredFeedback } from './agent-composer-delivery-feedback'
-import { launchSelectedAgent } from './agent-composer-launch'
-import { getCompletedThreadRecoveryFeedback } from './agent-composer-completed-thread-recovery'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
-import { handleAgentComposerPaste } from './agent-composer-paste'
-import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
-import { submitAgentComposerMessage } from './agent-composer-submit'
-import { launchCompletedThreadFallback } from './agent-composer-completed-thread-fallback'
-import { notifyAgentComposerMessageSent } from './agent-composer-message-sent'
+import type { AgentComposerBrowserContextSnapshot } from './agent-composer-context-manifest'
+import {
+  buildAgentComposerVerificationExecutionContext,
+  resolveAgentWorkspaceProjectLaunchPlatform
+} from './agent-composer-verification-execution'
 import {
   EMPTY_DISABLED_TUI_AGENTS,
   getAgentComposerDetectionTarget,
   type AgentComposerFeedback
 } from './agent-composer-state'
-import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import {
+  isAgentComposerThreadBusy,
+  isQueuedFollowUpTarget,
+  type AgentComposerQueuedFollowUp
+} from './agent-composer-queued-follow-up'
+import type {
+  AgentWorkspaceDiffSummary,
+  AgentWorkspaceTimelineEntry
+} from './agent-workspace-types'
 import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
 import { useAgentComposerBrowserContextAttachment } from './useAgentComposerBrowserContextAttachment'
+import { useAgentComposerContextManifest } from './useAgentComposerContextManifest'
 import { useAgentComposerRecoverablePromptActions } from './useAgentComposerRecoverablePromptActions'
 import { useAgentComposerSettingsActions } from './useAgentComposerSettingsActions'
 import { useAgentComposerStateSync } from './useAgentComposerStateSync'
+import { useAgentComposerSubmit } from './useAgentComposerSubmit'
+import { useAgentComposerTextInput } from './useAgentComposerTextInput'
+import { useAgentComposerVoicePrompt } from './useAgentComposerVoicePrompt'
 import { useCompletedThreadRecoveryCleanup } from './useCompletedThreadRecoveryCleanup'
 
 const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
+const EMPTY_AGENT_DIFFS: readonly AgentWorkspaceDiffSummary[] = []
 
 export function AgentComposer({
   activeWorktreeId,
   selectedThread,
   timeline = EMPTY_AGENT_TIMELINE,
+  diffs = EMPTY_AGENT_DIFFS,
+  review = null,
   selectedProject = null,
   terminalAvailable = false,
   browserWorkbench: browserWorkbenchProp,
@@ -59,6 +73,13 @@ export function AgentComposer({
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
   const [recoverablePrompt, setRecoverablePrompt] = useState<string | null>(null)
+  const [verificationCommand, setVerificationCommand] = useState('')
+  const [queuedFollowUp, setQueuedFollowUp] = useState<AgentComposerQueuedFollowUp | null>(null)
+  const [agentMemoryContextEnabled, setAgentMemoryContextEnabled] = useState(true)
+  // Why: live browser annotations can change after attach; removals must target
+  // the exact markdown that was inserted into the draft.
+  const [attachedBrowserContext, setAttachedBrowserContext] =
+    useState<AgentComposerBrowserContextSnapshot | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
   const settings = useAppStore((state) => state.settings)
@@ -69,6 +90,7 @@ export function AgentComposer({
     Partial<Record<TuiAgent, string>>
   >({})
   const updateSettings = useAppStore((state) => state.updateSettings)
+  const rateLimits = useAppStore((state) => state.rateLimits)
   const browserWorkbenchInternal = useAgentBrowserWorkbench({
     activeWorktreeId,
     onOpenTerminalDrawer
@@ -77,6 +99,7 @@ export function AgentComposer({
   const settingsModelSelectionsKey = encodeAgentModelSelections(settings?.agentModelSelections)
   const defaultTuiAgent = settings?.defaultTuiAgent ?? null
   const disabledTuiAgents = settings?.disabledTuiAgents ?? EMPTY_DISABLED_TUI_AGENTS
+  const taskFitHintsEnabled = settings?.agentTaskFitHintsEnabled !== false
   const permissionMode = useMemo(
     () =>
       resolveAgentPermissionModeSummary({
@@ -106,6 +129,18 @@ export function AgentComposer({
     [composerModelSelections, selectedAgent]
   )
   const trimmedPrompt = prompt.trim()
+  const trimmedVerificationCommand = verificationCommand.trim()
+  const agentLaunchPlatform = useMemo(
+    () => resolveAgentWorkspaceProjectLaunchPlatform(selectedProject),
+    [selectedProject]
+  )
+  const verificationExecutionContext = useMemo(
+    () =>
+      trimmedVerificationCommand
+        ? buildAgentComposerVerificationExecutionContext(selectedProject)
+        : undefined,
+    [selectedProject, trimmedVerificationCommand]
+  )
   const readinessMessage = useMemo(
     () =>
       getAgentComposerReadinessMessage({
@@ -126,12 +161,60 @@ export function AgentComposer({
   ].join(':')
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
+  const queuedFollowUpAutoSendAttemptRef = useRef<string | null>(null)
+  const submittingRef = useRef(submitting)
+  const composerTextareaRef = useRef<HTMLTextAreaElement | null>(null)
   const composerDisabled = submitting
+  const voiceEnabled = settings?.voice?.enabled === true
+  const voiceModelId = settings?.voice?.sttModel ?? ''
+  const { voicePromptVisible, voicePromptState, voicePromptDisabled, handleToggleVoicePrompt } =
+    useAgentComposerVoicePrompt({
+      composerDisabled,
+      textareaRef: composerTextareaRef,
+      voiceEnabled,
+      voiceModelId
+    })
   const canSubmit = !submitting && readinessMessage === null && trimmedPrompt.length > 0
   const statusMessage = submitResult?.message ?? readinessMessage
   const statusTone = submitResult?.status ?? (readinessMessage ? 'blocked' : null)
   const canSendToSelectedThread = isSelectedThreadReady(selectedThread, activeWorktreeId)
+  const contextHintAgent = canSendToSelectedThread
+    ? agentKindToTuiAgent(selectedThread?.agentKind as AgentKind | null)
+    : selectedAgent
+  const selectedThreadBusy = isAgentComposerThreadBusy({ thread: selectedThread, timeline })
+  const visibleQueuedFollowUp = isQueuedFollowUpTarget({
+    queuedFollowUp,
+    activeWorktreeId,
+    selectedThread
+  })
+    ? queuedFollowUp
+    : null
   const canOpenTerminalDrawer = terminalAvailable && typeof onOpenTerminalDrawer === 'function'
+  const {
+    promptContextManifest,
+    handleRemoveBrowserContext,
+    handleRemoveVerificationCommand,
+    handleRemoveAgentMemoryContext
+  } = useAgentComposerContextManifest({
+    prompt,
+    selectedProject,
+    selectedThread,
+    diffs,
+    review,
+    browserAnnotationMarkdown: browserWorkbench.browserAnnotationMarkdown,
+    browserAnnotationCount: browserWorkbench.browserAnnotationCount,
+    browserContextSourceId: browserWorkbench.browserContextSourceId ?? null,
+    attachedBrowserContext,
+    verificationCommand,
+    agentMemoryContextEnabled,
+    contextHintAgent,
+    canSendToSelectedThread,
+    setPrompt,
+    setAttachedBrowserContext,
+    setSubmitResult,
+    setVerificationCommand,
+    setAgentMemoryContextEnabled
+  })
 
   useLayoutEffect(() => {
     const strippedPrompt = stripInjectedBrowserGrabDump(prompt)
@@ -164,161 +247,67 @@ export function AgentComposer({
     [updateSettings]
   )
 
-  useLayoutEffect(() => {
+  if (submitContextKeyRef.current !== submitContextKey) {
     submitContextKeyRef.current = submitContextKey
     submitSequenceRef.current += 1
-    setSubmitResult(null)
-    setSubmitting(false)
-  }, [submitContextKey])
-
-  const handleSubmit = useCallback(
-    async (event?: React.FormEvent<HTMLFormElement>): Promise<void> => {
-      event?.preventDefault()
-      if (submitting || !trimmedPrompt) {
-        return
-      }
-      const submitSequence = submitSequenceRef.current + 1
-      submitSequenceRef.current = submitSequence
-      const requestContextKey = submitContextKey
-      setSubmitting(true)
-      const launchingNewAgent = !canSendToSelectedThread && Boolean(activeWorktreeId)
-      const result = canSendToSelectedThread
-        ? await submitAgentComposerMessage({
-            activeWorktreeId,
-            selectedThread,
-            prompt
-          })
-        : activeWorktreeId
-          ? launchSelectedAgent({
-              activeWorktreeId,
-              selectedAgent,
-              selectedModel,
-              thinkingMode,
-              prompt: trimmedPrompt,
-              onPromptDelivered: () => {
-                if (
-                  submitSequenceRef.current !== submitSequence ||
-                  submitContextKeyRef.current !== requestContextKey
-                ) {
-                  return
-                }
-                setSubmitResult(createPromptDeliveredFeedback(selectedAgent))
-                setPrompt((currentPrompt) =>
-                  currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
-                )
-              }
-            })
-          : await launchProjectlessPlanningComposerAgent({
-              prompt: trimmedPrompt,
-              selectedAgent
-            })
-      if (
-        submitSequenceRef.current !== submitSequence ||
-        submitContextKeyRef.current !== requestContextKey
-      ) {
-        return
-      }
-      if (canSendToSelectedThread) {
-        const completedThreadSubmitResult = result as Awaited<
-          ReturnType<typeof submitAgentComposerMessage>
-        >
-        const fallbackResult = launchCompletedThreadFallback({
-          result: completedThreadSubmitResult,
-          selectedThread,
-          activeWorktreeId,
-          composerModelSelections,
-          thinkingMode,
-          prompt: trimmedPrompt,
-          onPromptDelivered: (agent) => {
-            if (
-              submitSequenceRef.current !== submitSequence ||
-              submitContextKeyRef.current !== requestContextKey
-            ) {
-              return
-            }
-            setSubmitResult(createPromptDeliveredFeedback(agent))
-            setPrompt((currentPrompt) =>
-              currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
-            )
-          }
-        })
-        if (fallbackResult) {
-          setSubmitResult(fallbackResult)
-          setSubmitting(false)
-          if (fallbackResult.status === 'launching') {
-            onPendingAgentLaunch?.()
-          }
-          return
-        }
-      }
-      setSubmitResult(result)
+    if (submitResult !== null) {
+      setSubmitResult(null)
+    }
+    if (submitting) {
       setSubmitting(false)
-      if (launchingNewAgent && result.status === 'launching') {
-        onPendingAgentLaunch?.()
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        notifyAgentComposerMessageSent(onMessageSent, result)
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        setPrompt('')
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        const recoveryFeedback = getCompletedThreadRecoveryFeedback({ result, selectedThread })
-        if (recoveryFeedback) {
-          setRecoverablePrompt(result.prompt)
-          setSubmitResult(recoveryFeedback)
-        } else {
-          setRecoverablePrompt(null)
-        }
-      }
-    },
-    [
+    }
+    if (!agentMemoryContextEnabled) {
+      setAgentMemoryContextEnabled(true)
+    }
+  }
+
+  useEffect(() => {
+    submittingRef.current = submitting
+  }, [submitting])
+
+  const { handleSubmit, handleQueuedFollowUpChange, handleDeleteQueuedFollowUp } =
+    useAgentComposerSubmit({
       activeWorktreeId,
+      selectedThread,
+      selectedThreadBusy,
       canSendToSelectedThread,
-      composerModelSelections,
-      prompt,
       selectedAgent,
       selectedModel,
-      selectedThread,
-      onMessageSent,
-      onPendingAgentLaunch,
+      thinkingMode,
+      prompt,
+      trimmedPrompt,
+      trimmedVerificationCommand,
+      verificationExecutionContext,
+      promptContextManifest,
+      agentLaunchPlatform,
+      composerModelSelections,
       submitContextKey,
       submitting,
-      thinkingMode,
-      trimmedPrompt
-    ]
-  )
+      queuedFollowUp,
+      submitSequenceRef,
+      submitContextKeyRef,
+      queuedFollowUpAutoSendAttemptRef,
+      submittingRef,
+      onMessageSent,
+      onPendingAgentLaunch,
+      setPrompt,
+      setVerificationCommand,
+      setQueuedFollowUp,
+      setSubmitResult,
+      setSubmitting,
+      setRecoverablePrompt,
+      setAgentMemoryContextEnabled
+    })
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {
-      if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
-        return
-      }
-      event.preventDefault()
-      if (canSubmit) {
-        void handleSubmit()
-      }
-    },
-    [canSubmit, handleSubmit]
-  )
-
-  const handlePaste = useCallback(
-    (event: React.ClipboardEvent<HTMLTextAreaElement>): void => {
-      handleAgentComposerPaste({ event, prompt, setPrompt })
-    },
-    [prompt]
-  )
-
-  const handlePromptChange = useCallback(
-    (value: string): void => {
-      setPrompt(stripInjectedBrowserGrabDump(value))
-      setRecoverablePrompt(null)
-      if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
-        setSubmitResult(null)
-      }
-    },
-    [submitResult?.reason, submitResult?.status]
-  )
+  const { handleKeyDown, handlePaste, handlePromptChange } = useAgentComposerTextInput({
+    prompt,
+    canSubmit,
+    submitResult,
+    handleSubmit,
+    setPrompt,
+    setRecoverablePrompt,
+    setSubmitResult
+  })
 
   useCompletedThreadRecoveryCleanup({
     recoverablePrompt,
@@ -355,6 +344,9 @@ export function AgentComposer({
 
   const handleAttachBrowserContext = useAgentComposerBrowserContextAttachment({
     browserAnnotationMarkdown: browserWorkbench.browserAnnotationMarkdown,
+    browserAnnotationCount: browserWorkbench.browserAnnotationCount,
+    browserContextSourceId: browserWorkbench.browserContextSourceId ?? null,
+    onBrowserContextAttached: setAttachedBrowserContext,
     setPrompt,
     setSubmitResult
   })
@@ -366,6 +358,7 @@ export function AgentComposer({
   return (
     <AgentComposerForm
       prompt={prompt}
+      textareaRef={composerTextareaRef}
       activeWorktreeId={activeWorktreeId}
       selectedProject={selectedProject}
       selectedThread={selectedThread}
@@ -373,6 +366,10 @@ export function AgentComposer({
       composerDisabled={composerDisabled}
       statusMessage={statusMessage}
       statusTone={statusTone}
+      voicePromptVisible={voicePromptVisible}
+      voicePromptState={voicePromptState}
+      voicePromptDisabled={voicePromptDisabled}
+      onToggleVoicePrompt={handleToggleVoicePrompt}
       permissionMode={permissionMode}
       thinkingMode={thinkingMode}
       canOpenTerminalDrawer={canOpenTerminalDrawer}
@@ -385,6 +382,8 @@ export function AgentComposer({
       canSendToSelectedThread={canSendToSelectedThread}
       availableAgents={availableAgents}
       selectedAgent={selectedAgent}
+      taskFitHintsEnabled={taskFitHintsEnabled}
+      providerRateLimits={rateLimits}
       modelOptions={modelOptions}
       selectedModel={selectedModel}
       modelDiscoveryLoading={modelDiscovery.loading}
@@ -394,6 +393,15 @@ export function AgentComposer({
       canSubmit={canSubmit}
       onSubmit={handleSubmit}
       onPromptChange={handlePromptChange}
+      promptContextManifest={promptContextManifest}
+      onRemoveBrowserContext={handleRemoveBrowserContext}
+      onRemoveVerificationCommand={handleRemoveVerificationCommand}
+      onRemoveAgentMemoryContext={handleRemoveAgentMemoryContext}
+      queuedFollowUp={visibleQueuedFollowUp}
+      onQueuedFollowUpChange={handleQueuedFollowUpChange}
+      onDeleteQueuedFollowUp={handleDeleteQueuedFollowUp}
+      verificationCommand={verificationCommand}
+      onVerificationCommandChange={setVerificationCommand}
       onPaste={handlePaste}
       onKeyDown={handleKeyDown}
       onPermissionModeChange={changePermissionMode}

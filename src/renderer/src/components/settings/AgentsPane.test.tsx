@@ -15,6 +15,7 @@ import {
   AgentAvailabilityControl,
   AgentPermissionsSetting,
   AgentGeneratedTabTitlesSetting,
+  AgentTaskFitHintsSetting,
   AgentStatusHooksSetting,
   AgentsPane,
   getAgentsPaneSearchEntries,
@@ -243,6 +244,27 @@ describe('AgentsPane', () => {
     })
   })
 
+  it('toggles provider task-fit hints with the next value', () => {
+    const updateSettings = vi.fn()
+    const element = AgentTaskFitHintsSetting({
+      settings: {
+        ...getDefaultSettings('/tmp'),
+        agentTaskFitHintsEnabled: false
+      },
+      updateSettings
+    })
+
+    const taskFitSwitch = findSwitchRow(element, 'Provider task-fit hints')
+    expect(taskFitSwitch.props.checked).toBe(false)
+
+    const onChange = taskFitSwitch.props.onChange as () => void
+    onChange()
+
+    expect(updateSettings).toHaveBeenCalledWith({
+      agentTaskFitHintsEnabled: true
+    })
+  })
+
   it('includes awake and sleep search metadata for the setting', () => {
     expect(matchesSettingsSearch('awake', getAgentsPaneSearchEntries())).toBe(true)
     expect(matchesSettingsSearch('sleep', getAgentsPaneSearchEntries())).toBe(true)
@@ -258,6 +280,11 @@ describe('AgentsPane', () => {
   it('includes generated title search metadata', () => {
     expect(matchesSettingsSearch('generated title', getAgentsPaneSearchEntries())).toBe(true)
     expect(matchesSettingsSearch('stable session', getAgentsPaneSearchEntries())).toBe(true)
+  })
+
+  it('includes provider task-fit hint search metadata', () => {
+    expect(matchesSettingsSearch('task fit', getAgentsPaneSearchEntries())).toBe(true)
+    expect(matchesSettingsSearch('provider hint', getAgentsPaneSearchEntries())).toBe(true)
   })
 
   it('includes enable and hide search metadata for agent visibility', () => {

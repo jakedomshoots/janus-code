@@ -143,6 +143,32 @@ export type AgentStatusApproval = {
   fallbackText: string
 }
 
+export const AGENT_STATUS_VERIFICATION_STATUSES = [
+  'not-run',
+  'running',
+  'passed',
+  'failed',
+  'unknown'
+] as const
+export type AgentStatusVerificationStatus = (typeof AGENT_STATUS_VERIFICATION_STATUSES)[number]
+
+export const AGENT_STATUS_VERIFICATION_HOST_KINDS = ['local', 'ssh', 'runtime'] as const
+export type AgentStatusVerificationHostKind = (typeof AGENT_STATUS_VERIFICATION_HOST_KINDS)[number]
+
+export type AgentStatusVerificationExecutionContext = {
+  hostKind: AgentStatusVerificationHostKind
+  cwd: string
+  platform: NodeJS.Platform
+  connectionId?: string
+  runtimeEnvironmentId?: string
+}
+
+export type AgentStatusVerification = {
+  command: string
+  status: AgentStatusVerificationStatus
+  executionContext?: AgentStatusVerificationExecutionContext
+}
+
 export type AgentStatusEntry = {
   state: AgentStatusState
   /** The user's most recent prompt, when the hook payload carried one.
@@ -190,6 +216,8 @@ export type AgentStatusEntry = {
   plan?: AgentStatusPlan
   /** Latest provider-neutral approval request for the active turn, when available. */
   approval?: AgentStatusApproval
+  /** User-defined command that proves the run is done, when configured. */
+  verification?: AgentStatusVerification
   /** True when the current `done` state was reached via an interrupt rather
    *  than a normal turn completion. May be reported by the agent itself or
    *  inferred by Orca's guarded interrupt fallback.
@@ -234,6 +262,7 @@ export type AgentStatusPayload = {
   failure?: AgentStatusFailurePayload | null
   plan?: AgentStatusPlan | null
   approval?: AgentStatusApproval | null
+  verification?: AgentStatusVerification | null
   interrupted?: boolean
 }
 
@@ -280,6 +309,12 @@ export const AGENT_STATUS_TOOL_INPUT_MAX_LENGTH = 160
 export const AGENT_STATUS_TOOL_EVENT_ID_MAX_LENGTH = 160
 /** Maximum character length for a structured tool event fallback text. */
 export const AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH = 500
+/** Maximum character length for a configured verification command. */
+export const AGENT_STATUS_VERIFICATION_COMMAND_MAX_LENGTH = 300
+/** Maximum character length for a verification command working directory. */
+export const AGENT_STATUS_VERIFICATION_CWD_MAX_LENGTH = 500
+/** Maximum character length for verification host/runtime identifiers. */
+export const AGENT_STATUS_VERIFICATION_CONTEXT_ID_MAX_LENGTH = 160
 /** Maximum character length for a structured failure id. */
 export const AGENT_STATUS_FAILURE_ID_MAX_LENGTH = 160
 /** Maximum character length for a structured failure reason. */
@@ -521,6 +556,96 @@ function normalizeStructuredToolEvent(value: unknown): AgentStatusToolEvent | nu
   }
 }
 
+function normalizeVerificationStatus(value: unknown): AgentStatusVerificationStatus {
+  return AGENT_STATUS_VERIFICATION_STATUSES.includes(value as AgentStatusVerificationStatus)
+    ? (value as AgentStatusVerificationStatus)
+    : 'unknown'
+}
+
+const AGENT_STATUS_VERIFICATION_PLATFORMS = [
+  'aix',
+  'android',
+  'cygwin',
+  'darwin',
+  'freebsd',
+  'haiku',
+  'linux',
+  'netbsd',
+  'openbsd',
+  'sunos',
+  'win32'
+] as const satisfies readonly NodeJS.Platform[]
+
+function normalizeVerificationHostKind(value: unknown): AgentStatusVerificationHostKind | null {
+  return AGENT_STATUS_VERIFICATION_HOST_KINDS.includes(value as AgentStatusVerificationHostKind)
+    ? (value as AgentStatusVerificationHostKind)
+    : null
+}
+
+function normalizeVerificationPlatform(value: unknown): NodeJS.Platform | null {
+  const platform = normalizeOptionalField(value, AGENT_STATUS_VERIFICATION_CONTEXT_ID_MAX_LENGTH)
+  return AGENT_STATUS_VERIFICATION_PLATFORMS.includes(platform as NodeJS.Platform)
+    ? (platform as NodeJS.Platform)
+    : null
+}
+
+function normalizeStructuredVerificationExecutionContext(
+  value: unknown
+): AgentStatusVerificationExecutionContext | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const hostKind = normalizeVerificationHostKind(obj.hostKind)
+  const cwd = normalizeOptionalField(obj.cwd, AGENT_STATUS_VERIFICATION_CWD_MAX_LENGTH)
+  const platform = normalizeVerificationPlatform(obj.platform)
+  if (!hostKind || !cwd || !platform) {
+    return undefined
+  }
+
+  const connectionId = normalizeOptionalField(
+    obj.connectionId,
+    AGENT_STATUS_VERIFICATION_CONTEXT_ID_MAX_LENGTH
+  )
+  const runtimeEnvironmentId = normalizeOptionalField(
+    obj.runtimeEnvironmentId,
+    AGENT_STATUS_VERIFICATION_CONTEXT_ID_MAX_LENGTH
+  )
+
+  return {
+    hostKind,
+    cwd,
+    platform,
+    ...(hostKind === 'ssh' && connectionId ? { connectionId } : {}),
+    ...(hostKind === 'runtime' && runtimeEnvironmentId ? { runtimeEnvironmentId } : {})
+  }
+}
+
+function normalizeStructuredVerification(
+  value: unknown
+): AgentStatusVerification | null | undefined {
+  if (value === null) {
+    return null
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return undefined
+  }
+
+  const obj = value as Record<string, unknown>
+  const command = normalizeOptionalField(obj.command, AGENT_STATUS_VERIFICATION_COMMAND_MAX_LENGTH)
+  if (!command) {
+    return undefined
+  }
+
+  const executionContext = normalizeStructuredVerificationExecutionContext(obj.executionContext)
+  return {
+    command,
+    status: normalizeVerificationStatus(obj.status),
+    ...(executionContext ? { executionContext } : {})
+  }
+}
+
 function normalizeFailureSource(value: unknown): AgentStatusFailureSource {
   return AGENT_STATUS_FAILURE_SOURCES.includes(value as AgentStatusFailureSource)
     ? (value as AgentStatusFailureSource)
@@ -649,6 +774,7 @@ function normalizeAgentStatusObject(parsed: unknown): ParsedAgentStatusPayload |
     failure: normalizeStructuredFailure(obj.failure),
     plan: normalizeStructuredPlan(obj.plan),
     approval: normalizeStructuredApproval(obj.approval),
+    verification: normalizeStructuredVerification(obj.verification),
     // Why: only meaningful on `done`. Coerce to undefined on other states so
     // the field doesn't leak stale truth through state transitions.
     interrupted: obj.interrupted === true && state === 'done' ? true : undefined

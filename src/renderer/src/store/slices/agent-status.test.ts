@@ -549,6 +549,101 @@ describe('agent status tool + assistant fields', () => {
     expect(store.getState().agentStatusByPaneKey['tab-1:1'].toolEvent).toBeUndefined()
   })
 
+  it('updates verification state from matching structured tool lifecycle events', () => {
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      verification: {
+        command: 'pnpm test',
+        status: 'not-run'
+      }
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      toolEvent: {
+        id: 'tool-running',
+        status: 'running',
+        name: 'Bash',
+        input: ' pnpm test ',
+        fallbackText: 'Started Bash: pnpm test'
+      }
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].verification).toEqual({
+      command: 'pnpm test',
+      status: 'running'
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      toolEvent: {
+        id: 'tool-completed',
+        status: 'completed',
+        name: 'Bash',
+        input: 'pnpm test',
+        fallbackText: 'Completed Bash: pnpm test'
+      }
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].verification).toEqual({
+      command: 'pnpm test',
+      status: 'passed'
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      toolEvent: {
+        id: 'tool-failed',
+        status: 'failed',
+        name: 'Bash',
+        input: 'pnpm test',
+        fallbackText: 'Failed Bash: pnpm test'
+      }
+    })
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].verification).toEqual({
+      command: 'pnpm test',
+      status: 'failed'
+    })
+  })
+
+  it('ignores structured tool lifecycle events for unrelated verification commands', () => {
+    const store = createTestStore()
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      verification: {
+        command: 'pnpm test',
+        status: 'not-run'
+      }
+    })
+
+    store.getState().setAgentStatus('tab-1:1', {
+      state: 'working',
+      prompt: 'Run the tests',
+      agentType: 'codex',
+      toolEvent: {
+        id: 'tool-lint',
+        status: 'completed',
+        name: 'Bash',
+        input: 'pnpm lint',
+        fallbackText: 'Completed Bash: pnpm lint'
+      }
+    })
+
+    expect(store.getState().agentStatusByPaneKey['tab-1:1'].verification).toEqual({
+      command: 'pnpm test',
+      status: 'not-run'
+    })
+  })
+
   it('enriches structured failure details with provider, worktree, and timestamp', () => {
     vi.useFakeTimers()
     const store = createTestStore()

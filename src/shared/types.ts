@@ -34,6 +34,7 @@ import type { ClaudeAgentTeamsMode } from './claude-agent-teams-tmux-compat'
 import type { TerminalCustomTheme } from './terminal-custom-themes'
 import type { UiLanguage } from './ui-language'
 import type { AppThemePreference } from './app-theme'
+import type { ProtectedResourcePolicy } from './protected-resource-policy'
 
 // Re-exported for backward compat with renderer call sites that import
 // `WorkspaceCreateTelemetrySource` from '../../../shared/types'.
@@ -2563,6 +2564,12 @@ export type GlobalSettings = {
   agentModelSelections?: Partial<Record<TuiAgent, string>>
   /** Default thinking depth used by the GUI composer when launching agents. */
   agentThinkingMode?: TuiAgentThinkingMode
+  /** Why: provider fit labels are advisory product copy, so users can hide
+   *  them without changing provider availability or launch behavior. */
+  agentTaskFitHintsEnabled?: boolean
+  /** User-defined guards for production-like commands, paths, branches, and
+   *  environments. Matched in renderer evidence and approval surfaces. */
+  protectedResourcePolicies?: ProtectedResourcePolicy[]
   /** One-shot guard for adding yolo-mode default args to untouched agent launch profiles. */
   agentYoloDefaultsMigrated?: boolean
   /** Why: disabling must persist so startup does not reinstall global agent

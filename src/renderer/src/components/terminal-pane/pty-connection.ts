@@ -1251,7 +1251,8 @@ export function connectPanePty(
       {
         state: 'working',
         prompt: initialStatus.prompt,
-        agentType: initialStatus.agent
+        agentType: initialStatus.agent,
+        ...(initialStatus.verification ? { verification: initialStatus.verification } : {})
       },
       terminalTitle
     )

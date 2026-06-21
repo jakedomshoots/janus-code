@@ -1,6 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
+import type {
+  AgentWorkspaceProject,
+  AgentWorkspaceThread,
+  AgentWorkspaceThreadChromeSummary
+} from './agent-workspace-types'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 
 const project: AgentWorkspaceProject = {
@@ -19,6 +23,13 @@ const thread: AgentWorkspaceThread = {
   updatedAt: '2026-06-16T12:00:00.000Z',
   branchName: 'feature/provider-parity',
   cwd: '/Users/jakedom/janus-code'
+}
+
+const runSummary: AgentWorkspaceThreadChromeSummary = {
+  currentStep: 'Approval requested',
+  lastCommand: 'pnpm test',
+  changedFileCount: 2,
+  attentionState: 'needs-attention'
 }
 
 describe('AgentWorkspaceHeader', () => {
@@ -87,5 +98,16 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).toContain('Open project files')
     expect(markup).toContain('Files')
     expect(markup).not.toContain('Show right panel')
+  })
+
+  it('renders selected-thread run evidence in the workspace chrome', () => {
+    const markup = renderToStaticMarkup(
+      <AgentWorkspaceHeader project={project} thread={thread} runSummary={runSummary} />
+    )
+
+    expect(markup).toContain('Approval requested')
+    expect(markup).toContain('pnpm test')
+    expect(markup).toContain('2 files')
+    expect(markup).toContain('Needs attention')
   })
 })

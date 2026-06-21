@@ -10,6 +10,8 @@ import {
   type AgentStatusFailure,
   type AgentStatusFailurePayload,
   type AgentStatusOrchestrationContext,
+  type AgentStatusToolEvent,
+  type AgentStatusVerification,
   type AgentType,
   type MigrationUnsupportedPtyEntry,
   type ParsedAgentStatusPayload
@@ -203,6 +205,37 @@ function enrichFailureDetail(args: {
     providerKind: args.providerKind,
     worktreeId: args.worktreeId,
     occurredAt: args.occurredAt
+  }
+}
+
+function getTrimmedVerificationCommand(value: string): string | null {
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+function toolEventMatchesVerification(
+  toolEvent: AgentStatusToolEvent | null | undefined,
+  verification: AgentStatusVerification
+): boolean {
+  const expectedCommand = getTrimmedVerificationCommand(verification.command)
+  const observedCommand = toolEvent?.input ? getTrimmedVerificationCommand(toolEvent.input) : null
+  return expectedCommand !== null && expectedCommand === observedCommand
+}
+
+function getVerificationObservedFromToolEvent(
+  verification: AgentStatusVerification | undefined,
+  toolEvent: AgentStatusToolEvent | null | undefined
+): AgentStatusVerification | undefined {
+  if (!verification || !toolEvent || !toolEventMatchesVerification(toolEvent, verification)) {
+    return verification
+  }
+  switch (toolEvent.status) {
+    case 'running':
+      return { ...verification, status: 'running' }
+    case 'completed':
+      return { ...verification, status: 'passed' }
+    case 'failed':
+      return { ...verification, status: 'failed' }
   }
 }
 
@@ -519,6 +552,16 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
               ? undefined
               : existing?.approval
             : (payload.approval ?? undefined)
+        const verificationBase =
+          payload.verification === undefined
+            ? promptChanged
+              ? s.pendingAgentLaunchesByPaneKey[paneKey]?.verification
+              : (existing?.verification ?? s.pendingAgentLaunchesByPaneKey[paneKey]?.verification)
+            : (payload.verification ?? undefined)
+        const verification = getVerificationObservedFromToolEvent(
+          verificationBase,
+          payload.toolEvent
+        )
         const runtimeOrchestration = s.runtimeAgentOrchestrationByPaneKey[paneKey]
         const runtimeMergedOrchestration = runtimeOrchestration
           ? mergeCurrentOrchestrationContext(existing?.orchestration, runtimeOrchestration)
@@ -570,6 +613,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
           failure,
           plan,
           approval,
+          ...(verification ? { verification } : {}),
           // Why: reused panes may start non-orchestrated work after runtime
           // metadata expires. Only final done rows keep the previous lineage
           // fallback so completed children stay grouped.
@@ -624,6 +668,7 @@ export const createAgentStatusSlice: StateCreator<AppState, [], [], AgentStatusS
             entry.failure !== existing.failure ||
             entry.plan !== existing.plan ||
             entry.approval !== existing.approval ||
+            entry.verification !== existing.verification ||
             entry.orchestration !== existing.orchestration ||
             entry.providerSession !== existing.providerSession ||
             entry.interrupted !== existing.interrupted)

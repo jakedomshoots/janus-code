@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
+import type { TuiAgent } from '../../../../shared/types'
 
 const roots: Root[] = []
 const storeMocks = vi.hoisted(() => {
@@ -29,7 +30,12 @@ const storeMocks = vi.hoisted(() => {
   const closeBrowserTab = vi.fn()
   const state = {
     browserDefaultUrl: 'data:text/html,',
-    settings: { guiAgentWorkspaceEnabled: false, defaultTuiAgent: 'grok', disabledTuiAgents: [] },
+    settings: {
+      guiAgentWorkspaceEnabled: false,
+      defaultTuiAgent: 'grok',
+      disabledTuiAgents: [] as TuiAgent[],
+      agentDefaultArgs: {} as Partial<Record<TuiAgent, string>>
+    },
     repos: [],
     worktreesByRepo: {},
     openDiff: vi.fn(),
@@ -62,7 +68,7 @@ const storeMocks = vi.hoisted(() => {
   }
 })
 const launchMocks = vi.hoisted(() => ({
-  launchAgentInNewTab: vi.fn(() => ({
+  launchAgentInNewTab: vi.fn((_args: unknown) => ({
     tabId: 'tab-agent',
     startupPlan: {
       agent: 'codex',
@@ -258,6 +264,12 @@ afterEach(() => {
   roots.splice(0).forEach((root) => {
     act(() => root.unmount())
   })
+  storeMocks.state.settings = {
+    guiAgentWorkspaceEnabled: false,
+    defaultTuiAgent: 'grok',
+    disabledTuiAgents: [],
+    agentDefaultArgs: {}
+  }
   storeMocks.openDiff.mockClear()
   storeMocks.openFile.mockClear()
   storeMocks.openModal.mockClear()
@@ -520,6 +532,82 @@ describe('AgentWorkspace pane workflow', () => {
 
     expect(container.textContent).toContain('Changes')
     expect(container.textContent).toContain('docs/reference/handoff.md')
+  })
+
+  it('launches a review-only agent from the changes panel with diff and review context', async () => {
+    storeMocks.state.settings = {
+      ...storeMocks.state.settings,
+      defaultTuiAgent: 'codex',
+      agentDefaultArgs: { codex: '--dangerously-bypass-approvals-and-sandbox' }
+    }
+    const thread = {
+      id: 'thread-review-only',
+      worktreeId: 'worktree-1',
+      title: 'Review current changes',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: 'feature/review-only',
+      cwd: '/Users/jakedom/janus-code'
+    }
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [thread],
+        diffs: [
+          {
+            id: 'diff-review-only',
+            threadId: thread.id,
+            area: 'unstaged',
+            filePath: 'src/renderer/src/App.tsx',
+            additions: 24,
+            deletions: 6,
+            status: 'modified'
+          }
+        ],
+        reviews: [
+          {
+            id: 'review-1',
+            worktreeId: 'worktree-1',
+            provider: 'gitlab',
+            providerLabel: 'GitLab',
+            number: 42,
+            title: 'Tighten workspace context',
+            state: 'open',
+            url: 'https://gitlab.example.com/janus/merge_requests/42',
+            status: 'pending',
+            updatedAt: '2026-06-16T12:00:00.000Z'
+          }
+        ]
+      })
+    )
+
+    const reviewOnlyButton = buttons(container).find((button) =>
+      button.textContent?.includes('Review only')
+    )
+    expect(reviewOnlyButton).toBeDefined()
+
+    await act(async () => {
+      reviewOnlyButton?.click()
+    })
+
+    expect(launchMocks.launchAgentInNewTab).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agent: 'codex',
+        worktreeId: 'worktree-1',
+        groupId: 'group-1',
+        promptDelivery: 'submit-after-ready',
+        launchSource: 'diff_notes_send',
+        agentArgs: '--sandbox read-only'
+      })
+    )
+    const launchArgs = launchMocks.launchAgentInNewTab.mock.calls.at(-1)?.[0] as
+      | { prompt?: string }
+      | undefined
+    const launchPrompt = launchArgs?.prompt
+    expect(launchPrompt).toContain('Review only')
+    expect(launchPrompt).toContain('Do not edit files')
+    expect(launchPrompt).toContain('GitLab #42')
+    expect(launchPrompt).toContain('src/renderer/src/App.tsx')
   })
 
   it('splits and closes agent workspace panes from the tab strip', async () => {

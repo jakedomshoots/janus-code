@@ -19,6 +19,7 @@ export type AgentBrowserWorkbenchState = {
   readonly browserTabCount: number
   readonly browserAnnotationCount: number
   readonly browserAnnotationMarkdown: string
+  readonly browserContextSourceId?: string | null
   readonly canAttachBrowserContext: boolean
   readonly openBrowserWorkbench: (options?: OpenAgentBrowserWorkbenchOptions) => void
 }
@@ -99,6 +100,10 @@ export function useAgentBrowserWorkbench({
     browserTabCount: browserTabs.length,
     browserAnnotationCount: browserAnnotations.length,
     browserAnnotationMarkdown,
+    browserContextSourceId:
+      visibleBrowserTab && activeBrowserPageId
+        ? `${visibleBrowserTab.id}:${activeBrowserPageId}`
+        : null,
     canAttachBrowserContext: browserAnnotationMarkdown.length > 0,
     openBrowserWorkbench
   }

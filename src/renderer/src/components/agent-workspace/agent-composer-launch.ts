@@ -13,6 +13,8 @@ import {
   type TuiAgentThinkingMode
 } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
+import type { AgentStatusVerificationExecutionContext } from '../../../../shared/agent-status-types'
+import type { AgentComposerContextManifest } from './agent-composer-context-manifest'
 
 export type AgentComposerLaunchFeedback = {
   message: string
@@ -26,6 +28,10 @@ export function launchSelectedAgent({
   selectedModel,
   thinkingMode,
   prompt,
+  verificationCommand,
+  verificationExecutionContext,
+  promptContextManifest,
+  launchPlatform,
   onPromptDelivered
 }: {
   activeWorktreeId: string | null
@@ -33,6 +39,10 @@ export function launchSelectedAgent({
   selectedModel: string
   thinkingMode: TuiAgentThinkingMode
   prompt: string
+  verificationCommand?: string | null
+  verificationExecutionContext?: AgentStatusVerificationExecutionContext
+  promptContextManifest?: AgentComposerContextManifest
+  launchPlatform?: NodeJS.Platform
   onPromptDelivered?: () => void
 }): AgentComposerLaunchFeedback {
   if (!activeWorktreeId || !selectedAgent) {
@@ -60,6 +70,14 @@ export function launchSelectedAgent({
     promptDelivery: 'auto-submit',
     ...(agentArgs ? { agentArgs } : {}),
     launchSource: 'new_workspace_composer',
+    ...(verificationCommand?.trim() ? { verificationCommand: verificationCommand.trim() } : {}),
+    ...(verificationCommand?.trim() && verificationExecutionContext
+      ? { verificationExecutionContext }
+      : {}),
+    ...(promptContextManifest && promptContextManifest.items.length > 0
+      ? { promptContextManifest }
+      : {}),
+    ...(launchPlatform ? { launchPlatform } : {}),
     onPromptDelivered
   })
   const agentLabel = getAgentLabel(selectedAgent)

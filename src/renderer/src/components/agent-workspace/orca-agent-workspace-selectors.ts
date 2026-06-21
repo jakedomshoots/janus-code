@@ -24,7 +24,14 @@ import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { getPhaseForAgentState } from './orca-agent-phase-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
 import { selectAgentWorkspaceReviews } from './orca-agent-review-selectors'
+import { selectAgentWorkspaceRunEvents } from './orca-agent-run-event-selectors'
+import { selectAgentWorkspaceRunReplayContexts } from './orca-agent-run-replay-context-selectors'
 import { selectAgentWorkspaceTimeline } from './orca-agent-timeline-selectors'
+import {
+  hasAgentWorkspaceTerminalAvailability,
+  hasAgentWorkspaceTerminalTabs
+} from './orca-agent-workspace-terminal-availability'
+import { getIsoTimestamp, getSortTimestamp } from './agent-workspace-timestamps'
 
 type WorkspaceThreadMeta = {
   path: string
@@ -114,21 +121,6 @@ function getThreadTitle(entry: AgentStatusEntry, tab: TerminalTab | undefined): 
     entry.agentType ??
     'unknown'
   )
-}
-
-function getIsoTimestamp(value: number): string | null {
-  return Number.isFinite(value) ? new Date(value).toISOString() : null
-}
-
-function getSortTimestamp(value: string | null): number {
-  return value ? Date.parse(value) : Number.NEGATIVE_INFINITY
-}
-
-function hasTerminalTabsForProjects(
-  state: AppState,
-  projects: readonly AgentWorkspaceProject[]
-): boolean {
-  return projects.some((project) => (state.tabsByWorktree[project.id] ?? []).length > 0)
 }
 
 function toAgentWorkspaceThread(
@@ -262,7 +254,7 @@ export function selectAgentWorkspaceThreads(state: AppState): readonly AgentWork
 
 export function selectAgentWorkspaceTerminalAvailable(state: AppState): boolean {
   const projects = selectAgentWorkspaceProjects(state)
-  if (hasTerminalTabsForProjects(state, projects)) {
+  if (hasAgentWorkspaceTerminalTabs(state, projects)) {
     return true
   }
   return selectAgentWorkspaceThreads(state).length > 0
@@ -290,19 +282,23 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
   const threads = selectAgentWorkspaceThreads(state)
   const plans = selectAgentWorkspacePlans(state, threads)
   const timeline = selectAgentWorkspaceTimeline(state, threads)
+  const runEvents = selectAgentWorkspaceRunEvents(state, threads)
   const approvals = selectAgentWorkspaceApprovals(state, threads)
   const diffs = selectAgentWorkspaceDiffs(state, threads)
   const reviews = selectAgentWorkspaceReviews(state)
+  const runReplayContexts = selectAgentWorkspaceRunReplayContexts(state, threads)
   const snapshot = {
     activeWorktreeId: state.activeWorktreeId ?? null,
     projects,
     threads,
     plans,
     timeline,
+    runEvents,
     approvals,
     diffs,
     reviews,
-    terminalAvailable: threads.length > 0 || hasTerminalTabsForProjects(state, projects)
+    runReplayContexts,
+    terminalAvailable: hasAgentWorkspaceTerminalAvailability({ state, projects, threads })
   }
   snapshotCache = {
     worktreesByRepo: state.worktreesByRepo,

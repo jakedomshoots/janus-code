@@ -7,21 +7,27 @@ import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissio
 import { isTuiAgent } from '../../../../shared/tui-agent-config'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
+import type { RateLimitState } from '../../../../shared/rate-limit-types'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import type { AgentWorkspaceProject } from './agent-workspace-types'
 import type { AgentComposerSubmitResult } from './agent-composer-submit'
+import type { AgentComposerContextManifest } from './agent-composer-context-manifest'
+import type { AgentComposerQueuedFollowUp } from './agent-composer-queued-follow-up'
 import { learnAgentComposerSlashCommandsFromTimeline } from './agent-composer-learned-slash-commands'
 import { useAgentComposerSlashCommandDiscovery } from './agent-composer-slash-command-discovery'
 import {
   completeAgentComposerSlashCommand,
   getAgentComposerSlashCommandMatches
 } from './agent-composer-slash-command-model'
+import { AgentComposerQueuedFollowUpRow } from './AgentComposerQueuedFollowUp'
+import type { AgentComposerVoicePromptState } from './AgentComposerVoiceButton'
 
 export function AgentComposerForm({
   prompt,
+  textareaRef,
   activeWorktreeId,
   selectedProject,
   selectedThread,
@@ -29,6 +35,10 @@ export function AgentComposerForm({
   composerDisabled,
   statusMessage,
   statusTone,
+  voicePromptVisible,
+  voicePromptState,
+  voicePromptDisabled,
+  onToggleVoicePrompt,
   permissionMode,
   thinkingMode,
   canOpenTerminalDrawer,
@@ -41,6 +51,8 @@ export function AgentComposerForm({
   canSendToSelectedThread,
   availableAgents,
   selectedAgent,
+  taskFitHintsEnabled,
+  providerRateLimits,
   modelOptions,
   selectedModel,
   modelDiscoveryLoading,
@@ -50,6 +62,15 @@ export function AgentComposerForm({
   canSubmit,
   onSubmit,
   onPromptChange,
+  promptContextManifest,
+  onRemoveBrowserContext,
+  onRemoveVerificationCommand,
+  onRemoveAgentMemoryContext,
+  queuedFollowUp,
+  onQueuedFollowUpChange,
+  onDeleteQueuedFollowUp,
+  verificationCommand,
+  onVerificationCommandChange,
   onPaste,
   onKeyDown,
   onPermissionModeChange,
@@ -61,6 +82,7 @@ export function AgentComposerForm({
   onRetryRecoverablePrompt
 }: {
   prompt: string
+  textareaRef?: React.Ref<HTMLTextAreaElement>
   activeWorktreeId: string | null
   selectedProject: AgentWorkspaceProject | null
   selectedThread: AgentWorkspaceThread | null
@@ -68,6 +90,10 @@ export function AgentComposerForm({
   composerDisabled: boolean
   statusMessage: string | null
   statusTone: AgentComposerSubmitResult['status'] | 'launching' | 'blocked' | null
+  voicePromptVisible: boolean
+  voicePromptState: AgentComposerVoicePromptState
+  voicePromptDisabled: boolean
+  onToggleVoicePrompt: () => void
   permissionMode: AgentPermissionMode | 'mixed'
   thinkingMode: TuiAgentThinkingMode
   canOpenTerminalDrawer: boolean
@@ -80,6 +106,8 @@ export function AgentComposerForm({
   canSendToSelectedThread: boolean
   availableAgents: readonly { id: TuiAgent; label: string }[]
   selectedAgent: TuiAgent | null
+  taskFitHintsEnabled: boolean
+  providerRateLimits: RateLimitState
   modelOptions: readonly TuiAgentModelOption[]
   selectedModel: string
   modelDiscoveryLoading: boolean
@@ -89,6 +117,15 @@ export function AgentComposerForm({
   canSubmit: boolean
   onSubmit: (event?: React.FormEvent<HTMLFormElement>) => Promise<void>
   onPromptChange: (value: string) => void
+  promptContextManifest: AgentComposerContextManifest
+  onRemoveBrowserContext?: () => void
+  onRemoveVerificationCommand?: () => void
+  onRemoveAgentMemoryContext?: () => void
+  queuedFollowUp: AgentComposerQueuedFollowUp | null
+  onQueuedFollowUpChange: (value: string) => void
+  onDeleteQueuedFollowUp: () => void
+  verificationCommand: string
+  onVerificationCommandChange: (value: string) => void
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void
   onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void
   onPermissionModeChange: (mode: AgentPermissionMode) => void
@@ -200,6 +237,7 @@ export function AgentComposerForm({
             onSelect={handleSlashCommandSelect}
           />
           <AgentComposerTextarea
+            ref={textareaRef}
             value={prompt}
             activeWorktreeId={activeWorktreeId}
             selectedThread={selectedThread}
@@ -212,9 +250,21 @@ export function AgentComposerForm({
             onPaste={onPaste}
             onKeyDown={handleTextareaKeyDown}
           />
+          {queuedFollowUp ? (
+            <AgentComposerQueuedFollowUpRow
+              queuedFollowUp={queuedFollowUp}
+              disabled={composerDisabled}
+              onChange={onQueuedFollowUpChange}
+              onDelete={onDeleteQueuedFollowUp}
+            />
+          ) : null}
           <AgentComposerFooter
             statusMessage={statusMessage}
             statusTone={statusTone}
+            voicePromptVisible={voicePromptVisible}
+            voicePromptState={voicePromptState}
+            voicePromptDisabled={voicePromptDisabled}
+            onToggleVoicePrompt={onToggleVoicePrompt}
             permissionMode={permissionMode}
             onPermissionModeChange={onPermissionModeChange}
             thinkingMode={thinkingMode}
@@ -230,6 +280,8 @@ export function AgentComposerForm({
             selectedThread={selectedThread}
             availableAgents={availableAgents}
             selectedAgent={selectedAgent}
+            taskFitHintsEnabled={taskFitHintsEnabled}
+            providerRateLimits={providerRateLimits}
             modelOptions={modelOptions}
             selectedModel={selectedModel}
             modelDiscoveryLoading={modelDiscoveryLoading}
@@ -239,6 +291,12 @@ export function AgentComposerForm({
             onSelectedModelChange={onSelectedModelChange}
             submitting={submitting}
             canSubmit={canSubmit}
+            promptContextManifest={promptContextManifest}
+            onRemoveBrowserContext={onRemoveBrowserContext}
+            onRemoveVerificationCommand={onRemoveVerificationCommand}
+            onRemoveAgentMemoryContext={onRemoveAgentMemoryContext}
+            verificationCommand={verificationCommand}
+            onVerificationCommandChange={onVerificationCommandChange}
             recoverablePrompt={recoverablePrompt}
             onRestoreRecoverablePrompt={onRestoreRecoverablePrompt}
             onRetryRecoverablePrompt={onRetryRecoverablePrompt}

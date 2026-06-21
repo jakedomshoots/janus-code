@@ -313,10 +313,11 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-    expect(container.textContent).not.toContain('janus two')
+    expect(container.textContent).toContain('janus two')
+    expect(container.querySelector('button[aria-label="Open run: Second thread"]')).not.toBeNull()
     expect(
-      Array.from(container.querySelectorAll('button')).some((button) =>
-        button.textContent?.includes('janus two')
+      Array.from(container.querySelectorAll('button')).some(
+        (button) => button.textContent?.trim() === 'janus two'
       )
     ).toBe(false)
     expect(
@@ -332,6 +333,79 @@ describe('AgentWorkspaceLayout project actions', () => {
     expect(storeMocks.setActiveWorktree).not.toHaveBeenCalled()
     expect(storeMocks.openModal).not.toHaveBeenCalled()
     expect(deleteFlowMocks.runWorktreeDelete).not.toHaveBeenCalled()
+  })
+
+  it('renders selected-thread run evidence in the header chrome', () => {
+    const container = renderLayout({
+      ...makeSelectionSnapshot('worktree-1'),
+      runEvents: [
+        {
+          id: 'state-thread-1',
+          threadId: 'thread-1',
+          kind: 'state',
+          title: 'Working',
+          detail: 'First thread',
+          createdAt: '2026-06-15T12:00:00.000Z',
+          status: 'running',
+          telemetry: 'partial'
+        },
+        {
+          id: 'tool-thread-1',
+          threadId: 'thread-1',
+          kind: 'tool',
+          title: 'Bash',
+          detail: 'pnpm test',
+          createdAt: '2026-06-15T12:01:00.000Z',
+          status: 'running',
+          telemetry: 'structured'
+        },
+        {
+          id: 'approval-thread-1',
+          threadId: 'thread-1',
+          kind: 'approval',
+          title: 'Approval requested',
+          detail: 'Run pnpm test',
+          createdAt: '2026-06-15T12:02:00.000Z',
+          status: 'pending',
+          telemetry: 'structured'
+        },
+        {
+          id: 'tool-thread-2',
+          threadId: 'thread-2',
+          kind: 'tool',
+          title: 'Bash',
+          detail: 'pnpm lint',
+          createdAt: '2026-06-15T12:03:00.000Z',
+          status: 'done',
+          telemetry: 'structured'
+        }
+      ],
+      diffs: [
+        {
+          id: 'diff-thread-1',
+          threadId: 'thread-1',
+          filePath: 'src/app.ts',
+          additions: 2,
+          deletions: 1,
+          status: 'modified'
+        },
+        {
+          id: 'diff-thread-2',
+          threadId: 'thread-2',
+          filePath: 'src/other.ts',
+          additions: 1,
+          deletions: 0,
+          status: 'modified'
+        }
+      ]
+    })
+
+    const headerText = container.querySelector('header')?.textContent ?? ''
+    expect(headerText).toContain('Approval requested')
+    expect(headerText).toContain('pnpm test')
+    expect(headerText).toContain('1 file')
+    expect(headerText).toContain('Needs attention')
+    expect(headerText).not.toContain('pnpm lint')
   })
 
   it('runs source-control actions against the selected local project host', async () => {

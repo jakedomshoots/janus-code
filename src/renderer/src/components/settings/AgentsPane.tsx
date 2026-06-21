@@ -15,6 +15,10 @@ import {
   getAgentGeneratedTabTitlesDescription,
   getAgentGeneratedTabTitlesTitle
 } from './agent-generated-tab-title-copy'
+import {
+  getAgentTaskFitHintsDescription,
+  getAgentTaskFitHintsTitle
+} from './agent-task-fit-hints-copy'
 import { AgentLocationSetting } from './AgentLocationSetting'
 import { getAgentStatusHooksDescription, getAgentStatusHooksTitle } from './agent-status-hooks-copy'
 import {
@@ -833,6 +837,8 @@ export function AgentsPane({
 
       <AgentStatusHooksSetting settings={settings} updateSettings={updateSettings} />
 
+      <AgentTaskFitHintsSetting settings={settings} updateSettings={updateSettings} />
+
       <AgentGeneratedTabTitlesSetting settings={settings} updateSettings={updateSettings} />
 
       <AgentAwakeSetting settings={settings} updateSettings={updateSettings} />
@@ -994,6 +1000,28 @@ export function AgentGeneratedTabTitlesSetting({
           })
         }
         ariaLabel={getAgentGeneratedTabTitlesTitle()}
+      />
+    </section>
+  )
+}
+
+export function AgentTaskFitHintsSetting({
+  settings,
+  updateSettings
+}: AgentsPaneProps): React.JSX.Element {
+  const enabled = settings.agentTaskFitHintsEnabled !== false
+  return (
+    <section className="space-y-3">
+      <SettingsSwitchRow
+        label={getAgentTaskFitHintsTitle()}
+        description={getAgentTaskFitHintsDescription()}
+        checked={enabled}
+        onChange={() =>
+          updateSettings({
+            agentTaskFitHintsEnabled: !enabled
+          })
+        }
+        ariaLabel={getAgentTaskFitHintsTitle()}
       />
     </section>
   )

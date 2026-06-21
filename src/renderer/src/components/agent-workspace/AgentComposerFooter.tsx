@@ -1,6 +1,15 @@
-import { ArrowUp, ChevronDown, Loader2, RotateCcw, ShieldCheck, Terminal } from 'lucide-react'
+import {
+  ArrowUp,
+  ChevronDown,
+  ListChecks,
+  Loader2,
+  RotateCcw,
+  ShieldCheck,
+  Terminal
+} from 'lucide-react'
 import { memo } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
@@ -8,20 +17,28 @@ import { cn } from '@/lib/utils'
 import type { AgentPermissionMode } from '../../../../shared/tui-agent-permissions'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgentModelOption } from '../../../../shared/tui-agent-models'
+import type { RateLimitState } from '../../../../shared/rate-limit-types'
 import type { TuiAgent } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
+import type { AgentComposerContextManifest } from './agent-composer-context-manifest'
 import {
   ChatDropdownContent,
   ChatDropdownOption,
   ChatDropdownSection
 } from './AgentComposerChatDropdown'
 import { AgentComposerAgentSettingsPopover } from './AgentComposerAgentSettingsPopover'
+import { AgentComposerContextTray } from './AgentComposerContextTray'
 import { AgentComposerToolCluster } from './AgentComposerToolCluster'
+import type { AgentComposerVoicePromptState } from './AgentComposerVoiceButton'
 
 type AgentComposerFooterProps = {
   statusMessage: string | null
   statusTone: string | null
+  voicePromptVisible: boolean
+  voicePromptState: AgentComposerVoicePromptState
+  voicePromptDisabled: boolean
+  onToggleVoicePrompt: () => void
   permissionMode: AgentPermissionMode
   onPermissionModeChange: (mode: AgentPermissionMode) => void
   thinkingMode: TuiAgentThinkingMode
@@ -37,6 +54,8 @@ type AgentComposerFooterProps = {
   selectedThread: AgentWorkspaceThread | null
   availableAgents: readonly { id: TuiAgent; label: string }[]
   selectedAgent: TuiAgent | null
+  taskFitHintsEnabled: boolean
+  providerRateLimits: RateLimitState
   modelOptions: readonly TuiAgentModelOption[]
   selectedModel: string
   modelDiscoveryLoading: boolean
@@ -46,6 +65,12 @@ type AgentComposerFooterProps = {
   onSelectedModelChange: (modelId: string) => void
   submitting: boolean
   canSubmit: boolean
+  promptContextManifest: AgentComposerContextManifest
+  onRemoveBrowserContext?: () => void
+  onRemoveVerificationCommand?: () => void
+  onRemoveAgentMemoryContext?: () => void
+  verificationCommand: string
+  onVerificationCommandChange: (value: string) => void
   recoverablePrompt: string | null
   onRestoreRecoverablePrompt: () => void
   onRetryRecoverablePrompt: () => void
@@ -54,6 +79,10 @@ type AgentComposerFooterProps = {
 export const AgentComposerFooter = memo(function AgentComposerFooter({
   statusMessage,
   statusTone,
+  voicePromptVisible,
+  voicePromptState,
+  voicePromptDisabled,
+  onToggleVoicePrompt,
   permissionMode,
   onPermissionModeChange,
   thinkingMode,
@@ -69,6 +98,8 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
   selectedThread,
   availableAgents,
   selectedAgent,
+  taskFitHintsEnabled,
+  providerRateLimits,
   modelOptions,
   selectedModel,
   modelDiscoveryLoading,
@@ -78,6 +109,12 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
   onSelectedModelChange,
   submitting,
   canSubmit,
+  promptContextManifest,
+  onRemoveBrowserContext,
+  onRemoveVerificationCommand,
+  onRemoveAgentMemoryContext,
+  verificationCommand,
+  onVerificationCommandChange,
   recoverablePrompt,
   onRestoreRecoverablePrompt,
   onRetryRecoverablePrompt
@@ -136,9 +173,19 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
           </Button>
         ) : null}
       </p>
+      <AgentComposerContextTray
+        manifest={promptContextManifest}
+        onRemoveBrowserContext={onRemoveBrowserContext}
+        onRemoveVerificationCommand={onRemoveVerificationCommand}
+        onRemoveAgentMemoryContext={onRemoveAgentMemoryContext}
+      />
       <div className="flex min-h-10 flex-wrap items-center gap-2">
         <div className="min-w-0 shrink-0">
           <AgentComposerToolCluster
+            voicePromptVisible={voicePromptVisible}
+            voicePromptState={voicePromptState}
+            voicePromptDisabled={voicePromptDisabled}
+            onToggleVoicePrompt={onToggleVoicePrompt}
             canOpenTerminalDrawer={canOpenTerminalDrawer}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
             canOpenBrowserWorkbench={canOpenBrowserWorkbench}
@@ -148,7 +195,25 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             onAttachBrowserContext={onAttachBrowserContext}
           />
         </div>
-        <div className="min-w-0 flex-1" />
+        <div className="min-w-[13rem] flex-1">
+          <label className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-background px-2 py-1">
+            <ListChecks className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Input
+              value={verificationCommand}
+              aria-label={translate(
+                'auto.components.agentWorkspace.composer.verificationCommand',
+                'Verification command'
+              )}
+              disabled={canSendToSelectedThread || submitting}
+              className="h-7 border-0 bg-transparent px-0 py-0 text-xs shadow-none focus-visible:ring-0"
+              placeholder={translate(
+                'auto.components.agentWorkspace.composer.verificationPlaceholder',
+                'Verify: pnpm test'
+              )}
+              onChange={(event) => onVerificationCommandChange(event.target.value)}
+            />
+          </label>
+        </div>
         <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
           {canSendToSelectedThread ? null : (
             <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
@@ -171,6 +236,8 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
               onThinkingModeChange={onThinkingModeChange}
               availableAgents={availableAgents}
               selectedAgent={selectedAgent}
+              taskFitHintsEnabled={taskFitHintsEnabled}
+              providerRateLimits={providerRateLimits}
               modelOptions={modelOptions}
               selectedModel={selectedModel}
               modelDiscoveryLoading={modelDiscoveryLoading}

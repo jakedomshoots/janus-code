@@ -211,6 +211,55 @@ describe('parseAgentStatusPayload', () => {
     expect(parseAgentStatusPayload('{"state":"working","toolEvent":{}}')!.toolEvent).toBeUndefined()
   })
 
+  it('parses and normalizes verification metadata', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'working',
+        verification: {
+          command: ' pnpm test\npnpm lint ',
+          status: 'passed',
+          executionContext: {
+            hostKind: 'ssh',
+            cwd: ' /home/jake/janus-code\n ',
+            platform: 'linux',
+            connectionId: ' ssh-1 '
+          }
+        }
+      })
+    )
+
+    expect(result!.verification).toEqual({
+      command: 'pnpm test pnpm lint',
+      status: 'passed',
+      executionContext: {
+        hostKind: 'ssh',
+        cwd: '/home/jake/janus-code',
+        platform: 'linux',
+        connectionId: 'ssh-1'
+      }
+    })
+    expect(
+      parseAgentStatusPayload(
+        JSON.stringify({
+          state: 'working',
+          verification: {
+            command: 'pnpm test',
+            status: 'surprising'
+          }
+        })
+      )!.verification
+    ).toEqual({
+      command: 'pnpm test',
+      status: 'unknown'
+    })
+    expect(
+      parseAgentStatusPayload('{"state":"working","verification":null}')!.verification
+    ).toBeNull()
+    expect(
+      parseAgentStatusPayload('{"state":"working","verification":{}}')!.verification
+    ).toBeUndefined()
+  })
+
   it('parses and normalizes a structured failure detail payload', () => {
     const result = parseAgentStatusPayload(
       JSON.stringify({

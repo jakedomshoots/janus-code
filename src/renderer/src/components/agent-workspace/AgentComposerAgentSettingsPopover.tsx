@@ -14,6 +14,7 @@ import {
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
   type TuiAgentModelOption
 } from '../../../../shared/tui-agent-models'
+import type { RateLimitState } from '../../../../shared/rate-limit-types'
 import type { TuiAgentThinkingMode } from '../../../../shared/tui-agent-thinking'
 import type { TuiAgent } from '../../../../shared/types'
 import {
@@ -23,6 +24,9 @@ import {
   ChatDropdownSection,
   ChatDropdownSeparator
 } from './AgentComposerChatDropdown'
+import { AgentComposerThinkingModeOptions } from './AgentComposerThinkingModeOptions'
+import { getAgentProviderTaskFitDescription } from './agent-provider-task-fit-labels'
+import { getAgentProviderUsageWarning } from './agent-provider-usage-warning'
 
 type AgentSettingsMenuView = 'main' | 'provider' | 'model'
 
@@ -36,6 +40,8 @@ export function AgentComposerAgentSettingsPopover({
   onThinkingModeChange,
   availableAgents,
   selectedAgent,
+  taskFitHintsEnabled,
+  providerRateLimits,
   modelOptions,
   selectedModel,
   modelDiscoveryLoading,
@@ -48,6 +54,8 @@ export function AgentComposerAgentSettingsPopover({
   onThinkingModeChange: (mode: TuiAgentThinkingMode) => void
   availableAgents: readonly { id: TuiAgent; label: string }[]
   selectedAgent: TuiAgent | null
+  taskFitHintsEnabled: boolean
+  providerRateLimits: RateLimitState
   modelOptions: readonly TuiAgentModelOption[]
   selectedModel: string
   modelDiscoveryLoading: boolean
@@ -110,6 +118,8 @@ export function AgentComposerAgentSettingsPopover({
             <AgentProviderOptions
               agents={availableAgents}
               value={selectedAgent}
+              taskFitHintsEnabled={taskFitHintsEnabled}
+              providerRateLimits={providerRateLimits}
               detecting={detectingAgents}
               onChange={(agent) => {
                 onSelectedAgentChange(agent)
@@ -140,7 +150,10 @@ export function AgentComposerAgentSettingsPopover({
             <ChatDropdownSection
               title={translate('auto.components.agentWorkspace.composer.reasoning', 'Reasoning')}
             >
-              <ThinkingModeOptions value={thinkingMode} onChange={onThinkingModeChange} />
+              <AgentComposerThinkingModeOptions
+                value={thinkingMode}
+                onChange={onThinkingModeChange}
+              />
             </ChatDropdownSection>
             <ChatDropdownSeparator />
             <ChatDropdownBranch
@@ -165,47 +178,6 @@ export function AgentComposerAgentSettingsPopover({
         ) : null}
       </ChatDropdownContent>
     </Popover>
-  )
-}
-
-function ThinkingModeOptions({
-  value,
-  onChange
-}: {
-  value: TuiAgentThinkingMode
-  onChange: (mode: TuiAgentThinkingMode) => void
-}): React.JSX.Element {
-  const options: readonly { value: TuiAgentThinkingMode; label: string }[] = [
-    {
-      value: 'quick',
-      label: translate('auto.components.agentWorkspace.composer.reasoningLow', 'Low')
-    },
-    {
-      value: 'standard',
-      label: translate('auto.components.agentWorkspace.composer.reasoningMedium', 'Medium')
-    },
-    {
-      value: 'deep',
-      label: translate('auto.components.agentWorkspace.composer.reasoningHigh', 'High')
-    }
-  ]
-
-  return (
-    <>
-      {options.map((option) => (
-        <ChatDropdownOption
-          key={option.value}
-          label={option.label}
-          selected={option.value === value}
-          ariaLabel={translate(
-            'auto.components.agentWorkspace.composer.setReasoning',
-            'Set reasoning: {{label}}',
-            { label: option.label }
-          )}
-          onSelect={() => onChange(option.value)}
-        />
-      ))}
-    </>
   )
 }
 
@@ -358,11 +330,15 @@ function groupModelOptionsByProvider(
 function AgentProviderOptions({
   agents,
   value,
+  taskFitHintsEnabled,
+  providerRateLimits,
   detecting,
   onChange
 }: {
   agents: readonly { id: TuiAgent; label: string }[]
   value: TuiAgent | null
+  taskFitHintsEnabled: boolean
+  providerRateLimits: RateLimitState
   detecting: boolean
   onChange: (agent: TuiAgent | null) => void
 }): React.JSX.Element {
@@ -393,6 +369,11 @@ function AgentProviderOptions({
         <ChatDropdownOption
           key={agent.id}
           label={agent.label}
+          description={getAgentProviderDescription({
+            agent: agent.id,
+            taskFitHintsEnabled,
+            providerRateLimits
+          })}
           selected={agent.id === value}
           leading={<AgentIcon agent={agent.id} size={16} />}
           ariaLabel={translate(
@@ -405,4 +386,21 @@ function AgentProviderOptions({
       ))}
     </>
   )
+}
+
+function getAgentProviderDescription({
+  agent,
+  taskFitHintsEnabled,
+  providerRateLimits
+}: {
+  agent: TuiAgent
+  taskFitHintsEnabled: boolean
+  providerRateLimits: RateLimitState
+}): string | undefined {
+  const descriptions = [
+    taskFitHintsEnabled ? getAgentProviderTaskFitDescription(agent) : undefined,
+    getAgentProviderUsageWarning(agent, providerRateLimits)
+  ].filter(Boolean)
+
+  return descriptions.length > 0 ? descriptions.join(' · ') : undefined
 }

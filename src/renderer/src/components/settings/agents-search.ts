@@ -14,6 +14,11 @@ import {
   getAgentStatusHooksSearchKeywords,
   getAgentStatusHooksTitle
 } from './agent-status-hooks-copy'
+import {
+  getAgentTaskFitHintsDescription,
+  getAgentTaskFitHintsSearchKeywords,
+  getAgentTaskFitHintsTitle
+} from './agent-task-fit-hints-copy'
 import { translate } from '@/i18n/i18n'
 import { searchKeywords, translateSearchKeyword, uniqueKeywords } from './settings-search-keywords'
 import { createLocalizedCatalog } from '@/i18n/localized-catalog'
@@ -88,6 +93,11 @@ export const getAgentsPaneSearchEntries = createLocalizedCatalog(() => [
     title: getAgentStatusHooksTitle(),
     description: getAgentStatusHooksDescription(),
     keywords: getAgentStatusHooksSearchKeywords()
+  },
+  {
+    title: getAgentTaskFitHintsTitle(),
+    description: getAgentTaskFitHintsDescription(),
+    keywords: getAgentTaskFitHintsSearchKeywords()
   },
   {
     title: getAgentGeneratedTabTitlesTitle(),

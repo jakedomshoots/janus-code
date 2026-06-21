@@ -15,6 +15,7 @@ export type AgentWorkspaceRightPanelStateInput = {
   readonly thread: AgentWorkspaceThread | null
   readonly diffs: readonly AgentWorkspaceDiffSummary[]
   readonly review: AgentWorkspaceReviewSummary | null
+  readonly hasReviewFindings?: boolean
   readonly hasStructuredPlan: boolean
 }
 
@@ -22,12 +23,14 @@ export function getDefaultAgentWorkspaceRightPanelTab({
   thread,
   diffs,
   review,
+  hasReviewFindings,
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): AgentWorkspaceRightPanelTab {
   return getDefaultAgentWorkspaceRightPanelState({
     thread,
     diffs,
     review,
+    hasReviewFindings,
     hasStructuredPlan
   }).selectedTab
 }
@@ -36,6 +39,7 @@ export function getDefaultAgentWorkspaceRightPanelState({
   thread,
   diffs,
   review,
+  hasReviewFindings,
   hasStructuredPlan
 }: AgentWorkspaceRightPanelStateInput): AgentWorkspaceRightPanelState {
   if (!thread) {
@@ -47,7 +51,7 @@ export function getDefaultAgentWorkspaceRightPanelState({
   if (diffs.length > 0) {
     return { selectedTab: 'diff', collapsed: false }
   }
-  if (review) {
+  if (review || hasReviewFindings) {
     return { selectedTab: 'review', collapsed: false }
   }
   if (thread.phase === 'running' && hasStructuredPlan) {
