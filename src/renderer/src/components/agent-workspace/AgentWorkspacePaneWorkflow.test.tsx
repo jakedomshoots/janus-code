@@ -95,6 +95,15 @@ const sendMocks = vi.hoisted(() => ({
 const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn()
 }))
+const tabGroupMocks = vi.hoisted(() => ({
+  newFileTab: vi.fn(async () => undefined),
+  newSimulatorTab: vi.fn(),
+  openEntry: vi.fn(async () => undefined),
+  activateEditor: vi.fn(),
+  activateBrowser: vi.fn(),
+  closeItem: vi.fn(),
+  duplicateBrowserTab: vi.fn()
+}))
 
 vi.mock('@/store', () => ({
   useAppStore: Object.assign(
@@ -131,13 +140,13 @@ vi.mock('@/components/tab-group/useTabGroupWorkspaceModel', () => ({
       newTerminalTab: vi.fn(),
       newTerminalWithShell: vi.fn(),
       newBrowserTab: vi.fn(),
-      newFileTab: vi.fn(),
-      newSimulatorTab: undefined,
-      openEntry: vi.fn(),
-      activateEditor: vi.fn(),
-      activateBrowser: vi.fn(),
-      closeItem: vi.fn(),
-      duplicateBrowserTab: vi.fn()
+      newFileTab: tabGroupMocks.newFileTab,
+      newSimulatorTab: tabGroupMocks.newSimulatorTab,
+      openEntry: tabGroupMocks.openEntry,
+      activateEditor: tabGroupMocks.activateEditor,
+      activateBrowser: tabGroupMocks.activateBrowser,
+      closeItem: tabGroupMocks.closeItem,
+      duplicateBrowserTab: tabGroupMocks.duplicateBrowserTab
     }
   })
 }))
@@ -285,6 +294,13 @@ afterEach(() => {
   storeMocks.setRightSidebarTab.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
+  tabGroupMocks.newFileTab.mockClear()
+  tabGroupMocks.newSimulatorTab.mockClear()
+  tabGroupMocks.openEntry.mockClear()
+  tabGroupMocks.activateEditor.mockClear()
+  tabGroupMocks.activateBrowser.mockClear()
+  tabGroupMocks.closeItem.mockClear()
+  tabGroupMocks.duplicateBrowserTab.mockClear()
   launchMocks.launchAgentInNewTab.mockClear()
   sendMocks.sendNotesToActiveAgentSession.mockReset()
   fsMocks.readFile.mockReset()
@@ -573,6 +589,37 @@ describe('AgentWorkspace pane workflow', () => {
 
     expect(storeMocks.setRightSidebarTab).toHaveBeenCalledWith('source-control')
     expect(storeMocks.setRightSidebarOpen).toHaveBeenCalledWith(true)
+  })
+
+  it('creates a workbench file tab before opening an empty workbench surface', async () => {
+    const onOpenTerminalDrawer = vi.fn()
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [
+          {
+            id: 'thread-1',
+            worktreeId: 'worktree-1',
+            title: 'Polish the workspace',
+            agentKind: 'codex',
+            phase: 'running',
+            updatedAt: '2026-06-18T17:20:00.000Z',
+            branchName: null,
+            cwd: '/Users/jakedom/janus-code'
+          }
+        ]
+      }),
+      { onOpenTerminalDrawer }
+    )
+
+    await act(async () => {
+      buttons(container)
+        .find((button) => button.getAttribute('aria-label') === 'Open workbench')
+        ?.click()
+      await Promise.resolve()
+    })
+
+    expect(tabGroupMocks.newFileTab).toHaveBeenCalledTimes(1)
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('workbench')
   })
 
   it('splits and closes agent workspace panes from the tab strip', async () => {
