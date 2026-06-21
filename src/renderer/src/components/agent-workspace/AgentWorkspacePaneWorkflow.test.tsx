@@ -61,6 +61,7 @@ const storeMocks = vi.hoisted(() => {
     closeBrowserTab,
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
+    setRightSidebarTab: vi.fn(),
     showRightSidebarFiles: vi.fn()
   }
 
@@ -71,6 +72,8 @@ const storeMocks = vi.hoisted(() => {
     openModal: state.openModal,
     createBrowserTab,
     focusBrowserTabInWorktree,
+    setRightSidebarOpen: state.setRightSidebarOpen,
+    setRightSidebarTab: state.setRightSidebarTab,
     markdownEditorTab
   }
 })
@@ -278,6 +281,8 @@ afterEach(() => {
   storeMocks.openFile.mockClear()
   storeMocks.openModal.mockClear()
   storeMocks.state.activateTab.mockClear()
+  storeMocks.setRightSidebarOpen.mockClear()
+  storeMocks.setRightSidebarTab.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
   launchMocks.launchAgentInNewTab.mockClear()
@@ -566,8 +571,8 @@ describe('AgentWorkspace pane workflow', () => {
         ?.click()
     })
 
-    expect(container.textContent).toContain('Changes')
-    expect(container.textContent).toContain('docs/reference/handoff.md')
+    expect(storeMocks.setRightSidebarTab).toHaveBeenCalledWith('source-control')
+    expect(storeMocks.setRightSidebarOpen).toHaveBeenCalledWith(true)
   })
 
   it('splits and closes agent workspace panes from the tab strip', async () => {

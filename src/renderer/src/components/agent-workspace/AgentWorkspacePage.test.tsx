@@ -25,16 +25,7 @@ let currentSnapshot: AgentWorkspaceSnapshot = emptySnapshot
 const roots: Root[] = []
 const storeMocks = vi.hoisted(() => {
   const state = {
-    agentWorkspaceTestSnapshot: {
-      activeWorktreeId: null,
-      projects: [],
-      threads: [],
-      plans: [],
-      timeline: [],
-      approvals: [],
-      diffs: [],
-      terminalAvailable: false
-    } as AgentWorkspaceSnapshot,
+    agentWorkspaceTestSnapshot: {} as AgentWorkspaceSnapshot,
     settings: { guiAgentWorkspaceEnabled: false },
     setActiveWorktree: vi.fn(),
     openDiff: vi.fn(),
@@ -58,6 +49,7 @@ const storeMocks = vi.hoisted(() => {
     closeBrowserTab: vi.fn(),
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
+    setRightSidebarTab: vi.fn(),
     showRightSidebarFiles: vi.fn()
   }
 

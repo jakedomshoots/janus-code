@@ -119,6 +119,9 @@ describe('AgentWorkspaceRightPanel', () => {
           terminalAvailable
           selectedTab="diff"
           onSelectedTabChange={() => undefined}
+          onOpenSourceControl={() => undefined}
+          onOpenProjectFiles={() => undefined}
+          onOpenAgentSessions={() => undefined}
         />
       )
     })
@@ -164,6 +167,9 @@ describe('AgentWorkspaceRightPanel', () => {
           terminalAvailable
           selectedTab="details"
           onSelectedTabChange={() => undefined}
+          onOpenSourceControl={() => undefined}
+          onOpenProjectFiles={() => undefined}
+          onOpenAgentSessions={() => undefined}
           onOpenTerminalDrawer={onOpenTerminalDrawer}
         />
       )
@@ -203,6 +209,56 @@ describe('AgentWorkspaceRightPanel', () => {
     })
   })
 
+  it('routes environment rows to real workspace surfaces', async () => {
+    const onOpenSourceControl = vi.fn()
+    const onOpenProjectFiles = vi.fn()
+    const onOpenAgentSessions = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          project={project}
+          thread={runningThread}
+          threads={[runningThread]}
+          plan={null}
+          approval={null}
+          diffs={[diffSummary]}
+          review={null}
+          terminalAvailable
+          selectedTab="diff"
+          onSelectedTabChange={() => undefined}
+          onOpenSourceControl={onOpenSourceControl}
+          onOpenProjectFiles={onOpenProjectFiles}
+          onOpenAgentSessions={onOpenAgentSessions}
+        />
+      )
+    })
+
+    const getButton = (label: string): HTMLButtonElement => {
+      const button = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+        (candidate) =>
+          candidate.getAttribute('aria-label') === label || candidate.textContent?.includes(label)
+      )
+      if (!button) {
+        throw new Error(`${label} button not found`)
+      }
+      return button
+    }
+
+    await act(async () => getButton('Changes').click())
+    await act(async () => getButton('Commit or push').click())
+    await act(async () => getButton('Create pull request').click())
+    expect(onOpenSourceControl).toHaveBeenCalledTimes(3)
+
+    await act(async () => getButton('Worktree').click())
+    await act(async () => getButton('Sources').click())
+    await act(async () => getButton('Add source').click())
+    expect(onOpenProjectFiles).toHaveBeenCalledTimes(3)
+
+    await act(async () => getButton('Side chat').click())
+    expect(onOpenAgentSessions).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps document previews out of the floating info card', () => {
     const markup = renderToStaticMarkup(
       <AgentWorkspaceRightPanel
@@ -222,6 +278,9 @@ describe('AgentWorkspaceRightPanel', () => {
         terminalAvailable
         selectedTab="document"
         onSelectedTabChange={() => undefined}
+        onOpenSourceControl={() => undefined}
+        onOpenProjectFiles={() => undefined}
+        onOpenAgentSessions={() => undefined}
       />
     )
     container.innerHTML = markup

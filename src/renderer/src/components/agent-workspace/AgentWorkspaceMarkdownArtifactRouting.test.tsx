@@ -13,6 +13,7 @@ const storeMocks = vi.hoisted(() => ({
     openFile: vi.fn(),
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
+    setRightSidebarTab: vi.fn(),
     showRightSidebarFiles: vi.fn(),
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},

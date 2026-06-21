@@ -9,9 +9,8 @@ import type {
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
-import { AgentWorkspaceMarkdownArtifactSidePanel } from './AgentWorkspaceMarkdownArtifactSidePanel'
+import { AgentWorkspaceLayoutRightPanel } from './AgentWorkspaceLayoutRightPanel'
 import { AgentWorkspacePane } from './AgentWorkspacePane'
-import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
@@ -38,6 +37,7 @@ import {
   getRightPanelStateInput,
   getRightPanelStateInputKey
 } from './agent-workspace-right-panel-state-input'
+import { useAgentWorkspaceContextCardActions } from './useAgentWorkspaceContextCardActions'
 import {
   getProjectThreads,
   getSelectedProject,
@@ -106,6 +106,7 @@ export function AgentWorkspaceLayout({
     (state) => state.setAgentWorkspaceRightPanelExpanded
   )
   const setRightSidebarOpen = useAppStore((state) => state.setRightSidebarOpen)
+  const setRightSidebarTab = useAppStore((state) => state.setRightSidebarTab)
   const showRightSidebarFiles = useAppStore((state) => state.showRightSidebarFiles)
   const diffs = getThreadDiffs(snapshot, selectedThread)
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
@@ -140,6 +141,17 @@ export function AgentWorkspaceLayout({
     activeWorktreeId: snapshot.activeWorktreeId,
     browserWorkbenchActive: terminalDrawerReason === 'browser',
     onOpenTerminalDrawer
+  })
+  const {
+    handleOpenSourceControlPanel,
+    handleOpenProjectFilesPanel,
+    handleOpenAgentSessionsPanel
+  } = useAgentWorkspaceContextCardActions({
+    setSelectedMarkdownArtifact,
+    setSelectedRightPanelState,
+    setRightSidebarOpen,
+    setRightSidebarTab,
+    showRightSidebarFiles
   })
 
   useAgentWorkspaceActionBridgeRegistration({
@@ -292,42 +304,29 @@ export function AgentWorkspaceLayout({
         />
       }
       rightPanel={
-        <>
-          {selectedMarkdownArtifact && selectedRightPanelState.selectedTab === 'document' ? (
-            <AgentWorkspaceMarkdownArtifactSidePanel
-              artifact={selectedMarkdownArtifact}
-              thread={selectedThread}
-              onClose={handleCloseMarkdownArtifactPreview}
-              onOpenInEditor={(artifact) =>
-                handleOpenMarkdownArtifactInEditor(selectedThread, artifact)
-              }
-            />
-          ) : null}
-          {selectedRightPanelState.collapsed ||
-          selectedRightPanelState.selectedTab === 'document' ? null : (
-            <AgentWorkspaceRightPanel
-              project={selectedProject}
-              thread={selectedThread}
-              threads={projectThreads}
-              plan={selectedPlan}
-              approval={selectedApproval}
-              diffs={diffs}
-              review={selectedReview}
-              selectedMarkdownArtifact={selectedMarkdownArtifact}
-              sourceControlBusy={sourceControlActions.sourceControlBusy}
-              sourceControlError={sourceControlActions.sourceControlError}
-              terminalAvailable={snapshot.terminalAvailable}
-              selectedTab={selectedRightPanelState.selectedTab}
-              onSelectedTabChange={handleRightPanelTabChange}
-              onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
-              onStageDiff={sourceControlActions.onStageDiff}
-              onUnstageDiff={sourceControlActions.onUnstageDiff}
-              onDiscardDiff={sourceControlActions.onDiscardDiff}
-              onCommitStaged={sourceControlActions.onCommitStaged}
-              onOpenTerminalDrawer={onOpenTerminalDrawer}
-            />
-          )}
-        </>
+        <AgentWorkspaceLayoutRightPanel
+          project={selectedProject}
+          thread={selectedThread}
+          threads={projectThreads}
+          plan={selectedPlan}
+          approval={selectedApproval}
+          diffs={diffs}
+          review={selectedReview}
+          selectedMarkdownArtifact={selectedMarkdownArtifact}
+          selectedRightPanelState={selectedRightPanelState}
+          sourceControlActions={sourceControlActions}
+          terminalAvailable={snapshot.terminalAvailable}
+          onCloseMarkdownArtifactPreview={handleCloseMarkdownArtifactPreview}
+          onOpenMarkdownArtifactInEditor={(artifact) =>
+            handleOpenMarkdownArtifactInEditor(selectedThread, artifact)
+          }
+          onSelectedTabChange={handleRightPanelTabChange}
+          onOpenSourceControl={handleOpenSourceControlPanel}
+          onOpenProjectFiles={handleOpenProjectFilesPanel}
+          onOpenAgentSessions={handleOpenAgentSessionsPanel}
+          onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+        />
       }
     >
       <div
@@ -398,7 +397,7 @@ export function AgentWorkspaceLayout({
                 onPendingAgentLaunch={() => handlePendingAgentLaunch(pane.id)}
                 onMessageSent={handleMessageSent}
                 onOpenMarkdownArtifact={handleOpenMarkdownArtifactPreview}
-                onReviewDiffs={() => (setActivePaneId(pane.id), handleRightPanelTabChange('diff'))}
+                onReviewDiffs={() => (setActivePaneId(pane.id), handleOpenSourceControlPanel())}
                 onSplitPane={(direction) => {
                   const splitDirection =
                     direction === 'right' || direction === 'left' ? 'horizontal' : 'vertical'

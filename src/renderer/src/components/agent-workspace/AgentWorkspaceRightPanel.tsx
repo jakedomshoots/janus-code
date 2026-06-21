@@ -34,6 +34,9 @@ export function AgentWorkspaceRightPanel({
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
+  onOpenSourceControl,
+  onOpenProjectFiles,
+  onOpenAgentSessions,
   onOpenTerminalDrawer
 }: {
   project: AgentWorkspaceProject | null
@@ -49,6 +52,9 @@ export function AgentWorkspaceRightPanel({
   terminalAvailable: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
+  onOpenSourceControl: () => void
+  onOpenProjectFiles: () => void
+  onOpenAgentSessions: () => void
   onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
   onStageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
@@ -155,6 +161,9 @@ export function AgentWorkspaceRightPanel({
           hasReview={review !== null}
           hasDocument={selectedMarkdownArtifact !== null && selectedMarkdownArtifact !== undefined}
           onSelectedTabChange={onSelectedTabChange}
+          onOpenSourceControl={onOpenSourceControl}
+          onOpenProjectFiles={onOpenProjectFiles}
+          onOpenAgentSessions={onOpenAgentSessions}
         />
         {showsDetailPanel ? (
           <AgentWorkspaceRightPanelDetail

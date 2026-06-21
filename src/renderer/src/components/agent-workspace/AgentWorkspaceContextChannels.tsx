@@ -30,7 +30,10 @@ export function AgentWorkspaceContextChannels({
   selectedTab,
   hasReview,
   hasDocument,
-  onSelectedTabChange
+  onSelectedTabChange,
+  onOpenSourceControl,
+  onOpenProjectFiles,
+  onOpenAgentSessions
 }: {
   thread: AgentWorkspaceThread | null
   project: AgentWorkspaceProject | null
@@ -42,6 +45,9 @@ export function AgentWorkspaceContextChannels({
   hasReview: boolean
   hasDocument: boolean
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
+  onOpenSourceControl: () => void
+  onOpenProjectFiles: () => void
+  onOpenAgentSessions: () => void
 }): React.JSX.Element {
   const additions = diffs.reduce((total, diff) => total + diff.additions, 0)
   const deletions = diffs.reduce((total, diff) => total + diff.deletions, 0)
@@ -65,7 +71,7 @@ export function AgentWorkspaceContextChannels({
             'auto.components.agentWorkspace.rightPanel.addSource',
             'Add source'
           )}
-          onClick={() => onSelectedTabChange('details')}
+          onClick={onOpenProjectFiles}
         >
           <Plus className="size-3.5" aria-hidden="true" />
         </Button>
@@ -76,7 +82,7 @@ export function AgentWorkspaceContextChannels({
           label={translate('auto.components.agentWorkspace.rightPanel.changes', 'Changes')}
           detail={diffs.length > 0 ? `${diffs.length}` : null}
           selected={selectedTab === 'diff'}
-          onClick={() => onSelectedTabChange('diff')}
+          onClick={onOpenSourceControl}
           trailing={
             diffs.length > 0 ? (
               <span className="shrink-0 text-sm tabular-nums">
@@ -93,7 +99,7 @@ export function AgentWorkspaceContextChannels({
           label={translate('auto.components.agentWorkspace.rightPanel.worktree', 'Worktree')}
           detail={project?.label ?? thread?.cwd ?? null}
           selected={selectedTab === 'details'}
-          onClick={() => onSelectedTabChange('details')}
+          onClick={onOpenProjectFiles}
         />
         <ContextChannelRow
           icon={GitBranch}
@@ -103,7 +109,7 @@ export function AgentWorkspaceContextChannels({
           }
           detail={branchName ? null : (project?.label ?? null)}
           selected={selectedTab === 'details'}
-          onClick={() => onSelectedTabChange('details')}
+          onClick={onOpenSourceControl}
         />
         <ContextChannelRow
           icon={GitCommit}
@@ -114,7 +120,7 @@ export function AgentWorkspaceContextChannels({
           detail={diffs.some((diff) => diff.area === 'staged') ? 'Ready' : null}
           muted={diffs.length === 0}
           selected={false}
-          onClick={() => onSelectedTabChange('diff')}
+          onClick={onOpenSourceControl}
         />
         <ContextChannelRow
           icon={GitPullRequest}
@@ -124,7 +130,7 @@ export function AgentWorkspaceContextChannels({
           )}
           detail={hasReview ? 'Review ready' : null}
           selected={selectedTab === 'review'}
-          onClick={() => onSelectedTabChange(hasReview ? 'review' : 'details')}
+          onClick={onOpenSourceControl}
         />
       </div>
       <ContextChannelDivider />
@@ -144,7 +150,13 @@ export function AgentWorkspaceContextChannels({
               : null
           }
           selected={selectedTab === 'plan'}
-          onClick={() => onSelectedTabChange(hasPlan ? 'plan' : 'details')}
+          onClick={() => {
+            if (hasPlan) {
+              onSelectedTabChange('plan')
+              return
+            }
+            onOpenAgentSessions()
+          }}
         />
       </div>
       <ContextChannelDivider />
@@ -164,7 +176,13 @@ export function AgentWorkspaceContextChannels({
                 )
           }
           selected={selectedTab === 'document' || selectedTab === 'details'}
-          onClick={() => onSelectedTabChange(hasDocument ? 'document' : 'details')}
+          onClick={() => {
+            if (hasDocument) {
+              onSelectedTabChange('document')
+              return
+            }
+            onOpenProjectFiles()
+          }}
         />
       </div>
     </section>

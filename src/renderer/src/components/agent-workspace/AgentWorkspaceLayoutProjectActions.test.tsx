@@ -19,6 +19,7 @@ const storeMocks = vi.hoisted(() => {
   const closeBrowserTab = vi.fn()
   const setAgentWorkspaceRightPanelExpanded = vi.fn()
   const setRightSidebarOpen = vi.fn()
+  const setRightSidebarTab = vi.fn()
   const showRightSidebarFiles = vi.fn()
   const state = {
     setActiveWorktree,
@@ -66,6 +67,7 @@ const storeMocks = vi.hoisted(() => {
     closeBrowserTab,
     setAgentWorkspaceRightPanelExpanded,
     setRightSidebarOpen,
+    setRightSidebarTab,
     showRightSidebarFiles
   }
 
@@ -82,6 +84,7 @@ const storeMocks = vi.hoisted(() => {
     focusBrowserTabInWorktree,
     setAgentWorkspaceRightPanelExpanded,
     setRightSidebarOpen,
+    setRightSidebarTab,
     showRightSidebarFiles
   }
 })
@@ -176,6 +179,10 @@ afterEach(() => {
   storeMocks.fetchUpstreamStatus.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
+  storeMocks.setAgentWorkspaceRightPanelExpanded.mockClear()
+  storeMocks.setRightSidebarOpen.mockClear()
+  storeMocks.setRightSidebarTab.mockClear()
+  storeMocks.showRightSidebarFiles.mockClear()
   deleteFlowMocks.runWorktreeDelete.mockClear()
   runtimeGitMocks.stageRuntimeGitPath.mockClear()
   runtimeGitMocks.unstageRuntimeGitPath.mockClear()
@@ -280,12 +287,6 @@ function getButton(container: HTMLElement, label: string): HTMLButtonElement {
   return button
 }
 
-function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
-  const valueSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(textarea), 'value')?.set
-  valueSetter?.call(textarea, value)
-  textarea.dispatchEvent(new Event('input', { bubbles: true }))
-}
-
 describe('AgentWorkspaceLayout project actions', () => {
   it('follows active worktree changes when the snapshot changes', () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -334,7 +335,7 @@ describe('AgentWorkspaceLayout project actions', () => {
     expect(deleteFlowMocks.runWorktreeDelete).not.toHaveBeenCalled()
   })
 
-  it('runs source-control actions against the selected local project host', async () => {
+  it('opens the complete Source Control sidebar from floating source-control rows', async () => {
     const snapshot = {
       ...makeSelectionSnapshot('worktree-1'),
       diffs: [
@@ -361,171 +362,34 @@ describe('AgentWorkspaceLayout project actions', () => {
     const container = renderLayout(snapshot)
 
     await act(async () => {
-      getButton(container, 'Stage').click()
-      await Promise.resolve()
+      getButton(container, 'Changes').click()
     })
-
-    expect(runtimeGitMocks.stageRuntimeGitPath).toHaveBeenCalledWith(
-      {
-        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
-        worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/janus-one',
-        connectionId: undefined
-      },
-      'src/app.ts'
-    )
-    expect(runtimeGitMocks.getRuntimeGitStatus).toHaveBeenCalled()
-
-    await act(async () => {
-      getButton(container, 'Discard').click()
-      await Promise.resolve()
-    })
-
-    expect(runtimeGitMocks.discardRuntimeGitPath).toHaveBeenCalledWith(
-      {
-        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
-        worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/janus-one',
-        connectionId: undefined
-      },
-      'src/app.ts'
-    )
-
-    await act(async () => {
-      getButton(container, 'src/index.ts').click()
-    })
-    const messageInput = container.querySelector<HTMLTextAreaElement>(
-      'textarea[aria-label="Commit message"]'
-    )
-    expect(messageInput).not.toBeNull()
-
-    await act(async () => {
-      if (messageInput) {
-        setTextareaValue(messageInput, 'feat: wire gui source control')
-      }
-    })
-    await act(async () => {
-      getButton(container, 'Commit').click()
-      await Promise.resolve()
-    })
-
-    expect(runtimeGitMocks.commitRuntimeGit).toHaveBeenCalledWith(
-      {
-        settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
-        worktreeId: 'worktree-1',
-        worktreePath: '/Users/jakedom/janus-one',
-        connectionId: undefined
-      },
-      'feat: wire gui source control'
-    )
+    expect(storeMocks.setRightSidebarTab).toHaveBeenLastCalledWith('source-control')
+    expect(storeMocks.setRightSidebarOpen).toHaveBeenLastCalledWith(true)
+    expect(container.querySelector('.agent-workspace-right-panel-shell')).toBeNull()
   })
 
-  it('runs source-control actions against the selected SSH project host', async () => {
-    const snapshot = {
-      ...makeSelectionSnapshot('worktree-ssh'),
-      projects: [
-        {
-          id: 'worktree-ssh',
-          label: 'janus ssh',
-          path: '/home/jake/janus-code',
-          hostKind: 'ssh' as const,
-          repoId: 'repo-janus',
-          canCreateWorktree: true,
-          canDeleteWorktree: true,
-          agentDetectionTarget: { kind: 'ssh' as const, connectionId: 'ssh-1' }
-        }
-      ],
-      threads: [
-        {
-          id: 'thread-ssh',
-          worktreeId: 'worktree-ssh',
-          title: 'SSH thread',
-          agentKind: 'codex',
-          phase: 'waiting-for-user' as const,
-          updatedAt: '2026-06-15T12:05:00.000Z',
-          branchName: 'feature/ssh',
-          cwd: '/home/jake/janus-code'
-        }
-      ],
-      timeline: [],
-      diffs: [
-        {
-          id: 'diff-ssh-unstaged',
-          threadId: 'thread-ssh',
-          area: 'unstaged' as const,
-          filePath: 'src/app.ts',
-          additions: 4,
-          deletions: 1,
-          status: 'modified' as const
-        },
-        {
-          id: 'diff-ssh-staged',
-          threadId: 'thread-ssh',
-          area: 'staged' as const,
-          filePath: 'src/index.ts',
-          additions: 2,
-          deletions: 0,
-          status: 'modified' as const
-        }
-      ]
-    } satisfies AgentWorkspaceSnapshot
-    const container = renderLayout(snapshot)
-    const sshContext = {
-      settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
-      worktreeId: 'worktree-ssh',
-      worktreePath: '/home/jake/janus-code',
-      connectionId: 'ssh-1'
-    }
+  it('opens files and agent-session surfaces from non-source-control rows', async () => {
+    const container = renderLayout()
 
     await act(async () => {
-      getButton(container, 'Stage').click()
-      await Promise.resolve()
+      getButton(container, 'Side chat').click()
     })
-    expect(runtimeGitMocks.stageRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/app.ts')
+    expect(storeMocks.setRightSidebarTab).toHaveBeenLastCalledWith('vault')
+    expect(storeMocks.setRightSidebarOpen).toHaveBeenLastCalledWith(true)
+
+    roots.splice(0).forEach((root) => {
+      act(() => root.unmount())
+    })
+    document.body.replaceChildren()
+    storeMocks.setRightSidebarTab.mockClear()
+    storeMocks.setRightSidebarOpen.mockClear()
+    storeMocks.showRightSidebarFiles.mockClear()
+    const nextContainer = renderLayout()
 
     await act(async () => {
-      getButton(container, 'Discard').click()
-      await Promise.resolve()
+      getButton(nextContainer, 'Worktree').click()
     })
-    expect(editorAutosaveMocks.requestEditorSaveQuiesce).toHaveBeenCalledWith({
-      worktreeId: 'worktree-ssh',
-      worktreePath: '/home/jake/janus-code',
-      relativePath: 'src/app.ts',
-      runtimeEnvironmentId: null
-    })
-    expect(runtimeGitMocks.discardRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/app.ts')
-    expect(editorAutosaveMocks.notifyEditorExternalFileChange).toHaveBeenCalledWith({
-      worktreeId: 'worktree-ssh',
-      worktreePath: '/home/jake/janus-code',
-      relativePath: 'src/app.ts',
-      runtimeEnvironmentId: null
-    })
-
-    await act(async () => {
-      getButton(container, 'src/index.ts').click()
-    })
-    await act(async () => {
-      getButton(container, 'Unstage').click()
-      await Promise.resolve()
-    })
-    expect(runtimeGitMocks.unstageRuntimeGitPath).toHaveBeenCalledWith(sshContext, 'src/index.ts')
-
-    const messageInput = container.querySelector<HTMLTextAreaElement>(
-      'textarea[aria-label="Commit message"]'
-    )
-    expect(messageInput).not.toBeNull()
-    await act(async () => {
-      if (messageInput) {
-        setTextareaValue(messageInput, 'feat: verify ssh source control')
-      }
-    })
-    await act(async () => {
-      getButton(container, 'Commit').click()
-      await Promise.resolve()
-    })
-    expect(runtimeGitMocks.commitRuntimeGit).toHaveBeenCalledWith(
-      sshContext,
-      'feat: verify ssh source control'
-    )
+    expect(storeMocks.showRightSidebarFiles).toHaveBeenCalledTimes(1)
   })
 })
