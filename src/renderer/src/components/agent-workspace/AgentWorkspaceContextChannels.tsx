@@ -19,7 +19,6 @@ import type {
   AgentWorkspaceThread
 } from './agent-workspace-types'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
-import { SectionDivider } from './agent-workspace-right-panel-sections'
 
 export function AgentWorkspaceContextChannels({
   thread,
@@ -53,14 +52,14 @@ export function AgentWorkspaceContextChannels({
     <section
       aria-label={translate('auto.components.agentWorkspace.rightPanel.environment', 'Environment')}
     >
-      <div className="mb-3 flex items-center gap-3">
-        <h2 className="min-w-0 flex-1 truncate text-sm font-medium text-muted-foreground">
+      <div className="mb-2 flex items-center gap-2">
+        <h2 className="min-w-0 flex-1 truncate text-[13px] font-medium text-muted-foreground">
           {translate('auto.components.agentWorkspace.rightPanel.environment', 'Environment')}
         </h2>
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon-xs"
           className="shrink-0 text-muted-foreground"
           aria-label={translate(
             'auto.components.agentWorkspace.rightPanel.addSource',
@@ -68,7 +67,7 @@ export function AgentWorkspaceContextChannels({
           )}
           onClick={() => onSelectedTabChange('details')}
         >
-          <Plus className="size-4" aria-hidden="true" />
+          <Plus className="size-3.5" aria-hidden="true" />
         </Button>
       </div>
       <div className="space-y-1">
@@ -114,7 +113,7 @@ export function AgentWorkspaceContextChannels({
           )}
           detail={diffs.some((diff) => diff.area === 'staged') ? 'Ready' : null}
           muted={diffs.length === 0}
-          selected={selectedTab === 'diff'}
+          selected={false}
           onClick={() => onSelectedTabChange('diff')}
         />
         <ContextChannelRow
@@ -128,7 +127,7 @@ export function AgentWorkspaceContextChannels({
           onClick={() => onSelectedTabChange(hasReview ? 'review' : 'details')}
         />
       </div>
-      <SectionDivider />
+      <ContextChannelDivider />
       <div className="space-y-1">
         <ContextChannelRow
           icon={MessageCircle}
@@ -148,7 +147,7 @@ export function AgentWorkspaceContextChannels({
           onClick={() => onSelectedTabChange(hasPlan ? 'plan' : 'details')}
         />
       </div>
-      <SectionDivider />
+      <ContextChannelDivider />
       <div className="space-y-1">
         <ContextChannelRow
           icon={FileText}
@@ -193,16 +192,20 @@ function ContextChannelRow({
     <button
       type="button"
       className={cn(
-        'flex h-9 w-full min-w-0 items-center gap-3 rounded-lg px-1.5 text-left text-sm transition-colors',
+        'flex h-8 w-full min-w-0 items-center gap-2.5 rounded-md px-2 text-left text-[13px] transition-colors',
         selected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/70',
         muted ? 'text-muted-foreground' : 'text-foreground'
       )}
       onClick={onClick}
     >
-      <Icon className="size-4 shrink-0 text-current" aria-hidden="true" />
+      <Icon className="size-3.5 shrink-0 text-current" aria-hidden="true" />
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {detail ? <span className="max-w-36 truncate text-muted-foreground">{detail}</span> : null}
       {trailing}
     </button>
   )
+}
+
+function ContextChannelDivider(): React.JSX.Element {
+  return <div className="my-2.5 h-px bg-border" />
 }

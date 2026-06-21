@@ -219,8 +219,8 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Build the first shell')
     expect(markup).toContain('Message the selected agent')
     expect(markup).toContain('Changes')
-    expect(markup).toContain('Terminal.tsx')
-    expect(markup).toContain('modified')
+    expect(markup).toMatch(/\+12[\s\S]*-2/)
+    expect(markup).not.toMatch(/Terminal\.tsx|modified/)
   })
 
   it('does not render the empty workspace header when no thread is selected', () => {
@@ -423,7 +423,7 @@ describe('AgentWorkspace phase labels', () => {
 
     expect(markup).toContain('agente')
     expect(markup).toContain('completado')
-    expect(markup).toContain('modificado')
+    expect(markup).toMatch(/\+4[\s\S]*-1/)
     expect(markup).not.toContain('modified')
   })
 })

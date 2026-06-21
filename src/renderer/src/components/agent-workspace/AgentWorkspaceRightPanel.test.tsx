@@ -128,7 +128,8 @@ describe('AgentWorkspaceRightPanel', () => {
 
     expect(panel?.className).toContain('absolute')
     expect(panel?.className).toContain('right-4')
-    expect(shell?.className).toContain('max-h-[min(680px,calc(100vh-7rem))]')
+    expect(shell?.className).toContain('max-h-[min(440px,calc(100vh-7rem))]')
+    expect(shell?.className).toContain('p-3')
     expect(container.textContent).toContain('Environment')
     expect(container.textContent).toContain('Changes')
     expect(container.textContent).toContain('+42')
@@ -139,6 +140,8 @@ describe('AgentWorkspaceRightPanel', () => {
     expect(container.textContent).toContain('Create pull request')
     expect(container.textContent).toContain('Side chat')
     expect(container.textContent).toContain('Sources')
+    expect(container.textContent).not.toContain('AgentWorkspaceLayout.tsx')
+    expect(container.textContent).not.toContain('modified')
   })
 
   it('sends approve and deny decisions from the info card', async () => {
@@ -230,7 +233,7 @@ describe('AgentWorkspaceRightPanel', () => {
 
     expect(shell?.className).toContain('flex')
     expect(shell?.className).toContain('flex-col')
-    expect(shell?.className).toContain('max-h-[min(680px,calc(100vh-7rem))]')
+    expect(shell?.className).toContain('max-h-[min(440px,calc(100vh-7rem))]')
     expect(tabPanel?.className).toContain('min-h-0')
     expect(tabPanel?.className).toContain('flex-1')
     expect(tabPanel?.className).toContain('overflow-hidden')

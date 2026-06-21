@@ -13,22 +13,15 @@ import type {
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
 import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
 import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-model'
-import {
-  EmptyPanelState,
-  InfoSection,
-  ItemList,
-  SectionDivider,
-  SourceGlyphRow
-} from './agent-workspace-right-panel-sections'
+import { EmptyPanelState, InfoSection, ItemList } from './agent-workspace-right-panel-sections'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
-import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
 import { PlanProgress } from './AgentWorkspaceRightPanelSummary'
 import { AgentWorkspaceMarkdownArtifactPreview } from './AgentWorkspaceMarkdownArtifactPreview'
 import { clampAgentWorkspaceContextCardWidth } from './agent-workspace-right-panel-geometry'
 import { AgentWorkspaceContextChannels } from './AgentWorkspaceContextChannels'
 
-const DEFAULT_RIGHT_PANEL_WIDTH = 420
+const DEFAULT_RIGHT_PANEL_WIDTH = 340
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -39,15 +32,9 @@ export function AgentWorkspaceRightPanel({
   diffs,
   review,
   selectedMarkdownArtifact,
-  sourceControlBusy,
-  sourceControlError,
   terminalAvailable,
   selectedTab,
   onSelectedTabChange,
-  onStageDiff,
-  onUnstageDiff,
-  onDiscardDiff,
-  onCommitStaged,
   onOpenMarkdownArtifactInEditor,
   onOpenTerminalDrawer
 }: {
@@ -93,6 +80,8 @@ export function AgentWorkspaceRightPanel({
     diffs,
     review
   })
+  const showsDetailPanel =
+    selectedTab === 'plan' || selectedTab === 'review' || selectedTab === 'document'
 
   useEffect(() => {
     function handlePointerMove(event: PointerEvent): void {
@@ -151,14 +140,14 @@ export function AgentWorkspaceRightPanel({
     >
       <button
         type="button"
-        className="pointer-events-auto absolute -left-2 top-3 z-20 h-[min(640px,calc(100vh-8rem))] w-2 cursor-col-resize rounded-full text-transparent outline-none transition-colors hover:bg-border/70 focus-visible:bg-ring"
+        className="pointer-events-auto absolute -left-2 top-3 z-20 h-[min(420px,calc(100vh-8rem))] w-2 cursor-col-resize rounded-full text-transparent outline-none transition-colors hover:bg-border/70 focus-visible:bg-ring"
         aria-label={translate(
           'auto.components.agentWorkspace.rightPanel.resizePanel',
           'Resize right panel'
         )}
         onPointerDown={handleResizeStart}
       />
-      <div className="agent-workspace-right-panel-shell pointer-events-auto flex max-h-[min(680px,calc(100vh-7rem))] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-popover/95 p-4 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)] backdrop-blur transition-[border-color,box-shadow,transform]">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto flex max-h-[min(440px,calc(100vh-7rem))] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)] backdrop-blur transition-[border-color,box-shadow,transform]">
         <AgentWorkspaceContextChannels
           thread={thread}
           project={project}
@@ -171,116 +160,17 @@ export function AgentWorkspaceRightPanel({
           hasDocument={selectedMarkdownArtifact !== null && selectedMarkdownArtifact !== undefined}
           onSelectedTabChange={onSelectedTabChange}
         />
-        <div
-          role="tabpanel"
-          className="mt-3 min-h-0 flex-1 overflow-hidden border-t border-border pt-3"
-          aria-label={translate(
-            'auto.components.agentWorkspace.rightPanel.tabPanel',
-            '{{tab}} panel',
-            {
-              tab: selectedTab
-            }
-          )}
-        >
-          {selectedTab === 'plan' ? (
-            <>
-              <PlanProgress plan={plan} />
-              <InfoSection
-                title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noOutputsYet',
-                  'No outputs yet'
-                )}
-              >
-                <ItemList items={model.outputs} iconKind="output" />
-              </InfoSection>
-            </>
-          ) : null}
-          {selectedTab === 'diff' ? (
-            <>
-              {diffs.length > 0 ? (
-                <AgentWorkspaceRightPanelChanges
-                  diffs={diffs}
-                  sourceControlBusy={sourceControlBusy}
-                  sourceControlError={sourceControlError}
-                  onStageDiff={onStageDiff}
-                  onUnstageDiff={onUnstageDiff}
-                  onDiscardDiff={onDiscardDiff}
-                  onCommitStaged={onCommitStaged}
-                />
-              ) : (
-                <EmptyPanelState
-                  title={translate(
-                    'auto.components.agentWorkspace.rightPanel.noChanges',
-                    'No changes'
-                  )}
-                  detail={translate(
-                    'auto.components.agentWorkspace.rightPanel.noChangesDetail',
-                    'Git changes from Janus Code source control will appear here.'
-                  )}
-                />
-              )}
-            </>
-          ) : null}
-          {selectedTab === 'review' ? (
-            <InfoSection
-              title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
-              emptyLabel={translate(
-                'auto.components.agentWorkspace.rightPanel.noReviewYet',
-                'No review yet'
-              )}
-            >
-              <ItemList
-                items={
-                  review
-                    ? [
-                        {
-                          id: review.id,
-                          label: review.title,
-                          detail: `${review.providerLabel} #${review.number} · ${review.state}`
-                        }
-                      ]
-                    : []
-                }
-                iconKind="output"
-              />
-            </InfoSection>
-          ) : null}
-          {selectedTab === 'document' ? (
-            <AgentWorkspaceMarkdownArtifactPreview
-              artifact={selectedMarkdownArtifact ?? null}
-              thread={thread}
-              onOpenInEditor={onOpenMarkdownArtifactInEditor}
-            />
-          ) : null}
-          {selectedTab === 'details' ? (
-            <>
-              <InfoSection
-                title={translate(
-                  'auto.components.agentWorkspace.rightPanel.subagents',
-                  'Subagents'
-                )}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
-                  'No active subagents'
-                )}
-              >
-                <ItemList items={model.subagents} iconKind="subagent" />
-              </InfoSection>
-              <SectionDivider />
-              <InfoSection
-                title={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
-                  'No sources attached'
-                )}
-              >
-                <ItemList items={model.sources} iconKind="source" />
-                <SourceGlyphRow sources={model.sources} />
-              </InfoSection>
-            </>
-          ) : null}
-        </div>
+        {showsDetailPanel ? (
+          <AgentWorkspaceRightPanelDetail
+            model={model}
+            plan={plan}
+            review={review}
+            thread={thread}
+            selectedTab={selectedTab}
+            selectedMarkdownArtifact={selectedMarkdownArtifact}
+            onOpenMarkdownArtifactInEditor={onOpenMarkdownArtifactInEditor}
+          />
+        ) : null}
         <ApprovalActions
           approval={approval}
           canRespondInTerminal={canRespondInTerminal}
@@ -290,6 +180,89 @@ export function AgentWorkspaceRightPanel({
         />
       </div>
     </aside>
+  )
+}
+
+function AgentWorkspaceRightPanelDetail({
+  model,
+  plan,
+  review,
+  thread,
+  selectedTab,
+  selectedMarkdownArtifact,
+  onOpenMarkdownArtifactInEditor
+}: {
+  model: ReturnType<typeof buildAgentWorkspaceRightCardModel>
+  plan: AgentWorkspacePlan | null
+  review: AgentWorkspaceReviewSummary | null
+  thread: AgentWorkspaceThread | null
+  selectedTab: AgentWorkspaceRightPanelTab
+  selectedMarkdownArtifact?: AgentTimelineMarkdownArtifact | null
+  onOpenMarkdownArtifactInEditor?: (artifact: AgentTimelineMarkdownArtifact) => void
+}): React.JSX.Element {
+  return (
+    <div
+      role="tabpanel"
+      className="mt-3 min-h-0 flex-1 overflow-hidden border-t border-border pt-3"
+      aria-label={translate('auto.components.agentWorkspace.rightPanel.tabPanel', '{{tab}} panel', {
+        tab: selectedTab
+      })}
+    >
+      {selectedTab === 'plan' ? (
+        <>
+          <PlanProgress plan={plan} />
+          <InfoSection
+            title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
+            emptyLabel={translate(
+              'auto.components.agentWorkspace.rightPanel.noOutputsYet',
+              'No outputs yet'
+            )}
+          >
+            <ItemList items={model.outputs} iconKind="output" />
+          </InfoSection>
+        </>
+      ) : null}
+      {selectedTab === 'review' ? (
+        <InfoSection
+          title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
+          emptyLabel={translate(
+            'auto.components.agentWorkspace.rightPanel.noReviewYet',
+            'No review yet'
+          )}
+        >
+          <ItemList
+            items={
+              review
+                ? [
+                    {
+                      id: review.id,
+                      label: review.title,
+                      detail: `${review.providerLabel} #${review.number} · ${review.state}`
+                    }
+                  ]
+                : []
+            }
+            iconKind="output"
+          />
+        </InfoSection>
+      ) : null}
+      {selectedTab === 'document' ? (
+        <AgentWorkspaceMarkdownArtifactPreview
+          artifact={selectedMarkdownArtifact ?? null}
+          thread={thread}
+          onOpenInEditor={onOpenMarkdownArtifactInEditor}
+        />
+      ) : null}
+      {selectedTab !== 'plan' && selectedTab !== 'review' && selectedTab !== 'document' ? (
+        <EmptyPanelState
+          title={translate('auto.components.agentWorkspace.rightPanel.noDetails', 'No details')}
+          detail={translate(
+            'auto.components.agentWorkspace.rightPanel.noDetailsDetail',
+            'Select a document, review, or side chat to open an expanded view.'
+          )}
+        />
+      ) : null}
+    </div>
   )
 }
 

@@ -9,7 +9,7 @@ describe('agent workspace right panel geometry', () => {
         viewportWidth: 1440,
         availableSurfaceWidth: 520
       })
-    ).toBe(472)
+    ).toBe(380)
   })
 
   it('keeps a usable minimum on narrow surfaces without stretching to full page width', () => {
@@ -19,6 +19,6 @@ describe('agent workspace right panel geometry', () => {
         viewportWidth: 900,
         availableSurfaceWidth: 340
       })
-    ).toBe(320)
+    ).toBe(280)
   })
 })
