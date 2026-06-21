@@ -123,11 +123,22 @@ describe('AgentWorkspaceRightPanel', () => {
       )
     })
 
-    expect(container.textContent).toContain('Output')
+    const panel = container.querySelector('.agent-workspace-right-panel')
+    const shell = container.querySelector('.agent-workspace-right-panel-shell')
+
+    expect(panel?.className).toContain('absolute')
+    expect(panel?.className).toContain('right-4')
+    expect(shell?.className).toContain('max-h-[min(680px,calc(100vh-7rem))]')
+    expect(container.textContent).toContain('Environment')
     expect(container.textContent).toContain('Changes')
-    expect(container.textContent).toContain('Context')
-    expect(container.textContent).toContain('AgentWorkspaceLayout.tsx')
-    expect(container.textContent).toContain('modified')
+    expect(container.textContent).toContain('+42')
+    expect(container.textContent).toContain('-7')
+    expect(container.textContent).toContain('Worktree')
+    expect(container.textContent).toContain('feature/janus-gui-workspace')
+    expect(container.textContent).toContain('Commit or push')
+    expect(container.textContent).toContain('Create pull request')
+    expect(container.textContent).toContain('Side chat')
+    expect(container.textContent).toContain('Sources')
   })
 
   it('sends approve and deny decisions from the info card', async () => {
@@ -219,7 +230,7 @@ describe('AgentWorkspaceRightPanel', () => {
 
     expect(shell?.className).toContain('flex')
     expect(shell?.className).toContain('flex-col')
-    expect(shell?.className).toContain('h-[calc(100vh-7rem)]')
+    expect(shell?.className).toContain('max-h-[min(680px,calc(100vh-7rem))]')
     expect(tabPanel?.className).toContain('min-h-0')
     expect(tabPanel?.className).toContain('flex-1')
     expect(tabPanel?.className).toContain('overflow-hidden')

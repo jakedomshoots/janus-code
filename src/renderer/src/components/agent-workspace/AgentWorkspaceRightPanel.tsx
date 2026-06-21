@@ -17,19 +17,18 @@ import {
   EmptyPanelState,
   InfoSection,
   ItemList,
-  PanelTabs,
   SectionDivider,
   SourceGlyphRow
 } from './agent-workspace-right-panel-sections'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
-import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
+import { PlanProgress } from './AgentWorkspaceRightPanelSummary'
 import { AgentWorkspaceMarkdownArtifactPreview } from './AgentWorkspaceMarkdownArtifactPreview'
+import { clampAgentWorkspaceContextCardWidth } from './agent-workspace-right-panel-geometry'
+import { AgentWorkspaceContextChannels } from './AgentWorkspaceContextChannels'
 
-const DEFAULT_RIGHT_PANEL_WIDTH = 384
-const MIN_RIGHT_PANEL_WIDTH = 320
-const MAX_RIGHT_PANEL_WIDTH = 720
+const DEFAULT_RIGHT_PANEL_WIDTH = 420
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -74,6 +73,7 @@ export function AgentWorkspaceRightPanel({
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const [panelWidth, setPanelWidth] = useState(DEFAULT_RIGHT_PANEL_WIDTH)
+  const panelRef = useRef<HTMLElement | null>(null)
   const resizeRef = useRef<{
     readonly startX: number
     readonly startWidth: number
@@ -100,8 +100,14 @@ export function AgentWorkspaceRightPanel({
       if (!resize) {
         return
       }
+      const availableSurfaceWidth =
+        panelRef.current?.parentElement?.getBoundingClientRect().width ?? window.innerWidth
       setPanelWidth(
-        clampRightPanelWidth(resize.startWidth + resize.startX - event.clientX, window.innerWidth)
+        clampAgentWorkspaceContextCardWidth({
+          requestedWidth: resize.startWidth + resize.startX - event.clientX,
+          viewportWidth: window.innerWidth,
+          availableSurfaceWidth
+        })
       )
     }
 
@@ -123,9 +129,15 @@ export function AgentWorkspaceRightPanel({
 
   function handleResizeStart(event: React.PointerEvent<HTMLButtonElement>): void {
     event.preventDefault()
+    const availableSurfaceWidth =
+      panelRef.current?.parentElement?.getBoundingClientRect().width ?? window.innerWidth
     resizeRef.current = {
       startX: event.clientX,
-      startWidth: panelWidth
+      startWidth: clampAgentWorkspaceContextCardWidth({
+        requestedWidth: panelWidth,
+        viewportWidth: window.innerWidth,
+        availableSurfaceWidth
+      })
     }
     document.body.style.cursor = 'col-resize'
     document.body.style.userSelect = 'none'
@@ -133,37 +145,35 @@ export function AgentWorkspaceRightPanel({
 
   return (
     <aside
-      className="agent-workspace-right-panel pointer-events-none relative z-10 shrink-0"
+      ref={panelRef}
+      className="agent-workspace-right-panel pointer-events-none absolute right-4 top-4 z-20 max-w-[calc(100%-2rem)]"
       style={{ width: panelWidth }}
     >
       <button
         type="button"
-        className="pointer-events-auto absolute left-0 top-4 z-20 h-[calc(100vh-7rem)] w-2 cursor-col-resize rounded-full text-transparent outline-none transition-colors hover:bg-border/70 focus-visible:bg-ring"
+        className="pointer-events-auto absolute -left-2 top-3 z-20 h-[min(640px,calc(100vh-8rem))] w-2 cursor-col-resize rounded-full text-transparent outline-none transition-colors hover:bg-border/70 focus-visible:bg-ring"
         aria-label={translate(
           'auto.components.agentWorkspace.rightPanel.resizePanel',
           'Resize right panel'
         )}
         onPointerDown={handleResizeStart}
       />
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-4 mt-4 flex h-[calc(100vh-7rem)] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
-        <PanelSummary
+      <div className="agent-workspace-right-panel-shell pointer-events-auto flex max-h-[min(680px,calc(100vh-7rem))] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-popover/95 p-4 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)] backdrop-blur transition-[border-color,box-shadow,transform]">
+        <AgentWorkspaceContextChannels
           thread={thread}
+          project={project}
           plan={plan}
           diffs={diffs}
           sources={model.sources.length}
           subagents={model.subagents.length}
-        />
-        <PanelTabs
           selectedTab={selectedTab}
-          diffs={diffs.length}
-          hasPlan={plan !== null}
           hasReview={review !== null}
           hasDocument={selectedMarkdownArtifact !== null && selectedMarkdownArtifact !== undefined}
           onSelectedTabChange={onSelectedTabChange}
         />
         <div
           role="tabpanel"
-          className="min-h-0 flex-1 overflow-hidden"
+          className="mt-3 min-h-0 flex-1 overflow-hidden border-t border-border pt-3"
           aria-label={translate(
             'auto.components.agentWorkspace.rightPanel.tabPanel',
             '{{tab}} panel',
@@ -280,14 +290,6 @@ export function AgentWorkspaceRightPanel({
         />
       </div>
     </aside>
-  )
-}
-
-function clampRightPanelWidth(width: number, viewportWidth: number): number {
-  const viewportMax = Math.max(MIN_RIGHT_PANEL_WIDTH, viewportWidth - 360)
-  return Math.min(
-    Math.max(width, MIN_RIGHT_PANEL_WIDTH),
-    Math.min(MAX_RIGHT_PANEL_WIDTH, viewportMax)
   )
 }
 
