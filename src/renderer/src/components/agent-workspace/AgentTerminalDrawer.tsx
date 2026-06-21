@@ -12,6 +12,8 @@ import {
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 
 type ResizeSession = {
+  readonly handle: HTMLButtonElement
+  readonly pointerId: number
   readonly startClientY: number
   readonly startHeight: number
 }
@@ -53,7 +55,15 @@ export function AgentTerminalDrawer({
   )
 
   const stopResize = useCallback((): void => {
+    const session = resizeSessionRef.current
     resizeSessionRef.current = null
+    try {
+      if (session?.handle.hasPointerCapture(session.pointerId)) {
+        session.handle.releasePointerCapture(session.pointerId)
+      }
+    } catch {
+      // Best effort: Chromium may already release capture after pointerup.
+    }
     document.body.style.cursor = ''
     document.body.style.userSelect = ''
   }, [])
@@ -75,8 +85,13 @@ export function AgentTerminalDrawer({
 
   const startResize = useCallback(
     (event: React.PointerEvent<HTMLButtonElement>): void => {
+      if (event.button > 0) {
+        return
+      }
       event.preventDefault()
       resizeSessionRef.current = {
+        handle: event.currentTarget,
+        pointerId: event.pointerId,
         startClientY: event.clientY,
         startHeight: height
       }
@@ -84,6 +99,7 @@ export function AgentTerminalDrawer({
       // the drag stable even when the cursor leaves the slim handle.
       document.body.style.cursor = 'ns-resize'
       document.body.style.userSelect = 'none'
+      event.currentTarget.setPointerCapture(event.pointerId)
     },
     [height]
   )
@@ -155,7 +171,7 @@ export function AgentTerminalDrawer({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="absolute left-1/2 top-0 z-10 h-3 w-24 -translate-x-1/2 cursor-ns-resize rounded-b-md rounded-t-none border-x border-b border-border bg-muted/70 p-0 text-muted-foreground hover:bg-accent"
+        className="absolute left-1/2 top-0 z-20 h-8 w-32 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize rounded-full border border-border bg-muted/80 p-0 text-muted-foreground shadow-xs hover:bg-accent"
         onPointerDown={startResize}
         onKeyDown={handleResizeKeyDown}
         aria-label={resizeLabel}

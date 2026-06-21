@@ -147,4 +147,38 @@ describe('AgentTerminalDrawer', () => {
 
     expect(drawer?.style.height).toBe('224px')
   })
+
+  it('captures the resize pointer so drags keep working over terminal content', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    await act(async () => {
+      root?.render(
+        <AgentTerminalDrawer open reason="debug-button" terminalAvailable onClose={() => undefined}>
+          {preservedTerminal}
+        </AgentTerminalDrawer>
+      )
+    })
+
+    const resizeHandle = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Resize terminal drawer"]'
+    )
+    const setPointerCapture = vi.fn()
+    Object.defineProperty(resizeHandle, 'setPointerCapture', {
+      configurable: true,
+      value: setPointerCapture
+    })
+
+    const pointerDown = new Event('pointerdown', { bubbles: true }) as PointerEvent
+    Object.defineProperty(pointerDown, 'button', { value: 0 })
+    Object.defineProperty(pointerDown, 'clientY', { value: 300 })
+    Object.defineProperty(pointerDown, 'pointerId', { value: 17 })
+
+    await act(async () => {
+      resizeHandle?.dispatchEvent(pointerDown)
+    })
+
+    expect(setPointerCapture).toHaveBeenCalledWith(17)
+  })
 })
