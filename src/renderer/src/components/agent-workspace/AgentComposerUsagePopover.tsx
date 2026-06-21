@@ -4,9 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
+import type { ClaudeUsageSummary } from '../../../../shared/claude-usage-types'
+import type { CodexUsageSummary } from '../../../../shared/codex-usage-types'
+import type { OpenCodeUsageSummary } from '../../../../shared/opencode-usage-types'
 import type { RateLimitState } from '../../../../shared/rate-limit-types'
 import type { TuiAgent } from '../../../../shared/types'
-import { buildComposerUsageSummary, type ComposerUsageMeter } from './agent-composer-usage-summary'
+import {
+  buildComposerUsageSummary,
+  type ComposerAgentUsageSummary,
+  type ComposerUsageMeter
+} from './agent-composer-usage-summary'
 
 const EMPTY_RATE_LIMITS: RateLimitState = {
   claude: null,
@@ -27,23 +34,58 @@ export function AgentComposerUsagePopover({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const rateLimits = useAppStore((state) => state.rateLimits) ?? EMPTY_RATE_LIMITS
-  const fetchRateLimits = useAppStore((state) => state.fetchRateLimits)
+  const refreshRateLimits = useAppStore((state) => state.refreshRateLimits)
+  const fetchCodexUsage = useAppStore((state) => state.fetchCodexUsage)
+  const fetchClaudeUsage = useAppStore((state) => state.fetchClaudeUsage)
+  const fetchOpenCodeUsage = useAppStore((state) => state.fetchOpenCodeUsage)
   const codexUsageSummary = useAppStore((state) => state.codexUsageSummary) ?? null
+  const claudeUsageSummary = useAppStore((state) => state.claudeUsageSummary) ?? null
+  const openCodeUsageSummary = useAppStore((state) => state.openCodeUsageSummary) ?? null
+  const usageSummary = useMemo(
+    () =>
+      getUsageSummaryForAgent({
+        selectedAgent,
+        codexUsageSummary,
+        claudeUsageSummary,
+        openCodeUsageSummary
+      }),
+    [claudeUsageSummary, codexUsageSummary, openCodeUsageSummary, selectedAgent]
+  )
   const summary = useMemo(
     () =>
       buildComposerUsageSummary({
         selectedAgent,
-        codexUsageSummary,
+        usageSummary,
         rateLimits
       }),
-    [codexUsageSummary, rateLimits, selectedAgent]
+    [rateLimits, selectedAgent, usageSummary]
   )
 
   useEffect(() => {
     if (open) {
-      void fetchRateLimits?.()
+      void refreshRateLimits?.()
+      switch (usageSummary.provider) {
+        case 'codex':
+          void fetchCodexUsage?.({ forceRefresh: true })
+          break
+        case 'claude':
+          void fetchClaudeUsage?.({ forceRefresh: true })
+          break
+        case 'opencode':
+          void fetchOpenCodeUsage?.({ forceRefresh: true })
+          break
+        case 'untracked':
+          break
+      }
     }
-  }, [fetchRateLimits, open])
+  }, [
+    fetchClaudeUsage,
+    fetchCodexUsage,
+    fetchOpenCodeUsage,
+    open,
+    refreshRateLimits,
+    usageSummary.provider
+  ])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -132,6 +174,33 @@ export function AgentComposerUsagePopover({
       </PopoverContent>
     </Popover>
   )
+}
+
+function getUsageSummaryForAgent({
+  selectedAgent,
+  codexUsageSummary,
+  claudeUsageSummary,
+  openCodeUsageSummary
+}: {
+  selectedAgent: TuiAgent | null
+  codexUsageSummary: CodexUsageSummary | null
+  claudeUsageSummary: ClaudeUsageSummary | null
+  openCodeUsageSummary: OpenCodeUsageSummary | null
+}): ComposerAgentUsageSummary {
+  switch (selectedAgent) {
+    case 'codex':
+      return { provider: 'codex', summary: codexUsageSummary }
+    case 'claude':
+    case 'claude-agent-teams':
+    case 'openclaude':
+      return { provider: 'claude', summary: claudeUsageSummary }
+    case 'opencode':
+    case 'omp':
+    case 'pi':
+      return { provider: 'opencode', summary: openCodeUsageSummary }
+    default:
+      return { provider: 'untracked', summary: null }
+  }
 }
 
 function UsageRow({ row }: { row: ComposerUsageMeter }): React.JSX.Element {

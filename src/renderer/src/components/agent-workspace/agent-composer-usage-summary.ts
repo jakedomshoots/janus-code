@@ -1,4 +1,6 @@
+import type { ClaudeUsageSummary } from '../../../../shared/claude-usage-types'
 import type { CodexUsageSummary } from '../../../../shared/codex-usage-types'
+import type { OpenCodeUsageSummary } from '../../../../shared/opencode-usage-types'
 import type {
   ProviderRateLimits,
   RateLimitBucket,
@@ -24,26 +26,33 @@ export type ComposerUsageSummary = {
   providerStatus: ProviderRateLimits['status'] | 'untracked'
 }
 
+export type ComposerAgentUsageSummary =
+  | { provider: 'codex'; summary: CodexUsageSummary | null }
+  | { provider: 'claude'; summary: ClaudeUsageSummary | null }
+  | { provider: 'opencode'; summary: OpenCodeUsageSummary | null }
+  | { provider: 'untracked'; summary: null }
+
 const DEFAULT_CONTEXT_WINDOW_TOKENS = 1_000_000
 
 export function buildComposerUsageSummary({
   selectedAgent,
-  codexUsageSummary,
+  usageSummary,
   rateLimits
 }: {
   selectedAgent: TuiAgent | null
-  codexUsageSummary: CodexUsageSummary | null
+  usageSummary: ComposerAgentUsageSummary
   rateLimits: RateLimitState
 }): ComposerUsageSummary {
   const providerLimits = getProviderRateLimits(selectedAgent, rateLimits)
-  const contextRows = buildContextRows(codexUsageSummary)
+  const contextRows = buildContextRows(usageSummary)
   const contextPercent = contextRows[0]?.percent ?? null
+  const totalTokens = getUsageTotalTokens(usageSummary)
 
   return {
     contextLabel:
       contextPercent === null
         ? translate('auto.components.agentWorkspace.composer.notTracked', 'Not tracked')
-        : `${formatTokens(codexUsageSummary?.totalTokens ?? 0)}/1M`,
+        : `${formatTokens(totalTokens ?? 0)}/1M`,
     contextPercent,
     contextRows,
     remainingRows: buildRemainingRows(providerLimits),
@@ -51,10 +60,10 @@ export function buildComposerUsageSummary({
   }
 }
 
-function buildContextRows(summary: CodexUsageSummary | null): ComposerUsageMeter[] {
-  const totalTokens = summary?.totalTokens ?? 0
+function buildContextRows(usageSummary: ComposerAgentUsageSummary): ComposerUsageMeter[] {
+  const totalTokens = getUsageTotalTokens(usageSummary)
   const contextPercent =
-    summary && totalTokens > 0
+    totalTokens !== null && totalTokens > 0
       ? clampPercent((totalTokens / DEFAULT_CONTEXT_WINDOW_TOKENS) * 100)
       : null
 
@@ -66,7 +75,7 @@ function buildContextRows(summary: CodexUsageSummary | null): ComposerUsageMeter
           ? translate('auto.components.agentWorkspace.composer.notTracked', 'Not tracked')
           : formatPercent(contextPercent),
       percent: contextPercent,
-      detail: summary ? formatTokens(totalTokens) : null
+      detail: totalTokens === null ? null : formatTokens(totalTokens)
     },
     {
       label: translate('auto.components.agentWorkspace.composer.systemTools', 'System tools'),
@@ -93,6 +102,27 @@ function buildContextRows(summary: CodexUsageSummary | null): ComposerUsageMeter
       detail: null
     }
   ]
+}
+
+function getUsageTotalTokens(usageSummary: ComposerAgentUsageSummary): number | null {
+  if (!usageSummary.summary) {
+    return null
+  }
+
+  switch (usageSummary.provider) {
+    case 'codex':
+    case 'opencode':
+      return usageSummary.summary.totalTokens
+    case 'claude':
+      return (
+        usageSummary.summary.inputTokens +
+        usageSummary.summary.outputTokens +
+        usageSummary.summary.cacheReadTokens +
+        usageSummary.summary.cacheWriteTokens
+      )
+    default:
+      return null
+  }
 }
 
 function buildRemainingRows(limits: ProviderRateLimits | null): ComposerUsageMeter[] {
