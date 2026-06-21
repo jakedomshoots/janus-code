@@ -145,7 +145,7 @@ export function AgentTerminalDrawer({
       aria-hidden={!open}
       style={{ height }}
       className={cn(
-        'fixed inset-x-0 bottom-0 z-50 flex min-h-56 flex-col border-t border-border bg-background shadow-2xl transition-[opacity,transform] duration-200',
+        'fixed inset-x-0 bottom-0 z-50 flex flex-col border-t border-border bg-background shadow-2xl transition-[opacity,transform] duration-200',
         open
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-[calc(100%+1rem)] opacity-0'

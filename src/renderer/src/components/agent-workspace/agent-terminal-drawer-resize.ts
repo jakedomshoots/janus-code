@@ -1,21 +1,20 @@
 const TERMINAL_DRAWER_MIN_HEIGHT = 224
-const TERMINAL_DRAWER_MAX_HEIGHT = 768
-const TERMINAL_DRAWER_TOP_GUTTER = 120
+const TERMINAL_DRAWER_COMPACT_MIN_HEIGHT = 160
+const TERMINAL_DRAWER_TOP_GUTTER = 72
 const TERMINAL_DRAWER_DEFAULT_VIEWPORT_RATIO = 0.46
 const TERMINAL_DRAWER_DEFAULT_MAX_HEIGHT = 512
 
 export function getTerminalDrawerMaxHeight(viewportHeight: number): number {
-  return Math.max(
-    TERMINAL_DRAWER_MIN_HEIGHT,
-    Math.min(TERMINAL_DRAWER_MAX_HEIGHT, viewportHeight - TERMINAL_DRAWER_TOP_GUTTER)
-  )
+  return Math.max(TERMINAL_DRAWER_COMPACT_MIN_HEIGHT, viewportHeight - TERMINAL_DRAWER_TOP_GUTTER)
+}
+
+export function getTerminalDrawerMinHeight(viewportHeight: number): number {
+  return Math.min(TERMINAL_DRAWER_MIN_HEIGHT, getTerminalDrawerMaxHeight(viewportHeight))
 }
 
 export function clampTerminalDrawerHeight(height: number, viewportHeight: number): number {
-  return Math.min(
-    Math.max(height, TERMINAL_DRAWER_MIN_HEIGHT),
-    getTerminalDrawerMaxHeight(viewportHeight)
-  )
+  const minHeight = getTerminalDrawerMinHeight(viewportHeight)
+  return Math.min(Math.max(height, minHeight), getTerminalDrawerMaxHeight(viewportHeight))
 }
 
 export function getDefaultTerminalDrawerHeight(viewportHeight: number): number {

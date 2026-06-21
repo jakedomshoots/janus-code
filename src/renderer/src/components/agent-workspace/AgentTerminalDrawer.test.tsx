@@ -138,7 +138,7 @@ describe('AgentTerminalDrawer', () => {
       window.dispatchEvent(pointerMoveUp)
     })
 
-    expect(drawer?.style.height).toBe('580px')
+    expect(drawer?.style.height).toBe('622px')
 
     await act(async () => {
       window.dispatchEvent(pointerMoveDown)
