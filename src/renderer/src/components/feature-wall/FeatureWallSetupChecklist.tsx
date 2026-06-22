@@ -57,6 +57,7 @@ function SetupStepRow(props: {
       type="button"
       onClick={onSelect}
       aria-current={active ? 'step' : undefined}
+      data-setup-step-row=""
       className={cn(
         'relative flex w-full items-center gap-3 text-left transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -79,9 +80,11 @@ function SetupStepRow(props: {
       <span
         className={cn(
           'flex size-5 shrink-0 items-center justify-center rounded-full border',
-          done
-            ? 'border-green-500/45 bg-green-500/10 text-green-600 dark:text-green-300'
-            : 'border-border text-muted-foreground'
+          active
+            ? 'border-accent-foreground text-accent-foreground'
+            : done
+              ? 'border-green-500/45 bg-green-500/10 text-green-600 dark:text-green-300'
+              : 'border-border text-muted-foreground'
         )}
       >
         {done ? <Check className="size-3" /> : <span className="text-xs">{ordinal}</span>}

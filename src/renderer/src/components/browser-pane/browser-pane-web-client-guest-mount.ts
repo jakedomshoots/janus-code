@@ -24,6 +24,7 @@ export function mountBrowserPaneWebClientGuest(args: {
   iframe.style.height = '100%'
   iframe.style.border = 'none'
   iframe.style.background = '#ffffff'
+  iframe.className = 'browser-pane-web-client-guest'
   iframe.src = args.initialUrl
   args.container.appendChild(iframe)
   args.webviewRef.current = iframe

@@ -727,8 +727,145 @@
 
 /* Why: settings section headers sit directly on the Retro teal canvas before
    their gray content panel begins, so muted gray text misses AA there. */
-.theme-retro95 [data-settings-section] > div:first-child .text-muted-foreground {
+.theme-retro95
+  section[data-settings-section]
+  > div:first-child
+  > div:first-child
+  > p.text-muted-foreground {
   color: var(--win-titlebar-text) !important;
+}
+
+/* Why: several Radix/cmdk surfaces expose active rows through broad state
+   attributes; in Retro 95 those rows must keep the titlebar token pair. */
+.theme-retro95 [data-selected='true'],
+.theme-retro95 [data-state='checked'],
+.theme-retro95 [data-state='active'],
+.theme-retro95 [data-state='on'],
+.theme-retro95 [aria-selected='true'],
+.theme-retro95 .bg-foreground\/90 {
+  background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 [data-selected='true'] *,
+.theme-retro95 [data-state='checked'] *,
+.theme-retro95 [data-state='active'] *,
+.theme-retro95 [data-state='on'] *,
+.theme-retro95 [aria-selected='true'] *,
+.theme-retro95 .bg-foreground\/90 * {
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 [data-slot='tabs-content'][data-state='active'] {
+  background: var(--win-surface) !important;
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 [data-slot='tabs-content'][data-state='active'] .text-muted-foreground {
+  color: var(--win-text-muted) !important;
+}
+
+.theme-retro95 [data-slot='tabs-trigger'][data-state='active'],
+.theme-retro95 [role='tab'][data-state='active'] {
+  background: var(--win-surface) !important;
+  color: var(--win-text) !important;
+}
+
+/* Why: the workspace header sits on the app canvas in Modern, but Retro needs a
+   window-surface strip so dense 11px status text keeps AA contrast. */
+.theme-retro95 .agent-workspace-header {
+  background-color: var(--win-surface) !important;
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 .agent-workspace-header .text-muted-foreground {
+  color: var(--win-text-muted) !important;
+}
+
+/* Why: setup-guide rows mark the current milestone with aria-current, not the
+   Radix selected attributes used elsewhere. */
+.theme-retro95 [data-setup-step-row][aria-current='step'] {
+  background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 [data-setup-step-row][aria-current='step'] * {
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95
+  [role='tab'][aria-selected='true']
+  [data-slot='button']:not(.agent-workspace-browser-tab-actions) {
+  background-color: transparent !important;
+  color: var(--win-highlight-text) !important;
+  box-shadow: none !important;
+}
+
+.theme-retro95 .agent-workspace-browser-tab-actions,
+.theme-retro95 .agent-workspace-browser-tab-actions * {
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 .setup-script-prompt-card,
+.theme-retro95 .setup-script-prompt-card .text-foreground,
+.theme-retro95 .setup-script-prompt-card .text-muted-foreground {
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 .titlebar .text-muted-foreground,
+.theme-retro95 .titlebar-left .text-muted-foreground,
+.theme-retro95 .titlebar-left-floating .text-muted-foreground {
+  color: var(--win-titlebar-text) !important;
+}
+
+.theme-retro95 [data-slot='tooltip-content'],
+.theme-retro95 [data-slot='tooltip-content'] * {
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 .xterm,
+.theme-retro95 .xterm-screen,
+.theme-retro95 .xterm-rows,
+.theme-retro95 .xterm-viewport {
+  background-color: var(--win-border-black) !important;
+}
+
+.browser-pane-web-client-guest:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--background);
+}
+
+.terminal-error-toast {
+  background: color-mix(in srgb, var(--destructive) 12%, var(--background)) !important;
+  border: 1px solid color-mix(in srgb, var(--destructive) 38%, transparent) !important;
+  color: var(--destructive) !important;
+}
+
+.terminal-error-toast--ssh {
+  background: color-mix(in srgb, var(--annotation-highlight) 18%, var(--background)) !important;
+  border-color: color-mix(in srgb, var(--annotation-highlight) 42%, transparent) !important;
+  color: var(--foreground) !important;
+}
+
+.terminal-error-toast-link,
+.terminal-error-toast-action,
+.terminal-error-toast-dismiss {
+  color: currentColor !important;
+}
+
+.theme-retro95 .terminal-error-toast {
+  background: var(--win-surface) !important;
+  border: 1px solid var(--win-danger) !important;
+  color: var(--win-danger) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win-border-light),
+    inset -1px -1px 0 var(--win-border-dark) !important;
+}
+
+.theme-retro95 .terminal-error-toast--ssh {
+  border-color: var(--win-warning) !important;
+  color: var(--win-text) !important;
 }
 
 .theme-retro95 [data-sonner-toast][data-styled='true'] {

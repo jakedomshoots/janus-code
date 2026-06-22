@@ -297,7 +297,7 @@ export default function BrowserAddressBar({
       <PopoverTrigger asChild>
         <form
           ref={setAddressBarFormRef}
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-background px-3 py-1 shadow-sm"
+          className="flex min-w-0 flex-1 basis-40 items-center gap-2 rounded-xl border border-border bg-background px-3 py-1 shadow-sm"
           onSubmit={(event) => {
             event.preventDefault()
             setOpen(false)

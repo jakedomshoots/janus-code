@@ -88,7 +88,7 @@ export const BrowserTabPill = memo(function BrowserTabPill({
             type="button"
             variant="ghost"
             size="icon-xs"
-            className="shrink-0 opacity-0 transition-opacity group-hover:opacity-70 hover:opacity-100 focus-visible:opacity-100"
+            className="agent-workspace-browser-tab-actions shrink-0 opacity-0 transition-opacity group-hover:opacity-70 hover:opacity-100 focus-visible:opacity-100"
             aria-label={translate(
               'auto.components.agentWorkspace.threadTabs.browserTabActions',
               'Browser tab actions'
@@ -101,7 +101,9 @@ export const BrowserTabPill = memo(function BrowserTabPill({
               event.stopPropagation()
             }}
           >
-            <span className="text-[10px] font-semibold">...</span>
+            <span className="agent-workspace-browser-tab-actions-label text-[10px] font-semibold">
+              ...
+            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="bottom" sideOffset={4}>

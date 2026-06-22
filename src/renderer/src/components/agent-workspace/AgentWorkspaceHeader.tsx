@@ -50,7 +50,7 @@ export function AgentWorkspaceHeader({
   }
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-background/95 px-4">
+    <header className="agent-workspace-header flex h-[52px] shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-background/95 px-4">
       <div className="flex min-w-0 items-center gap-2">
         <div className="hidden min-w-0 flex-col leading-tight sm:flex">
           <span className="truncate text-xs font-medium text-foreground">

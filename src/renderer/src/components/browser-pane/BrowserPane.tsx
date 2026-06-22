@@ -2595,7 +2595,7 @@ function RemoteBrowserPagePane({
           )
         : null}
       <div
-        className="relative z-10 flex items-center gap-2 border-b border-border/70 bg-background/95 px-3 py-1.5"
+        className="relative z-10 flex flex-wrap items-center gap-1.5 border-b border-border/70 bg-background/95 px-2 py-1.5 sm:gap-2 sm:px-3"
         data-contextual-tour-target="browser-toolbar"
       >
         <Button
@@ -5061,7 +5061,7 @@ function BrowserPagePane({
         : null}
 
       <div
-        className="relative z-10 flex items-center gap-2 border-b border-border/70 bg-background/95 px-3 py-1.5"
+        className="relative z-10 flex flex-wrap items-center gap-1.5 border-b border-border/70 bg-background/95 px-2 py-1.5 sm:gap-2 sm:px-3"
         data-contextual-tour-target="browser-toolbar"
       >
         <Button

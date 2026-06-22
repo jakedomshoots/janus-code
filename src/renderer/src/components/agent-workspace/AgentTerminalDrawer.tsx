@@ -37,6 +37,7 @@ export function AgentTerminalDrawer({
       data-state={open ? 'open' : 'closed'}
       aria-label={title}
       aria-hidden={!open}
+      inert={!open}
       className={cn(
         'fixed inset-x-0 bottom-0 z-50 flex h-[min(46vh,32rem)] min-h-56 flex-col border-t border-border bg-background shadow-2xl transition-[opacity,transform] duration-200',
         open

@@ -11,3 +11,9 @@
 - Adjusted the Retro 95 background token slightly so small black and white text both meet WCAG AA on the teal app canvas.
 - Clamped the GUI agent workspace switcher at compact widths so preserved terminal chrome cannot push focusable controls past the viewport.
 - Raised Retro 95 settings section-description contrast when those descriptions sit directly on the teal canvas.
+- Improved Retro 95 contrast for selected rows, tabs, setup cards, and nested Settings content while preserving the documented token pairs.
+- Removed closed terminal drawers and floating terminals from keyboard navigation, and tightened compact Browser/terminal toolbar behavior so hidden controls do not receive focus.
+- Added a visible focus ring for the web-client browser iframe so keyboard users can see when the Browser Workbench page itself is focused.
+- Extended the Automations stacked layout through tablet widths so the detail tabs stay within the viewport at 768px.
+- Raised Retro 95 workspace-header, setup-guide active-row, selected tab action, and terminal-error contrast using concrete surface/state token pairs.
+- Paired the workspace-board repository badge accent background with its documented accent foreground token.

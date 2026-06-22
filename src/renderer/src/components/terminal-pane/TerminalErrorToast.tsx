@@ -33,6 +33,7 @@ export function TerminalErrorToast({
 
   return (
     <div
+      className={ssh ? 'terminal-error-toast terminal-error-toast--ssh' : 'terminal-error-toast'}
       style={{
         position: 'absolute',
         bottom: 12,
@@ -70,6 +71,7 @@ export function TerminalErrorToast({
               )}{' '}
               <a
                 href="https://github.com/jakedomshoots/janus-code/issues"
+                className="terminal-error-toast-link"
                 style={{ color: '#fca5a5', textDecoration: 'underline' }}
               >
                 {translate(
@@ -84,6 +86,7 @@ export function TerminalErrorToast({
         {showDaemonRestart ? (
           <button
             onClick={onRestartDaemon}
+            className="terminal-error-toast-action"
             style={{
               marginLeft: 12,
               border: '1px solid rgba(252, 165, 165, 0.45)',
@@ -105,6 +108,7 @@ export function TerminalErrorToast({
         ) : null}
         <button
           onClick={onDismiss}
+          className="terminal-error-toast-dismiss"
           style={{
             background: 'none',
             border: 'none',
