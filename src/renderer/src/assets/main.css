@@ -725,6 +725,12 @@
   color: var(--win-titlebar-text);
 }
 
+/* Why: full-page Space copy sits directly on the Retro teal canvas; default
+   muted gray misses AA there, while popover Space surfaces keep normal muted text. */
+.theme-retro95 [data-workspace-space-page] [data-space-canvas-muted] {
+  color: var(--win-titlebar-text) !important;
+}
+
 /* Why: settings section headers sit directly on the Retro teal canvas before
    their gray content panel begins, so muted gray text misses AA there. */
 .theme-retro95

@@ -18,3 +18,5 @@
 - Raised Retro 95 workspace-header, setup-guide active-row, selected tab action, and terminal-error contrast using concrete surface/state token pairs.
 - Paired the workspace-board repository badge accent background with its documented accent foreground token.
 - Switched task-source active filter chips to documented active-state token pairs across providers and themes.
+- Added a tokenized hover state to Cmd+J palette result rows so Modern-dark command results have the same visible pointer feedback as Retro.
+- Raised Retro 95 Space page hint-copy contrast when the copy sits directly on the teal app canvas.

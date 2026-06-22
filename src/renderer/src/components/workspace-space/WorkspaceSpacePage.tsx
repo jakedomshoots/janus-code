@@ -54,7 +54,7 @@ export default function WorkspaceSpacePage(): React.JSX.Element {
   }, [closeSpacePage])
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-background">
+    <div data-workspace-space-page="" className="flex h-full min-h-0 flex-col bg-background">
       <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3">
         <Button variant="outline" size="sm" onClick={closeSpacePage} className="shrink-0 gap-1.5">
           <ArrowLeft className="size-3.5" />
@@ -76,7 +76,7 @@ export default function WorkspaceSpacePage(): React.JSX.Element {
                 {translate('auto.components.workspace.space.WorkspaceSpacePage.e8d6ba11ab', 'Beta')}
               </Badge>
             </div>
-            <p className="truncate text-xs text-muted-foreground">
+            <p data-space-canvas-muted="" className="truncate text-xs text-muted-foreground">
               {translate(
                 'auto.components.workspace.space.WorkspaceSpacePage.8d0048e1cb',
                 'Workspace disk usage and reclaimable worktree storage.'

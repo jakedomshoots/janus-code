@@ -1664,7 +1664,10 @@ export function WorkspaceSpaceManagerPanel(): React.JSX.Element {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+        <div
+          data-space-canvas-muted=""
+          className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
+        >
           {isScanning ? (
             <Loader2 className="size-4 shrink-0 animate-spin" />
           ) : (

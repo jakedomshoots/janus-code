@@ -153,6 +153,8 @@ type PaletteItem =
 type PaletteListEntry = PaletteItem | CreateWorktreePaletteItem | SectionHeader | HintRow
 
 const CREATE_WORKSPACE_QUICK_ACTION_ITEM_ID = `quick-action:${CREATE_WORKSPACE_QUICK_ACTION_ID}`
+const PALETTE_RESULT_STATE_CLASS =
+  'hover:border-border hover:bg-accent hover:text-foreground hover:shadow-xs data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground'
 
 function getComposerPrefetchRepoId(
   state: ReturnType<typeof useAppStore.getState>,
@@ -1512,7 +1514,10 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
                     key={entry.id}
                     value={CREATE_WORKTREE_ITEM_ID}
                     onSelect={handleCreateWorktree}
-                    className="group mx-0.5 mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-1.5 text-left outline-none transition-[background-color,border-color,box-shadow] data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground"
+                    className={cn(
+                      'group mx-0.5 mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-1.5 text-left outline-none transition-[background-color,border-color,box-shadow]',
+                      PALETTE_RESULT_STATE_CLASS
+                    )}
                   >
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-border/60 bg-muted/25 text-muted-foreground/70">
                       <Plus size={13} aria-hidden="true" />
@@ -1558,7 +1563,7 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
                     data-current={isCurrentWorktree ? 'true' : undefined}
                     className={cn(
                       'group mx-0.5 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left outline-none transition-[background-color,border-color,box-shadow]',
-                      'data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground'
+                      PALETTE_RESULT_STATE_CLASS
                     )}
                   >
                     <div className="flex w-4 shrink-0 items-center justify-center self-start pt-0.5">
@@ -1686,7 +1691,7 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
                     onSelect={() => handleSelectItem(entry)}
                     className={cn(
                       'group mx-0.5 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left outline-none transition-[background-color,border-color,box-shadow]',
-                      'data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground'
+                      PALETTE_RESULT_STATE_CLASS
                     )}
                   >
                     <div className="flex w-4 shrink-0 items-center justify-center self-start pt-0.5 text-muted-foreground/85">
@@ -1725,7 +1730,7 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
                     onSelect={() => handleSelectItem(entry)}
                     className={cn(
                       'group mx-0.5 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left outline-none transition-[background-color,border-color,box-shadow]',
-                      'data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground'
+                      PALETTE_RESULT_STATE_CLASS
                     )}
                   >
                     <div className="flex w-4 shrink-0 items-center justify-center self-start pt-0.5 text-muted-foreground/85">
@@ -1803,7 +1808,7 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
                   onSelect={() => handleSelectItem(entry)}
                   className={cn(
                     'group mx-0.5 flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left outline-none transition-[background-color,border-color,box-shadow]',
-                    'data-[selected=true]:border-border data-[selected=true]:bg-accent data-[selected=true]:text-foreground'
+                    PALETTE_RESULT_STATE_CLASS
                   )}
                 >
                   <div className="flex w-4 shrink-0 items-center justify-center self-start pt-0.5 text-muted-foreground/85">
