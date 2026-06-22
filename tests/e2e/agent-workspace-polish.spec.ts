@@ -12,6 +12,7 @@ import {
   seedAgentWorkspaceThread,
   selectAgentThreadTab
 } from './helpers/agent-workspace'
+import { seedAgentWorkspacePlanEvidenceState } from './helpers/agent-workspace-plan-evidence-seed'
 import {
   ensureTerminalVisible,
   getWorktreeTabs,
@@ -303,6 +304,57 @@ test.describe('Agent workspace polish', () => {
     await expect(rightPanel.getByText('Tighten workspace context')).toBeVisible()
     await expect(rightPanel.getByText(/GitLab #42/i)).toBeVisible()
     await expect(rightPanel.getByRole('button', { name: /Review only/i })).toBeVisible()
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+  })
+
+  test('keeps plan, replay, and risk evidence usable at smaller desktop size', async ({
+    orcaPage
+  }) => {
+    await orcaPage.setViewportSize({ width: 1100, height: 640 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E evidence workspace ${Date.now()}`
+
+    await seedAgentWorkspacePlanEvidenceState(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Verify the risky deployment evidence'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    const rightPanel = agentWorkspaceRightPanel(orcaPage)
+    const tabList = rightPanel.getByRole('tablist', { name: /Agent workspace right panel/i })
+
+    await tabList.getByRole('tab', { name: /Output/i }).click()
+    const planProgress = rightPanel.locator('section').filter({ hasText: 'Plan progress' })
+    await expect(planProgress.getByText('Plan progress')).toBeVisible()
+    await expect(planProgress.getByText('1/3', { exact: true })).toBeVisible()
+    await expect(rightPanel.getByText(/Now: Verify the run ledger/i)).toBeVisible()
+
+    await tabList.getByRole('tab', { name: /Context/i }).click()
+    await expect(rightPanel.getByText(/kubectl apply -f prod\/deploy\.yaml/i).first()).toBeVisible()
+    await expect(rightPanel.getByText(/High risk/i).first()).toBeVisible()
+    await expect(rightPanel.getByText(/Deploy/i).first()).toBeVisible()
+    await expect(rightPanel.getByText(/Protected\s+·\s+Production deploys/i).first()).toBeVisible()
+
+    const replayExport = rightPanel.locator('section[aria-label="Run replay export"]')
+    await expect(replayExport.getByRole('button', { name: /Copy replay/i })).toBeVisible()
+    await replayExport.getByRole('button', { name: /Copy replay/i }).click()
+    await expect(replayExport.getByText('Replay copied.')).toBeVisible()
+
+    const runLedger = rightPanel.locator('section[aria-label="Run ledger"]')
+    await runLedger.scrollIntoViewIfNeeded()
+    await rightPanel.locator('.scrollbar-sleek').evaluate((scrollArea) => {
+      scrollArea.scrollTop += 160
+    })
+    await expect(runLedger.getByText('Verification running')).toBeVisible()
+    await expect(runLedger.getByText('Partial telemetry').first()).toBeVisible()
+    await expect(runLedger.getByText('Changed files')).toBeVisible()
 
     await expectAgentWorkspaceControlsInViewport(orcaPage)
   })
