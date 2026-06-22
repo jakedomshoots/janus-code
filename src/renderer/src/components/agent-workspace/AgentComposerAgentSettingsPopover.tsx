@@ -7,10 +7,6 @@ import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import {
-  getTuiAgentModelProviderCategory,
-  type TuiAgentModelProviderCategory
-} from '../../../../shared/tui-agent-model-provider-categories'
-import {
   TUI_AGENT_PROVIDER_DEFAULT_MODEL_ID,
   type TuiAgentModelOption
 } from '../../../../shared/tui-agent-models'
@@ -25,15 +21,14 @@ import {
   ChatDropdownSeparator
 } from './AgentComposerChatDropdown'
 import { AgentComposerThinkingModeOptions } from './AgentComposerThinkingModeOptions'
+import {
+  agentModelOptionMatchesQuery,
+  groupAgentModelOptionsByProvider
+} from './agent-model-option-groups'
 import { getAgentProviderTaskFitDescription } from './agent-provider-task-fit-labels'
 import { getAgentProviderUsageWarning } from './agent-provider-usage-warning'
 
 type AgentSettingsMenuView = 'main' | 'provider' | 'model'
-
-type GroupedModelOptions = {
-  category: TuiAgentModelProviderCategory
-  options: TuiAgentModelOption[]
-}
 
 export function AgentComposerAgentSettingsPopover({
   thinkingMode,
@@ -223,19 +218,12 @@ function AgentModelOptions({
   const filteredOptions = useMemo(
     () =>
       normalizedQuery
-        ? visibleOptions.filter((option) => {
-            const category = getTuiAgentModelProviderCategory(option)
-            return (
-              option.label.toLowerCase().includes(normalizedQuery) ||
-              option.id.toLowerCase().includes(normalizedQuery) ||
-              category.label.toLowerCase().includes(normalizedQuery)
-            )
-          })
+        ? visibleOptions.filter((option) => agentModelOptionMatchesQuery(option, normalizedQuery))
         : visibleOptions,
     [normalizedQuery, visibleOptions]
   )
   const groupedOptions = useMemo(
-    () => groupModelOptionsByProvider(filteredOptions),
+    () => groupAgentModelOptionsByProvider(filteredOptions),
     [filteredOptions]
   )
 
@@ -313,25 +301,6 @@ function AgentModelOptions({
       </div>
     </div>
   )
-}
-
-function groupModelOptionsByProvider(
-  options: readonly TuiAgentModelOption[]
-): GroupedModelOptions[] {
-  const groupsById = new Map<string, GroupedModelOptions>()
-  for (const option of options) {
-    const category = getTuiAgentModelProviderCategory(option)
-    const group = groupsById.get(category.id)
-    if (group) {
-      group.options.push(option)
-    } else {
-      groupsById.set(category.id, { category, options: [option] })
-    }
-  }
-  return Array.from(groupsById.values()).sort((left, right) => {
-    const order = left.category.order - right.category.order
-    return order === 0 ? left.category.label.localeCompare(right.category.label) : order
-  })
 }
 
 function AgentProviderOptions({

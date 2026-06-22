@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { detectLanguage } from '@/lib/language-detect'
-import { joinPath } from '@/lib/path'
 import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { useAppStore } from '@/store'
 import type { AgentWorkspaceDiffSummary, AgentWorkspaceSnapshot } from './agent-workspace-types'
@@ -11,10 +9,10 @@ import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import { AgentWorkspaceAttemptCompare } from './AgentWorkspaceAttemptCompare'
 import { AgentWorkspaceRunBoard } from './AgentWorkspaceRunBoard'
 import {
-  getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
+import { getDefaultRightPanelStateForViewport } from './agent-workspace-right-panel-default-state'
 import {
   getRightPanelStateInput,
   getRightPanelStateInputKey
@@ -30,6 +28,9 @@ import { isWebRuntimeSessionActive } from '@/runtime/web-runtime-session'
 import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import { useAgentWorkspaceLocalTimeline } from './useAgentWorkspaceLocalTimeline'
+import { useAgentWorkspaceCompactLayout } from './useAgentWorkspaceCompactLayout'
+import { useAgentWorkspaceCompactViewport } from './useAgentWorkspaceCompactViewport'
+import { openAgentWorkspaceDiff } from './open-agent-workspace-diff'
 import { selectAgentRunBoardGroups, type AgentRunBoardRow } from './agent-run-board-selectors'
 import {
   selectAgentWorktreeCompareGroups,
@@ -64,6 +65,7 @@ export function AgentWorkspaceLayout({
 }): React.JSX.Element {
   const selectedProject = getSelectedProject(snapshot)
   const { localUserTimeline, handleMessageSent } = useAgentWorkspaceLocalTimeline()
+  const compactViewport = useAgentWorkspaceCompactViewport()
   const pendingRunBoardSelectionRef = useRef<{
     worktreeId: string
     threadId: string
@@ -72,14 +74,15 @@ export function AgentWorkspaceLayout({
   const projectThreads = getProjectThreads(snapshot, selectedProject)
   const defaultThread = projectThreads[0] ?? null
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
-    getDefaultAgentWorkspaceRightPanelState(
-      getRightPanelStateInput({
+    getDefaultRightPanelStateForViewport({
+      input: getRightPanelStateInput({
         thread: defaultThread,
         diffs: getThreadDiffs(snapshot, defaultThread),
         plan: selectAgentWorkspacePlanForThread(snapshot, defaultThread),
         review: getThreadReview(snapshot, defaultThread)
-      })
-    )
+      }),
+      compactRightPanelViewport: compactViewport
+    })
   )
   const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
   const panesController = useAgentWorkspacePanes({
@@ -177,9 +180,21 @@ export function AgentWorkspaceLayout({
     terminalDrawerReason
   })
 
+  useAgentWorkspaceCompactLayout({
+    activeWorktreeId: snapshot.activeWorktreeId,
+    compactViewport,
+    focusedGroupId,
+    setSelectedRightPanelState
+  })
+
   if (previousRightPanelStateInputKeyRef.current !== rightPanelStateInputKey) {
     previousRightPanelStateInputKeyRef.current = rightPanelStateInputKey
-    setSelectedRightPanelState(getDefaultAgentWorkspaceRightPanelState(rightPanelStateInput))
+    setSelectedRightPanelState(
+      getDefaultRightPanelStateForViewport({
+        input: rightPanelStateInput,
+        compactRightPanelViewport: compactViewport
+      })
+    )
   }
 
   if (previousActiveWorktreeIdForSidebarRef.current !== snapshot.activeWorktreeId) {
@@ -266,16 +281,7 @@ export function AgentWorkspaceLayout({
   }
 
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
-    if (!selectedThread?.cwd || typeof openDiff !== 'function') {
-      return
-    }
-    openDiff(
-      selectedThread.worktreeId,
-      joinPath(selectedThread.cwd, diff.filePath),
-      diff.filePath,
-      detectLanguage(diff.filePath),
-      diff.area === 'staged'
-    )
+    openAgentWorkspaceDiff({ diff, openDiff, thread: selectedThread })
   }
 
   function handleOpenWorkspaceThread({

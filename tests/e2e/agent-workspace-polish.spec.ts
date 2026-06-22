@@ -570,6 +570,42 @@ test.describe('Agent workspace polish', () => {
     await expectAgentWorkspaceShellsWithoutHorizontalOverflow(orcaPage)
   })
 
+  test('starts mobile-like workspaces with the evidence panel collapsed', async ({ orcaPage }) => {
+    await orcaPage.setViewportSize({ width: 760, height: 560 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E mobile panel ${Date.now()}`
+
+    await seedAgentWorkspaceFailureEmptyState(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Keep primary controls reachable on mobile-like widths'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    await expect(agentWorkspaceRightPanel(orcaPage)).not.toBeVisible()
+    await expect(workspace.getByRole('button', { name: /Show right panel/i })).toBeVisible()
+    await expect(workspace.getByRole('form', { name: /Agent chat composer/i })).toBeVisible()
+    await expect
+      .poll(() =>
+        orcaPage.evaluate(() => ({
+          rightSidebarOpen: window.__store?.getState().rightSidebarOpen,
+          sidebarOpen: window.__store?.getState().sidebarOpen
+        }))
+      )
+      .toEqual({ rightSidebarOpen: false, sidebarOpen: false })
+    await expect
+      .poll(async () => Math.round((await workspace.boundingBox())?.width ?? 0))
+      .toBeGreaterThan(360)
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+    await expectAgentWorkspaceShellsWithoutHorizontalOverflow(orcaPage)
+  })
+
   test('persists thinking mode across GUI workspace remount', async ({ orcaPage }) => {
     const { worktreeId } = await prepareGuiWorkspaceTerminal(orcaPage)
     const workspace = agentWorkspaceRegion(orcaPage)

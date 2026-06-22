@@ -20,7 +20,7 @@ verification method.
 | Performance perception | 5 | Long-running or unavailable states communicate progress/limits without appearing frozen. |
 | Regression coverage | 5 | Focused unit, integration, E2E, visual, or smoke checks cover the highest-risk fixes. |
 
-Current score: **98/100**
+Current score: **99/100**
 
 Rationale: the audit now has manual first-run web evidence and Electron E2E
 coverage for the approval-state agent workspace plus real-git review and
@@ -30,9 +30,11 @@ verification, partial telemetry, changed-file evidence, a multi-worktree
 Best-of-N compare path below 1100px, and compact composer/provider/voice/memory
 states below 1024px. The loop now also covers failed verification, empty Changes
 and Review tabs, unavailable memory, runtime execution context, and compact
-height behavior at 900x560. The score is not 100 yet because installed-app
-smoke, manual passes beyond seeded Electron states, and additional mobile-like
-width/height combinations still need current end-to-end evidence. The current
+height behavior at 900x560. It also covers a mobile-like 760x560 workspace
+where the agent evidence panel starts collapsed, outer sidebars are reclaimed,
+and the active split group is widened before composer controls render. The
+score is not 100 yet because installed-app smoke and manual passes beyond
+seeded Electron states still need current end-to-end evidence. The current
 unpacked macOS app launches cleanly from `dist/mac-arm64/Janus Code.app` with
 an isolated E2E profile, but the local Computer Use workflow smoke is blocked by
 the host machine's Accessibility permission for Janus Computer Use.
@@ -48,6 +50,7 @@ the host machine's Accessibility permission for Janus Computer Use.
 | UX-005 | P1 | Electron agent workspace, Best-of-N compare across worktrees, 1024x640 with sidebar open | Fixed | Enable the GUI agent workspace in Electron, seed a completed Codex attempt and a failed Claude attempt across two worktrees for the same repo, select a winner, and open the challenger attempt. | Compare groups, attempt counts, pass/fail verification badges, changed-file summaries, winner selection, cross-worktree open, the composer, and right-panel actions remain usable without clipped visible controls. | The unbounded run board and compare stack could consume most of the vertical workspace, leaving the active thread, composer controls, and right-panel actions below the viewport after switching worktrees. | `tests/e2e/agent-workspace-polish.spec.ts` now seeds this multi-worktree compare state at 1024x640. The workspace board is capped/scrollable, compare is prioritized, the right panel is row-bounded, and the wrapper E2E file passed 10/10. |
 | UX-006 | P1 | Electron agent workspace, compact composer and Context tab states, 960x620 with sidebar open | Fixed | Enable the GUI agent workspace in Electron, seed a running Codex thread with live tool/verification state, queue a follow-up while busy, inspect resource memory in Context, start a draft, switch provider to Claude, add a verification command, and inspect prompt context. | Queued follow-up editing, delete, disabled voice configuration, provider switching, verification context, Claude memory context, and Janus-observable memory rows remain visible without clipped controls or horizontal overflow. | This path did not have current end-to-end coverage, leaving compact composer wrapping, provider menus, disabled voice state, queued follow-up, verification context chips, and memory rows invisible to the audit loop. | `tests/e2e/agent-workspace-polish.spec.ts` now covers this compact composer/memory path at 960x620 and checks visible controls plus composer/right-panel horizontal overflow. The wrapper E2E file passed 10/10. |
 | UX-007 | P1 | Electron agent workspace, failed verification and empty states, 900x560 with sidebar and evidence panel open | Fixed | Enable the GUI agent workspace in Electron, seed a failed Codex thread after cleaning the serial temp repo's git state, and inspect Changes, Review, Context, and memory evidence. | Empty Changes and Review tabs, failed verification, runtime execution context, no changed files, partial telemetry, unavailable memory, and composer actions remain explicit and usable without clipped controls. | The Review empty label was hidden by an unreachable `:empty` selector, compact composer controls could wrap below the viewport, and serial E2E state could leak prior source-control changes into the empty-state check. | `tests/e2e/agent-workspace-polish.spec.ts` now covers this path at 900x560, cleans the temp repo through app git APIs, and checks failed/error/empty evidence plus viewport clipping. The wrapper E2E file passed 10/10. |
+| UX-008 | P1 | Electron agent workspace, mobile-like width, 760x560 with restored sidebars and split tab groups | Fixed | Enable the GUI agent workspace in Electron at 760x560, seed a failed Codex thread, and select the thread while the app shell may restore the worktree sidebar, project explorer, and a narrow terminal split group. | The agent evidence panel starts collapsed, the outer sidebars are closed once, the active split group is widened, and composer controls remain reachable without horizontal overflow. | Collapsing only the agent evidence panel still left the workspace hosted in a narrow split beside restored outer chrome, shrinking the composer shell to 86px wide. | `tests/e2e/agent-workspace-polish.spec.ts` now covers this path at 760x560 and asserts the evidence panel is collapsed, both outer sidebars are closed, the workspace is wider than 360px, controls stay in viewport, and composer/right-panel shells have no horizontal overflow. The wrapper E2E file passed 11/11. |
 
 ## Next Audit Targets
 
@@ -55,4 +58,3 @@ the host machine's Accessibility permission for Janus Computer Use.
   plan-evidence, compare, composer, and failed-state threads.
 - Installed-app workflow smoke after granting Janus Computer Use Accessibility
   permission, plus manual walkthrough beyond the seeded Electron states.
-- Additional mobile-like widths and smaller-height checks beyond 900x560.
