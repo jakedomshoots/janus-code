@@ -8,20 +8,14 @@ export type AgentComposerQueuedFollowUp = {
 
 export function isAgentComposerThreadBusy({
   thread,
-  timeline
+  timeline: _timeline
 }: {
   thread: AgentWorkspaceThread | null
   timeline: readonly AgentWorkspaceTimelineEntry[]
 }): boolean {
-  if (!thread || thread.phase !== 'running') {
-    return false
-  }
-  return timeline.some(
-    (entry) =>
-      entry.threadId === thread.id &&
-      entry.status === 'running' &&
-      (entry.kind === 'agent' || entry.kind === 'tool' || entry.kind === 'approval')
-  )
+  // Why: a running phase means the TUI has not asked for user input yet; direct
+  // sends can become ghost timeline turns when provider telemetry is partial.
+  return thread?.phase === 'running'
 }
 
 export function isQueuedFollowUpTarget({

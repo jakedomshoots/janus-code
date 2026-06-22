@@ -27,7 +27,9 @@ export function launchCompletedThreadFallback({
   if (
     selectedThread?.phase !== 'completed' ||
     result.status !== 'error' ||
-    (result.reason !== 'no-agent' && result.reason !== 'no-active-terminal') ||
+    (result.reason !== 'no-agent' &&
+      result.reason !== 'no-active-terminal' &&
+      result.reason !== 'not-ready') ||
     !isTuiAgent(selectedThread.agentKind)
   ) {
     return null

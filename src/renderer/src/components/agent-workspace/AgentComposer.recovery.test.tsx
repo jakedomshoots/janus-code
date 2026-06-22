@@ -349,4 +349,47 @@ describe('AgentComposer completed-thread recovery', () => {
     })
     expect(textarea?.value).toBe('')
   })
+
+  it('starts a fresh matching agent when a completed thread terminal is not ready', async () => {
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'not-ready'
+    } satisfies ActiveAgentNotesSendResult)
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-codex',
+      startupPlan: {
+        agent: 'codex',
+        launchCommand: 'codex',
+        expectedProcess: 'codex',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'hello')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agent: 'codex',
+        worktreeId: 'worktree-1',
+        prompt: 'hello',
+        promptDelivery: 'auto-submit',
+        onPromptDelivered: expect.any(Function)
+      })
+    )
+    expect(container.textContent).not.toContain('The agent is not ready for input yet.')
+    expect(textarea?.value).toBe('hello')
+  })
 })

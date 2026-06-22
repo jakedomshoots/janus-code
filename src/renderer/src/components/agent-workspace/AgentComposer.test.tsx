@@ -34,7 +34,7 @@ describe('AgentComposer', () => {
 
     expect(form?.className).toContain('border-t')
     expect(form?.className).toContain('bg-background/95')
-    expect(textarea?.className).toContain('min-h-24')
+    expect(textarea?.className).toContain('min-h-16')
     expect(textarea?.getAttribute('rows')).toBe('2')
     expect(panel?.className).toContain('rounded-xl')
     expect(footerLayout?.className).toContain('flex min-h-10 flex-wrap items-center gap-2')
@@ -180,7 +180,10 @@ describe('AgentComposer', () => {
 
     await act(async () => {
       root.render(
-        <AgentComposer activeWorktreeId="worktree-1" selectedThread={harness.runningThread} />
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={harness.makeThread({ phase: 'waiting-for-user' })}
+        />
       )
     })
 
@@ -202,6 +205,31 @@ describe('AgentComposer', () => {
       prompt: 'Status?'
     })
     expect(container.textContent).toContain('The agent is not ready for input yet.')
+  })
+
+  it('queues a follow-up while the selected thread phase is still running', async () => {
+    await act(async () => {
+      root.render(
+        <AgentComposer activeWorktreeId="worktree-1" selectedThread={harness.runningThread} />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      harness.setTextControlValue(textarea!, 'Do this after your current turn.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(mocks.sendNotesToActiveAgentSession).not.toHaveBeenCalled()
+    expect(textarea?.value).toBe('')
+    expect(container.textContent).toContain('Queued follow-up')
+    expect(container.textContent).toContain('Do this after your current turn.')
   })
 
   it('queues a follow-up while the selected thread has a running tool event', async () => {

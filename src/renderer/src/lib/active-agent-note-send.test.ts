@@ -342,7 +342,7 @@ describe('active agent note send', () => {
     )
   })
 
-  it('sends notes to a freshly completed agent without waiting for tui-idle', async () => {
+  it('waits for tui-idle before sending to a freshly completed agent', async () => {
     const paneKey = makePaneKey('tab-1', LEAF_ID)
     testState.appState.agentStatusByPaneKey[paneKey] = agentStatusEntry(paneKey, {
       state: 'done',
@@ -374,6 +374,17 @@ describe('active agent note send', () => {
       if (method === 'terminal.isRunningAgent') {
         return { isRunningAgent: true }
       }
+      if (method === 'terminal.wait') {
+        return {
+          wait: {
+            handle: 'term-1',
+            condition: 'tui-idle',
+            satisfied: true,
+            status: 'running',
+            exitCode: null
+          }
+        }
+      }
       if (method === 'terminal.send') {
         return { send: { handle: 'term-1', accepted: true, bytesWritten: params.text.length } }
       }
@@ -384,11 +395,11 @@ describe('active agent note send', () => {
       sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: 'follow up' })
     ).resolves.toEqual({ status: 'sent' })
 
-    expect(testState.callRuntimeRpc).not.toHaveBeenCalledWith(
-      expect.anything(),
+    expect(testState.callRuntimeRpc).toHaveBeenCalledWith(
+      { kind: 'local' },
       'terminal.wait',
-      expect.anything(),
-      expect.anything()
+      { terminal: 'term-1', for: 'tui-idle', timeoutMs: 8000 },
+      { timeoutMs: 13000 }
     )
     expect(testState.callRuntimeRpc).toHaveBeenCalledWith(
       { kind: 'local' },

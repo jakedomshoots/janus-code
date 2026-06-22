@@ -1,11 +1,8 @@
 import type { RuntimeTerminalSend, RuntimeTerminalWait } from '../../../shared/runtime-types'
-import { AGENT_STATUS_STALE_AFTER_MS } from '../../../shared/agent-status-types'
-import { makePaneKey } from '../../../shared/stable-pane-id'
 import { useAppStore } from '@/store'
 import { callRuntimeRpc, getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
 import { getSettingsForWorktreeRuntimeOwner } from '@/lib/worktree-runtime-owner'
 import { findActiveRuntimeTerminal, getActiveTerminalNoteTarget } from './active-agent-note-target'
-import { isExplicitAgentStatusFresh } from './agent-status'
 
 export {
   getActiveAgentNoteTarget,
@@ -80,26 +77,24 @@ export async function sendNotesToActiveAgentSession({
     return { status: 'no-agent' }
   }
 
-  if (!hasFreshCompletedAgentStatus(state, resolvedNoteTarget)) {
-    try {
-      const { wait } = await callRuntimeRpc<{ wait: RuntimeTerminalWait }>(
-        runtimeTarget,
-        'terminal.wait',
-        { terminal: terminal.handle, for: 'tui-idle', timeoutMs },
-        { timeoutMs: timeoutMs + 5000 }
-      )
-      if (!wait.satisfied) {
-        return { status: 'not-ready' }
-      }
-    } catch (error) {
-      if (isRuntimeTerminalUnavailable(error)) {
-        return { status: 'no-active-terminal' }
-      }
-      if (isRuntimeTimeout(error)) {
-        return { status: 'not-ready' }
-      }
-      throw error
+  try {
+    const { wait } = await callRuntimeRpc<{ wait: RuntimeTerminalWait }>(
+      runtimeTarget,
+      'terminal.wait',
+      { terminal: terminal.handle, for: 'tui-idle', timeoutMs },
+      { timeoutMs: timeoutMs + 5000 }
+    )
+    if (!wait.satisfied) {
+      return { status: 'not-ready' }
     }
+  } catch (error) {
+    if (isRuntimeTerminalUnavailable(error)) {
+      return { status: 'no-active-terminal' }
+    }
+    if (isRuntimeTimeout(error)) {
+      return { status: 'not-ready' }
+    }
+    throw error
   }
 
   const { send } = await callRuntimeRpc<{ send: RuntimeTerminalSend }>(
@@ -114,23 +109,6 @@ export async function sendNotesToActiveAgentSession({
     { timeoutMs: ACTIVE_AGENT_SEND_RPC_TIMEOUT_MS }
   )
   return send.accepted ? { status: 'sent' } : { status: 'not-writable' }
-}
-
-function hasFreshCompletedAgentStatus(
-  state: ReturnType<typeof useAppStore.getState>,
-  noteTarget: { tabId: string; leafId: string }
-): boolean {
-  const entry = state.agentStatusByPaneKey?.[makePaneKey(noteTarget.tabId, noteTarget.leafId)]
-  if (!entry || entry.state !== 'done') {
-    return false
-  }
-  if (!isExplicitAgentStatusFresh(entry, Date.now(), AGENT_STATUS_STALE_AFTER_MS)) {
-    return false
-  }
-  if (entry.failure) {
-    return false
-  }
-  return true
 }
 
 export function activeAgentNotesSendFailureMessage(status: ActiveAgentNotesSendStatus): string {
