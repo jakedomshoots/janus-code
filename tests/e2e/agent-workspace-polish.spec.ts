@@ -12,6 +12,7 @@ import {
   seedAgentWorkspaceThread,
   selectAgentThreadTab
 } from './helpers/agent-workspace'
+import { seedAgentWorkspaceCompareState } from './helpers/agent-workspace-compare-seed'
 import { seedAgentWorkspacePlanEvidenceState } from './helpers/agent-workspace-plan-evidence-seed'
 import {
   ensureTerminalVisible,
@@ -56,6 +57,31 @@ async function expectAgentWorkspaceControlsInViewport(page: Page): Promise<void>
       '[tabindex]:not([tabindex="-1"])'
     ].join(',')
 
+    function isOutsideScrollableViewport(element: HTMLElement, rect: DOMRect): boolean {
+      let ancestor = element.parentElement
+      while (ancestor && ancestor !== region.parentElement) {
+        const style = window.getComputedStyle(ancestor)
+        const ancestorRect = ancestor.getBoundingClientRect()
+        const scrollsX = style.overflowX === 'auto' || style.overflowX === 'scroll'
+        const scrollsY = style.overflowY === 'auto' || style.overflowY === 'scroll'
+
+        if (
+          (scrollsX &&
+            (rect.right <= ancestorRect.left + 1 || rect.left >= ancestorRect.right - 1)) ||
+          (scrollsY && (rect.bottom <= ancestorRect.top + 1 || rect.top >= ancestorRect.bottom - 1))
+        ) {
+          return true
+        }
+
+        if (ancestor === region) {
+          break
+        }
+        ancestor = ancestor.parentElement
+      }
+
+      return false
+    }
+
     return Array.from(region.querySelectorAll<HTMLElement>(interactiveSelector)).flatMap(
       (element) => {
         const style = window.getComputedStyle(element)
@@ -69,6 +95,10 @@ async function expectAgentWorkspaceControlsInViewport(page: Page): Promise<void>
 
         const rect = element.getBoundingClientRect()
         if (rect.width <= 0 || rect.height <= 0) {
+          return []
+        }
+
+        if (isOutsideScrollableViewport(element, rect)) {
           return []
         }
 
@@ -355,6 +385,47 @@ test.describe('Agent workspace polish', () => {
     await expect(runLedger.getByText('Verification running')).toBeVisible()
     await expect(runLedger.getByText('Partial telemetry').first()).toBeVisible()
     await expect(runLedger.getByText('Changed files')).toBeVisible()
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+  })
+
+  test('keeps best-of-n compare usable across worktrees below 1100px', async ({ orcaPage }) => {
+    await orcaPage.setViewportSize({ width: 1024, height: 640 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const seededCompare = await seedAgentWorkspaceCompareState(orcaPage, {
+      paneKey,
+      worktreeId,
+      titlePrefix: 'E2E compare'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+
+    const compare = workspace.getByRole('region', { name: /Best-of-N compare/i })
+    await expect(compare).toBeVisible()
+    await expect(compare.getByText('1 groups')).toBeVisible()
+    await expect(compare.getByText('2 attempts')).toBeVisible()
+    await expect(compare.getByText(seededCompare.activeTitle)).toBeVisible()
+    await expect(compare.getByText(seededCompare.challengerTitle)).toBeVisible()
+    await expect(compare.getByText('Verification passed').first()).toBeVisible()
+    await expect(compare.getByText('Verification failed').first()).toBeVisible()
+    await expect(compare.getByText(/1 file/).first()).toBeVisible()
+
+    const selectActiveWinner = compare.getByRole('button', {
+      name: `Select winner: ${seededCompare.activeTitle}`
+    })
+    await selectActiveWinner.click()
+    await expect(selectActiveWinner).toHaveAttribute('aria-pressed', 'true')
+
+    await compare
+      .getByRole('button', { name: `Open attempt: ${seededCompare.challengerTitle}` })
+      .click()
+    await expect
+      .poll(() => orcaPage.evaluate(() => window.__store?.getState().activeWorktreeId ?? null))
+      .toBe(seededCompare.challengerWorktreeId)
+    await expect(
+      workspace.getByRole('tab', { name: new RegExp(seededCompare.challengerTitle) })
+    ).toBeVisible()
 
     await expectAgentWorkspaceControlsInViewport(orcaPage)
   })

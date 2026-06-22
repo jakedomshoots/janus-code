@@ -219,7 +219,7 @@ export function AgentComposerForm({
 
   return (
     <form
-      className="agent-workspace-composer border-t border-border/70 bg-background/95 px-6 pb-5 pt-3 backdrop-blur"
+      className="agent-workspace-composer border-t border-border/70 bg-background/95 px-6 pb-3 pt-2 backdrop-blur"
       aria-label={translate(
         'auto.components.agentWorkspace.composer.agentChatComposer',
         'Agent chat composer'

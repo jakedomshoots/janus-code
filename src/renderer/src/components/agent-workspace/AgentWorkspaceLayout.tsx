@@ -345,14 +345,14 @@ export function AgentWorkspaceLayout({
       }
       runBoard={
         <>
+          <AgentWorkspaceAttemptCompare
+            groups={worktreeCompareGroups}
+            onOpenAttempt={handleOpenCompareAttempt}
+          />
           <AgentWorkspaceRunBoard
             groups={runBoardGroups}
             activeWorktreeId={snapshot.activeWorktreeId}
             onOpenRun={handleOpenRunBoardRow}
-          />
-          <AgentWorkspaceAttemptCompare
-            groups={worktreeCompareGroups}
-            onOpenAttempt={handleOpenCompareAttempt}
           />
         </>
       }

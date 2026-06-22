@@ -140,8 +140,9 @@ export function AgentWorkspaceRightPanel({
   }
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[clamp(18rem,32%,22rem)] shrink-0">
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[calc(100vh-7rem)] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(18rem,32%,22rem)] shrink-0">
+      {/* Bound the floating card to the workspace row because boards above it can grow. */}
+      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex h-[calc(100%-2rem)] min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
@@ -156,14 +157,15 @@ export function AgentWorkspaceRightPanel({
           hasReview={review !== null || reviewFindings.length > 0}
           onSelectedTabChange={onSelectedTabChange}
         />
-        <ApprovalActions
-          approval={approval}
-          canRespondInTerminal={canRespondInTerminal}
-          approvalBusy={approvalBusy}
-          approvalFeedback={approvalFeedback}
-          onDecision={handleApprovalDecision}
-        />
         <div className="scrollbar-sleek mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+          {/* Keep approvals in the scroll body so compact heights still expose evidence tabs. */}
+          <ApprovalActions
+            approval={approval}
+            canRespondInTerminal={canRespondInTerminal}
+            approvalBusy={approvalBusy}
+            approvalFeedback={approvalFeedback}
+            onDecision={handleApprovalDecision}
+          />
           <div
             role="tabpanel"
             aria-label={translate(

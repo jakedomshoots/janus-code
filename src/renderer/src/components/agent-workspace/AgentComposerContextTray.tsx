@@ -35,12 +35,13 @@ export function AgentComposerContextTray({
   }
 
   return (
+    // Keep context chips to one scrollable row so compact workspaces keep composer actions visible.
     <div
       aria-label={translate(
         'auto.components.agentWorkspace.composer.promptContext',
         'Prompt context'
       )}
-      className="mb-2 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground"
+      className="scrollbar-sleek mb-2 flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-muted-foreground"
     >
       <span className="shrink-0 font-medium">
         {translate('auto.components.agentWorkspace.composer.context', 'Context')}

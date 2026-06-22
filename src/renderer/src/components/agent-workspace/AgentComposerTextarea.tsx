@@ -72,7 +72,7 @@ export const AgentComposerTextarea = forwardRef<HTMLTextAreaElement, AgentCompos
     return (
       <textarea
         ref={ref}
-        className="agent-composer-textarea block min-h-24 w-full resize-none bg-transparent px-5 pb-2.5 pt-4 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
+        className="agent-composer-textarea block min-h-16 w-full resize-none bg-transparent px-5 pb-2 pt-3 text-sm leading-5 text-foreground outline-none placeholder:text-muted-foreground/55 disabled:cursor-not-allowed disabled:opacity-60"
         data-agent-composer-textarea="true"
         value={value}
         placeholder={getAgentComposerPlaceholder(selectedThread, activeWorktreeId)}

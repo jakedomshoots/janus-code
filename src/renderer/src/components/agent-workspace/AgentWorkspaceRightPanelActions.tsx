@@ -143,7 +143,7 @@ export function ApprovalActions({
   }
 
   return (
-    <div className="mt-4 rounded-xl border border-border bg-background/60 p-3">
+    <div className="mb-4 rounded-xl border border-border bg-background/60 p-3">
       {approval.risk || approval.protectedResourcePolicyMatches?.length ? (
         <div className="mb-2 flex flex-wrap items-center gap-1">
           {approval.risk ? <AgentCommandRiskBadge risk={approval.risk} /> : null}

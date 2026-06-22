@@ -123,11 +123,11 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
     (statusTone === 'error' || recoverablePrompt) && canOpenTerminalDrawer
 
   return (
-    <div className="px-4 pb-4">
+    <div className="px-4 pb-3">
       <p
         id="agent-workspace-composer-status"
         className={cn(
-          'min-h-3.5 pb-1.5 text-[11px]',
+          'min-h-3 pb-1 text-[11px]',
           statusTone === 'error' ? 'text-destructive' : 'text-muted-foreground'
         )}
         aria-live="polite"

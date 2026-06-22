@@ -152,7 +152,7 @@ export function AgentWorkspacePane({
 
   return (
     <main
-      className={`agent-workspace-pane flex min-w-0 flex-1 flex-col bg-background ${
+      className={`agent-workspace-pane flex min-h-0 min-w-0 flex-1 flex-col bg-background ${
         active ? 'outline outline-1 -outline-offset-1 outline-accent/55' : ''
       }`}
       onPointerDown={onFocusPane}
