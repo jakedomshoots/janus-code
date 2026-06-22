@@ -1,5 +1,6 @@
 import type { AppState } from '@/store'
 import type { BrowserWorkspace } from '../../../../shared/types'
+import { resolveLiveBrowserPageId } from '../browser-pane/browser-live-page-resolution'
 import { isAgentWorkspaceBrowserTabTracked } from './agent-workspace-browser-tab-session'
 
 function listWorktreeBrowserTabs(state: AppState, worktreeId: string): readonly BrowserWorkspace[] {
@@ -10,8 +11,15 @@ export function browserTabHasWebRemoteHandle(
   state: AppState,
   browserTab: BrowserWorkspace
 ): boolean {
-  const pageId = browserTab.activePageId ?? browserTab.pageIds?.[0] ?? browserTab.id
+  const pageId = resolveAgentBrowserPageId(state, browserTab)
   return Boolean(state.remoteBrowserPageHandlesByPageId[pageId]?.remotePageId)
+}
+
+export function resolveAgentBrowserPageId(state: AppState, browserTab: BrowserWorkspace): string {
+  return resolveLiveBrowserPageId({
+    browserTab,
+    browserPages: state.browserPagesByWorkspace?.[browserTab.id] ?? []
+  })
 }
 
 export function browserTabIsAssignedToGroup(

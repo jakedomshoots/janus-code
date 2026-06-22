@@ -2,6 +2,7 @@ import { useAppStore } from '@/store'
 import type { BrowserWorkspace } from '../../../../shared/types'
 import {
   ensureBrowserUnifiedTabActive,
+  resolveAgentBrowserPageId,
   selectAgentBrowserTab,
   selectNewestAssignedAgentBrowserTab
 } from './agent-browser-workbench-tabs'
@@ -44,7 +45,7 @@ export function activateAgentBrowserTab({
   | 'setActiveTabType'
   | 'focusBrowserTabInWorktree'
 >): void {
-  const browserPageId = browserTab.activePageId ?? browserTab.pageIds?.[0] ?? browserTab.id
+  const browserPageId = resolveAgentBrowserPageId(useAppStore.getState(), browserTab)
   focusBrowserTabInWorktree(worktreeId, browserPageId, { surfacePane: true })
   ensureBrowserUnifiedTabActive({
     readState: () => useAppStore.getState(),

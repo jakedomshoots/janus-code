@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type DragEvent
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -72,7 +73,12 @@ import {
   browserViewportPresetToOverride,
   getBrowserViewportPreset
 } from '../../../../shared/browser-viewport-presets'
-import { rememberLiveBrowserUrl } from './browser-runtime'
+import {
+  getLiveBrowserUrlRevision,
+  rememberLiveBrowserUrl,
+  subscribeLiveBrowserUrls
+} from './browser-runtime'
+import { isBlankBrowserUrl, resolveLiveBrowserPageId } from './browser-live-page-resolution'
 import {
   destroyPersistentWebview,
   registerPersistentWebview,
@@ -763,26 +769,66 @@ export default function BrowserPane({
   const browserPages = useAppStore((s) =>
     getBrowserPagesForWorkspace(s.browserPagesByWorkspace, browserTab.id)
   )
+  // Why: live URL changes are held outside Zustand; subscribing here gives the
+  // pane a render tick when an inactive sibling webview becomes the painted one.
+  useSyncExternalStore(
+    subscribeLiveBrowserUrls,
+    getLiveBrowserUrlRevision,
+    getLiveBrowserUrlRevision
+  )
+  const activeBrowserPageIdFromLiveGuest = resolveLiveBrowserPageId({ browserTab, browserPages })
+  const activeBrowserPageFromLiveGuest =
+    browserPages.find((page) => page.id === activeBrowserPageIdFromLiveGuest) ?? null
   const activeBrowserPage =
     browserPages.find((page) => page.id === browserTab.activePageId) ?? browserPages[0] ?? null
+  const shouldPromoteLiveBrowserPage =
+    isActive &&
+    activeBrowserPageFromLiveGuest !== null &&
+    activeBrowserPageFromLiveGuest.id !== activeBrowserPage?.id
+  const activeBrowserPageForView = shouldPromoteLiveBrowserPage
+    ? activeBrowserPageFromLiveGuest
+    : activeBrowserPage
   const updateBrowserPageState = useAppStore((s) => s.updateBrowserPageState)
   const setBrowserPageUrl = useAppStore((s) => s.setBrowserPageUrl)
-  const activeBrowserRuntimeEnvironmentId = activeBrowserPage
-    ? getBrowserPageRuntimeEnvironmentId(activeBrowserPage, activeRuntimeEnvironmentId)
+  const setActiveBrowserPage = useAppStore((s) => s.setActiveBrowserPage)
+  const activeBrowserRuntimeEnvironmentId = activeBrowserPageForView
+    ? getBrowserPageRuntimeEnvironmentId(activeBrowserPageForView, activeRuntimeEnvironmentId)
     : null
   const runtimeEnvironmentActive = Boolean(activeBrowserRuntimeEnvironmentId)
-  const activeBrowserPageId = activeBrowserPage?.id ?? null
+  const activeBrowserPageId = activeBrowserPageForView?.id ?? null
   const browserPageIds = useMemo(() => browserPages.map((page) => page.id), [browserPages])
   const automationVisiblePageIds = useBrowserAutomationVisiblePageIds(browserPageIds)
+  const suppressedActiveBrowserPageId = shouldPromoteLiveBrowserPage ? activeBrowserPage?.id : null
   // Why: inactive Electron webviews must stay mounted in their original DOM
   // parent. Parking them by unmounting/reparenting loses form text and SPA
-  // state on normal tab switches.
+  // state on normal tab switches. A stale promoted-away webview is the
+  // exception because Electron can keep its native black layer above the live
+  // guest even after React hides it.
   const renderedBrowserPages = browserPages.filter(
-    (page) => !getBrowserPageRuntimeEnvironmentId(page, activeRuntimeEnvironmentId)
+    (page) =>
+      page.id !== suppressedActiveBrowserPageId &&
+      !getBrowserPageRuntimeEnvironmentId(page, activeRuntimeEnvironmentId)
   )
   const [activeBrowserDriver, setActiveBrowserDriver] = useState<BrowserDriverState>({
     kind: 'idle'
   })
+
+  useEffect(() => {
+    if (
+      !isActive ||
+      !activeBrowserPageFromLiveGuest ||
+      activeBrowserPageFromLiveGuest.id === browserTab.activePageId
+    ) {
+      return
+    }
+    setActiveBrowserPage(browserTab.id, activeBrowserPageFromLiveGuest.id)
+  }, [
+    activeBrowserPageFromLiveGuest,
+    browserTab.activePageId,
+    browserTab.id,
+    isActive,
+    setActiveBrowserPage
+  ])
 
   useEffect(() => {
     if (!runtimeEnvironmentActive) {
@@ -810,7 +856,7 @@ export default function BrowserPane({
 
   useContextualTour(
     'browser',
-    isActive && activeBrowserPage !== null && !runtimeEnvironmentActive,
+    isActive && activeBrowserPageForView !== null && !runtimeEnvironmentActive,
     'browser_visible'
   )
 
@@ -822,10 +868,10 @@ export default function BrowserPane({
   }, [activeBrowserPageId])
 
   if (activeBrowserRuntimeEnvironmentId) {
-    return activeBrowserPage ? (
+    return activeBrowserPageForView ? (
       <RemoteBrowserPagePane
-        key={`${activeBrowserRuntimeEnvironmentId ?? ''}:${activeBrowserPage.id}`}
-        browserTab={activeBrowserPage}
+        key={`${activeBrowserRuntimeEnvironmentId ?? ''}:${activeBrowserPageForView.id}`}
+        browserTab={activeBrowserPageForView}
         runtimeEnvironmentId={activeBrowserRuntimeEnvironmentId}
         workspaceId={browserTab.id}
         sessionProfileId={browserTab.sessionProfileId ?? null}
@@ -850,8 +896,11 @@ export default function BrowserPane({
               workspaceId={browserTab.id}
               worktreeId={browserTab.worktreeId}
               sessionProfileId={browserTab.sessionProfileId ?? null}
-              isActive={isActive && page.id === activeBrowserPage?.id}
-              isAutomationVisible={automationVisiblePageIds.has(page.id)}
+              isActive={isActive && page.id === activeBrowserPageForView?.id}
+              isAutomationVisible={
+                automationVisiblePageIds.has(page.id) ||
+                (shouldPromoteLiveBrowserPage && page.id === activeBrowserPageFromLiveGuest?.id)
+              }
               inputLocked={activeBrowserDriver.kind === 'mobile'}
               onUpdatePageState={updateBrowserPageState}
               onSetUrl={setBrowserPageUrl}
@@ -3069,6 +3118,9 @@ function BrowserPagePane({
   })
   const isActiveRef = useRef(isActive)
   isActiveRef.current = isActive
+  const previousPaintActiveRef = useRef(false)
+  const browserPaintRepairFrameRef = useRef<number | null>(null)
+  const browserPaintRepairTokenRef = useRef(0)
   const annotationViewportBridgeTokenRef = useRef(
     typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID().replaceAll('-', '')
@@ -3795,6 +3847,50 @@ function BrowserPagePane({
       })
   }, [browserTab.id])
 
+  const scheduleBrowserPaintRepair = useCallback((): void => {
+    const webview = webviewRef.current
+    if (!webview || !isActiveRef.current) {
+      return
+    }
+    let currentUrl = browserTabUrlRef.current
+    try {
+      currentUrl = webview.getURL() || webview.src || currentUrl
+    } catch {
+      // Why: a freshly attached guest can throw while Chromium is wiring up;
+      // dom-ready/load will schedule another compositor repair.
+      return
+    }
+    if (isBlankBrowserUrl(currentUrl) || activeLoadFailureRef.current) {
+      return
+    }
+
+    browserPaintRepairTokenRef.current += 1
+    const token = browserPaintRepairTokenRef.current
+    if (browserPaintRepairFrameRef.current !== null) {
+      window.cancelAnimationFrame(browserPaintRepairFrameRef.current)
+    }
+
+    const previousDisplay = webview.style.display || 'flex'
+    const previousWidth = webview.style.width || '100%'
+    webview.style.display = 'none'
+    void webview.getBoundingClientRect()
+
+    browserPaintRepairFrameRef.current = window.requestAnimationFrame(() => {
+      if (webviewRef.current !== webview || browserPaintRepairTokenRef.current !== token) {
+        return
+      }
+      webview.style.display = previousDisplay === 'none' ? 'flex' : previousDisplay
+      webview.style.width = 'calc(100% - 1px)'
+      browserPaintRepairFrameRef.current = window.requestAnimationFrame(() => {
+        if (webviewRef.current !== webview || browserPaintRepairTokenRef.current !== token) {
+          return
+        }
+        webview.style.width = previousWidth
+        browserPaintRepairFrameRef.current = null
+      })
+    })
+  }, [])
+
   // Why: this effect manages the full lifecycle of the webview DOM element —
   // creation, event wiring, and teardown. browserTab.url is
   // intentionally excluded — it changes on every navigation, and including it
@@ -3893,6 +3989,7 @@ function BrowserPagePane({
         browserPageId: browserTab.id,
         override: preset ? browserViewportPresetToOverride(preset) : null
       })
+      scheduleBrowserPaintRepair()
     }
 
     const handleDidStartLoading = (): void => {
@@ -3981,6 +4078,7 @@ function BrowserPagePane({
         canGoForward: webview.canGoForward(),
         loadError: null
       })
+      scheduleBrowserPaintRepair()
     }
 
     const handleDidNavigate = (event: { url?: string; isMainFrame?: boolean }): void => {
@@ -4127,6 +4225,10 @@ function BrowserPagePane({
       if (webviewRef.current === webview) {
         webviewRef.current = null
       }
+      if (browserPaintRepairFrameRef.current !== null) {
+        window.cancelAnimationFrame(browserPaintRepairFrameRef.current)
+        browserPaintRepairFrameRef.current = null
+      }
 
       if (webviewRegistry.get(browserTab.id) === webview) {
         destroyPersistentWebview(browserTab.id)
@@ -4149,7 +4251,8 @@ function BrowserPagePane({
     focusAddressBarNow,
     focusWebviewNow,
     syncNavigationState,
-    syncBrowserAnnotationViewportBridge
+    syncBrowserAnnotationViewportBridge,
+    scheduleBrowserPaintRepair
   ])
 
   useEffect(() => {
@@ -4807,6 +4910,23 @@ function BrowserPagePane({
     // toggles here; some Electron builds keep painting a hidden guest layer.
     webview.style.display = showFailureOverlay ? 'none' : 'flex'
   }, [showFailureOverlay])
+
+  useEffect(() => {
+    const wasActive = previousPaintActiveRef.current
+    previousPaintActiveRef.current = isActive
+    if (
+      !isActive ||
+      wasActive ||
+      showFailureOverlay ||
+      isBlankBrowserUrl(browserTabUrlRef.current)
+    ) {
+      return
+    }
+    // Why: Electron webviews can finish loading while an ancestor is display:none;
+    // a bounds nudge on activation/dom-ready/load wakes Chromium instead of
+    // leaving a black compositor layer over an accessible page.
+    scheduleBrowserPaintRepair()
+  }, [isActive, scheduleBrowserPaintRepair, showFailureOverlay])
 
   const handleInternalFileDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     if (!event.dataTransfer.types.includes(WORKSPACE_FILE_PATH_MIME)) {

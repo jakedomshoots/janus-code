@@ -8,6 +8,7 @@ import {
   openAgentBrowserWorkbench,
   type OpenAgentBrowserWorkbenchOptions
 } from './agent-browser-workbench-open'
+import { resolveAgentBrowserPageId } from './agent-browser-workbench-tabs'
 
 const EMPTY_BROWSER_TABS: readonly BrowserWorkspace[] = []
 const EMPTY_BROWSER_ANNOTATIONS: readonly BrowserPageAnnotation[] = []
@@ -63,8 +64,9 @@ export function useAgentBrowserWorkbench({
   const visibleBrowserTab = activeBrowserTab ?? browserTabs[0] ?? null
   // Why: annotations are keyed by browser page id — never fall back to the
   // workspace tab id or attach/send will miss the user's feedback notes.
-  const activeBrowserPageId =
-    visibleBrowserTab?.activePageId ?? visibleBrowserTab?.pageIds?.[0] ?? null
+  const activeBrowserPageId = visibleBrowserTab
+    ? resolveAgentBrowserPageId(useAppStore.getState(), visibleBrowserTab)
+    : null
   const browserAnnotations = activeBrowserPageId
     ? (browserAnnotationsByPageId[activeBrowserPageId] ?? EMPTY_BROWSER_ANNOTATIONS)
     : EMPTY_BROWSER_ANNOTATIONS

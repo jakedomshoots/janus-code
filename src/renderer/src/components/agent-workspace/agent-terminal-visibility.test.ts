@@ -20,6 +20,7 @@ describe('agent terminal visibility', () => {
       tabGroupWorkbenchOpen: false,
       openReason: null,
       terminalWorkspaceMounted: true,
+      workbenchOverlayWorkspaceMounted: false,
       terminalAvailable: true
     })
   })
@@ -38,6 +39,7 @@ describe('agent terminal visibility', () => {
       tabGroupWorkbenchOpen: false,
       openReason: null,
       terminalWorkspaceMounted: true,
+      workbenchOverlayWorkspaceMounted: false,
       terminalAvailable: true
     })
   })
@@ -67,7 +69,8 @@ describe('agent terminal visibility', () => {
       browserWorkbenchOpen: true,
       tabGroupWorkbenchOpen: false,
       openReason: 'browser',
-      terminalWorkspaceMounted: true,
+      terminalWorkspaceMounted: false,
+      workbenchOverlayWorkspaceMounted: false,
       terminalAvailable: true
     })
   })
@@ -85,7 +88,8 @@ describe('agent terminal visibility', () => {
       browserWorkbenchOpen: false,
       tabGroupWorkbenchOpen: true,
       openReason: 'workbench',
-      terminalWorkspaceMounted: true,
+      terminalWorkspaceMounted: false,
+      workbenchOverlayWorkspaceMounted: true,
       terminalAvailable: true
     })
   })

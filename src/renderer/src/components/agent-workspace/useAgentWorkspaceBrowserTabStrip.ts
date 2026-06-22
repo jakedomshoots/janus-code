@@ -13,6 +13,7 @@ import {
   untrackAgentWorkspaceBrowserTab
 } from './agent-workspace-browser-tab-session'
 import { sortUnifiedTabsByGroupOrder } from './agent-workspace-group-tab-order'
+import { resolveAgentBrowserPageId } from './agent-browser-workbench-tabs'
 
 export type AgentWorkspaceBrowserTabEntry = {
   id: string
@@ -116,8 +117,9 @@ export function useAgentWorkspaceBrowserTabStrip({
         return
       }
       const browserTab = model.browserItems.find((tab) => tab.id === browserTabId)
-      const browserPageId =
-        browserTab?.activePageId ?? browserTab?.pageIds?.[0] ?? browserTab?.id ?? browserTabId
+      const browserPageId = browserTab
+        ? resolveAgentBrowserPageId(useAppStore.getState(), browserTab)
+        : browserTabId
       focusBrowserTabInWorktree(worktreeId, browserPageId, { surfacePane: true })
     },
     [

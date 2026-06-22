@@ -1,5 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { clearLiveBrowserUrl, getLiveBrowserUrl, rememberLiveBrowserUrl } from './browser-runtime'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  clearLiveBrowserUrl,
+  getLiveBrowserUrl,
+  getLiveBrowserUrlRevision,
+  rememberLiveBrowserUrl,
+  subscribeLiveBrowserUrls
+} from './browser-runtime'
 
 describe('browser runtime live URL cache', () => {
   beforeEach(() => {
@@ -14,5 +20,20 @@ describe('browser runtime live URL cache', () => {
     clearLiveBrowserUrl('page-1')
 
     expect(getLiveBrowserUrl('page-1')).toBeNull()
+  })
+
+  it('notifies subscribers when a live URL changes', () => {
+    const listener = vi.fn()
+    const unsubscribe = subscribeLiveBrowserUrls(listener)
+    const initialRevision = getLiveBrowserUrlRevision()
+
+    rememberLiveBrowserUrl('page-1', 'https://example.com/')
+    rememberLiveBrowserUrl('page-1', 'https://example.com/')
+    clearLiveBrowserUrl('page-1')
+    unsubscribe()
+    rememberLiveBrowserUrl('page-1', 'https://example.com/again')
+
+    expect(listener).toHaveBeenCalledTimes(2)
+    expect(getLiveBrowserUrlRevision()).toBe(initialRevision + 3)
   })
 })

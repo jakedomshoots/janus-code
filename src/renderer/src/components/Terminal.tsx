@@ -2189,20 +2189,14 @@ function Terminal(): React.JSX.Element | null {
         />
       }
       browserWorkbenchOverlayHost={
-        guiAgentWorkspaceEnabled &&
-        (terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen) ? (
+        guiAgentWorkspaceEnabled && terminalVisibility.workbenchOverlayWorkspaceMounted ? (
           <TerminalWorkspace
-            agentBrowserWorkbenchOpen={
-              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
-            }
+            agentBrowserWorkbenchOpen={terminalVisibility.workbenchOverlayWorkspaceMounted}
             agentBrowserWorkbenchOverlayHost
-            // Why: editor/simulator workbench renders inline in the agent pane;
-            // browser overlays must not paint over it when reason is 'workbench'.
-            suppressBrowserOverlays={terminalVisibility.tabGroupWorkbenchOpen}
-            suppressSimulatorOverlays={terminalVisibility.browserWorkbenchOpen}
-            suppressTerminalOverlays={
-              terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
-            }
+            // Why: browser mode owns its webview inside AgentBrowserWorkbenchSurface.
+            // This transparent host is only needed for editor/simulator workbench overlays.
+            suppressBrowserOverlays
+            suppressTerminalOverlays={terminalVisibility.workbenchOverlayWorkspaceMounted}
           />
         ) : null
       }
@@ -2214,12 +2208,15 @@ function Terminal(): React.JSX.Element | null {
             terminalAvailable={terminalVisibility.terminalAvailable}
             onClose={() => setTerminalDrawerReason(null)}
           >
-            <TerminalWorkspace
-              agentTerminalDrawerOpen={terminalVisibility.drawerOpen}
-              suppressBrowserOverlays={
-                terminalVisibility.browserWorkbenchOpen || terminalVisibility.tabGroupWorkbenchOpen
-              }
-            />
+            {terminalVisibility.terminalWorkspaceMounted ? (
+              <TerminalWorkspace
+                agentTerminalDrawerOpen={terminalVisibility.drawerOpen}
+                suppressBrowserOverlays={
+                  terminalVisibility.browserWorkbenchOpen ||
+                  terminalVisibility.tabGroupWorkbenchOpen
+                }
+              />
+            ) : null}
           </AgentTerminalDrawer>
         ) : (
           <TerminalWorkspace />

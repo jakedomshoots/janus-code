@@ -140,7 +140,8 @@ export default function BrowserTab({
   // Why: about:blank and other non-http URLs should not be sent to the
   // system browser. Disable the context menu item instead of silently
   // calling shell.openUrl with an unsupported URL.
-  const openInBrowserUrl = redactKagiSessionToken(getLiveBrowserUrl(tab.id) ?? tab.url)
+  const livePageId = tab.activePageId ?? tab.pageIds?.[0] ?? tab.id
+  const openInBrowserUrl = redactKagiSessionToken(getLiveBrowserUrl(livePageId) ?? tab.url)
   let isHttpUrl = false
   try {
     const parsed = new URL(openInBrowserUrl)

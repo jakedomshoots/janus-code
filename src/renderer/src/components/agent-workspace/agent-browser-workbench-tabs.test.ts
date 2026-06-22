@@ -1,18 +1,28 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppState } from '@/store'
 import {
   consolidateAgentBrowserTabs,
   ensureBrowserUnifiedTabActive,
   ensureBrowserUnifiedTabRegistered,
   pruneStaleAgentBrowserTabs,
+  resolveAgentBrowserPageId,
   selectAgentBrowserTab,
   selectNewestAssignedAgentBrowserTab
 } from './agent-browser-workbench-tabs'
 import { trackAgentWorkspaceBrowserTab } from './agent-workspace-browser-tab-session'
 
+const mocks = vi.hoisted(() => ({
+  liveBrowserUrls: new Map<string, string>()
+}))
+
+vi.mock('../browser-pane/browser-runtime', () => ({
+  getLiveBrowserUrl: (pageId: string) => mocks.liveBrowserUrls.get(pageId) ?? null
+}))
+
 function makeState(
   overrides: Partial<{
     browserTabs: AppState['browserTabsByWorktree'][string]
+    browserPagesByWorkspace: AppState['browserPagesByWorkspace']
     activeBrowserTabId: string | null
     unifiedTabs: AppState['unifiedTabsByWorktree'][string]
     groups: AppState['groupsByWorktree'][string]
@@ -23,6 +33,7 @@ function makeState(
     browserTabsByWorktree: {
       'worktree-1': overrides.browserTabs ?? []
     },
+    browserPagesByWorkspace: overrides.browserPagesByWorkspace ?? {},
     activeBrowserTabIdByWorktree: {
       'worktree-1': overrides.activeBrowserTabId ?? null
     },
@@ -39,6 +50,10 @@ function makeState(
 }
 
 describe('agent-browser-workbench-tabs', () => {
+  beforeEach(() => {
+    mocks.liveBrowserUrls.clear()
+  })
+
   it('selects the active viable browser tab when it exists', () => {
     const state = makeState({
       browserTabs: [
@@ -95,6 +110,230 @@ describe('agent-browser-workbench-tabs', () => {
     })
 
     expect(closeBrowserTab).not.toHaveBeenCalled()
+  })
+
+  it('resolves a live sibling page when the active browser page has no live webview', () => {
+    mocks.liveBrowserUrls.set('live-page', 'http://localhost:5173/home')
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'stale-page',
+          pageIds: ['stale-page', 'live-page']
+        } as never
+      ],
+      browserPagesByWorkspace: {
+        'browser-a': [
+          {
+            id: 'stale-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 1
+          },
+          {
+            id: 'live-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 2
+          }
+        ]
+      } as never
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'live-page'
+    )
+  })
+
+  it('keeps the active browser page when it is already live', () => {
+    mocks.liveBrowserUrls.set('active-page', 'https://example.com/active')
+    mocks.liveBrowserUrls.set('sibling-page', 'https://example.com/sibling')
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'active-page',
+          pageIds: ['active-page', 'sibling-page']
+        } as never
+      ]
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'active-page'
+    )
+  })
+
+  it('prefers a newer live sibling when duplicate pages point at the same URL', () => {
+    mocks.liveBrowserUrls.set('active-page', 'http://localhost:5173/home')
+    mocks.liveBrowserUrls.set('newer-page', 'http://localhost:5173/home')
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'active-page',
+          pageIds: ['active-page', 'newer-page']
+        } as never
+      ],
+      browserPagesByWorkspace: {
+        'browser-a': [
+          {
+            id: 'active-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 1
+          },
+          {
+            id: 'newer-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 2
+          }
+        ]
+      } as never
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'newer-page'
+    )
+  })
+
+  it('prefers a same-url live sibling even when it was created before the active page', () => {
+    mocks.liveBrowserUrls.set('active-page', 'http://localhost:5173/home')
+    mocks.liveBrowserUrls.set('older-page', 'http://localhost:5173/home')
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'active-page',
+          pageIds: ['active-page', 'older-page']
+        } as never
+      ],
+      browserPagesByWorkspace: {
+        'browser-a': [
+          {
+            id: 'active-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 2
+          },
+          {
+            id: 'older-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'http://localhost:5173/home',
+            title: 'ChemCheck - Pool Service',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 1
+          }
+        ]
+      } as never
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'older-page'
+    )
+  })
+
+  it('falls back to the active browser page when no page is live yet', () => {
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'active-page',
+          pageIds: ['active-page', 'sibling-page']
+        } as never
+      ]
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'active-page'
+    )
+  })
+
+  it('keeps an intentional blank active page even when a sibling is live', () => {
+    mocks.liveBrowserUrls.set('sibling-page', 'https://example.com/sibling')
+    const state = makeState({
+      browserTabs: [
+        {
+          id: 'browser-a',
+          activePageId: 'blank-page',
+          pageIds: ['blank-page', 'sibling-page']
+        } as never
+      ],
+      browserPagesByWorkspace: {
+        'browser-a': [
+          {
+            id: 'blank-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'about:blank',
+            title: 'New Tab',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 1
+          },
+          {
+            id: 'sibling-page',
+            workspaceId: 'browser-a',
+            worktreeId: 'worktree-1',
+            url: 'https://example.com/sibling',
+            title: 'Example',
+            loading: false,
+            faviconUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+            loadError: null,
+            createdAt: 2
+          }
+        ]
+      } as never
+    })
+
+    expect(resolveAgentBrowserPageId(state, state.browserTabsByWorktree['worktree-1']![0]!)).toBe(
+      'blank-page'
+    )
   })
 
   it('consolidates duplicate browser tabs down to one keeper', () => {

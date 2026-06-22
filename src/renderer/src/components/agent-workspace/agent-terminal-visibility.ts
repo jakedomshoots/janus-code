@@ -23,6 +23,7 @@ export type AgentTerminalVisibilityState = {
   readonly tabGroupWorkbenchOpen: boolean
   readonly openReason: AgentTerminalRevealReason | null
   readonly terminalWorkspaceMounted: boolean
+  readonly workbenchOverlayWorkspaceMounted: boolean
   readonly terminalAvailable: boolean
 }
 
@@ -40,18 +41,22 @@ export function getAgentTerminalVisibilityState({
   terminalAvailable
 }: AgentTerminalVisibilityInput): AgentTerminalVisibilityState {
   const resolvedReason = guiAgentWorkspaceEnabled ? openReason : null
+  const mainPaneWorkbenchOpen =
+    guiAgentWorkspaceEnabled && isMainPaneWorkbenchReason(resolvedReason)
   return {
     drawerRendered: guiAgentWorkspaceEnabled,
     // Why: browser workbench overlays the agent chat pane (original Orca layout),
     // not the bottom terminal drawer reserved for debug/approval terminals.
-    drawerOpen:
-      guiAgentWorkspaceEnabled &&
-      resolvedReason !== null &&
-      !isMainPaneWorkbenchReason(resolvedReason),
+    drawerOpen: guiAgentWorkspaceEnabled && resolvedReason !== null && !mainPaneWorkbenchOpen,
     browserWorkbenchOpen: guiAgentWorkspaceEnabled && resolvedReason === 'browser',
     tabGroupWorkbenchOpen: guiAgentWorkspaceEnabled && resolvedReason === 'workbench',
     openReason: resolvedReason,
-    terminalWorkspaceMounted: true,
+    // Why: browser and workbench modes mount their own visible workspace host.
+    // Keeping the hidden drawer workspace mounted can steal webview ownership.
+    terminalWorkspaceMounted: !mainPaneWorkbenchOpen,
+    // Why: browser mode owns its webview in AgentBrowserWorkbenchSurface; only
+    // the editor/simulator workbench needs the transparent worktree overlay.
+    workbenchOverlayWorkspaceMounted: guiAgentWorkspaceEnabled && resolvedReason === 'workbench',
     terminalAvailable
   }
 }
