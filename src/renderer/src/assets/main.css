@@ -700,6 +700,31 @@
   color: var(--win-highlight-text) !important;
 }
 
+.theme-retro95 .bg-worktree-sidebar [class*='text-worktree-sidebar-foreground/'],
+.theme-retro95 .bg-worktree-sidebar .text-muted-foreground {
+  color: var(--win-text) !important;
+}
+
+.theme-retro95 .bg-worktree-sidebar button:hover,
+.theme-retro95 .bg-worktree-sidebar button:focus-visible,
+.theme-retro95 .bg-worktree-sidebar button[aria-current='page'] {
+  background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 .bg-worktree-sidebar button:hover svg,
+.theme-retro95 .bg-worktree-sidebar button:focus-visible svg,
+.theme-retro95 .bg-worktree-sidebar button[aria-current='page'] svg {
+  color: var(--win-highlight-text) !important;
+}
+
+.theme-retro95 .mobile-page-root .mp-eyebrow,
+.theme-retro95 .mobile-page-root .mp-h1,
+.theme-retro95 .mobile-page-root .mp-lead,
+.theme-retro95 .mobile-page-root .mp-platform-label {
+  color: var(--win-titlebar-text);
+}
+
 .theme-retro95 [data-sonner-toast][data-styled='true'] {
   border-radius: 0 !important;
   background: var(--win-surface) !important;

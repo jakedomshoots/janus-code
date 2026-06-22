@@ -6,3 +6,4 @@
 - Removed inactive Mobile preview slides from keyboard and screen reader navigation so off-stage mock controls cannot receive focus.
 - Auto-collapsed the worktree sidebar when the app viewport enters compact widths, preventing active pages from staying mostly offscreen at 320px.
 - Let the compact Mobile page scroll vertically so the stacked phone preview and its active controls remain reachable instead of being clipped.
+- Improved Retro 95 contrast for worktree sidebar navigation and Mobile page hero copy by using existing Retro foreground/highlight token pairs.
