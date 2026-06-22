@@ -956,7 +956,7 @@ function Settings(): React.JSX.Element {
   return (
     <div
       ref={setSettingsRootNode}
-      className="settings-view-shell flex min-h-0 flex-1 overflow-hidden bg-background"
+      className="settings-view-shell flex min-h-0 flex-1 overflow-hidden bg-background max-md:flex-col"
     >
       <SettingsSidebar
         settings={settings}
@@ -981,7 +981,7 @@ function Settings(): React.JSX.Element {
         >
           <div
             className={cn(
-              'mx-auto flex w-full flex-col gap-10 px-8 pt-10',
+              'mx-auto flex w-full flex-col gap-10 px-8 pt-10 max-md:px-5 max-md:pt-5 max-sm:px-3',
               isFocusedShortcutsPane ? 'h-full pb-6' : 'pb-24',
               isFocusedSetupGuidePane ? 'max-w-6xl' : 'max-w-4xl'
             )}

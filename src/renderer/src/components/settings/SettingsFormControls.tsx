@@ -71,13 +71,16 @@ export function SettingsRow({
 }: SettingsRowProps): React.JSX.Element {
   return (
     <div
-      className={cn('flex gap-4 py-2', alignTop ? 'items-start' : 'items-center justify-between')}
+      className={cn(
+        'flex gap-4 py-2 max-sm:flex-col max-sm:items-stretch max-sm:gap-2',
+        alignTop ? 'items-start' : 'items-center justify-between'
+      )}
     >
       <div className="min-w-0 flex-1 space-y-0.5">
         <Label id={labelId}>{label}</Label>
         {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
       </div>
-      <div className="shrink-0">{control}</div>
+      <div className="min-w-0 shrink-0 max-sm:w-full">{control}</div>
     </div>
   )
 }
@@ -142,7 +145,7 @@ export function SettingsSegmentedControl<T extends string | number>({
       role="radiogroup"
       aria-label={ariaLabel}
       className={cn(
-        'inline-flex items-center rounded-md border border-border bg-background/50 p-0.5',
+        'inline-flex max-w-full flex-wrap items-center rounded-md border border-border bg-background/50 p-0.5',
         equalWidth && 'w-full'
       )}
     >
@@ -222,12 +225,12 @@ export function SettingsSubsectionHeader({
   action
 }: SettingsSubsectionHeaderProps): React.JSX.Element {
   return (
-    <div className="flex items-start justify-between gap-3">
+    <div className="flex items-start justify-between gap-3 max-sm:flex-col">
       <div className="space-y-1">
         <h3 className="text-sm font-semibold">{title}</h3>
         {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="min-w-0 shrink-0 max-sm:w-full">{action}</div> : null}
     </div>
   )
 }

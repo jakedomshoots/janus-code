@@ -112,7 +112,7 @@ export function WorkspaceDirectorySetting({
       keywords={['workspace', 'folder', 'path', 'worktree', 'host', 'override']}
       className="space-y-2"
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 max-sm:flex-col max-sm:items-stretch">
         <Label>
           {translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.0e9fc0eadc',
@@ -120,7 +120,7 @@ export function WorkspaceDirectorySetting({
           )}
         </Label>
         {showScopePicker && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 max-sm:flex-wrap">
             <span className="text-xs text-muted-foreground">
               {translate(
                 'auto.components.settings.WorkspaceDirectorySetting.2b3c4d5e6f',
@@ -131,7 +131,7 @@ export function WorkspaceDirectorySetting({
               value={activeScope}
               onValueChange={(next) => setScope(next as HostSettingScope)}
             >
-              <SelectTrigger size="sm" className="h-7 w-44 text-xs">
+              <SelectTrigger size="sm" className="h-7 w-44 text-xs max-sm:w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -145,17 +145,17 @@ export function WorkspaceDirectorySetting({
           </div>
         )}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 max-sm:flex-col">
         <Input
           value={value}
           onChange={(e) => writeValue(e.target.value)}
-          className="flex-1 text-xs"
+          className="min-w-0 flex-1 text-xs"
         />
         <Button
           variant="outline"
           size="sm"
           onClick={() => void handleBrowse()}
-          className="shrink-0 gap-1.5"
+          className="shrink-0 gap-1.5 max-sm:w-full"
         >
           <FolderOpen className="size-3.5" />
           {translate(
@@ -165,7 +165,7 @@ export function WorkspaceDirectorySetting({
         </Button>
       </div>
       {editingHost && (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 max-sm:flex-col max-sm:items-stretch">
           <p className="text-xs text-muted-foreground">
             {hasOverride
               ? translate(

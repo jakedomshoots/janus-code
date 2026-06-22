@@ -2044,9 +2044,9 @@ export default function AutomationsPage(): React.JSX.Element {
         </DialogContent>
       </Dialog>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(280px,360px)_1fr] overflow-hidden border-t border-border/50">
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(280px,360px)_1fr] overflow-hidden border-t border-border/50 max-md:flex max-md:flex-col max-md:overflow-y-auto">
         <section
-          className="flex min-h-0 flex-col border-r border-border/50 bg-muted/20"
+          className="flex min-h-0 flex-col border-r border-border/50 bg-muted/20 max-md:min-h-[360px] max-md:border-b max-md:border-r-0"
           data-contextual-tour-target="automations-list"
         >
           <div className="scrollbar-sleek min-h-0 flex-1 overflow-auto p-2">
@@ -2465,7 +2465,7 @@ export default function AutomationsPage(): React.JSX.Element {
           </div>
         </section>
 
-        <section className="flex min-h-0 flex-col overflow-hidden">
+        <section className="flex min-h-0 flex-col overflow-hidden max-md:min-h-[420px]">
           {selectedExternal ? (
             <div className="scrollbar-sleek min-h-0 overflow-auto p-5">
               {selectedExternalRunPage ? (

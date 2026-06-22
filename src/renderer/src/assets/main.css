@@ -277,7 +277,7 @@
   --font-sans: var(--app-font-family);
   --font-mono: 'Courier New', 'JetBrains Mono', Consolas, monospace;
   --radius: 0px;
-  --win-bg: #008080;
+  --win-bg: #008282;
   --win-surface: #c0c0c0;
   --win-surface-light: #dfdfdf;
   --win-surface-dark: #808080;
@@ -723,6 +723,12 @@
 .theme-retro95 .mobile-page-root .mp-lead,
 .theme-retro95 .mobile-page-root .mp-platform-label {
   color: var(--win-titlebar-text);
+}
+
+/* Why: settings section headers sit directly on the Retro teal canvas before
+   their gray content panel begins, so muted gray text misses AA there. */
+.theme-retro95 [data-settings-section] > div:first-child .text-muted-foreground {
+  color: var(--win-titlebar-text) !important;
 }
 
 .theme-retro95 [data-sonner-toast][data-styled='true'] {

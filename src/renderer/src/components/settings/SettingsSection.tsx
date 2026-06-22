@@ -84,7 +84,7 @@ export function SettingsSection({
           contained inside the section, not as a continuation of the sidebar. */}
       <div
         className={cn(
-          'rounded-xl border border-border/40 bg-card/30 px-8 py-7 shadow-[0_1px_0_rgba(0,0,0,0.02)]',
+          'rounded-xl border border-border/40 bg-card/30 px-8 py-7 shadow-[0_1px_0_rgba(0,0,0,0.02)] max-md:px-5 max-md:py-5 max-sm:px-3',
           bodyClassName
         )}
       >

@@ -33,7 +33,7 @@ export function RecentTabOrderControl({
               void updateSettings({ ctrlTabOrderMode: value as CtrlTabOrderMode })
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] max-sm:w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
