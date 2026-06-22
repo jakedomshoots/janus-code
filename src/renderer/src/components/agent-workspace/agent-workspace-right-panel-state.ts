@@ -48,16 +48,18 @@ export function getDefaultAgentWorkspaceRightPanelState({
   if (thread.phase === 'needs-approval') {
     return { selectedTab: 'details', collapsed: false }
   }
+  // Why: the chat is the primary surface; auxiliary evidence should stay tucked
+  // away unless the run needs user action or the user opens the panel.
   if (diffs.length > 0) {
-    return { selectedTab: 'diff', collapsed: false }
+    return { selectedTab: 'diff', collapsed: true }
   }
   if (review || hasReviewFindings) {
-    return { selectedTab: 'review', collapsed: false }
+    return { selectedTab: 'review', collapsed: true }
   }
   if (thread.phase === 'running' && hasStructuredPlan) {
-    return { selectedTab: 'plan', collapsed: false }
+    return { selectedTab: 'plan', collapsed: true }
   }
-  return { selectedTab: 'details', collapsed: false }
+  return { selectedTab: 'details', collapsed: true }
 }
 
 export function coerceAgentWorkspaceRightPanelTab(

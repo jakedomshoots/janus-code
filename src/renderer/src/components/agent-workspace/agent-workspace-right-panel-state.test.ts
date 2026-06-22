@@ -86,7 +86,7 @@ describe('agent workspace right panel state', () => {
   it('shows details for an ordinary selected thread', () => {
     expect(getDefaultAgentWorkspaceRightPanelState(makeStateInput({}))).toEqual({
       selectedTab: 'details',
-      collapsed: false
+      collapsed: true
     })
   })
 

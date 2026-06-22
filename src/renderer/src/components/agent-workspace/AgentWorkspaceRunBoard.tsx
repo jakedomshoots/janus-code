@@ -21,7 +21,7 @@ export function AgentWorkspaceRunBoard({
   activeWorktreeId,
   onOpenRun
 }: AgentWorkspaceRunBoardProps): React.JSX.Element | null {
-  const visibleGroups = groups.filter((group) => group.rows.length > 0)
+  const visibleGroups = groups.filter((group) => group.id !== 'done' && group.rows.length > 0)
   if (visibleGroups.length === 0) {
     return null
   }

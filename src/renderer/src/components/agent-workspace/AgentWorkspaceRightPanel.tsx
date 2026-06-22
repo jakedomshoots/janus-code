@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { SearchCheck } from 'lucide-react'
+import { SearchCheck, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -67,7 +67,8 @@ export function AgentWorkspaceRightPanel({
   onDiscardDiff,
   onCommitStaged,
   onLaunchReviewOnly,
-  onOpenTerminalDrawer
+  onOpenTerminalDrawer,
+  onCollapse
 }: {
   project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
@@ -95,6 +96,7 @@ export function AgentWorkspaceRightPanel({
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
   onLaunchReviewOnly?: (source: AgentReviewOnlyLaunchSurface) => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
+  onCollapse?: () => void
 }): React.JSX.Element {
   const [replayCopyStatus, setReplayCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
   const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
@@ -140,9 +142,28 @@ export function AgentWorkspaceRightPanel({
   }
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(18rem,32%,22rem)] shrink-0">
+    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(17rem,28vw,20rem)] shrink-0 items-start">
       {/* Bound the floating card to the workspace row because boards above it can grow. */}
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex h-[calc(100%-2rem)] min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[min(34rem,calc(100vh_-_8rem))] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-3 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+        {onCollapse ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            className="absolute right-2 top-2 z-10 text-muted-foreground hover:text-foreground"
+            aria-label={translate(
+              'auto.components.agentWorkspace.rightPanel.hideDetails',
+              'Hide details'
+            )}
+            title={translate(
+              'auto.components.agentWorkspace.rightPanel.hideDetails',
+              'Hide details'
+            )}
+            onClick={onCollapse}
+          >
+            <X className="size-3.5" aria-hidden="true" />
+          </Button>
+        ) : null}
         <PanelSummary
           thread={thread}
           plan={plan}

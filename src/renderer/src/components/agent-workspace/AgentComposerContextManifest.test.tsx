@@ -20,7 +20,7 @@ describe('AgentComposer', () => {
     await harness.cleanupAgentComposerTestRoot(root)
   })
 
-  it('shows selected workspace host context before launch', async () => {
+  it('keeps selected workspace host context implicit before launch', async () => {
     await act(async () => {
       root.render(
         <AgentComposer
@@ -38,13 +38,8 @@ describe('AgentComposer', () => {
       )
     })
 
-    const contextTray = container.querySelector<HTMLElement>('[aria-label="Prompt context"]')
-    expect(contextTray).not.toBeNull()
-    expect(contextTray!.textContent).toContain('Workspace')
-    expect(contextTray!.textContent).toContain('Remote Janus')
-    expect(contextTray!.textContent).toContain('SSH')
-    expect(contextTray!.textContent).toContain('feature/remote')
-    expect(contextTray!.textContent).toContain('/home/jake/janus-code')
+    expect(container.querySelector<HTMLElement>('[aria-label="Prompt context"]')).toBeNull()
+    expect(container.textContent).not.toContain('/home/jake/janus-code')
   })
 
   it('warns when selected workspace branch no longer matches the thread branch', async () => {
@@ -71,22 +66,18 @@ describe('AgentComposer', () => {
     expect(contextTray!.textContent).toContain('Context source changed')
   })
 
-  it('shows selected thread context before follow-up', async () => {
+  it('keeps selected thread context implicit before follow-up', async () => {
     await act(async () => {
       root.render(
         <AgentComposer activeWorktreeId="worktree-1" selectedThread={harness.runningThread} />
       )
     })
 
-    const contextTray = container.querySelector<HTMLElement>('[aria-label="Prompt context"]')
-    expect(contextTray).not.toBeNull()
-    expect(contextTray!.textContent).toContain('Thread')
-    expect(contextTray!.textContent).toContain('Implement composer')
-    expect(contextTray!.textContent).toContain('Codex')
-    expect(contextTray!.textContent).toContain('running')
+    expect(container.querySelector<HTMLElement>('[aria-label="Prompt context"]')).toBeNull()
+    expect(container.textContent).not.toContain('Implement composer')
   })
 
-  it('shows changed-file context for the selected thread before follow-up', async () => {
+  it('keeps selected changed-file context implicit before follow-up', async () => {
     await act(async () => {
       root.render(
         <AgentComposer
@@ -97,12 +88,8 @@ describe('AgentComposer', () => {
       )
     })
 
-    const contextTray = container.querySelector<HTMLElement>('[aria-label="Prompt context"]')
-    expect(contextTray).not.toBeNull()
-    expect(contextTray!.textContent).toContain('Changes')
-    expect(contextTray!.textContent).toContain('1 file')
-    expect(contextTray!.textContent).toContain('+12')
-    expect(contextTray!.textContent).toContain('-3')
+    expect(container.querySelector<HTMLElement>('[aria-label="Prompt context"]')).toBeNull()
+    expect(container.textContent).not.toContain('+12')
   })
 
   it('warns when changed-file context belongs to another thread', async () => {
@@ -122,7 +109,7 @@ describe('AgentComposer', () => {
     expect(contextTray!.textContent).toContain('Context source changed')
   })
 
-  it('shows review context for the selected thread before follow-up', async () => {
+  it('keeps selected review context implicit before follow-up', async () => {
     await act(async () => {
       root.render(
         <AgentComposer
@@ -133,11 +120,8 @@ describe('AgentComposer', () => {
       )
     })
 
-    const contextTray = container.querySelector<HTMLElement>('[aria-label="Prompt context"]')
-    expect(contextTray).not.toBeNull()
-    expect(contextTray!.textContent).toContain('Review')
-    expect(contextTray!.textContent).toContain('GitLab #42')
-    expect(contextTray!.textContent).toContain('Tighten workspace context')
+    expect(container.querySelector<HTMLElement>('[aria-label="Prompt context"]')).toBeNull()
+    expect(container.textContent).not.toContain('GitLab #42')
   })
 
   it('warns when review context belongs to another worktree', async () => {

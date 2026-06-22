@@ -284,6 +284,60 @@ afterEach(() => {
 })
 
 describe('AgentWorkspace pane workflow', () => {
+  it('keeps auxiliary details tucked behind an open and hide affordance', async () => {
+    const thread = {
+      id: 'thread-details',
+      worktreeId: 'worktree-1',
+      title: 'Quiet completed run',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [thread],
+        timeline: [
+          {
+            id: 'timeline-details',
+            threadId: thread.id,
+            kind: 'agent',
+            text: 'Quiet output',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ]
+      })
+    )
+
+    expect(container.textContent).toContain('Quiet output')
+    expect(container.textContent).not.toContain('Run replay export')
+
+    const detailsButton = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Show details'
+    )
+    expect(detailsButton).toBeDefined()
+
+    await act(async () => {
+      detailsButton?.click()
+    })
+
+    expect(container.textContent).toContain('Run replay export')
+
+    const hideButton = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Hide details'
+    )
+    expect(hideButton).toBeDefined()
+
+    await act(async () => {
+      hideButton?.click()
+    })
+
+    expect(container.textContent).toContain('Quiet output')
+    expect(container.textContent).not.toContain('Run replay export')
+  })
+
   it('selects the first real thread after a draft composer launch creates one', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
@@ -580,6 +634,15 @@ describe('AgentWorkspace pane workflow', () => {
         ]
       })
     )
+
+    const detailsButton = buttons(container).find(
+      (button) => button.getAttribute('aria-label') === 'Show details'
+    )
+    expect(detailsButton).toBeDefined()
+
+    await act(async () => {
+      detailsButton?.click()
+    })
 
     const reviewOnlyButton = buttons(container).find((button) =>
       button.textContent?.includes('Review only')

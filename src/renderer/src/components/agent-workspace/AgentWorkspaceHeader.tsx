@@ -80,6 +80,8 @@ export function AgentWorkspaceHeader({
   const canOpenTerminal =
     hasWorkspace && terminalAvailable && typeof onOpenTerminalDrawer === 'function'
   const canOpenWorkbench = hasWorkspace && typeof onOpenWorkbench === 'function'
+  const showRunSummary =
+    runSummary !== null && (runSummary.attentionState !== 'done' || runSummary.changedFileCount > 0)
 
   if (
     !hasWorkspace &&
@@ -106,7 +108,7 @@ export function AgentWorkspaceHeader({
               {thread?.title ??
                 translate('auto.components.agentWorkspace.header.ready', 'Ready for Janus Code')}
             </span>
-            {runSummary ? (
+            {showRunSummary ? (
               <span
                 className="hidden min-w-0 items-center gap-1.5 lg:flex"
                 aria-label={translate(
@@ -265,16 +267,16 @@ export function AgentWorkspaceHeader({
             onClick={onExpandRightPanel}
             aria-label={translate(
               'auto.components.agentWorkspace.header.showRightPanel',
-              'Show right panel'
+              'Show details'
             )}
             title={translate(
               'auto.components.agentWorkspace.header.showRightPanel',
-              'Show right panel'
+              'Show details'
             )}
           >
             <PanelRightOpen className="size-3.5" aria-hidden="true" />
             <span className="hidden 2xl:inline">
-              {translate('auto.components.agentWorkspace.header.panel', 'Panel')}
+              {translate('auto.components.agentWorkspace.header.details', 'Details')}
             </span>
           </Button>
         ) : null}

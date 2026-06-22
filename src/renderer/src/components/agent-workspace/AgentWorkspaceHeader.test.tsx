@@ -64,7 +64,7 @@ describe('AgentWorkspaceHeader', () => {
       />
     )
 
-    expect(markup).not.toContain('Show right panel')
+    expect(markup).not.toContain('Show details')
     expect(markup).not.toContain('Panel')
     expect(markup).not.toContain('Open project files')
     expect(markup).not.toContain('Files')
@@ -81,8 +81,8 @@ describe('AgentWorkspaceHeader', () => {
       />
     )
 
-    expect(markup).toContain('Show right panel')
-    expect(markup).toContain('Panel')
+    expect(markup).toContain('Show details')
+    expect(markup).toContain('Details')
     expect(markup).not.toContain('Open project files')
   })
 
@@ -97,7 +97,7 @@ describe('AgentWorkspaceHeader', () => {
 
     expect(markup).toContain('Open project files')
     expect(markup).toContain('Files')
-    expect(markup).not.toContain('Show right panel')
+    expect(markup).not.toContain('Show details')
   })
 
   it('renders selected-thread run evidence in the workspace chrome', () => {

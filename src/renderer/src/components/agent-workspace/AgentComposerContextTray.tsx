@@ -30,7 +30,15 @@ export function AgentComposerContextTray({
   onRemoveVerificationCommand?: () => void
   onRemoveAgentMemoryContext?: () => void
 }): React.JSX.Element | null {
-  if (manifest.items.length === 0) {
+  const visibleItems = manifest.items.filter((item) =>
+    shouldShowContextTrayItem({
+      item,
+      onRemoveBrowserContext,
+      onRemoveVerificationCommand,
+      onRemoveAgentMemoryContext
+    })
+  )
+  if (visibleItems.length === 0) {
     return null
   }
 
@@ -46,7 +54,7 @@ export function AgentComposerContextTray({
       <span className="shrink-0 font-medium">
         {translate('auto.components.agentWorkspace.composer.context', 'Context')}
       </span>
-      {manifest.items.map((item) => (
+      {visibleItems.map((item) => (
         <ContextTrayItem
           key={item.id}
           item={item}
@@ -59,6 +67,30 @@ export function AgentComposerContextTray({
         />
       ))}
     </div>
+  )
+}
+
+function shouldShowContextTrayItem({
+  item,
+  onRemoveBrowserContext,
+  onRemoveVerificationCommand,
+  onRemoveAgentMemoryContext
+}: {
+  item: AgentComposerContextManifestItem
+  onRemoveBrowserContext?: () => void
+  onRemoveVerificationCommand?: () => void
+  onRemoveAgentMemoryContext?: () => void
+}): boolean {
+  if (getContextWarning(item)) {
+    return true
+  }
+  return (
+    getContextRemoveHandler({
+      item,
+      onRemoveBrowserContext,
+      onRemoveVerificationCommand,
+      onRemoveAgentMemoryContext
+    }) !== undefined
   )
 }
 
