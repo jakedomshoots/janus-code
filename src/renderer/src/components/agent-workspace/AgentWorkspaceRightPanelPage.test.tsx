@@ -154,6 +154,9 @@ afterEach(async () => {
 })
 
 async function openDetailsPanel(container: HTMLElement): Promise<void> {
+  if (container.textContent?.includes('Environment')) {
+    return
+  }
   const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('button'))
   if (buttons.some((candidate) => candidate.getAttribute('aria-label') === 'Hide details')) {
     return

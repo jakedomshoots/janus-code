@@ -48,18 +48,18 @@ export function getDefaultAgentWorkspaceRightPanelState({
   if (thread.phase === 'needs-approval') {
     return { selectedTab: 'details', collapsed: false }
   }
-  // Why: the chat is the primary surface; auxiliary evidence should stay tucked
-  // away unless the run needs user action or the user opens the panel.
+  // Why: the compact info card is persistent workspace context on desktop,
+  // matching Codex's always-visible environment bubble.
   if (diffs.length > 0) {
-    return { selectedTab: 'diff', collapsed: true }
+    return { selectedTab: 'diff', collapsed: false }
   }
   if (review || hasReviewFindings) {
-    return { selectedTab: 'review', collapsed: true }
+    return { selectedTab: 'review', collapsed: false }
   }
   if (thread.phase === 'running' && hasStructuredPlan) {
-    return { selectedTab: 'plan', collapsed: true }
+    return { selectedTab: 'plan', collapsed: false }
   }
-  return { selectedTab: 'details', collapsed: true }
+  return { selectedTab: 'details', collapsed: false }
 }
 
 export function coerceAgentWorkspaceRightPanelTab(

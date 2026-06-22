@@ -315,8 +315,10 @@ export function AgentWorkspaceLayout({
             reviewOnlyWarning={reviewOnlyProfile?.warning ?? null}
             onLaunchReviewOnly={reviewOnlyAgent ? handleLaunchReviewOnly : undefined}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
-            onCollapse={() =>
-              setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
+            onCollapse={
+              compactViewport
+                ? () => setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
+                : undefined
             }
           />
         )

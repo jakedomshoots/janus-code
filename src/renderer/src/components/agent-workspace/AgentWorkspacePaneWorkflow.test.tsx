@@ -284,7 +284,7 @@ afterEach(() => {
 })
 
 describe('AgentWorkspace pane workflow', () => {
-  it('keeps the compact environment card tucked behind an open and hide affordance', async () => {
+  it('keeps the compact environment card visible without an open-cycle affordance', async () => {
     const thread = {
       id: 'thread-details',
       worktreeId: 'worktree-1',
@@ -312,32 +312,15 @@ describe('AgentWorkspace pane workflow', () => {
     )
 
     expect(container.textContent).toContain('Quiet output')
-    expect(container.textContent).not.toContain('Run replay export')
-
-    const detailsButton = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Show details'
-    )
-    expect(detailsButton).toBeDefined()
-
-    await act(async () => {
-      detailsButton?.click()
-    })
-
     expect(container.textContent).toContain('Environment')
     expect(container.textContent).toContain('Quiet completed run')
     expect(container.textContent).not.toContain('Run replay export')
-
-    const hideButton = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Hide details'
-    )
-    expect(hideButton).toBeDefined()
-
-    await act(async () => {
-      hideButton?.click()
-    })
-
-    expect(container.textContent).toContain('Quiet output')
-    expect(container.textContent).not.toContain('Environment')
+    expect(
+      buttons(container).some((button) => button.getAttribute('aria-label') === 'Show details')
+    ).toBe(false)
+    expect(
+      buttons(container).some((button) => button.getAttribute('aria-label') === 'Hide details')
+    ).toBe(false)
   })
 
   it('keeps review-ready run summaries out of the main chat chrome', async () => {
@@ -678,15 +661,7 @@ describe('AgentWorkspace pane workflow', () => {
       })
     )
 
-    const detailsButton = buttons(container).find(
-      (button) => button.getAttribute('aria-label') === 'Show details'
-    )
-    expect(detailsButton).toBeDefined()
-
-    await act(async () => {
-      detailsButton?.click()
-    })
-
+    expect(container.textContent).toContain('Environment')
     expect(buttons(container).some((button) => button.textContent?.includes('Review only'))).toBe(
       false
     )
