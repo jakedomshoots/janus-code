@@ -286,6 +286,12 @@ function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
   textarea.dispatchEvent(new Event('input', { bubbles: true }))
 }
 
+async function openDetailsPanel(container: HTMLElement): Promise<void> {
+  await act(async () => {
+    getButton(container, 'Show details').click()
+  })
+}
+
 describe('AgentWorkspaceLayout project actions', () => {
   it('follows active worktree changes when the snapshot changes', () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -313,8 +319,8 @@ describe('AgentWorkspaceLayout project actions', () => {
 
     expect(container.textContent).toContain('First timeline event')
     expect(container.textContent).not.toContain('Second timeline event')
-    expect(container.textContent).toContain('janus two')
-    expect(container.querySelector('button[aria-label="Open run: Second thread"]')).not.toBeNull()
+    expect(container.textContent).not.toContain('janus two')
+    expect(container.querySelector('button[aria-label="Open run: Second thread"]')).toBeNull()
     expect(
       Array.from(container.querySelectorAll('button')).some(
         (button) => button.textContent?.trim() === 'janus two'
@@ -433,6 +439,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       ]
     } satisfies AgentWorkspaceSnapshot
     const container = renderLayout(snapshot)
+    await openDetailsPanel(container)
 
     await act(async () => {
       getButton(container, 'Stage').click()
@@ -544,6 +551,7 @@ describe('AgentWorkspaceLayout project actions', () => {
       ]
     } satisfies AgentWorkspaceSnapshot
     const container = renderLayout(snapshot)
+    await openDetailsPanel(container)
     const sshContext = {
       settings: { activeRuntimeEnvironmentId: null, guiAgentWorkspaceEnabled: false },
       worktreeId: 'worktree-ssh',

@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { activateAndRevealWorktree } from '@/lib/worktree-activation'
 import { useAppStore } from '@/store'
 import type { AgentWorkspaceDiffSummary, AgentWorkspaceSnapshot } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader'
 import { AgentWorkspacePaneStack } from './AgentWorkspacePaneStack'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
-import { AgentWorkspaceAttemptCompare } from './AgentWorkspaceAttemptCompare'
-import { AgentWorkspaceRunBoard } from './AgentWorkspaceRunBoard'
 import {
   type AgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelTab
@@ -31,11 +28,6 @@ import { useAgentWorkspaceLocalTimeline } from './useAgentWorkspaceLocalTimeline
 import { useAgentWorkspaceCompactLayout } from './useAgentWorkspaceCompactLayout'
 import { useAgentWorkspaceCompactViewport } from './useAgentWorkspaceCompactViewport'
 import { openAgentWorkspaceDiff } from './open-agent-workspace-diff'
-import { selectAgentRunBoardGroups, type AgentRunBoardRow } from './agent-run-board-selectors'
-import {
-  selectAgentWorktreeCompareGroups,
-  type AgentWorktreeCompareAttempt
-} from './agent-worktree-compare-selectors'
 import {
   getAgentReviewOnlyLaunchProfile,
   getAgentReviewOnlyPreferredAgent,
@@ -66,10 +58,6 @@ export function AgentWorkspaceLayout({
   const selectedProject = getSelectedProject(snapshot)
   const { localUserTimeline, handleMessageSent } = useAgentWorkspaceLocalTimeline()
   const compactViewport = useAgentWorkspaceCompactViewport()
-  const pendingRunBoardSelectionRef = useRef<{
-    worktreeId: string
-    threadId: string
-  } | null>(null)
   const sourceControlActions = useAgentWorkspaceSourceControlActions(selectedProject)
   const projectThreads = getProjectThreads(snapshot, selectedProject)
   const defaultThread = projectThreads[0] ?? null
@@ -95,7 +83,6 @@ export function AgentWorkspaceLayout({
     activePaneId,
     activePane,
     setActivePaneId,
-    handlePaneThreadSelect,
     handleNewSession,
     handleBeginDraftAgentSession
   } = panesController
@@ -131,8 +118,6 @@ export function AgentWorkspaceLayout({
     thread: selectedThread,
     timeline: selectedTimeline
   })
-  const runBoardGroups = selectAgentRunBoardGroups(snapshot)
-  const worktreeCompareGroups = selectAgentWorktreeCompareGroups(snapshot)
   const rightPanelStateInput = getRightPanelStateInput({
     thread: selectedThread,
     diffs,
@@ -213,24 +198,6 @@ export function AgentWorkspaceLayout({
   }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
 
   useEffect(() => {
-    const pending = pendingRunBoardSelectionRef.current
-    if (!pending || pending.worktreeId !== snapshot.activeWorktreeId) {
-      return
-    }
-    if (!projectThreads.some((thread) => thread.id === pending.threadId)) {
-      return
-    }
-    pendingRunBoardSelectionRef.current = null
-    handlePaneThreadSelect(activePaneId, pending.threadId)
-  }, [
-    activePaneId,
-    handlePaneThreadSelect,
-    projectThreadIdsKey,
-    projectThreads,
-    snapshot.activeWorktreeId
-  ])
-
-  useEffect(() => {
     if (terminalDrawerReason === 'browser') {
       setRightSidebarOpen(false)
     }
@@ -284,36 +251,6 @@ export function AgentWorkspaceLayout({
     openAgentWorkspaceDiff({ diff, openDiff, thread: selectedThread })
   }
 
-  function handleOpenWorkspaceThread({
-    worktreeId,
-    threadId
-  }: {
-    worktreeId: string
-    threadId: string
-  }): void {
-    pendingRunBoardSelectionRef.current = {
-      worktreeId,
-      threadId
-    }
-    if (worktreeId !== snapshot.activeWorktreeId) {
-      const activated = activateAndRevealWorktree(worktreeId)
-      if (!activated) {
-        pendingRunBoardSelectionRef.current = null
-      }
-      return
-    }
-    pendingRunBoardSelectionRef.current = null
-    handlePaneThreadSelect(activePaneId, threadId)
-  }
-
-  function handleOpenRunBoardRow(row: AgentRunBoardRow): void {
-    handleOpenWorkspaceThread(row)
-  }
-
-  function handleOpenCompareAttempt(attempt: AgentWorktreeCompareAttempt): void {
-    handleOpenWorkspaceThread(attempt)
-  }
-
   function handleLaunchReviewOnly(_source: AgentReviewOnlyLaunchSurface): void {
     if (!snapshot.activeWorktreeId || !reviewOnlyAgent) {
       return
@@ -348,19 +285,6 @@ export function AgentWorkspaceLayout({
             showRightSidebarFiles()
           }}
         />
-      }
-      runBoard={
-        <>
-          <AgentWorkspaceAttemptCompare
-            groups={worktreeCompareGroups}
-            onOpenAttempt={handleOpenCompareAttempt}
-          />
-          <AgentWorkspaceRunBoard
-            groups={runBoardGroups}
-            activeWorktreeId={snapshot.activeWorktreeId}
-            onOpenRun={handleOpenRunBoardRow}
-          />
-        </>
       }
       rightPanel={
         selectedRightPanelState.collapsed ? null : (

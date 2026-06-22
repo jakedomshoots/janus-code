@@ -143,7 +143,8 @@ function runJanusWorkflowSmoke() {
   expectTree(state, ['Agent chat composer', 'Message agent'])
 
   state = clickElement(janusApp, findElementIndex(state, ['Open browser workbench']))
-  expectTree(state, ['Back to chat', 'New Tab', 'about:blank'])
+  expectTree(state, ['Back to chat'])
+  expectAnyTree(state, ['New Tab', 'New tab', 'about:blank', 'http://', 'https://', 'data:'])
 
   state = clickElement(janusApp, findElementIndex(state, ['Back to chat']))
   expectTree(state, ['Agent chat composer', 'Message agent'])

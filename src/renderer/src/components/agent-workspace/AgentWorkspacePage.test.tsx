@@ -8,7 +8,7 @@ import { setRendererUiLanguage } from '@/i18n/i18n'
 import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
 import { AgentWorkspaceLayout } from './AgentWorkspaceLayout'
 import { AgentWorkspacePage } from './AgentWorkspacePage'
-import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import { formatAgentWorkspaceDiffStatus, formatAgentWorkspacePhase } from './agent-workspace-labels'
 
 const emptySnapshot: AgentWorkspaceSnapshot = {
   activeWorktreeId: null,
@@ -172,7 +172,7 @@ describe('AgentWorkspacePage', () => {
     )
   })
 
-  it('renders the project, thread, and right-panel shell for a running thread', () => {
+  it('renders the project, thread, and collapsed details affordance for a running thread', () => {
     const markup = renderPage({
       activeWorktreeId: 'worktree-1',
       projects: [
@@ -226,9 +226,9 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('running')
     expect(markup).toContain('Build the first shell')
     expect(markup).toContain('Message the selected agent')
-    expect(markup).toContain('Changes')
-    expect(markup).toContain('Terminal.tsx')
-    expect(markup).toContain('modified')
+    expect(markup).toContain('Show details')
+    expect(markup).toContain('1 file')
+    expect(markup).not.toContain('Run replay export')
   })
 
   it('does not render the empty workspace header when no thread is selected', () => {
@@ -333,6 +333,7 @@ describe('AgentWorkspace phase labels', () => {
 
     expect(formatAgentWorkspacePhase('waiting-for-user')).toBe('esperando al usuario')
     expect(formatAgentWorkspacePhase('needs-approval')).toBe('necesita aprobacion')
+    expect(formatAgentWorkspaceDiffStatus('modified')).toBe('modificado')
   })
 
   it('does not apply CSS capitalization to localized phase labels', async () => {
@@ -375,7 +376,7 @@ describe('AgentWorkspace phase labels', () => {
     expect(markup).not.toContain('capitalize')
   })
 
-  it('localizes timeline and diff enum labels', async () => {
+  it('localizes timeline labels while details are collapsed', async () => {
     await setRendererUiLanguage('es')
 
     const markup = renderToStaticMarkup(
@@ -431,7 +432,6 @@ describe('AgentWorkspace phase labels', () => {
 
     expect(markup).toContain('agente')
     expect(markup).toContain('completado')
-    expect(markup).toContain('modificado')
     expect(markup).not.toContain('modified')
   })
 })

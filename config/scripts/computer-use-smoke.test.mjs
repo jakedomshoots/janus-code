@@ -259,6 +259,23 @@ describe('computer-use smoke script', () => {
     ])
   })
 
+  it('accepts an existing browser page when checking the browser workbench', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
+    const cliPath = writeFakeJanusWorkflowCli(root, { existingBrowserPage: true })
+
+    const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ORCA_COMPUTER_SMOKE_CLI_PATH: cliPath,
+        JANUS_COMPUTER_SMOKE_USER_DATA_PATH: path.join(root, 'user-data')
+      }
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('computer-use smoke: Janus workflow gate passed')
+  })
+
   it('returns from Settings before driving the Janus workflow gate', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
     const cliPath = writeFakeJanusWorkflowCli(root, { initialState: 'settings' })
@@ -479,13 +496,14 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
       'const command = args.slice(0, 2).join(" ");',
       'const elementIndex = readFlag("--element-index");',
       `const noChanges = ${JSON.stringify(Boolean(options.noChanges))};`,
+      `const browserState = ${JSON.stringify(options.existingBrowserPage ? 'browser-existing' : 'browser')};`,
       `fs.writeFileSync(${JSON.stringify(path.join(root, 'user-data-path.txt'))}, process.env.ORCA_USER_DATA_PATH || "");`,
       'if (command === "computer get-app-state") {',
       '  printState(fs.readFileSync(statePath, "utf8"));',
       '} else if (command === "computer click") {',
       '  if (elementIndex === "33") fs.writeFileSync(statePath, "settings");',
       '  if (elementIndex === "6") fs.writeFileSync(statePath, "workspace");',
-      '  if (elementIndex === "76") fs.writeFileSync(statePath, "browser");',
+      '  if (elementIndex === "76") fs.writeFileSync(statePath, browserState);',
       '  if (elementIndex === "62") fs.writeFileSync(statePath, "workspace");',
       '  if (elementIndex === "89") fs.writeFileSync(statePath, "output");',
       '  if (elementIndex === "90") fs.writeFileSync(statePath, noChanges ? "changes-empty" : "changes");',
@@ -516,6 +534,7 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
       '    settings: ["6 button Back to app", "7 text field Placeholder: Search settings", "12 button Voice Not installed"].join("\\n"),',
       '    "settings-search": ["6 button Back to app", "7 text field Value: voice, Placeholder: Search settings", "23 heading Voice", "40 heading Shortcuts", "72 heading macOS Permissions"].join("\\n"),',
       '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container"].join("\\n"),',
+      '    "browser-existing": ["62 button Back to chat", "68 combo box Value: http://localhost:5173/home", "76 text ChemCheck - Pool Service", "106 container"].join("\\n"),',
       '    output: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab (selected) Output", "90 tab Changes", "91 tab Review", "94 container Outputs"].join("\\n"),',
       '    changes: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 row src/app.ts modified"].join("\\n"),',
       '    "changes-empty": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 text No changes"].join("\\n"),',

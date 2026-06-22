@@ -153,6 +153,21 @@ afterEach(async () => {
   await setRendererUiLanguage('en')
 })
 
+async function openDetailsPanel(container: HTMLElement): Promise<void> {
+  const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('button'))
+  if (buttons.some((candidate) => candidate.getAttribute('aria-label') === 'Hide details')) {
+    return
+  }
+  const button = buttons.find(
+    (candidate) => candidate.getAttribute('aria-label') === 'Show details'
+  )
+
+  expect(button).toBeDefined()
+  await act(async () => {
+    button?.click()
+  })
+}
+
 describe('AgentWorkspaceLayout active worktree selection', () => {
   it('updates right-panel content when the app shell changes the active worktree', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -226,6 +241,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
+    await openDetailsPanel(container)
 
     expect(container.textContent).toContain('Changes')
     expect(container.textContent).toContain('first.tsx')
@@ -234,12 +250,13 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
+    await openDetailsPanel(container)
 
     expect(container.textContent).not.toContain('src/first.tsx')
     expect(container.textContent).toContain('second.tsx')
   })
 
-  it('re-defaults to details when the active worktree changes to a thread that needs approval', async () => {
+  it('shows approval details after the details panel opens', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -303,12 +320,14 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-1')} />)
     })
+    await openDetailsPanel(container)
 
     expect(container.textContent).toContain('first.tsx')
 
     await act(async () => {
       root.render(<AgentWorkspaceLayout snapshot={makeSnapshot('worktree-2')} />)
     })
+    await openDetailsPanel(container)
 
     expect(container.textContent).toContain('Needs approval thread')
     expect(container.textContent).toContain('needs approval')
@@ -371,6 +390,7 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
         />
       )
     })
+    await openDetailsPanel(container)
 
     expect(container.textContent).toContain('Outputs')
     expect(container.textContent).toContain('Planned thread execution')

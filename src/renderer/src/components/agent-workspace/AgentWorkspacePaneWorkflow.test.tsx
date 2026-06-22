@@ -338,6 +338,47 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.textContent).not.toContain('Run replay export')
   })
 
+  it('keeps review-ready run summaries out of the main chat chrome', async () => {
+    const thread = {
+      id: 'thread-review-ready',
+      worktreeId: 'worktree-1',
+      title: 'Codex ready',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-22T17:18:48.942Z',
+      branchName: 'main',
+      cwd: '/Users/jakedom/janus-code'
+    }
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [thread],
+        timeline: [
+          {
+            id: 'timeline-review-ready',
+            threadId: thread.id,
+            kind: 'agent',
+            text: 'Web dev server is running.',
+            createdAt: '2026-06-22T17:18:48.942Z',
+            status: 'done'
+          }
+        ],
+        diffs: Array.from({ length: 19 }, (_, index) => ({
+          id: `diff-${index + 1}`,
+          threadId: thread.id,
+          filePath: `src/file-${index + 1}.ts`,
+          additions: 1,
+          deletions: 0,
+          status: 'modified' as const
+        }))
+      })
+    )
+
+    expect(container.textContent).toContain('Web dev server is running.')
+    expect(container.textContent).not.toContain('Review-ready')
+    expect(container.textContent).not.toContain('Limited telemetry')
+    expect(container.querySelector('button[aria-label="Open run: Codex ready"]')).toBeNull()
+  })
+
   it('selects the first real thread after a draft composer launch creates one', async () => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     const container = document.createElement('div')
