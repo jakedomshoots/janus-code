@@ -54,7 +54,32 @@ function getProviderLimitsForAgent(
       return rateLimits?.opencodeGo
     case 'kimi':
       return rateLimits?.kimi
-    default:
+    // These agents do not expose provider usage data in the shared rate-limit state yet.
+    case 'aider':
+    case 'amp':
+    case 'antigravity':
+    case 'aug':
+    case 'autohand':
+    case 'cline':
+    case 'codebuff':
+    case 'command-code':
+    case 'continue':
+    case 'copilot':
+    case 'crush':
+    case 'cursor':
+    case 'devin':
+    case 'droid':
+    case 'goose':
+    case 'grok':
+    case 'hermes':
+    case 'kilo':
+    case 'kiro':
+    case 'mistral-vibe':
+    case 'omp':
+    case 'openclaw':
+    case 'pi':
+    case 'qwen-code':
+    case 'rovo':
       return undefined
   }
 }

@@ -16,7 +16,7 @@ export function TerminalViewSwitch({
   }
 
   return (
-    <div className="relative flex h-full min-h-0 flex-1">
+    <div className="relative flex h-full min-h-0 min-w-0 flex-1 overflow-hidden">
       <div
         data-terminal-view="gui-agent-workspace"
         className="relative min-h-0 min-w-0 flex-1 overflow-hidden"

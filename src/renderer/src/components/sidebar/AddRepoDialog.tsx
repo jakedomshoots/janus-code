@@ -16,6 +16,7 @@ import { useAddRepoHostChangeReset } from './use-add-repo-host-change-reset'
 import { AddRepoDialogChrome } from './AddRepoDialogChrome'
 import { AddRepoHostSelectorSlot } from './AddRepoHostSelectorSlot'
 import { useAddRepoRemoteNestedScan } from './use-add-repo-remote-nested-scan'
+import { useAddRepoDialogResetState } from './use-add-repo-dialog-reset-state'
 
 const AddRepoDialog = React.memo(function AddRepoDialog() {
   const activeModal = useAppStore((s) => s.activeModal)
@@ -220,49 +221,20 @@ const AddRepoDialog = React.memo(function AddRepoDialog() {
       setIsAdding
     })
 
-  const resetState = useCallback(() => {
-    // Why: kill the git clone process if one is running, so backing out
-    // or closing the dialog doesn't leave a clone running on disk.
-    void window.api.repos.cloneAbort()
-    resetLocalFolderFlow()
-    setStep('add')
-    setIsAdding(false)
-    setAddProjectBusyLabel(null)
-    setAddProjectRecoveryNotice(null)
-    resetServerPathFlow()
-    resetCloneFlow()
-    resetNestedImportFlow()
-    resetNestedRepoReviewState()
-    resetCreateDefaultState()
-    resetCreateState()
-    resetRemoteState()
-  }, [
-    resetCloneFlow,
+  const { resetState, resetHostScopedState } = useAddRepoDialogResetState({
     resetLocalFolderFlow,
+    setStep,
+    setIsAdding,
+    setAddProjectBusyLabel,
+    setAddProjectRecoveryNotice,
+    resetServerPathFlow,
+    resetCloneFlow,
+    resetNestedImportFlow,
     resetNestedRepoReviewState,
     resetCreateDefaultState,
-    resetServerPathFlow,
-    resetNestedImportFlow,
-    resetRemoteState,
-    resetCreateState
-  ])
-
-  const resetHostScopedState = useCallback(() => {
-    setIsAdding(false)
-    setAddProjectBusyLabel(null)
-    setAddProjectRecoveryNotice(null)
-    resetServerPathFlow()
-    resetCloneFlow()
-    resetCreateDefaultState()
-    resetCreateState()
-    resetRemoteState()
-  }, [
-    resetCloneFlow,
-    resetCreateDefaultState,
     resetCreateState,
-    resetRemoteState,
-    resetServerPathFlow
-  ])
+    resetRemoteState
+  })
 
   useAddRepoHostChangeReset({
     isOpen,

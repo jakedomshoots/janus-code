@@ -1,267 +1,24 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ExternalLink,
-  FolderPlus,
-  GitBranchPlus,
-  Plug,
-  Star
-} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { CheckCircle2, FolderPlus, GitBranchPlus, Plug } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useAppStore } from '../store'
 import { isGitRepoKind } from '../../../shared/repo-kind'
 import { ShortcutKeyCombo } from './ShortcutKeyCombo'
 import { useShortcutKeys } from '@/hooks/useShortcutLabel'
-import { useMountedRef } from '@/hooks/useMountedRef'
 import logo from '../../../../resources/janus-logo.png'
 import { translate } from '@/i18n/i18n'
+import { GitHubStarButton } from './LandingGitHubStarButton'
+import { PreflightBanner } from './LandingPreflightBanner'
+import {
+  getPreflightIssues,
+  isWebClientPreflightFallback,
+  type PreflightIssue
+} from './landing-preflight'
 
 type ShortcutItem = {
   id: string
   keys: string[]
   action: string
-}
-
-type PreflightIssue = {
-  id: string
-  title: string
-  description: string
-  fixLabel: string
-  fixUrl: string
-  required: boolean
-}
-
-function getPreflightIssues(status: {
-  git: { installed: boolean }
-  gh: { installed: boolean; authenticated: boolean }
-}): PreflightIssue[] {
-  const issues: PreflightIssue[] = []
-
-  if (!status.git.installed) {
-    issues.push({
-      id: 'git',
-      title: translate('auto.components.Landing.e5b7296d9d', 'Git is not installed'),
-      description: translate(
-        'auto.components.Landing.b673e7cf1b',
-        'Git is required for Git projects, source control, and workspace management.'
-      ),
-      fixLabel: 'Install Git',
-      fixUrl: 'https://git-scm.com/downloads',
-      required: true
-    })
-  }
-
-  if (!status.gh.installed) {
-    issues.push({
-      id: 'gh',
-      title: translate('auto.components.Landing.5beaef5f9e', 'GitHub CLI is not installed'),
-      description: translate(
-        'auto.components.Landing.73e1ad4282',
-        'Janus Code uses the GitHub CLI (gh) to show pull requests, issues, and checks.'
-      ),
-      fixLabel: 'Install GitHub CLI',
-      fixUrl: 'https://cli.github.com',
-      required: false
-    })
-  } else if (!status.gh.authenticated) {
-    issues.push({
-      id: 'gh-auth',
-      title: translate('auto.components.Landing.9f96d018b7', 'GitHub CLI is not authenticated'),
-      description: translate(
-        'auto.components.Landing.00cee697c1',
-        'Run "gh auth login" in a terminal to connect your GitHub account.'
-      ),
-      fixLabel: 'Learn more',
-      fixUrl: 'https://cli.github.com/manual/gh_auth_login',
-      required: false
-    })
-  }
-
-  return issues
-}
-
-const ORCA_STARGAZERS_URL = 'https://github.com/jakedomshoots/janus-code/stargazers'
-
-type StarState = 'loading' | 'starred' | 'not-starred' | 'web-fallback' | 'hidden'
-
-function GitHubStarButton({ hasRepos }: { hasRepos: boolean }): React.JSX.Element | null {
-  const [state, setState] = useState<StarState>('loading')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const mountedRef = useMountedRef()
-
-  useEffect(() => {
-    let cancelled = false
-    void window.api.gh.checkOrcaStarred().then((result) => {
-      if (cancelled) {
-        return
-      }
-      if (result === null) {
-        setState('web-fallback')
-      } else {
-        setState(result ? 'starred' : 'not-starred')
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!menuOpen) {
-      return
-    }
-    const onDocClick = (e: MouseEvent): void => {
-      if (!wrapperRef.current?.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', onDocClick)
-    return () => document.removeEventListener('mousedown', onDocClick)
-  }, [menuOpen])
-
-  const handleClick = async (): Promise<void> => {
-    if (state === 'starred') {
-      setMenuOpen((v) => !v)
-      return
-    }
-    if (state === 'web-fallback') {
-      await window.api.shell.openUrl(ORCA_STARGAZERS_URL)
-      await window.api.starNag.complete()
-      return
-    }
-    if (state !== 'not-starred') {
-      return
-    }
-    setState('starred') // optimistic
-    const ok = await window.api.gh.starOrca('landing')
-    if (!ok) {
-      if (mountedRef.current) {
-        setState('web-fallback')
-      }
-      return
-    }
-    // Why: starring from any entry point mutes the threshold-based nag.
-    // Without this the background notification could still fire on the next
-    // threshold crossing, which would feel like a bug to the user.
-    await window.api.starNag.complete()
-  }
-
-  // Hide once the user has already starred and added a repo.
-  if (state === 'hidden' || (state === 'starred' && hasRepos)) {
-    return null
-  }
-
-  return (
-    <div ref={wrapperRef} className="relative inline-block">
-      <button
-        className={cn(
-          'inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[13px] font-medium transition-all duration-300',
-          state === 'loading' && 'pointer-events-none opacity-0',
-          state !== 'starred' &&
-            'cursor-pointer border-amber-500/60 text-amber-700 hover:border-amber-500/80 hover:bg-amber-400/10 dark:border-amber-400/30 dark:text-amber-300/90 dark:hover:border-amber-400/50 dark:hover:bg-amber-400/[0.08]',
-          state === 'starred' &&
-            'cursor-pointer border-amber-500/50 bg-amber-400/10 text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/[0.06] dark:text-amber-400/60'
-        )}
-        onClick={handleClick}
-        disabled={state === 'loading'}
-      >
-        {state === 'web-fallback' ? (
-          <ExternalLink className="size-3.5 text-amber-600 transition-all duration-300 dark:text-amber-400/80" />
-        ) : (
-          <Star
-            className={cn(
-              'size-3.5 transition-all duration-300',
-              state === 'starred'
-                ? 'fill-amber-500/70 text-amber-500/70 dark:fill-amber-400/60 dark:text-amber-400/60'
-                : 'text-amber-600 dark:text-amber-400/80'
-            )}
-          />
-        )}
-        {state === 'starred'
-          ? translate('auto.components.Landing.ec43b38ba7', 'Starred on GitHub')
-          : state === 'web-fallback'
-            ? translate('auto.components.Landing.157bb5ecbb', 'Open GitHub')
-            : translate('auto.components.Landing.0d0ace8861', 'Star on GitHub')}
-      </button>
-      {state === 'starred' && menuOpen && (
-        <div className="absolute right-0 top-[calc(100%+4px)] z-10 min-w-[100px] rounded-md border border-border bg-popover py-1 shadow-md">
-          <button
-            className="w-full px-3 py-1.5 text-left text-[13px] text-foreground hover:bg-muted"
-            onClick={() => {
-              setMenuOpen(false)
-              setState('hidden')
-            }}
-          >
-            {translate('auto.components.Landing.c1cf168479', 'Hide')}
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function PreflightBanner({ issues }: { issues: PreflightIssue[] }): React.JSX.Element {
-  const requiredIssues = issues.filter((issue) => issue.required)
-  const optionalIssues = issues.filter((issue) => !issue.required)
-
-  return (
-    <div className="w-full rounded-lg border border-border bg-card p-4 space-y-4">
-      <div className="flex items-center gap-2 text-yellow-500">
-        <AlertTriangle className="size-4 shrink-0" />
-        <span className="text-sm font-medium">
-          {translate('auto.components.Landing.ce44fad849', 'Setup checks')}
-        </span>
-      </div>
-      {requiredIssues.length > 0 ? (
-        <PreflightIssueGroup
-          label={translate('auto.components.Landing.requiredSetup', 'Required before Git projects')}
-          issues={requiredIssues}
-        />
-      ) : null}
-      {optionalIssues.length > 0 ? (
-        <PreflightIssueGroup
-          label={translate(
-            'auto.components.Landing.optionalSetup',
-            'Optional source-control setup'
-          )}
-          issues={optionalIssues}
-        />
-      ) : null}
-    </div>
-  )
-}
-
-function PreflightIssueGroup({
-  label,
-  issues
-}: {
-  label: string
-  issues: PreflightIssue[]
-}): React.JSX.Element {
-  return (
-    <div className="space-y-2">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      {issues.map((issue) => (
-        <div key={issue.id} className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">{issue.title}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{issue.description}</p>
-          </div>
-          <button
-            className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-            onClick={() => window.api.shell.openUrl(issue.fixUrl)}
-          >
-            {issue.fixLabel}
-            <ExternalLink className="size-3" />
-          </button>
-        </div>
-      ))}
-    </div>
-  )
 }
 
 function FirstRunSetupPath({
@@ -342,11 +99,22 @@ export default function Landing(): React.JSX.Element {
   useEffect(() => {
     let cancelled = false
     const refreshPreflight = (force = false): void => {
-      void window.api.preflight.check(force ? { force: true } : undefined).then((status) => {
+      void Promise.all([
+        window.api.preflight.check(force ? { force: true } : undefined),
+        window.api.cli.getInstallStatus().catch(() => null),
+        window.api.mobile.isWebSocketReady().catch(() => ({ ready: true }))
+      ]).then(([status, cliStatus, webSocketStatus]) => {
         if (cancelled) {
           return
         }
-        setPreflightIssues(getPreflightIssues(status))
+        setPreflightIssues(
+          getPreflightIssues(status, {
+            webClientDisconnected: isWebClientPreflightFallback({
+              cliStatus,
+              webSocketReady: webSocketStatus.ready
+            })
+          })
+        )
       })
     }
 
@@ -380,11 +148,22 @@ export default function Landing(): React.JSX.Element {
     // Why: some users complete `gh auth login` without ever leaving the Orca
     // window. Poll only while a warning is visible so the banner self-clears.
     const intervalId = window.setInterval(() => {
-      void window.api.preflight.check({ force: true }).then((status) => {
+      void Promise.all([
+        window.api.preflight.check({ force: true }),
+        window.api.cli.getInstallStatus().catch(() => null),
+        window.api.mobile.isWebSocketReady().catch(() => ({ ready: true }))
+      ]).then(([status, cliStatus, webSocketStatus]) => {
         if (cancelled) {
           return
         }
-        setPreflightIssues(getPreflightIssues(status))
+        setPreflightIssues(
+          getPreflightIssues(status, {
+            webClientDisconnected: isWebClientPreflightFallback({
+              cliStatus,
+              webSocketReady: webSocketStatus.ready
+            })
+          })
+        )
       })
     }, 30000)
 
@@ -410,9 +189,9 @@ export default function Landing(): React.JSX.Element {
   }, [createTargetLabel, createWorktreeKeys, nextWorktreeKeys, previousWorktreeKeys])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-background">
-      <div className="w-full max-w-lg px-6">
-        <div className="flex flex-col items-center gap-4 py-8">
+    <div className="scrollbar-sleek absolute inset-0 overflow-y-auto bg-background">
+      <div className="flex min-h-full items-start justify-center px-6 py-6 sm:items-center">
+        <div className="flex w-full flex-col items-center gap-4 pb-4 pt-2">
           <div className="flex size-24 items-center justify-center overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
             <img
               src={logo}
@@ -424,7 +203,19 @@ export default function Landing(): React.JSX.Element {
             {translate('auto.components.Landing.6ca6ff404e', 'Janus Code')}
           </h1>
 
-          {preflightIssues.length > 0 && <PreflightBanner issues={preflightIssues} />}
+          <div
+            className={cn(
+              'grid w-full gap-4',
+              preflightIssues.length > 0 ? 'max-w-4xl lg:grid-cols-2 lg:items-start' : 'max-w-lg'
+            )}
+          >
+            {preflightIssues.length > 0 && <PreflightBanner issues={preflightIssues} />}
+
+            <FirstRunSetupPath
+              canCreateWorktree={canCreateWorktree}
+              hasRequiredIssues={requiredPreflightIssueCount > 0}
+            />
+          </div>
 
           <p className="text-sm text-muted-foreground text-center">
             {canCreateWorktree
@@ -434,11 +225,6 @@ export default function Landing(): React.JSX.Element {
                 )
               : translate('auto.components.Landing.cd21242762', 'Add a project to get started.')}
           </p>
-
-          <FirstRunSetupPath
-            canCreateWorktree={canCreateWorktree}
-            hasRequiredIssues={requiredPreflightIssueCount > 0}
-          />
 
           <div className="flex items-center justify-center gap-2.5 flex-wrap">
             <button
@@ -463,8 +249,7 @@ export default function Landing(): React.JSX.Element {
               onClick={() => openModal('new-workspace-composer', { telemetrySource: 'unknown' })}
             >
               <GitBranchPlus className="size-3.5" />
-              {translate('auto.components.Landing.76a95f7f47', 'Create')}
-              {createTargetLabel}
+              {translate('auto.components.Landing.76a95f7f47', 'Create')} {createTargetLabel}
             </button>
           </div>
 
@@ -491,11 +276,9 @@ export default function Landing(): React.JSX.Element {
               ))}
             </div>
           ) : null}
-        </div>
-      </div>
 
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center">
-        <GitHubStarButton hasRepos={repos.length > 0} />
+          <GitHubStarButton hasRepos={repos.length > 0} />
+        </div>
       </div>
     </div>
   )

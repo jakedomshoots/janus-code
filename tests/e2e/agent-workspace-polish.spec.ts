@@ -42,6 +42,66 @@ async function prepareGuiWorkspaceTerminal(page: Page): Promise<{
   }
 }
 
+async function expectAgentWorkspaceControlsInViewport(page: Page): Promise<void> {
+  const clippedControls = await agentWorkspaceRegion(page).evaluate((region) => {
+    const interactiveSelector = [
+      'button',
+      '[role="tab"]',
+      '[role="textbox"]',
+      'input',
+      'textarea',
+      'a[href]',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',')
+
+    return Array.from(region.querySelectorAll<HTMLElement>(interactiveSelector)).flatMap(
+      (element) => {
+        const style = window.getComputedStyle(element)
+        if (
+          style.display === 'none' ||
+          style.visibility === 'hidden' ||
+          element.getAttribute('aria-hidden') === 'true'
+        ) {
+          return []
+        }
+
+        const rect = element.getBoundingClientRect()
+        if (rect.width <= 0 || rect.height <= 0) {
+          return []
+        }
+
+        const clipped =
+          rect.left < -1 ||
+          rect.top < -1 ||
+          rect.right > window.innerWidth + 1 ||
+          rect.bottom > window.innerHeight + 1
+
+        if (!clipped) {
+          return []
+        }
+
+        const label =
+          element.getAttribute('aria-label') ??
+          element.getAttribute('title') ??
+          element.textContent ??
+          element.tagName.toLowerCase()
+
+        return [
+          {
+            label: label.trim().replace(/\s+/g, ' ').slice(0, 80),
+            left: Math.round(rect.left),
+            top: Math.round(rect.top),
+            right: Math.round(rect.right),
+            bottom: Math.round(rect.bottom)
+          }
+        ]
+      }
+    )
+  })
+
+  expect(clippedControls).toEqual([])
+}
+
 test.describe.configure({ mode: 'serial' })
 
 test.describe('Agent workspace polish', () => {
@@ -156,6 +216,50 @@ test.describe('Agent workspace polish', () => {
         timeout: 15_000
       })
       .toBe(true)
+  })
+
+  test('keeps the run board, composer, and right panel usable at laptop size', async ({
+    orcaPage
+  }) => {
+    await orcaPage.setViewportSize({ width: 1280, height: 720 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E workspace audit ${Date.now()}`
+
+    await seedAgentWorkspaceThread(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Audit the competitive workspace surface',
+      approval: {
+        id: 'approval-e2e-competitive-workspace',
+        status: 'requested',
+        title: 'Run verification',
+        toolName: 'Bash',
+        toolInput: 'pnpm run typecheck:web',
+        fallbackText: 'Run verification: pnpm run typecheck:web'
+      }
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    const runBoard = workspace.getByRole('region', { name: /Agent run board/i })
+    await expect(runBoard).toBeVisible()
+    await expect(runBoard.getByRole('button', { name: new RegExp(threadTitle) })).toBeVisible()
+    await expect(workspace.getByRole('textbox', { name: /Message agent/i })).toBeVisible()
+
+    const rightPanel = agentWorkspaceRightPanel(orcaPage)
+    await expect(rightPanel).toBeVisible()
+    const tabList = rightPanel.getByRole('tablist', { name: /Agent workspace right panel/i })
+    await expect(tabList).toBeVisible()
+    for (const label of ['Output', 'Changes', 'Review', 'Context']) {
+      await expect(tabList.getByRole('tab', { name: new RegExp(label) })).toBeVisible()
+    }
+    await waitForAgentRightPanelActions(orcaPage, 'Approve')
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
   })
 
   test('persists thinking mode across GUI workspace remount', async ({ orcaPage }) => {

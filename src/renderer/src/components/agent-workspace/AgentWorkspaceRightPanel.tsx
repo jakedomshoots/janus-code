@@ -140,8 +140,8 @@ export function AgentWorkspaceRightPanel({
   }
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[clamp(18rem,32%,22rem)] shrink-0">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[calc(100vh-7rem)] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
@@ -156,146 +156,6 @@ export function AgentWorkspaceRightPanel({
           hasReview={review !== null || reviewFindings.length > 0}
           onSelectedTabChange={onSelectedTabChange}
         />
-        <div
-          role="tabpanel"
-          aria-label={translate(
-            'auto.components.agentWorkspace.rightPanel.tabPanel',
-            '{{tab}} panel',
-            {
-              tab: selectedTab
-            }
-          )}
-        >
-          {selectedTab === 'plan' ? (
-            <>
-              <PlanProgress plan={plan} />
-              <InfoSection
-                title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noOutputsYet',
-                  'No outputs yet'
-                )}
-              >
-                <ItemList items={model.outputs} iconKind="output" />
-              </InfoSection>
-            </>
-          ) : null}
-          {selectedTab === 'diff' ? (
-            <>
-              {diffs.length > 0 ? (
-                <AgentWorkspaceRightPanelChanges
-                  diffs={diffs}
-                  sourceControlBusy={sourceControlBusy}
-                  sourceControlError={sourceControlError}
-                  reviewOnlyWarning={reviewOnlyWarning}
-                  onLaunchReviewOnly={
-                    onLaunchReviewOnly ? () => onLaunchReviewOnly('diff') : undefined
-                  }
-                  onStageDiff={onStageDiff}
-                  onUnstageDiff={onUnstageDiff}
-                  onDiscardDiff={onDiscardDiff}
-                  onCommitStaged={onCommitStaged}
-                />
-              ) : (
-                <EmptyPanelState
-                  title={translate(
-                    'auto.components.agentWorkspace.rightPanel.noChanges',
-                    'No changes'
-                  )}
-                  detail={translate(
-                    'auto.components.agentWorkspace.rightPanel.noChangesDetail',
-                    'Git changes from Janus Code source control will appear here.'
-                  )}
-                />
-              )}
-            </>
-          ) : null}
-          {selectedTab === 'review' ? (
-            <InfoSection
-              title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
-              emptyLabel={translate(
-                'auto.components.agentWorkspace.rightPanel.noReviewYet',
-                'No review yet'
-              )}
-            >
-              <ReviewFindingsList findings={reviewFindings} />
-              {review && onLaunchReviewOnly ? (
-                <div className="mb-3 space-y-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onLaunchReviewOnly('review')}
-                  >
-                    <SearchCheck className="size-3.5" aria-hidden="true" />
-                    {translate(
-                      'auto.components.agentWorkspace.reviewOnly.reviewOnly',
-                      'Review only'
-                    )}
-                  </Button>
-                  {reviewOnlyWarning ? (
-                    <p className="text-xs text-muted-foreground">{reviewOnlyWarning}</p>
-                  ) : null}
-                </div>
-              ) : null}
-              <ItemList
-                items={
-                  review
-                    ? [
-                        {
-                          id: review.id,
-                          label: review.title,
-                          detail: `${review.providerLabel} #${review.number} · ${review.state}`
-                        }
-                      ]
-                    : []
-                }
-                iconKind="output"
-              />
-            </InfoSection>
-          ) : null}
-          {selectedTab === 'details' ? (
-            <>
-              <RunReplayExportAction
-                disabled={!thread}
-                status={replayCopyStatus}
-                onCopy={handleCopyRunReplay}
-              />
-              <SectionDivider />
-              <AgentWorkspaceRunLedger runEvents={runEvents} changedFileCount={diffs.length} />
-              <SectionDivider />
-              <InfoSection
-                title={translate(
-                  'auto.components.agentWorkspace.rightPanel.subagents',
-                  'Subagents'
-                )}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
-                  'No active subagents'
-                )}
-              >
-                <ItemList items={model.subagents} iconKind="subagent" />
-              </InfoSection>
-              <SectionDivider />
-              <InfoSection
-                title={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
-                  'No sources attached'
-                )}
-              >
-                <ItemList items={model.sources} iconKind="source" />
-                <SourceGlyphRow sources={model.sources} />
-              </InfoSection>
-              <SectionDivider />
-              <AgentWorkspaceMemoryInspector
-                project={project}
-                snapshot={memorySnapshot}
-                error={memorySnapshotError}
-              />
-            </>
-          ) : null}
-        </div>
         <ApprovalActions
           approval={approval}
           canRespondInTerminal={canRespondInTerminal}
@@ -303,6 +163,148 @@ export function AgentWorkspaceRightPanel({
           approvalFeedback={approvalFeedback}
           onDecision={handleApprovalDecision}
         />
+        <div className="scrollbar-sleek mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+          <div
+            role="tabpanel"
+            aria-label={translate(
+              'auto.components.agentWorkspace.rightPanel.tabPanel',
+              '{{tab}} panel',
+              {
+                tab: selectedTab
+              }
+            )}
+          >
+            {selectedTab === 'plan' ? (
+              <>
+                <PlanProgress plan={plan} />
+                <InfoSection
+                  title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
+                  emptyLabel={translate(
+                    'auto.components.agentWorkspace.rightPanel.noOutputsYet',
+                    'No outputs yet'
+                  )}
+                >
+                  <ItemList items={model.outputs} iconKind="output" />
+                </InfoSection>
+              </>
+            ) : null}
+            {selectedTab === 'diff' ? (
+              <>
+                {diffs.length > 0 ? (
+                  <AgentWorkspaceRightPanelChanges
+                    diffs={diffs}
+                    sourceControlBusy={sourceControlBusy}
+                    sourceControlError={sourceControlError}
+                    reviewOnlyWarning={reviewOnlyWarning}
+                    onLaunchReviewOnly={
+                      onLaunchReviewOnly ? () => onLaunchReviewOnly('diff') : undefined
+                    }
+                    onStageDiff={onStageDiff}
+                    onUnstageDiff={onUnstageDiff}
+                    onDiscardDiff={onDiscardDiff}
+                    onCommitStaged={onCommitStaged}
+                  />
+                ) : (
+                  <EmptyPanelState
+                    title={translate(
+                      'auto.components.agentWorkspace.rightPanel.noChanges',
+                      'No changes'
+                    )}
+                    detail={translate(
+                      'auto.components.agentWorkspace.rightPanel.noChangesDetail',
+                      'Git changes from Janus Code source control will appear here.'
+                    )}
+                  />
+                )}
+              </>
+            ) : null}
+            {selectedTab === 'review' ? (
+              <InfoSection
+                title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
+                emptyLabel={translate(
+                  'auto.components.agentWorkspace.rightPanel.noReviewYet',
+                  'No review yet'
+                )}
+              >
+                <ReviewFindingsList findings={reviewFindings} />
+                {review && onLaunchReviewOnly ? (
+                  <div className="mb-3 space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onLaunchReviewOnly('review')}
+                    >
+                      <SearchCheck className="size-3.5" aria-hidden="true" />
+                      {translate(
+                        'auto.components.agentWorkspace.reviewOnly.reviewOnly',
+                        'Review only'
+                      )}
+                    </Button>
+                    {reviewOnlyWarning ? (
+                      <p className="text-xs text-muted-foreground">{reviewOnlyWarning}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+                <ItemList
+                  items={
+                    review
+                      ? [
+                          {
+                            id: review.id,
+                            label: review.title,
+                            detail: `${review.providerLabel} #${review.number} · ${review.state}`
+                          }
+                        ]
+                      : []
+                  }
+                  iconKind="output"
+                />
+              </InfoSection>
+            ) : null}
+            {selectedTab === 'details' ? (
+              <>
+                <RunReplayExportAction
+                  disabled={!thread}
+                  status={replayCopyStatus}
+                  onCopy={handleCopyRunReplay}
+                />
+                <SectionDivider />
+                <AgentWorkspaceRunLedger runEvents={runEvents} changedFileCount={diffs.length} />
+                <SectionDivider />
+                <InfoSection
+                  title={translate(
+                    'auto.components.agentWorkspace.rightPanel.subagents',
+                    'Subagents'
+                  )}
+                  emptyLabel={translate(
+                    'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
+                    'No active subagents'
+                  )}
+                >
+                  <ItemList items={model.subagents} iconKind="subagent" />
+                </InfoSection>
+                <SectionDivider />
+                <InfoSection
+                  title={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
+                  emptyLabel={translate(
+                    'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
+                    'No sources attached'
+                  )}
+                >
+                  <ItemList items={model.sources} iconKind="source" />
+                  <SourceGlyphRow sources={model.sources} />
+                </InfoSection>
+                <SectionDivider />
+                <AgentWorkspaceMemoryInspector
+                  project={project}
+                  snapshot={memorySnapshot}
+                  error={memorySnapshotError}
+                />
+              </>
+            ) : null}
+          </div>
+        </div>
       </div>
     </aside>
   )

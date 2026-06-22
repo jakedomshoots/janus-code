@@ -169,7 +169,7 @@ export function AgentWorkspaceHeader({
             title={translate('auto.components.agentWorkspace.header.newSession', 'New session')}
           >
             <MessageSquarePlus className="size-3.5" aria-hidden="true" />
-            <span className="hidden sm:inline">
+            <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.newSession', 'New session')}
             </span>
           </Button>
@@ -188,7 +188,7 @@ export function AgentWorkspaceHeader({
             title={translate('auto.components.agentWorkspace.header.openBrowser', 'Open browser')}
           >
             <Globe className="size-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">
+            <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.browser', 'Browser')}
             </span>
           </Button>
@@ -207,7 +207,7 @@ export function AgentWorkspaceHeader({
             title={translate('auto.components.agentWorkspace.header.openTerminal', 'Open terminal')}
           >
             <Terminal className="size-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">
+            <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.terminal', 'Terminal')}
             </span>
           </Button>
@@ -251,7 +251,7 @@ export function AgentWorkspaceHeader({
             )}
           >
             <FolderOpen className="size-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">
+            <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.files', 'Files')}
             </span>
           </Button>
@@ -273,7 +273,7 @@ export function AgentWorkspaceHeader({
             )}
           >
             <PanelRightOpen className="size-3.5" aria-hidden="true" />
-            <span className="hidden xl:inline">
+            <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.panel', 'Panel')}
             </span>
           </Button>

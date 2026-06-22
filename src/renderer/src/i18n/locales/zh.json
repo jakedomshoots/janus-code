@@ -924,7 +924,9 @@
         "setupStepAgent": "Start an agent",
         "setupStepAgentDescription": "Once setup is ready, launch an agent from a workspace.",
         "setupPathTitle": "First-run setup path",
-        "createWorkspaceBlocked": "Add a project before creating a workspace."
+        "createWorkspaceBlocked": "Add a project before creating a workspace.",
+        "webClientNotPairedTitle": "Web client is not paired",
+        "webClientNotPairedDescription": "Pair this browser with Janus Code or open the desktop app before checking Git, source control, and workspaces."
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",
