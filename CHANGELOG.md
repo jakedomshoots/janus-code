@@ -17,3 +17,4 @@
 - Extended the Automations stacked layout through tablet widths so the detail tabs stay within the viewport at 768px.
 - Raised Retro 95 workspace-header, setup-guide active-row, selected tab action, and terminal-error contrast using concrete surface/state token pairs.
 - Paired the workspace-board repository badge accent background with its documented accent foreground token.
+- Switched task-source active filter chips to documented active-state token pairs across providers and themes.

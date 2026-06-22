@@ -782,6 +782,11 @@
   color: var(--win-text-muted) !important;
 }
 
+.theme-retro95 button.task-source-active-filter {
+  background-color: var(--win-highlight) !important;
+  color: var(--win-highlight-text) !important;
+}
+
 /* Why: setup-guide rows mark the current milestone with aria-current, not the
    Radix selected attributes used elsewhere. */
 .theme-retro95 [data-setup-step-row][aria-current='step'] {
