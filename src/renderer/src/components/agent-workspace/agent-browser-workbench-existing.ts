@@ -57,7 +57,7 @@ export async function openExistingAgentBrowserTab({
   | 'setActiveTabType'
   | 'focusBrowserTabInWorktree'
 > & {
-    onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
+    onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
   }): Promise<void> {
   let nextState = state
   const requestedBrowserTab = browserTabId
@@ -137,7 +137,7 @@ export async function openExistingAgentBrowserTab({
     setActiveTabType,
     focusBrowserTabInWorktree
   })
-  onOpenTerminalDrawer('browser')
+  onOpenTerminalDrawer?.('browser')
 }
 
 async function createFallbackBrowserTab({

@@ -46,7 +46,7 @@ export async function createAndActivateAgentBrowserTab({
   | 'focusBrowserTabInWorktree'
   | 'openNewBrowserTabInActiveWorkspace'
 > & {
-    onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
+    onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
   }): Promise<void> {
   const beforeBrowserTabIds = new Set(
     (state.browserTabsByWorktree[worktreeId] ?? []).map((tab) => tab.id)
@@ -116,6 +116,6 @@ export async function createAndActivateAgentBrowserTab({
       setActiveTabType,
       focusBrowserTabInWorktree
     })
-    onOpenTerminalDrawer('browser')
+    onOpenTerminalDrawer?.('browser')
   }
 }

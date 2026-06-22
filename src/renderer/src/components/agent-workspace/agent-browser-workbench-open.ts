@@ -86,7 +86,7 @@ export function openAgentBrowserWorkbench({
   focusBrowserTabInWorktree,
   openNewBrowserTabInActiveWorkspace
 }: OpenAgentBrowserWorkbenchParams): void {
-  if (!activeWorktreeId || typeof onOpenTerminalDrawer !== 'function') {
+  if (!activeWorktreeId) {
     return
   }
   void openAgentBrowserWorkbenchAsync({
@@ -120,7 +120,6 @@ async function openAgentBrowserWorkbenchAsync({
   openNewBrowserTabInActiveWorkspace
 }: OpenAgentBrowserWorkbenchParams & {
   readonly activeWorktreeId: string
-  readonly onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
 }): Promise<void> {
   const createNewTab = options?.createNewTab === true
   const keepAgentSessionVisible = options?.keepAgentSessionVisible === true
@@ -132,7 +131,7 @@ async function openAgentBrowserWorkbenchAsync({
   }
   const resolvedRuntimeEnvironmentId = runtimeEnvironmentId ?? ''
   if (!createNewTab && !keepAgentSessionVisible && !browserWorkbenchActive) {
-    onOpenTerminalDrawer('browser')
+    onOpenTerminalDrawer?.('browser')
   }
   const targetGroupId = resolveTargetGroupId(worktreeId)
   if (!targetGroupId) {

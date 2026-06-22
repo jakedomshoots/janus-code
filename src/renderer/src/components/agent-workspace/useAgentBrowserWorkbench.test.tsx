@@ -84,7 +84,7 @@ vi.mock('@/store', () => ({
 function BrowserWorkbenchButton({
   onOpenTerminalDrawer
 }: {
-  onOpenTerminalDrawer: (reason: AgentTerminalRevealReason | null) => void
+  onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason | null) => void
 }): React.JSX.Element {
   const workbench = useAgentBrowserWorkbench({
     activeWorktreeId: 'worktree-1',
@@ -196,6 +196,38 @@ describe('useAgentBrowserWorkbench', () => {
       { surfacePane: true }
     )
     expect(onOpenTerminalDrawer).toHaveBeenCalledWith('browser')
+  })
+
+  it('still provisions and activates browser state when no drawer callback is registered', async () => {
+    storeMocks.state.settings = { activeRuntimeEnvironmentId: '' }
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    await act(async () => {
+      root?.render(<BrowserWorkbenchButton />)
+    })
+
+    await act(async () => {
+      container.querySelector('button')?.click()
+      await Promise.resolve()
+    })
+
+    expect(storeMocks.ensureWorktreeRootGroup).toHaveBeenCalledWith('worktree-1')
+    expect(storeMocks.createBrowserTab).toHaveBeenCalledWith(
+      'worktree-1',
+      'data:text/html,',
+      expect.objectContaining({
+        activate: true,
+        focusAddressBar: true,
+        targetGroupId: 'group-1'
+      })
+    )
+    expect(storeMocks.focusBrowserTabInWorktree).toHaveBeenCalledWith(
+      'worktree-1',
+      'browser-page-1',
+      { surfacePane: true }
+    )
   })
 
   it('opens the browser workbench immediately while paired host tab creation is pending', async () => {

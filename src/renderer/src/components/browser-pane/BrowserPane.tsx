@@ -2713,6 +2713,10 @@ function RemoteBrowserPagePane({
           className="h-7 w-7"
           onClick={inspectRemotePage}
           title={translate('auto.components.browser.pane.BrowserPane.a8f37f70c3', 'Inspect Page')}
+          aria-label={translate(
+            'auto.components.browser.pane.BrowserPane.a8f37f70c3',
+            'Inspect Page'
+          )}
           disabled={!remotePageIdRef.current || busy}
         >
           <SquareCode className="size-4" />
@@ -2729,6 +2733,10 @@ function RemoteBrowserPagePane({
             void window.api.shell.openUrl(externalUrl)
           }}
           title={translate(
+            'auto.components.browser.pane.BrowserPane.0f41bf80c7',
+            'Open in default browser'
+          )}
+          aria-label={translate(
             'auto.components.browser.pane.BrowserPane.0f41bf80c7',
             'Open in default browser'
           )}
@@ -5017,6 +5025,7 @@ function BrowserPagePane({
           className="h-7 w-7"
           onClick={() => webviewRef.current?.goBack()}
           disabled={!browserTab.canGoBack}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.40edfa75cb', 'Back')}
         >
           <ArrowLeft className="size-4" />
         </Button>
@@ -5026,6 +5035,7 @@ function BrowserPagePane({
           className="h-7 w-7"
           onClick={() => webviewRef.current?.goForward()}
           disabled={!browserTab.canGoForward}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.250a9b3e42', 'Forward')}
         >
           <ArrowRight className="size-4" />
         </Button>
@@ -5046,6 +5056,7 @@ function BrowserPagePane({
               webview.reload()
             }
           }}
+          aria-label={translate('auto.components.browser.pane.BrowserPane.0e080d820e', 'Reload')}
         >
           {browserTab.loading ? (
             <Loader2 className="size-4 animate-spin" />
@@ -5147,6 +5158,10 @@ function BrowserPagePane({
             'auto.components.browser.pane.BrowserPane.ec75d0c412',
             'Open browser devtools'
           )}
+          aria-label={translate(
+            'auto.components.browser.pane.BrowserPane.ec75d0c412',
+            'Open browser devtools'
+          )}
         >
           <SquareCode className="size-4" />
         </Button>
@@ -5162,6 +5177,10 @@ function BrowserPagePane({
             void window.api.shell.openUrl(externalUrl)
           }}
           title={translate(
+            'auto.components.browser.pane.BrowserPane.0f41bf80c7',
+            'Open in default browser'
+          )}
+          aria-label={translate(
             'auto.components.browser.pane.BrowserPane.0f41bf80c7',
             'Open in default browser'
           )}
