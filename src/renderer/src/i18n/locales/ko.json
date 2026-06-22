@@ -11555,7 +11555,10 @@
           "runStatusRunning": "Running",
           "runStatusDone": "Done",
           "runStatusFailed": "Failed",
-          "runStatusUnknown": "Unknown"
+          "runStatusUnknown": "Unknown",
+          "sessionSummary": "Session summary",
+          "plan": "Plan",
+          "worktree": "Worktree"
         },
         "timelineRole": {
           "you": "You",
@@ -11597,6 +11600,9 @@
           "91b5c8d7e6": "GitLab"
         }
       }
+    },
+    "common": {
+      "none": "None"
     }
   },
   "mobile": {

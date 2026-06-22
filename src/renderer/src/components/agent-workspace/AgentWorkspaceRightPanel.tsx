@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
-import { SearchCheck, X } from 'lucide-react'
+import { Bot, FileDiff, FolderGit2, GitBranch, ListChecks, X, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
   AgentWorkspaceApproval,
   AgentWorkspaceDiffSummary,
@@ -15,32 +15,14 @@ import type {
 } from './agent-workspace-types'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
 import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-model'
-import {
-  EmptyPanelState,
-  InfoSection,
-  ItemList,
-  PanelTabs,
-  SectionDivider,
-  SourceGlyphRow
-} from './agent-workspace-right-panel-sections'
+import { SourceGlyphRow } from './agent-workspace-right-panel-sections'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
-import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
-import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
-import { AgentWorkspaceRunLedger } from './AgentWorkspaceRunLedger'
-import { AgentWorkspaceMemoryInspector } from './AgentWorkspaceMemoryInspector'
 import type { AgentReviewOnlyLaunchSurface } from './agent-review-only-launch'
 import type { AgentReviewFinding } from './agent-review-findings'
 import type { MemorySnapshot } from '../../../../shared/types'
-import { buildAgentRunReplayMarkdown } from './agent-run-replay-export'
-import {
-  ApprovalActions,
-  ReviewFindingsList,
-  RunReplayExportAction
-} from './AgentWorkspaceRightPanelActions'
-
-const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
-const EMPTY_REVIEW_FINDINGS: readonly AgentReviewFinding[] = []
+import { formatAgentWorkspacePhase } from './agent-workspace-labels'
+import { ApprovalActions } from './AgentWorkspaceRightPanelActions'
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -49,24 +31,8 @@ export function AgentWorkspaceRightPanel({
   plan,
   approval,
   diffs,
-  runEvents,
-  timeline = EMPTY_AGENT_TIMELINE,
-  runReplayContext = null,
   review,
-  reviewFindings = EMPTY_REVIEW_FINDINGS,
-  sourceControlBusy,
-  sourceControlError,
-  reviewOnlyWarning = null,
-  memorySnapshot = null,
-  memorySnapshotError = null,
   terminalAvailable,
-  selectedTab,
-  onSelectedTabChange,
-  onStageDiff,
-  onUnstageDiff,
-  onDiscardDiff,
-  onCommitStaged,
-  onLaunchReviewOnly,
   onOpenTerminalDrawer,
   onCollapse
 }: {
@@ -98,7 +64,6 @@ export function AgentWorkspaceRightPanel({
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
   onCollapse?: () => void
 }): React.JSX.Element {
-  const [replayCopyStatus, setReplayCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
   const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
     useAgentWorkspaceApprovalResponse({
       thread,
@@ -114,37 +79,11 @@ export function AgentWorkspaceRightPanel({
     diffs,
     review
   })
-  const runReplayMarkdown = useMemo(
-    () =>
-      buildAgentRunReplayMarkdown({
-        project,
-        thread,
-        timeline,
-        runEvents,
-        diffs,
-        approvals: approval ? [approval] : [],
-        replayContext: runReplayContext,
-        exportedAt: new Date().toISOString()
-      }),
-    [approval, diffs, project, runEvents, runReplayContext, thread, timeline]
-  )
-
-  async function handleCopyRunReplay(): Promise<void> {
-    if (!thread) {
-      return
-    }
-    try {
-      await window.api.ui.writeClipboardText(runReplayMarkdown)
-      setReplayCopyStatus('copied')
-    } catch {
-      setReplayCopyStatus('failed')
-    }
-  }
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(17rem,28vw,20rem)] shrink-0 items-start">
+    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(16rem,24vw,18.5rem)] shrink-0 items-start">
       {/* Bound the floating card to the workspace row because boards above it can grow. */}
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[min(34rem,calc(100vh_-_8rem))] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-3 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[min(24rem,calc(100vh_-_8rem))] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-3 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         {onCollapse ? (
           <Button
             type="button"
@@ -164,175 +103,175 @@ export function AgentWorkspaceRightPanel({
             <X className="size-3.5" aria-hidden="true" />
           </Button>
         ) : null}
-        <PanelSummary
-          thread={thread}
-          plan={plan}
-          diffs={diffs}
-          sources={model.sources.length}
-          subagents={model.subagents.length}
-        />
-        <PanelTabs
-          selectedTab={selectedTab}
-          diffs={diffs.length}
-          hasPlan={plan !== null}
-          hasReview={review !== null || reviewFindings.length > 0}
-          onSelectedTabChange={onSelectedTabChange}
-        />
-        <div className="scrollbar-sleek mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
-          {/* Keep approvals in the scroll body so compact heights still expose evidence tabs. */}
-          <ApprovalActions
-            approval={approval}
-            canRespondInTerminal={canRespondInTerminal}
-            approvalBusy={approvalBusy}
-            approvalFeedback={approvalFeedback}
-            onDecision={handleApprovalDecision}
-          />
-          <div
-            role="tabpanel"
-            aria-label={translate(
-              'auto.components.agentWorkspace.rightPanel.tabPanel',
-              '{{tab}} panel',
-              {
-                tab: selectedTab
-              }
-            )}
-          >
-            {selectedTab === 'plan' ? (
-              <>
-                <PlanProgress plan={plan} />
-                <InfoSection
-                  title={translate('auto.components.agentWorkspace.rightPanel.outputs', 'Outputs')}
-                  emptyLabel={translate(
-                    'auto.components.agentWorkspace.rightPanel.noOutputsYet',
-                    'No outputs yet'
-                  )}
-                  isEmpty={model.outputs.length === 0}
-                >
-                  <ItemList items={model.outputs} iconKind="output" />
-                </InfoSection>
-              </>
-            ) : null}
-            {selectedTab === 'diff' ? (
-              <>
-                {diffs.length > 0 ? (
-                  <AgentWorkspaceRightPanelChanges
-                    diffs={diffs}
-                    sourceControlBusy={sourceControlBusy}
-                    sourceControlError={sourceControlError}
-                    reviewOnlyWarning={reviewOnlyWarning}
-                    onLaunchReviewOnly={
-                      onLaunchReviewOnly ? () => onLaunchReviewOnly('diff') : undefined
-                    }
-                    onStageDiff={onStageDiff}
-                    onUnstageDiff={onUnstageDiff}
-                    onDiscardDiff={onDiscardDiff}
-                    onCommitStaged={onCommitStaged}
-                  />
-                ) : (
-                  <EmptyPanelState
-                    title={translate(
-                      'auto.components.agentWorkspace.rightPanel.noChanges',
-                      'No changes'
-                    )}
-                    detail={translate(
-                      'auto.components.agentWorkspace.rightPanel.noChangesDetail',
-                      'Git changes from Janus Code source control will appear here.'
-                    )}
-                  />
-                )}
-              </>
-            ) : null}
-            {selectedTab === 'review' ? (
-              <InfoSection
-                title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
-                emptyLabel={translate(
-                  'auto.components.agentWorkspace.rightPanel.noReviewYet',
-                  'No review yet'
-                )}
-                isEmpty={!review && reviewFindings.length === 0}
-              >
-                <ReviewFindingsList findings={reviewFindings} />
-                {review && onLaunchReviewOnly ? (
-                  <div className="mb-3 space-y-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onLaunchReviewOnly('review')}
-                    >
-                      <SearchCheck className="size-3.5" aria-hidden="true" />
-                      {translate(
-                        'auto.components.agentWorkspace.reviewOnly.reviewOnly',
-                        'Review only'
-                      )}
-                    </Button>
-                    {reviewOnlyWarning ? (
-                      <p className="text-xs text-muted-foreground">{reviewOnlyWarning}</p>
-                    ) : null}
-                  </div>
-                ) : null}
-                <ItemList
-                  items={
-                    review
-                      ? [
-                          {
-                            id: review.id,
-                            label: review.title,
-                            detail: `${review.providerLabel} #${review.number} · ${review.state}`
-                          }
-                        ]
-                      : []
-                  }
-                  iconKind="output"
-                />
-              </InfoSection>
-            ) : null}
-            {selectedTab === 'details' ? (
-              <>
-                <RunReplayExportAction
-                  disabled={!thread}
-                  status={replayCopyStatus}
-                  onCopy={handleCopyRunReplay}
-                />
-                <SectionDivider />
-                <AgentWorkspaceRunLedger runEvents={runEvents} changedFileCount={diffs.length} />
-                <SectionDivider />
-                <InfoSection
-                  title={translate(
-                    'auto.components.agentWorkspace.rightPanel.subagents',
-                    'Subagents'
-                  )}
-                  emptyLabel={translate(
-                    'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
-                    'No active subagents'
-                  )}
-                  isEmpty={model.subagents.length === 0}
-                >
-                  <ItemList items={model.subagents} iconKind="subagent" />
-                </InfoSection>
-                <SectionDivider />
-                <InfoSection
-                  title={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
-                  emptyLabel={translate(
-                    'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
-                    'No sources attached'
-                  )}
-                  isEmpty={model.sources.length === 0}
-                >
-                  <ItemList items={model.sources} iconKind="source" />
-                  <SourceGlyphRow sources={model.sources} />
-                </InfoSection>
-                <SectionDivider />
-                <AgentWorkspaceMemoryInspector
-                  project={project}
-                  snapshot={memorySnapshot}
-                  error={memorySnapshotError}
-                />
-              </>
-            ) : null}
-          </div>
+
+        <div className="mb-3 pr-6 text-sm font-medium text-muted-foreground">
+          {translate('auto.components.agentWorkspace.rightPanel.environment', 'Environment')}
         </div>
+
+        <section
+          className="rounded-xl border border-border bg-background/65 p-3"
+          aria-label={translate(
+            'auto.components.agentWorkspace.rightPanel.sessionSummary',
+            'Session summary'
+          )}
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
+              <Bot className="size-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-foreground">
+                {thread?.title ?? project?.label ?? 'Janus Code'}
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                {thread
+                  ? `${formatAgentTypeLabel(thread.agentKind)} · ${formatAgentWorkspacePhase(
+                      thread.phase
+                    )}`
+                  : translate(
+                      'auto.components.agentWorkspace.rightPanel.readyForNewSession',
+                      'Ready for a new session'
+                    )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 space-y-1.5">
+            <CompactEnvironmentRow
+              icon={ListChecks}
+              label={translate('auto.components.agentWorkspace.rightPanel.plan', 'Plan')}
+              value={formatPlanSummary(plan)}
+            />
+            <CompactChangesRow diffs={diffs} />
+            <CompactEnvironmentRow
+              icon={FolderGit2}
+              label={translate('auto.components.agentWorkspace.rightPanel.worktree', 'Worktree')}
+              value={project?.label ?? translate('auto.common.none', 'None')}
+            />
+            <CompactEnvironmentRow
+              icon={GitBranch}
+              label={translate('auto.components.agentWorkspace.rightPanel.branch', 'Branch')}
+              value={
+                thread?.branchName ?? project?.branchName ?? translate('auto.common.none', 'None')
+              }
+            />
+          </div>
+        </section>
+
+        <section
+          className="mt-4"
+          aria-label={translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}
+        >
+          <div className="mb-2 flex items-center justify-between gap-3 text-sm font-medium text-muted-foreground">
+            <span>{translate('auto.components.agentWorkspace.rightPanel.sources', 'Sources')}</span>
+            <span className="text-xs font-normal">
+              {translate(
+                'auto.components.agentWorkspace.rightPanel.sourceCount',
+                '{{count}} sources',
+                {
+                  count: model.sources.length
+                }
+              )}
+            </span>
+          </div>
+          <SourceGlyphRow sources={model.sources} />
+        </section>
+
+        {approval ? (
+          <div className="scrollbar-sleek mt-4 min-h-0 overflow-y-auto pr-1">
+            {/* Approval prompts remain here because they unblock the active agent. */}
+            <ApprovalActions
+              approval={approval}
+              canRespondInTerminal={canRespondInTerminal}
+              approvalBusy={approvalBusy}
+              approvalFeedback={approvalFeedback}
+              onDecision={handleApprovalDecision}
+            />
+          </div>
+        ) : null}
       </div>
     </aside>
+  )
+}
+
+function CompactEnvironmentRow({
+  icon: Icon,
+  label,
+  value,
+  valueNode
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+  valueNode?: React.ReactNode
+}): React.JSX.Element {
+  return (
+    <div className="flex h-8 min-w-0 items-center gap-2 rounded-lg px-1.5 text-sm text-foreground">
+      <span className="flex size-5 shrink-0 items-center justify-center text-muted-foreground">
+        <Icon className="size-4" aria-hidden="true" />
+      </span>
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <span
+        className="min-w-0 max-w-[9rem] truncate text-right text-muted-foreground"
+        title={value}
+      >
+        {valueNode ?? value}
+      </span>
+    </div>
+  )
+}
+
+function CompactChangesRow({
+  diffs
+}: {
+  diffs: readonly AgentWorkspaceDiffSummary[]
+}): React.JSX.Element {
+  const totals = diffs.reduce(
+    (summary, diff) => ({
+      additions: summary.additions + diff.additions,
+      deletions: summary.deletions + diff.deletions
+    }),
+    { additions: 0, deletions: 0 }
+  )
+  const value = translate(
+    'auto.components.agentWorkspace.rightPanel.changeCount',
+    '{{count}} changes',
+    {
+      count: diffs.length
+    }
+  )
+
+  return (
+    <CompactEnvironmentRow
+      icon={FileDiff}
+      label={translate('auto.components.agentWorkspace.rightPanel.changes', 'Changes')}
+      value={value}
+      valueNode={
+        diffs.length === 0 ? (
+          value
+        ) : (
+          <span className="inline-flex shrink-0 items-center gap-1">
+            <span style={{ color: 'var(--git-decoration-added)' }}>+{totals.additions}</span>
+            <span style={{ color: 'var(--git-decoration-deleted)' }}>-{totals.deletions}</span>
+          </span>
+        )
+      }
+    />
+  )
+}
+
+function formatPlanSummary(plan: AgentWorkspacePlan | null): string {
+  if (!plan || plan.steps.length === 0) {
+    return translate('auto.components.agentWorkspace.rightPanel.noPlan', 'No plan')
+  }
+
+  const completeSteps = plan.steps.filter((step) => step.status === 'completed').length
+  return translate(
+    'auto.components.agentWorkspace.rightPanel.stepProgress',
+    '{{complete}}/{{total}} steps',
+    {
+      complete: completeSteps,
+      total: plan.steps.length
+    }
   )
 }

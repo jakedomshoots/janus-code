@@ -392,9 +392,10 @@ describe('AgentWorkspaceLayout active worktree selection', () => {
     })
     await openDetailsPanel(container)
 
-    expect(container.textContent).toContain('Outputs')
-    expect(container.textContent).toContain('Planned thread execution')
-    expect(container.textContent).toContain('0/1 steps complete')
+    expect(container.textContent).toContain('Environment')
+    expect(container.textContent).toContain('Plan')
+    expect(container.textContent).toContain('0/1 steps')
+    expect(container.textContent).not.toContain('Outputs')
   })
 
   it('chooses the details tab by default for threads that need approval', async () => {

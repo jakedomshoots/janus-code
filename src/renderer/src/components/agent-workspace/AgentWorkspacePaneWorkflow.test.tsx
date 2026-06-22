@@ -284,7 +284,7 @@ afterEach(() => {
 })
 
 describe('AgentWorkspace pane workflow', () => {
-  it('keeps auxiliary details tucked behind an open and hide affordance', async () => {
+  it('keeps the compact environment card tucked behind an open and hide affordance', async () => {
     const thread = {
       id: 'thread-details',
       worktreeId: 'worktree-1',
@@ -323,7 +323,9 @@ describe('AgentWorkspace pane workflow', () => {
       detailsButton?.click()
     })
 
-    expect(container.textContent).toContain('Run replay export')
+    expect(container.textContent).toContain('Environment')
+    expect(container.textContent).toContain('Quiet completed run')
+    expect(container.textContent).not.toContain('Run replay export')
 
     const hideButton = buttons(container).find(
       (button) => button.getAttribute('aria-label') === 'Hide details'
@@ -335,7 +337,7 @@ describe('AgentWorkspace pane workflow', () => {
     })
 
     expect(container.textContent).toContain('Quiet output')
-    expect(container.textContent).not.toContain('Run replay export')
+    expect(container.textContent).not.toContain('Environment')
   })
 
   it('keeps review-ready run summaries out of the main chat chrome', async () => {
@@ -629,7 +631,7 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.textContent).toContain('docs/reference/handoff.md')
   })
 
-  it('launches a review-only agent from the changes panel with diff and review context', async () => {
+  it('keeps review-only launch controls out of the compact environment card', async () => {
     storeMocks.state.settings = {
       ...storeMocks.state.settings,
       defaultTuiAgent: 'codex',
@@ -685,33 +687,10 @@ describe('AgentWorkspace pane workflow', () => {
       detailsButton?.click()
     })
 
-    const reviewOnlyButton = buttons(container).find((button) =>
-      button.textContent?.includes('Review only')
+    expect(buttons(container).some((button) => button.textContent?.includes('Review only'))).toBe(
+      false
     )
-    expect(reviewOnlyButton).toBeDefined()
-
-    await act(async () => {
-      reviewOnlyButton?.click()
-    })
-
-    expect(launchMocks.launchAgentInNewTab).toHaveBeenCalledWith(
-      expect.objectContaining({
-        agent: 'codex',
-        worktreeId: 'worktree-1',
-        groupId: 'group-1',
-        promptDelivery: 'submit-after-ready',
-        launchSource: 'diff_notes_send',
-        agentArgs: '--sandbox read-only'
-      })
-    )
-    const launchArgs = launchMocks.launchAgentInNewTab.mock.calls.at(-1)?.[0] as
-      | { prompt?: string }
-      | undefined
-    const launchPrompt = launchArgs?.prompt
-    expect(launchPrompt).toContain('Review only')
-    expect(launchPrompt).toContain('Do not edit files')
-    expect(launchPrompt).toContain('GitLab #42')
-    expect(launchPrompt).toContain('src/renderer/src/App.tsx')
+    expect(launchMocks.launchAgentInNewTab).not.toHaveBeenCalled()
   })
 
   it('splits and closes agent workspace panes from the tab strip', async () => {
