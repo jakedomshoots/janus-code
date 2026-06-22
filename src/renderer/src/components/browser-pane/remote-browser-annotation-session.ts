@@ -9,7 +9,10 @@ import type {
 } from '../../../../shared/browser-grab-types'
 import { GRAB_BUDGET } from '../../../../shared/browser-grab-types'
 import { useGrabMode } from './useGrabMode'
-import { formatBrowserAnnotationsForAgentPrompt } from './browser-annotation-output'
+import {
+  formatBrowserAnnotationsForAgentPrompt,
+  formatBrowserAnnotationsForClipboard
+} from './browser-annotation-output'
 import { useAppStore } from '@/store'
 
 const EMPTY_BROWSER_ANNOTATIONS: BrowserPageAnnotation[] = []
@@ -93,6 +96,7 @@ export function useRemoteBrowserAnnotationSession(args: {
   browserAnnotationTrayOpen: boolean
   setBrowserAnnotationTrayOpen: (open: boolean) => void
   browserAnnotationsPrompt: string
+  browserAnnotationsClipboardText: string
   browserAnnotationsCopied: boolean
   handleCopyBrowserAnnotations: () => void
 } {
@@ -118,15 +122,19 @@ export function useRemoteBrowserAnnotationSession(args: {
     () => formatBrowserAnnotationsForAgentPrompt(browserAnnotations),
     [browserAnnotations]
   )
+  const browserAnnotationsClipboardText = useMemo(
+    () => formatBrowserAnnotationsForClipboard(browserAnnotations),
+    [browserAnnotations]
+  )
 
   useEffect(() => {
     if (grab.state !== 'confirming' || !grab.payload) {
       return
     }
-    if (grabIntent === 'annotate' || guiAgentWorkspaceEnabled) {
+    if (grabIntent === 'annotate') {
       setPendingAnnotationPayload(grab.payload)
     }
-  }, [grab.state, grab.payload, grabIntent, guiAgentWorkspaceEnabled])
+  }, [grab.state, grab.payload, grabIntent])
 
   useEffect(() => {
     if (grab.state === 'idle' || grab.state === 'error') {
@@ -193,15 +201,15 @@ export function useRemoteBrowserAnnotationSession(args: {
   }, [grab, grabIntent])
 
   const handleCopyBrowserAnnotations = useCallback((): void => {
-    if (!browserAnnotationsPrompt) {
+    if (!browserAnnotationsClipboardText) {
       return
     }
-    void window.api.ui.writeClipboardText(browserAnnotationsPrompt)
+    void window.api.ui.writeClipboardText(browserAnnotationsClipboardText)
     recordFeatureInteraction('browser-annotations')
     clearTimeout(annotationCopyTimerRef.current)
     setBrowserAnnotationsCopied(true)
     annotationCopyTimerRef.current = setTimeout(() => setBrowserAnnotationsCopied(false), 1400)
-  }, [browserAnnotationsPrompt, recordFeatureInteraction])
+  }, [browserAnnotationsClipboardText, recordFeatureInteraction])
 
   useEffect(() => {
     if (!isActive) {
@@ -209,10 +217,10 @@ export function useRemoteBrowserAnnotationSession(args: {
     }
     return window.api.browser.onGrabModeToggle((tabId) => {
       if (tabId === browserPageId) {
-        startGrabIntent(guiAgentWorkspaceEnabled ? 'annotate' : 'copy')
+        startGrabIntent('copy')
       }
     })
-  }, [browserPageId, guiAgentWorkspaceEnabled, isActive, startGrabIntent])
+  }, [browserPageId, isActive, startGrabIntent])
 
   return {
     grab,
@@ -225,6 +233,7 @@ export function useRemoteBrowserAnnotationSession(args: {
     browserAnnotationTrayOpen,
     setBrowserAnnotationTrayOpen,
     browserAnnotationsPrompt,
+    browserAnnotationsClipboardText,
     browserAnnotationsCopied,
     handleCopyBrowserAnnotations
   }

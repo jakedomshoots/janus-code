@@ -55,7 +55,13 @@ function makeTestPayload(overrides?: Partial<BrowserGrabPayload>): BrowserGrabPa
 }
 
 describe('formatGrabPayloadAsText', () => {
-  it('returns an empty string so grab copy cannot leak DOM dumps', () => {
-    expect(formatGrabPayloadAsText(makeTestPayload())).toBe('')
+  it('returns paste-safe browser element context for agent composer drafts', () => {
+    const text = formatGrabPayloadAsText(makeTestPayload())
+
+    expect(text).toContain('[orca-browser-element]')
+    expect(text).toContain('url: https://example.com/pricing')
+    expect(text).toContain('selector: main section:nth-of-type(2) button.primary')
+    expect(text).toContain('label: Start free trial')
+    expect(text).not.toContain('Attached browser context from')
   })
 })

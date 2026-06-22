@@ -10,6 +10,7 @@ import {
 import { listTrackedAgentWorkspaceBrowserTabIds } from './agent-workspace-browser-tab-session'
 import type { AppStoreState, OpenAgentBrowserWorkbenchParams } from './agent-browser-workbench-open'
 import { activateAgentBrowserTab } from './agent-browser-workbench-activation'
+import { isBlankBrowserUrl, shouldUseDevFakeProject } from '@/web/web-dev-fake-project'
 
 export async function openExistingAgentBrowserTab({
   state,
@@ -126,6 +127,7 @@ export async function openExistingAgentBrowserTab({
   if (!browserTab) {
     return
   }
+  browserTab = ensureDevFakeBrowserTabHasUrl(browserTab, defaultUrl)
   trackOpenedAgentWorkspaceBrowserTab(worktreeId, browserTab.id)
   activateExistingBrowserTab({
     worktreeId,
@@ -175,6 +177,18 @@ async function createFallbackBrowserTab({
     activate: true,
     targetGroupId
   })
+}
+
+function ensureDevFakeBrowserTabHasUrl(
+  browserTab: BrowserWorkspace,
+  defaultUrl: string
+): BrowserWorkspace {
+  if (!shouldUseDevFakeProject() || !isBlankBrowserUrl(browserTab.url)) {
+    return browserTab
+  }
+  const pageId = browserTab.activePageId ?? browserTab.pageIds?.[0] ?? browserTab.id
+  useAppStore.getState().setBrowserPageUrl(pageId, defaultUrl)
+  return { ...browserTab, url: defaultUrl }
 }
 
 function activateExistingBrowserTab(params: Parameters<typeof activateAgentBrowserTab>[0]): void {

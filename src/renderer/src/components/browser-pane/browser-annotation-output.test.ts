@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { BrowserPageAnnotation } from '../../../../shared/browser-grab-types'
 import {
   formatBrowserAnnotationsAsMarkdown,
-  formatBrowserAnnotationsForAgentPrompt
+  formatBrowserAnnotationsForAgentPrompt,
+  formatBrowserAnnotationsForClipboard
 } from './browser-annotation-output'
 
 function makeAnnotation(overrides?: Partial<BrowserPageAnnotation>): BrowserPageAnnotation {
@@ -131,6 +132,30 @@ describe('formatBrowserAnnotationsAsMarkdown', () => {
         })
       ])
     ).not.toThrow()
+  })
+
+  it('formats annotation clipboard output with element targeting and feedback', () => {
+    const text = formatBrowserAnnotationsForClipboard([makeAnnotation()])
+
+    expect(text).toContain('[orca-browser-annotation]')
+    expect(text).toContain('url: https://example.com/pricing')
+    expect(text).toContain('selector: main.pricing > button.primary')
+    expect(text).toContain('feedback: Make this primary action more obvious.')
+    expect(text).not.toContain('## Design Feedback:')
+  })
+
+  it('numbers multiple annotation clipboard blocks', () => {
+    const text = formatBrowserAnnotationsForClipboard([
+      makeAnnotation(),
+      makeAnnotation({
+        id: 'annotation-2',
+        comment: 'Tighten spacing on the hero.'
+      })
+    ])
+
+    expect(text).toContain('[orca-browser-annotation 1]')
+    expect(text).toContain('[orca-browser-annotation 2]')
+    expect(text).toContain('feedback: Tighten spacing on the hero.')
   })
 
   it('returns only annotation comments for agent composer attach output', () => {

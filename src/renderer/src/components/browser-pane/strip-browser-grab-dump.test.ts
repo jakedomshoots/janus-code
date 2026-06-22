@@ -70,6 +70,22 @@ describe('stripInjectedBrowserGrabDump', () => {
     expect(stripInjectedBrowserGrabDump(prompt)).toBe('This text is still showing')
   })
 
+  it('preserves paste-safe orca browser context blocks', () => {
+    const prompt = [
+      'Please update this button.',
+      '',
+      '[orca-browser-element]',
+      'url: https://example.com/pricing',
+      'tag: button',
+      'selector: main button.primary',
+      'label: Start free trial',
+      'bounds: 148x44 @ (400, 300)'
+    ].join('\n')
+
+    expect(stripInjectedBrowserGrabDump(prompt)).toBe(prompt)
+    expect(containsLegacyBrowserGrabDump(prompt)).toBe(false)
+  })
+
   it('removes concise grab copy paragraphs', () => {
     const prompt = [
       'Use this feedback.',

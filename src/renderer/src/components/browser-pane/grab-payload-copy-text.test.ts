@@ -70,22 +70,29 @@ describe('grab payload copy text', () => {
     vi.restoreAllMocks()
   })
 
-  it('returns an empty grab copy formatter', () => {
-    expect(grabCopy.formatGrabPayloadAsText(makePayload())).toBe('')
+  it('formats paste-safe browser element context for the agent composer', () => {
+    const text = grabCopy.formatGrabPayloadAsText(makePayload())
+
+    expect(text).toContain('[orca-browser-element]')
+    expect(text).toContain('url: http://127.0.0.1:5175/web-index.html')
+    expect(text).toContain('tag: div')
+    expect(text).toContain('selector: header > div')
+    expect(text).toContain('label: .factory idle')
+    expect(text).not.toContain('Attached browser context from')
+    expect(text).not.toContain('Selected element:')
   })
 
-  it('clears the clipboard when only a legacy dump would be copied', () => {
-    vi.spyOn(grabCopy, 'formatGrabPayloadAsText').mockReturnValue(
-      [
-        'Attached browser context from http://127.0.0.1:5175/web-index.html',
-        '',
-        'Selected element:',
-        'div',
-        'Full DOM path: body > div#root > header'
-      ].join('\n')
+  it('copies the formatted grab payload to the clipboard', () => {
+    expect(grabCopy.copyBrowserGrabPayloadToClipboard(makePayload())).toBe(true)
+    expect(writeClipboardText).toHaveBeenCalledWith(
+      expect.stringContaining('[orca-browser-element]')
     )
+  })
 
-    expect(grabCopy.copyBrowserGrabPayloadToClipboard(makePayload())).toBe(false)
-    expect(writeClipboardText).toHaveBeenCalledWith('')
+  it('does not treat paste-safe browser element context as a legacy dump', () => {
+    const text = grabCopy.formatGrabPayloadAsText(makePayload())
+
+    expect(grabCopy.copyBrowserGrabPayloadToClipboard(makePayload())).toBe(true)
+    expect(writeClipboardText).toHaveBeenLastCalledWith(text)
   })
 })

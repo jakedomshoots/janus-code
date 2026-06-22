@@ -99,7 +99,10 @@ import { BROWSER_ANNOTATION_VIEWPORT_MESSAGE_PREFIX } from '../../../../shared/b
 import { useGrabMode } from './useGrabMode'
 import { copyBrowserGrabPayloadToClipboard } from './grab-payload-copy-text'
 import { stripInjectedBrowserGrabDump } from './strip-browser-grab-dump'
-import { formatBrowserAnnotationsForAgentPrompt } from './browser-annotation-output'
+import {
+  formatBrowserAnnotationsForAgentPrompt,
+  formatBrowserAnnotationsForClipboard
+} from './browser-annotation-output'
 import { isEditableKeyboardTarget } from './browser-keyboard'
 import { getBrowserPagesForWorkspace } from './browser-pane-page-selection'
 import BrowserAddressBar from './BrowserAddressBar'
@@ -107,6 +110,10 @@ import { BrowserImportHintButton } from './BrowserImportHintButton'
 import { BrowserToolbarMenu } from './BrowserToolbarMenu'
 import BrowserFind from './BrowserFind'
 import { BrowserMobileDriverOverlay } from './BrowserMobileDriverOverlay'
+import {
+  mountBrowserPaneWebClientGuest,
+  shouldMountWebClientBrowserGuest
+} from './browser-pane-web-client-guest-mount'
 import { getShortcutPlatform, useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { getRemoteBrowserFrameStyle } from './remote-browser-frame-style'
 import {
@@ -2772,7 +2779,12 @@ function RemoteBrowserPagePane({
             alt=""
             tabIndex={0}
             style={remoteFrameStyle}
-            className="absolute top-0 left-0 max-w-none cursor-default bg-white outline-none"
+            className={cn(
+              'absolute top-0 left-0 max-w-none bg-white outline-none',
+              remoteGrab.state !== 'idle' && remoteGrab.state !== 'error'
+                ? 'cursor-crosshair'
+                : 'cursor-default'
+            )}
             onPointerDown={handleRemotePointerDown}
             onPointerUp={handleRemotePointerUp}
             onContextMenu={handleRemoteContextMenu}
@@ -3055,11 +3067,6 @@ function BrowserPagePane({
   } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
   const [findOpen, setFindOpen] = useState(false)
-  const guiAgentWorkspaceEnabled = useAppStore(
-    (state) => state.settings?.guiAgentWorkspaceEnabled === true
-  )
-  const guiAgentWorkspaceEnabledRef = useRef(guiAgentWorkspaceEnabled)
-  guiAgentWorkspaceEnabledRef.current = guiAgentWorkspaceEnabled
   const grab = useGrabMode(browserTab.id)
   const [grabIntent, setGrabIntent] = useState<GrabIntent>(() =>
     useAppStore.getState().settings?.guiAgentWorkspaceEnabled === true ? 'annotate' : 'copy'
@@ -3094,6 +3101,10 @@ function BrowserPagePane({
   // feedback belongs in that prompt, not the verbose design-brief markdown.
   const browserAnnotationsPrompt = useMemo(
     () => formatBrowserAnnotationsForAgentPrompt(browserAnnotations),
+    [browserAnnotations]
+  )
+  const browserAnnotationsClipboardText = useMemo(
+    () => formatBrowserAnnotationsForClipboard(browserAnnotations),
     [browserAnnotations]
   )
   const openAgentSendPopoverTargetMode = useAppStore((s) => s.openAgentSendPopoverTargetMode)
@@ -3234,11 +3245,8 @@ function BrowserPagePane({
     if (grab.state !== 'confirming' || !grab.payload) {
       return
     }
-    if (grabIntent === 'annotate' || guiAgentWorkspaceEnabled) {
+    if (grabIntent === 'annotate') {
       setPendingAnnotationPayload(grab.payload)
-      if (guiAgentWorkspaceEnabled && grabIntent !== 'annotate') {
-        setGrabIntent('annotate')
-      }
       return
     }
     if (!grab.contextMenu) {
@@ -3252,7 +3260,6 @@ function BrowserPagePane({
     grab.payload,
     grab.contextMenu,
     grabIntent,
-    guiAgentWorkspaceEnabled,
     recordFeatureInteraction,
     showGrabToast
   ])
@@ -3815,6 +3822,33 @@ function BrowserPagePane({
       return
     }
 
+    if (shouldMountWebClientBrowserGuest()) {
+      return mountBrowserPaneWebClientGuest({
+        browserPageId: browserTab.id,
+        container,
+        initialUrl:
+          normalizeBrowserNavigationUrl(initialBrowserUrlRef.current) ?? ORCA_BROWSER_BLANK_URL,
+        webviewRef,
+        onNavigate: (url, title) => {
+          trackNextLoadingEventRef.current = false
+          lastKnownWebviewUrlRef.current = normalizeBrowserNavigationUrl(url) ?? url
+          rememberLiveBrowserUrl(browserTab.id, url)
+          onSetUrlRef.current(browserTab.id, url)
+          onUpdatePageStateRef.current(browserTab.id, {
+            loading: false,
+            title,
+            loadError: null
+          })
+          if (document.activeElement !== addressBarInputRef.current) {
+            setAddressBarValue(toDisplayUrl(url))
+          }
+        },
+        onLoadingChange: (loading) => {
+          onUpdatePageStateRef.current(browserTab.id, { loading })
+        }
+      })
+    }
+
     let webview = webviewRegistry.get(browserTab.id)
     let needsInitialNavigation = false
     let needsInitialDefaultZoom = false
@@ -4179,6 +4213,17 @@ function BrowserPagePane({
     if (!normalizedUrl) {
       return
     }
+    if (webview instanceof HTMLIFrameElement) {
+      if (lastKnownWebviewUrlRef.current === normalizedUrl) {
+        return
+      }
+      if (webview.src !== normalizedUrl) {
+        trackNextLoadingEventRef.current = normalizedUrl !== ORCA_BROWSER_BLANK_URL
+        lastKnownWebviewUrlRef.current = normalizedUrl
+        webview.src = normalizedUrl
+      }
+      return
+    }
     // Why: navigation events (did-navigate, did-stop-loading) update both the
     // store URL and this ref to the same value. If they match, the store URL
     // change came from a navigation event — not a user action — so there is
@@ -4264,6 +4309,16 @@ function BrowserPagePane({
     return () => window.clearInterval(intervalId)
   }, [browserTab.id, browserTab.loading, isActive])
 
+  const handleOpenDevTools = useCallback((): void => {
+    void window.api.browser.openDevTools({ browserPageId: browserTab.id }).then((ok) => {
+      if (ok && Boolean((globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__)) {
+        toast.success(
+          translate('auto.components.browser.pane.BrowserPane.6fc89db0d2', 'Page snapshot copied.')
+        )
+      }
+    })
+  }, [browserTab.id])
+
   const startGrabIntent = useCallback(
     (nextIntent: GrabIntent): void => {
       recordFeatureInteraction('browser-grab')
@@ -4341,10 +4396,10 @@ function BrowserPagePane({
   useEffect(() => {
     return window.api.browser.onGrabModeToggle((tabId) => {
       if (tabId === browserTab.id) {
-        startGrabIntent(guiAgentWorkspaceEnabled ? 'annotate' : 'copy')
+        startGrabIntent('copy')
       }
     })
-  }, [browserTab.id, guiAgentWorkspaceEnabled, startGrabIntent])
+  }, [browserTab.id, startGrabIntent])
 
   // Why: single-key shortcuts (C / S) let the user copy the hovered element
   // without clicking. During 'armed'/'awaiting' state, the shortcut calls the
@@ -4356,14 +4411,11 @@ function BrowserPagePane({
   grabPayloadRef.current = grab.payload
   const handleGrabActionShortcut = useCallback(
     (key: 'c' | 's'): void => {
-      if (grabIntent === 'annotate' || (guiAgentWorkspaceEnabledRef.current && key === 'c')) {
+      if (grabIntent === 'annotate' && key === 'c') {
         return
       }
       const copyFromPayload = (payload: BrowserGrabPayload): void => {
         if (key === 'c') {
-          if (guiAgentWorkspaceEnabledRef.current) {
-            return
-          }
           if (copyBrowserGrabPayloadToClipboard(payload)) {
             recordFeatureInteraction('browser-grab')
             showGrabToast('Copied', 'success', payload)
@@ -4477,13 +4529,6 @@ function BrowserPagePane({
     if (!payload) {
       return
     }
-    if (guiAgentWorkspaceEnabledRef.current) {
-      setPendingAnnotationPayload(payload)
-      setGrabIntent('annotate')
-      setBrowserAnnotationTrayOpen(true)
-      grab.rearm()
-      return
-    }
     if (copyBrowserGrabPayloadToClipboard(payload)) {
       recordFeatureInteraction('browser-grab')
       showGrabToast('Copied', 'success', payload)
@@ -4547,15 +4592,15 @@ function BrowserPagePane({
   }, [grab, grabIntent])
 
   const handleCopyBrowserAnnotations = useCallback((): void => {
-    if (!browserAnnotationsPrompt) {
+    if (!browserAnnotationsClipboardText) {
       return
     }
-    void window.api.ui.writeClipboardText(browserAnnotationsPrompt)
+    void window.api.ui.writeClipboardText(browserAnnotationsClipboardText)
     recordFeatureInteraction('browser-annotations')
     clearTimeout(annotationCopyTimerRef.current)
     setBrowserAnnotationsCopied(true)
     annotationCopyTimerRef.current = setTimeout(() => setBrowserAnnotationsCopied(false), 1400)
-  }, [browserAnnotationsPrompt, recordFeatureInteraction])
+  }, [browserAnnotationsClipboardText, recordFeatureInteraction])
 
   const handleAnnotationBannerSendOpenChange = useCallback(
     (open: boolean): void => {
@@ -5003,7 +5048,7 @@ function BrowserPagePane({
                   role="menuitem"
                   className="relative flex w-full cursor-default items-center gap-2 rounded-[7px] px-2 py-0.5 text-[12px] leading-5 font-medium outline-none select-none hover:bg-black/8 dark:hover:bg-white/14"
                   onClick={() => {
-                    void window.api.browser.openDevTools({ browserPageId: browserTab.id })
+                    handleOpenDevTools()
                     setContextMenu(null)
                   }}
                 >
@@ -5153,7 +5198,7 @@ function BrowserPagePane({
           size="icon"
           variant="ghost"
           className="h-7 w-7"
-          onClick={() => void window.api.browser.openDevTools({ browserPageId: browserTab.id })}
+          onClick={handleOpenDevTools}
           title={translate(
             'auto.components.browser.pane.BrowserPane.ec75d0c412',
             'Open browser devtools'

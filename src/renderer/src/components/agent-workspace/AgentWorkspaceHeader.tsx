@@ -1,11 +1,4 @@
-import {
-  FolderOpen,
-  Globe,
-  LayoutDashboard,
-  MessageSquarePlus,
-  PanelRightOpen,
-  Terminal
-} from 'lucide-react'
+import { FolderOpen, Globe, MessageSquarePlus, PanelRightOpen, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
@@ -19,7 +12,6 @@ export function AgentWorkspaceHeader({
   onNewSession,
   onOpenBrowserWorkbench,
   onOpenTerminalDrawer,
-  onOpenWorkbench,
   onExpandRightPanel,
   onOpenProjectFiles
 }: {
@@ -31,7 +23,6 @@ export function AgentWorkspaceHeader({
   onNewSession?: () => void
   onOpenBrowserWorkbench?: () => void
   onOpenTerminalDrawer?: () => void
-  onOpenWorkbench?: () => void
   onExpandRightPanel?: () => void
   onOpenProjectFiles?: () => void
 }): React.JSX.Element | null {
@@ -46,14 +37,12 @@ export function AgentWorkspaceHeader({
     hasWorkspace && browserAvailable && typeof onOpenBrowserWorkbench === 'function'
   const canOpenTerminal =
     hasWorkspace && terminalAvailable && typeof onOpenTerminalDrawer === 'function'
-  const canOpenWorkbench = hasWorkspace && typeof onOpenWorkbench === 'function'
 
   if (
     !hasWorkspace &&
     !canStartSession &&
     !canOpenBrowser &&
     !canOpenTerminal &&
-    !canOpenWorkbench &&
     !canOpenProjectFiles &&
     !canExpandRightPanel
   ) {
@@ -135,28 +124,6 @@ export function AgentWorkspaceHeader({
             <Terminal className="size-3.5" aria-hidden="true" />
             <span className="hidden xl:inline">
               {translate('auto.components.agentWorkspace.header.terminal', 'Terminal')}
-            </span>
-          </Button>
-        ) : null}
-        {canOpenWorkbench ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="xs"
-            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onOpenWorkbench}
-            aria-label={translate(
-              'auto.components.agentWorkspace.header.openWorkbench',
-              'Open workbench'
-            )}
-            title={translate(
-              'auto.components.agentWorkspace.header.openWorkbench',
-              'Open workbench'
-            )}
-          >
-            <LayoutDashboard className="size-3.5" aria-hidden="true" />
-            <span className="hidden 2xl:inline">
-              {translate('auto.components.agentWorkspace.header.workbench', 'Workbench')}
             </span>
           </Button>
         ) : null}

@@ -3,6 +3,7 @@ import { getRuntimeEnvironmentIdForWorktree } from '@/lib/worktree-runtime-owner
 import { isWebRuntimeSessionActive } from '@/runtime/web-runtime-session'
 import { useAppStore } from '@/store'
 import { ORCA_BROWSER_BLANK_URL } from '../../../../shared/constants'
+import { getDevFakeBrowserDefaultUrl, shouldUseDevFakeProject } from '@/web/web-dev-fake-project'
 import type { BrowserWorkspace } from '../../../../shared/types'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { isViableAgentBrowserTab, pruneStaleAgentBrowserTabs } from './agent-browser-workbench-tabs'
@@ -137,7 +138,9 @@ async function openAgentBrowserWorkbenchAsync({
   if (!targetGroupId) {
     return
   }
-  const defaultUrl = state.browserDefaultUrl ?? ORCA_BROWSER_BLANK_URL
+  const defaultUrl = shouldUseDevFakeProject()
+    ? getDevFakeBrowserDefaultUrl()
+    : (state.browserDefaultUrl ?? ORCA_BROWSER_BLANK_URL)
   const newBrowserTabTitle = translate(
     'auto.components.agentWorkspace.composer.newBrowserTab',
     'New Browser Tab'

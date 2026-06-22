@@ -87,6 +87,23 @@ import { normalizeContextualTourIds, type ContextualTourId } from '../../../shar
 import { translate } from '@/i18n/i18n'
 import { getDefaultCreateProjectParent } from '@/components/sidebar/create-project-defaults'
 import { resolveWebBrowserGrabRoute, type WebBrowserGrabRoute } from './web-browser-grab-routing'
+import {
+  getDevFakeDetectedWorktrees,
+  getDevFakeRepos,
+  getDevFakeWorktreesForRepo,
+  isDevFakeProjectShell,
+  seedDevFakeProjectLocalState,
+  shouldUseDevFakeProject
+} from './web-dev-fake-project'
+import {
+  awaitWebClientLocalGrabSelection,
+  cancelWebClientLocalGrab,
+  captureWebClientLocalSelectionScreenshot,
+  extractWebClientLocalHoverPayload,
+  openWebClientLocalBrowserDevTools,
+  setWebClientLocalGrabMode,
+  shouldHandleWebClientLocalBrowserApi
+} from './web-client-local-browser-guest'
 import type {
   BrowserAwaitGrabSelectionArgs,
   BrowserCancelGrabArgs,
@@ -417,6 +434,11 @@ const webKeybindingListeners = new Set<(snapshot: KeybindingFileSnapshot) => voi
 
 export function installWebPreloadApi(): void {
   activeEnvironment = readStoredWebRuntimeEnvironment()
+  if (shouldUseDevFakeProject()) {
+    // Why: unpaired localhost dev shells need a selected workspace before
+    // session hydration so the agent composer mounts without a runtime.
+    seedDevFakeProjectLocalState()
+  }
   const webWindow = window as unknown as { __ORCA_WEB_CLIENT__?: boolean }
   webWindow.__ORCA_WEB_CLIENT__ = true
   window.electron = createFallbackProxy(['electron']) as Window['electron']
@@ -1015,7 +1037,7 @@ function createRuntimeEnvironmentsApi(): NonNullable<Partial<PreloadApi>['runtim
 
 function createReposApi(): NonNullable<Partial<PreloadApi>['repos']> {
   return {
-    list: async () => (await callRuntimeResult<{ repos: Repo[] }>('repo.list')).repos,
+    list: async () => listReposWithDevFakeFallback(),
     add: async ({ path, kind }) => {
       invalidateRuntimeWorktreeCaches()
       return callRuntimeResult('repo.add', { path, kind })
@@ -1103,15 +1125,9 @@ function createReposApi(): NonNullable<Partial<PreloadApi>['repos']> {
 
 function createWorktreesApi(): NonNullable<Partial<PreloadApi>['worktrees']> {
   return {
-    list: async ({ repoId }) =>
-      (
-        await callRuntimeResult<{ worktrees: Worktree[] }>('worktree.list', {
-          repo: repoId,
-          limit: WEB_RUNTIME_WORKTREE_LIST_LIMIT
-        })
-      ).worktrees,
-    listDetected: async ({ repoId }) => callRuntimeDetectedWorktrees(repoId),
-    listAll: () => listAllRuntimeWorktrees(),
+    list: async ({ repoId }) => listWorktreesWithDevFakeFallback(repoId),
+    listDetected: async ({ repoId }) => listDetectedWorktreesWithDevFakeFallback(repoId),
+    listAll: () => listAllWorktreesWithDevFakeFallback(),
     create: async (args) => {
       invalidateRuntimeWorktreeCaches()
       return callRuntimeResult('worktree.create', {
@@ -1562,7 +1578,28 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
   return {
     registerGuest: () => Promise.resolve(),
     unregisterGuest: () => Promise.resolve(),
-    openDevTools: () => Promise.resolve(false),
+    openDevTools: async ({ browserPageId }) => {
+      if (shouldHandleWebClientLocalBrowserApi(browserPageId)) {
+        return openWebClientLocalBrowserDevTools(browserPageId)
+      }
+      try {
+        const route = requireWebBrowserGrabRoute(browserPageId)
+        const snapshot = await callRuntimeResult<unknown>(
+          'browser.snapshot',
+          {
+            worktree: route.worktreeSelector,
+            page: route.remotePageId
+          },
+          15_000
+        )
+        await window.api.ui.writeClipboardText(
+          typeof snapshot === 'string' ? snapshot : JSON.stringify(snapshot, null, 2)
+        )
+        return true
+      } catch {
+        return false
+      }
+    },
     setViewportOverride: () => Promise.resolve(false),
     setAnnotationViewportBridge: () => Promise.resolve(false),
     onGuestLoadFailed: () => noopUnsubscribe,
@@ -1581,6 +1618,9 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
       Promise.resolve({ ok: false, reason: 'Downloads are handled by the server browser.' }),
     cancelDownload: () => Promise.resolve(false),
     setGrabMode: async (args: BrowserSetGrabModeArgs): Promise<BrowserSetGrabModeResult> => {
+      if (shouldHandleWebClientLocalBrowserApi(args.browserPageId)) {
+        return setWebClientLocalGrabMode(args)
+      }
       try {
         const route = requireWebBrowserGrabRoute(args.browserPageId)
         return await callRuntimeResult<BrowserSetGrabModeResult>('browser.setGrabMode', {
@@ -1593,6 +1633,9 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
       }
     },
     awaitGrabSelection: async (args: BrowserAwaitGrabSelectionArgs): Promise<BrowserGrabResult> => {
+      if (shouldHandleWebClientLocalBrowserApi(args.browserPageId)) {
+        return awaitWebClientLocalGrabSelection(args)
+      }
       try {
         const route = requireWebBrowserGrabRoute(args.browserPageId)
         return await callRuntimeResult<BrowserGrabResult>(
@@ -1613,6 +1656,9 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
       }
     },
     cancelGrab: async (args: BrowserCancelGrabArgs): Promise<boolean> => {
+      if (shouldHandleWebClientLocalBrowserApi(args.browserPageId)) {
+        return cancelWebClientLocalGrab(args)
+      }
       try {
         const route = requireWebBrowserGrabRoute(args.browserPageId)
         return await callRuntimeResult<boolean>('browser.cancelGrab', {
@@ -1626,6 +1672,9 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
     captureSelectionScreenshot: async (
       args: BrowserCaptureSelectionScreenshotArgs
     ): Promise<BrowserCaptureSelectionScreenshotResult> => {
+      if (shouldHandleWebClientLocalBrowserApi(args.browserPageId)) {
+        return captureWebClientLocalSelectionScreenshot(args)
+      }
       try {
         const route = requireWebBrowserGrabRoute(args.browserPageId)
         return await callRuntimeResult<BrowserCaptureSelectionScreenshotResult>(
@@ -1646,6 +1695,9 @@ function createBrowserApi(): NonNullable<Partial<PreloadApi>['browser']> {
     extractHoverPayload: async (
       args: BrowserExtractHoverArgs
     ): Promise<BrowserExtractHoverResult> => {
+      if (shouldHandleWebClientLocalBrowserApi(args.browserPageId)) {
+        return extractWebClientLocalHoverPayload(args)
+      }
       try {
         const route = requireWebBrowserGrabRoute(args.browserPageId)
         return await callRuntimeResult<BrowserExtractHoverResult>('browser.extractHoverPayload', {
@@ -2867,15 +2919,84 @@ function mergeSettings(
   }
 }
 
+async function listReposWithDevFakeFallback(): Promise<Repo[]> {
+  if (shouldUseDevFakeProject()) {
+    return getDevFakeRepos()
+  }
+  try {
+    return (await callRuntimeResult<{ repos: Repo[] }>('repo.list')).repos
+  } catch (error) {
+    if (isDevFakeProjectShell()) {
+      seedDevFakeProjectLocalState()
+      return getDevFakeRepos()
+    }
+    throw error
+  }
+}
+
+async function listWorktreesWithDevFakeFallback(repoId: string): Promise<Worktree[]> {
+  const fakeWorktrees = getDevFakeWorktreesForRepo(repoId)
+  if (shouldUseDevFakeProject()) {
+    return fakeWorktrees
+  }
+  try {
+    return (
+      await callRuntimeResult<{ worktrees: Worktree[] }>('worktree.list', {
+        repo: repoId,
+        limit: WEB_RUNTIME_WORKTREE_LIST_LIMIT
+      })
+    ).worktrees
+  } catch (error) {
+    if (isDevFakeProjectShell() && fakeWorktrees.length > 0) {
+      seedDevFakeProjectLocalState()
+      return fakeWorktrees
+    }
+    throw error
+  }
+}
+
+async function listDetectedWorktreesWithDevFakeFallback(
+  repoId: string
+): Promise<DetectedWorktreeListResult> {
+  const fakeDetected = getDevFakeDetectedWorktrees(repoId)
+  if (shouldUseDevFakeProject() && fakeDetected) {
+    return fakeDetected
+  }
+  try {
+    return await callRuntimeDetectedWorktrees(repoId)
+  } catch (error) {
+    if (isDevFakeProjectShell() && fakeDetected) {
+      seedDevFakeProjectLocalState()
+      return fakeDetected
+    }
+    throw error
+  }
+}
+
+async function listAllWorktreesWithDevFakeFallback(): Promise<Worktree[]> {
+  if (shouldUseDevFakeProject()) {
+    return getDevFakeWorktreesForRepo(getDevFakeRepos()[0]?.id ?? '')
+  }
+  return listAllRuntimeWorktrees()
+}
+
 async function listAllRuntimeWorktrees(): Promise<Worktree[]> {
   if (cachedWorktrees && Date.now() - cachedWorktrees.loadedAt < 5_000) {
     return cachedWorktrees.worktrees
   }
-  const result = await callRuntimeResult<{ worktrees: Worktree[] }>('worktree.list', {
-    limit: WEB_RUNTIME_WORKTREE_LIST_LIMIT
-  })
-  cachedWorktrees = { loadedAt: Date.now(), worktrees: result.worktrees }
-  return result.worktrees
+  try {
+    const result = await callRuntimeResult<{ worktrees: Worktree[] }>('worktree.list', {
+      limit: WEB_RUNTIME_WORKTREE_LIST_LIMIT
+    })
+    cachedWorktrees = { loadedAt: Date.now(), worktrees: result.worktrees }
+    return result.worktrees
+  } catch (error) {
+    if (isDevFakeProjectShell()) {
+      seedDevFakeProjectLocalState()
+      return getDevFakeWorktreesForRepo(getDevFakeRepos()[0]?.id ?? '')
+    }
+    throw error
+  }
 }
 
 async function listAllRuntimeDetectedWorktrees(): Promise<Worktree[]> {

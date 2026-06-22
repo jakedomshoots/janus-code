@@ -166,6 +166,53 @@ export function formatBrowserAnnotationsAsMarkdown(annotations: BrowserPageAnnot
   return lines.join('\n').trimEnd()
 }
 
+export const ORCA_BROWSER_ANNOTATION_MARKER = '[orca-browser-annotation]'
+
+function formatAnnotationForClipboard(
+  annotation: BrowserPageAnnotation,
+  index: number | null
+): string {
+  const { payload, comment, intent } = annotation
+  const { page, target } = payload
+  const label =
+    target.accessibility.accessibleName?.trim() ||
+    target.textSnippet?.trim() ||
+    target.accessibility.ariaLabel?.trim() ||
+    ''
+  const prefix =
+    index === null ? ORCA_BROWSER_ANNOTATION_MARKER : `[orca-browser-annotation ${index}]`
+  const lines = [
+    prefix,
+    `url: ${page.sanitizedUrl}`,
+    `tag: ${target.tagName}`,
+    `selector: ${target.selector}`,
+    ...(label ? [`label: ${inlineText(label)}`] : []),
+    `intent: ${intent}`,
+    `feedback: ${inlineText(comment)}`
+  ]
+  if (target.elementPath) {
+    lines.push(`path: ${target.elementPath}`)
+  }
+  if (target.sourceFile) {
+    lines.push(`source: ${inlineText(target.sourceFile)}`)
+  }
+  return lines.join('\n')
+}
+
+// Why: clipboard copy should include element targeting plus feedback so the user
+// can paste a complete note into the agent composer without the legacy DOM dump.
+export function formatBrowserAnnotationsForClipboard(annotations: BrowserPageAnnotation[]): string {
+  if (annotations.length === 0) {
+    return ''
+  }
+  if (annotations.length === 1) {
+    return formatAnnotationForClipboard(annotations[0], null)
+  }
+  return annotations
+    .map((annotation, index) => formatAnnotationForClipboard(annotation, index + 1))
+    .join('\n\n')
+}
+
 // Why: composer attach should only carry the user's annotation notes — browser
 // tab metadata and DOM targeting already live in the annotation store/CLI.
 export function formatBrowserAnnotationsForAgentPrompt(
