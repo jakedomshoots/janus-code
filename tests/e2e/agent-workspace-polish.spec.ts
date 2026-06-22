@@ -12,6 +12,7 @@ import {
   seedAgentWorkspaceThread,
   selectAgentThreadTab
 } from './helpers/agent-workspace'
+import { seedAgentWorkspaceComposerDepthState } from './helpers/agent-workspace-composer-depth-seed'
 import { seedAgentWorkspaceCompareState } from './helpers/agent-workspace-compare-seed'
 import { seedAgentWorkspacePlanEvidenceState } from './helpers/agent-workspace-plan-evidence-seed'
 import {
@@ -132,6 +133,29 @@ async function expectAgentWorkspaceControlsInViewport(page: Page): Promise<void>
   })
 
   expect(clippedControls).toEqual([])
+}
+
+async function expectAgentWorkspaceShellsWithoutHorizontalOverflow(page: Page): Promise<void> {
+  const overflow = await agentWorkspaceRegion(page)
+    .locator('.agent-composer-shell, .agent-workspace-right-panel-shell')
+    .evaluateAll((elements) =>
+      elements.flatMap((element) => {
+        const delta = element.scrollWidth - element.clientWidth
+        if (delta <= 1) {
+          return []
+        }
+
+        return [
+          {
+            className: element.className,
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth
+          }
+        ]
+      })
+    )
+
+  expect(overflow).toEqual([])
 }
 
 test.describe.configure({ mode: 'serial' })
@@ -428,6 +452,71 @@ test.describe('Agent workspace polish', () => {
     ).toBeVisible()
 
     await expectAgentWorkspaceControlsInViewport(orcaPage)
+  })
+
+  test('keeps composer context, queue, provider, voice, and memory states usable below 1024px', async ({
+    orcaPage
+  }) => {
+    await orcaPage.setViewportSize({ width: 960, height: 620 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E composer depth ${Date.now()}`
+
+    await seedAgentWorkspaceComposerDepthState(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Keep composer states usable at compact width'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    const composer = workspace.getByRole('form', { name: /Agent chat composer/i })
+    const messageBox = composer.getByRole('textbox', { name: /Message agent/i })
+    await messageBox.fill('Queue this after the running command finishes.')
+    await composer.getByRole('button', { name: 'Send', exact: true }).click()
+    await expect(composer.getByText('Queued follow-up.')).toBeVisible()
+    await expect(composer.getByRole('textbox', { name: /Queued follow-up message/i })).toBeVisible()
+    await expect(composer.getByRole('button', { name: /Delete queued follow-up/i })).toBeVisible()
+
+    const rightPanel = agentWorkspaceRightPanel(orcaPage)
+    const tabList = rightPanel.getByRole('tablist', { name: /Agent workspace right panel/i })
+    await tabList.getByRole('tab', { name: /Context/i }).click()
+    const memoryInspector = rightPanel.locator('section[aria-label="Memory inspector"]')
+    await memoryInspector.scrollIntoViewIfNeeded()
+    await expect(memoryInspector.getByText('Janus resource snapshot')).toBeVisible()
+    await expect(memoryInspector.getByText('Workspace sessions')).toBeVisible()
+    await expect(memoryInspector.getByText('Agent memory not observed')).toBeVisible()
+
+    await composer.getByRole('button', { name: /Delete queued follow-up/i }).click()
+    await workspace.getByRole('button', { name: /New session/i }).click()
+    await expect(composer.getByRole('button', { name: 'Send', exact: true })).toBeDisabled()
+    await expect(
+      composer.getByRole('button', { name: /Configure dictation in Settings > Voice/i })
+    ).toBeDisabled()
+    await composer.getByRole('button', { name: /Agent settings/i }).click()
+    await expect(orcaPage.getByText('Reasoning')).toBeVisible()
+    await orcaPage.getByLabel('Open provider menu').click()
+    await expect(orcaPage.getByRole('option', { name: /Set agent provider: Codex/i })).toBeVisible()
+    await orcaPage.getByRole('option', { name: /Set agent provider: Claude/i }).click()
+    await expect(composer.getByRole('button', { name: /Agent settings/i })).toContainText('Claude')
+    await composer
+      .getByRole('textbox', { name: /Verification command/i })
+      .fill('pnpm run typecheck:web')
+    await messageBox.fill('Use the workspace context and memory command.')
+    const contextTray = composer.getByLabel(/Prompt context/i)
+    await expect(contextTray).toBeVisible()
+    await expect(contextTray.getByText('Workspace', { exact: true })).toBeVisible()
+    await expect(contextTray.getByText('Verification', { exact: true })).toBeVisible()
+    await expect(contextTray.getByText('Agent memory', { exact: true })).toBeVisible()
+    await expect(
+      composer.getByRole('button', { name: /Remove verification context/i })
+    ).toBeVisible()
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+    await expectAgentWorkspaceShellsWithoutHorizontalOverflow(orcaPage)
   })
 
   test('persists thinking mode across GUI workspace remount', async ({ orcaPage }) => {
