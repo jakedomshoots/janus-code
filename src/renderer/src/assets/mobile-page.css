@@ -37,6 +37,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  container-type: inline-size;
   color: var(--foreground);
 }
 
@@ -2244,6 +2245,9 @@
 @media (max-width: 920px) {
   .mobile-page-root {
     --mp-flow-card-padding: 20px;
+    /* Why: stacked compact layouts can be taller than the app viewport; a
+       local scrollport keeps the phone preview reachable instead of clipped. */
+    overflow-y: auto;
   }
 
   .mobile-page-root .mp-hero {
@@ -2252,6 +2256,9 @@
     align-items: start;
     gap: 24px;
     padding: 52px 28px 28px;
+    min-height: 100%;
+    height: auto;
+    overflow: visible;
   }
 
   .mobile-page-root .mp-hero-copy {
@@ -2273,6 +2280,20 @@
 
 @media (max-width: 1180px) and (min-width: 921px) {
   .mobile-page-root .mp-hero {
+    grid-template-columns: minmax(330px, 520px) minmax(280px, 360px);
+    gap: 40px;
+    padding: 52px 40px 40px;
+  }
+
+  .mobile-page-root .mp-h1 {
+    font-size: 52px;
+  }
+}
+
+@container (max-width: 1180px) and (min-width: 921px) {
+  .mobile-page-root .mp-hero {
+    /* Why: the Mobile page is often hosted beside the worktree sidebar, so
+       its available pane can be narrower than the outer app viewport. */
     grid-template-columns: minmax(330px, 520px) minmax(280px, 360px);
     gap: 40px;
     padding: 52px 40px 40px;

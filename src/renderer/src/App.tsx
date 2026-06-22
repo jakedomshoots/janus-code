@@ -24,6 +24,7 @@ import { SYNC_FIT_PANES_EVENT, TOGGLE_TERMINAL_PANE_EXPAND_EVENT } from '@/const
 import { syncZoomCSSVar } from '@/lib/ui-zoom'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
+import { shouldAutoCollapseSidebarForViewport } from '@/lib/responsive-sidebar-collapse'
 import { shouldSuppressProjectRightSidebar } from './components/agent-workspace/agent-workspace-right-sidebar'
 import { buildAppFontFamily } from '@/lib/app-font-family'
 import { shouldEnableReactGrab } from '@/lib/react-grab-dev-gate'
@@ -340,6 +341,7 @@ function App(): React.JSX.Element {
   const actions = useAppStore(
     useShallow((s) => ({
       toggleSidebar: s.toggleSidebar,
+      setSidebarOpen: s.setSidebarOpen,
       fetchRepos: s.fetchRepos,
       fetchProjectGroups: s.fetchProjectGroups,
       fetchFolderWorkspaces: s.fetchFolderWorkspaces,
@@ -1302,6 +1304,26 @@ function App(): React.JSX.Element {
   // above nav. Creation layout suppresses both titlebar forms.
   const stackedSidebarOpen =
     !workspaceChromeActive && !creationLayoutActive && showSidebar && sidebarOpen
+
+  useEffect(() => {
+    const collapseForCompactViewport = (): void => {
+      if (
+        shouldAutoCollapseSidebarForViewport({
+          showSidebar,
+          width: window.innerWidth
+        })
+      ) {
+        actions.setSidebarOpen(false)
+      }
+    }
+
+    // Why: at phone-width windows the 280px worktree sidebar leaves the active
+    // page mostly offscreen. Collapse only on viewport changes so users can
+    // still manually reveal the sidebar after the compact layout settles.
+    collapseForCompactViewport()
+    window.addEventListener('resize', collapseForCompactViewport)
+    return () => window.removeEventListener('resize', collapseForCompactViewport)
+  }, [actions, showSidebar])
   // Why: suppress right sidebar controls on full-page navigation surfaces
   // since those surfaces intentionally own the full content area.
   const showRightSidebarControls =

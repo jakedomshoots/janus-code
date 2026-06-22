@@ -112,12 +112,16 @@ export function PhoneCarousel(): React.JSX.Element {
       idx < activeIdx && 'is-past'
     )
 
+  const slideA11yProps = (idx: number): { 'aria-hidden'?: true; inert?: boolean } =>
+    idx === activeIdx ? {} : { 'aria-hidden': true, inert: true }
+
   return (
     <div className="mp-phone-frame">
       <div className="mp-phone-screen" ref={containerRef}>
         <div
           className={slideClass(0)}
           role="img"
+          {...slideA11yProps(0)}
           aria-label={translate(
             'mobile.phoneCarousel.chatWorkspace',
             'Chat-first mobile workspace'
@@ -128,6 +132,7 @@ export function PhoneCarousel(): React.JSX.Element {
         <div
           className={slideClass(1)}
           role="img"
+          {...slideA11yProps(1)}
           aria-label={translate(
             'auto.components.mobile.PhoneCarousel.89c7713645',
             'Janus Code Mobile home screen'
@@ -138,6 +143,7 @@ export function PhoneCarousel(): React.JSX.Element {
         <div
           className={slideClass(2)}
           role="img"
+          {...slideA11yProps(2)}
           aria-label={translate('auto.components.mobile.PhoneCarousel.93217b41c1', 'Worktree list')}
         >
           <WorktreeListSlide tapping={tappingSlide === 2} />
@@ -145,6 +151,7 @@ export function PhoneCarousel(): React.JSX.Element {
         <div
           className={slideClass(3)}
           role="img"
+          {...slideA11yProps(3)}
           aria-label={translate(
             'auto.components.mobile.PhoneCarousel.96d651cb87',
             'Terminal session'
