@@ -17,6 +17,7 @@ import path from 'path'
 import os from 'os'
 
 import { runWithElectronE2eBuildLock } from '../../config/scripts/electron-e2e-build-lock.mjs'
+import { sanitizeE2EColorEnv } from './helpers/e2e-color-env'
 
 /** Temp file where the test repo path is stored for the fixture to read. */
 export const TEST_REPO_PATH_FILE = path.join(os.tmpdir(), 'orca-e2e-test-repo-path.txt')
@@ -34,8 +35,8 @@ export default function globalSetup(): void {
       // Why: separate Playwright invocations can overlap in local audits;
       // electron-vite's temporary config loading is not safe to build in parallel.
       console.log('[e2e] Building Electron app with electron-vite build --mode e2e...')
-      execSync('npx electron-vite build --mode e2e', {
-        env: { ...process.env, VITE_EXPOSE_STORE: 'true' },
+      execSync('pnpm exec electron-vite build --mode e2e', {
+        env: { ...sanitizeE2EColorEnv(process.env), VITE_EXPOSE_STORE: 'true' },
         cwd: root,
         stdio: 'inherit',
         // Why: Windows renderer builds can exceed 120s on local/CI hosts even

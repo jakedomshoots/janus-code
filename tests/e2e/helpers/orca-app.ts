@@ -30,6 +30,7 @@ import { TEST_REPO_PATH_FILE } from '../global-setup'
 import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
+import { sanitizeE2EColorEnv } from './e2e-color-env'
 
 type OrcaTestFixtures = {
   electronApp: ElectronApplication
@@ -212,8 +213,9 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
     // Orca's own agent runtime) set it so Electron behaves as a plain Node
     // binary. Playwright's _electron.launch passes --remote-debugging-port,
     // which Node rejects with "bad option" and the process exits immediately.
-    const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
+    const { ELECTRON_RUN_AS_NODE: _unused, ...launchBaseEnv } = process.env
     void _unused
+    const cleanEnv = sanitizeE2EColorEnv(launchBaseEnv)
     // Why: ORCA_E2E_SLOWMO_MS adds a pause between every Playwright action so a
     // developer running with ORCA_E2E_FORCE_HEADFUL=1 can actually watch what
     // the test does. Defaults to 0 (no slowdown) for normal runs.

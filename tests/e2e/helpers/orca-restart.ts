@@ -22,6 +22,7 @@ import path from 'path'
 import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
+import { sanitizeE2EColorEnv } from './e2e-color-env'
 
 type LaunchedOrca = {
   app: ElectronApplication
@@ -42,8 +43,9 @@ function shouldLaunchHeadful(testInfo: TestInfo): boolean {
 }
 
 function launchEnv(userDataDir: string, headful: boolean): NodeJS.ProcessEnv {
-  const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
+  const { ELECTRON_RUN_AS_NODE: _unused, ...launchBaseEnv } = process.env
   void _unused
+  const cleanEnv = sanitizeE2EColorEnv(launchBaseEnv)
   return {
     ...cleanEnv,
     NODE_ENV: 'development',

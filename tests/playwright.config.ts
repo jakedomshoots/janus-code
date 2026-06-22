@@ -1,5 +1,9 @@
 import { defineConfig } from '@stablyai/playwright-test'
 
+// Why: Playwright enables FORCE_COLOR internally; inherited NO_COLOR would
+// make Node warn before tests even start.
+delete process.env.NO_COLOR
+
 /**
  * Playwright config for Orca E2E tests.
  *
