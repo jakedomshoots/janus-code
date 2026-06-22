@@ -8,6 +8,7 @@ import {
   waitForAgentRightPanelActions,
   getPtyWrites,
   installMainProcessPtyWriteSpy,
+  seedAgentWorkspaceReviewSourceControlState,
   seedAgentWorkspaceThread,
   selectAgentThreadTab
 } from './helpers/agent-workspace'
@@ -258,6 +259,50 @@ test.describe('Agent workspace polish', () => {
       await expect(tabList.getByRole('tab', { name: new RegExp(label) })).toBeVisible()
     }
     await waitForAgentRightPanelActions(orcaPage, 'Approve')
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+  })
+
+  test('keeps review-only and source-control actions usable at laptop size', async ({
+    orcaPage
+  }) => {
+    await orcaPage.setViewportSize({ width: 1280, height: 720 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E review workspace ${Date.now()}`
+
+    const seededSourceControl = await seedAgentWorkspaceReviewSourceControlState(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Review the current source-control changes'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    const rightPanel = agentWorkspaceRightPanel(orcaPage)
+    const tabList = rightPanel.getByRole('tablist', { name: /Agent workspace right panel/i })
+    await expect(tabList.getByRole('tab', { name: /Changes/i })).toBeVisible()
+    await expect(tabList.getByRole('tab', { name: /Review/i })).toBeVisible()
+
+    await tabList.getByRole('tab', { name: /Changes/i }).click()
+    const changesPanel = rightPanel.locator('section[aria-label="Changes"]')
+    await expect(changesPanel.getByText('2 changes')).toBeVisible()
+    await expect(rightPanel.getByText(seededSourceControl.stagedFilePath)).toBeVisible()
+    await rightPanel.getByRole('button', { name: /src\/index\.ts/i }).click()
+    await expect(rightPanel.getByText(seededSourceControl.unstagedFilePath)).toBeVisible()
+    await expect(rightPanel.getByRole('button', { name: /Review only/i })).toBeVisible()
+    await expect(rightPanel.getByRole('button', { name: /^Stage$/i })).toBeVisible()
+    await expect(rightPanel.getByRole('button', { name: /^Discard$/i })).toBeVisible()
+    await expect(rightPanel.getByRole('textbox', { name: /Commit message/i })).toBeVisible()
+    await expect(rightPanel.getByRole('button', { name: /^Commit$/i })).toBeDisabled()
+
+    await tabList.getByRole('tab', { name: /Review/i }).click()
+    await expect(rightPanel.getByText('Tighten workspace context')).toBeVisible()
+    await expect(rightPanel.getByText(/GitLab #42/i)).toBeVisible()
+    await expect(rightPanel.getByRole('button', { name: /Review only/i })).toBeVisible()
 
     await expectAgentWorkspaceControlsInViewport(orcaPage)
   })
