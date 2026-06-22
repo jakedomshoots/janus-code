@@ -1,0 +1,9 @@
+# Keep indirect deprecation warnings actionable: these exact versions are pulled
+# by upstream release/tooling packages and should be revisited when those move.
+allowedDeprecatedVersions:
+  boolean: 3.2.0
+  glob: 7.2.3
+  inflight: 1.0.6
+  lodash.isequal: 4.5.0
+  node-domexception: 1.0.0
+  rimraf: 2.6.3

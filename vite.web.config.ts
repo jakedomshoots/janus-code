@@ -52,6 +52,9 @@ export default defineConfig({
   build: {
     outDir: resolve('out/web'),
     emptyOutDir: true,
+    // Why: the paired web client intentionally ships Monaco and diagram workers;
+    // keep the warning gate above the known worker payload, not Vite's web-app default.
+    chunkSizeWarningLimit: 8192,
     rollupOptions: {
       input: resolve('src/renderer/web-index.html')
     }
