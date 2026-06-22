@@ -711,6 +711,41 @@
     inset -2px -2px 0 var(--win-border-dark) !important;
 }
 
+.agent-composer-shell {
+  container: agent-composer / inline-size;
+}
+
+/* Why: sidebars plus the evidence panel can leave the composer only a few
+   hundred pixels wide; compact controls must wrap into two usable rows instead
+   of pushing Send below the viewport. */
+@container agent-composer (max-width: 34rem) {
+  .agent-composer-verification {
+    min-width: 0;
+    flex: 1 1 calc(100% - 7rem);
+  }
+
+  .agent-composer-settings {
+    flex: 1 1 0;
+    justify-content: flex-end;
+  }
+
+  .agent-composer-permission-trigger,
+  .agent-composer-agent-settings-trigger {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .agent-composer-permission-label,
+  .agent-composer-permission-value,
+  .agent-composer-permission-chevron,
+  .agent-composer-agent-settings-label,
+  .agent-composer-agent-settings-chevron {
+    display: none;
+  }
+}
+
 .theme-retro95 .agent-composer-shell {
   border: 0 !important;
   background: var(--win-surface) !important;

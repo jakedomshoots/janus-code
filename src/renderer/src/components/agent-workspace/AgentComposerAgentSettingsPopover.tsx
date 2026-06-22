@@ -84,8 +84,12 @@ export function AgentComposerAgentSettingsPopover({
         <Button
           type="button"
           variant="outline"
-          className="h-9 max-w-56 justify-start gap-2 rounded-none px-3 text-xs"
+          className="agent-composer-agent-settings-trigger h-9 max-w-56 justify-start gap-2 rounded-none px-3 text-xs"
           aria-label={translate(
+            'auto.components.agentWorkspace.composer.agentSettings',
+            'Agent settings'
+          )}
+          title={translate(
             'auto.components.agentWorkspace.composer.agentSettings',
             'Agent settings'
           )}
@@ -95,14 +99,17 @@ export function AgentComposerAgentSettingsPopover({
           ) : (
             <Settings2 className="size-3.5" aria-hidden="true" />
           )}
-          <span className="truncate">{providerLabel}</span>
+          <span className="agent-composer-agent-settings-label truncate">{providerLabel}</span>
           {settingsBusy ? (
             <Loader2
               className="ml-1 size-3.5 animate-spin text-muted-foreground"
               aria-hidden="true"
             />
           ) : null}
-          <ChevronDown className="ml-1 size-3.5 text-muted-foreground" aria-hidden="true" />
+          <ChevronDown
+            className="agent-composer-agent-settings-chevron ml-1 size-3.5 text-muted-foreground"
+            aria-hidden="true"
+          />
         </Button>
       </PopoverTrigger>
       <ChatDropdownContent

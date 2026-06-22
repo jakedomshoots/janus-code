@@ -185,6 +185,7 @@ export function AgentWorkspaceRightPanel({
                     'auto.components.agentWorkspace.rightPanel.noOutputsYet',
                     'No outputs yet'
                   )}
+                  isEmpty={model.outputs.length === 0}
                 >
                   <ItemList items={model.outputs} iconKind="output" />
                 </InfoSection>
@@ -227,6 +228,7 @@ export function AgentWorkspaceRightPanel({
                   'auto.components.agentWorkspace.rightPanel.noReviewYet',
                   'No review yet'
                 )}
+                isEmpty={!review && reviewFindings.length === 0}
               >
                 <ReviewFindingsList findings={reviewFindings} />
                 {review && onLaunchReviewOnly ? (
@@ -283,6 +285,7 @@ export function AgentWorkspaceRightPanel({
                     'auto.components.agentWorkspace.rightPanel.noActiveSubagents',
                     'No active subagents'
                   )}
+                  isEmpty={model.subagents.length === 0}
                 >
                   <ItemList items={model.subagents} iconKind="subagent" />
                 </InfoSection>
@@ -293,6 +296,7 @@ export function AgentWorkspaceRightPanel({
                     'auto.components.agentWorkspace.rightPanel.noSourcesAttached',
                     'No sources attached'
                   )}
+                  isEmpty={model.sources.length === 0}
                 >
                   <ItemList items={model.sources} iconKind="source" />
                   <SourceGlyphRow sources={model.sources} />

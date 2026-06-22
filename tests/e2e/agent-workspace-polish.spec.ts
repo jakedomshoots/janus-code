@@ -14,6 +14,7 @@ import {
 } from './helpers/agent-workspace'
 import { seedAgentWorkspaceComposerDepthState } from './helpers/agent-workspace-composer-depth-seed'
 import { seedAgentWorkspaceCompareState } from './helpers/agent-workspace-compare-seed'
+import { seedAgentWorkspaceFailureEmptyState } from './helpers/agent-workspace-failure-empty-seed'
 import { seedAgentWorkspacePlanEvidenceState } from './helpers/agent-workspace-plan-evidence-seed'
 import {
   ensureTerminalVisible,
@@ -514,6 +515,56 @@ test.describe('Agent workspace polish', () => {
     await expect(
       composer.getByRole('button', { name: /Remove verification context/i })
     ).toBeVisible()
+
+    await expectAgentWorkspaceControlsInViewport(orcaPage)
+    await expectAgentWorkspaceShellsWithoutHorizontalOverflow(orcaPage)
+  })
+
+  test('keeps failed run evidence and empty right-panel states usable at compact height', async ({
+    orcaPage
+  }) => {
+    await orcaPage.setViewportSize({ width: 900, height: 560 })
+    const { worktreeId, paneKey } = await prepareGuiWorkspaceTerminal(orcaPage)
+    const threadTitle = `E2E failed empty ${Date.now()}`
+
+    await seedAgentWorkspaceFailureEmptyState(orcaPage, {
+      paneKey,
+      worktreeId,
+      title: threadTitle,
+      prompt: 'Show failed and empty states clearly'
+    })
+
+    const workspace = agentWorkspaceRegion(orcaPage)
+    await expect(workspace).toBeVisible({ timeout: 30_000 })
+    await expect(workspace.getByRole('tab', { name: new RegExp(threadTitle) })).toBeVisible()
+    await selectAgentThreadTab(orcaPage, threadTitle)
+
+    const rightPanel = agentWorkspaceRightPanel(orcaPage)
+    const tabList = rightPanel.getByRole('tablist', { name: /Agent workspace right panel/i })
+
+    await tabList.getByRole('tab', { name: /Changes/i }).click()
+    await expect(rightPanel.getByText('No changes', { exact: true })).toBeVisible()
+    await expect(
+      rightPanel.getByText('Git changes from Janus Code source control will appear here.')
+    ).toBeVisible()
+
+    await tabList.getByRole('tab', { name: /Review/i }).click()
+    await expect(rightPanel.getByText('No review yet')).toBeVisible()
+
+    await tabList.getByRole('tab', { name: /Context/i }).click()
+    const runLedger = rightPanel.locator('section[aria-label="Run ledger"]')
+    await expect(runLedger.getByText('Verification failed', { exact: true })).toBeVisible()
+    await expect(runLedger.getByText('Failure', { exact: true })).toBeVisible()
+    await expect(runLedger.getByText('Runtime (runtime-old-server, linux)')).toBeVisible()
+    await expect(runLedger.getByText('Changed files')).toBeVisible()
+    await expect(runLedger.getByText('0 files changed')).toBeVisible()
+    await expect(runLedger.getByText('Partial telemetry').first()).toBeVisible()
+
+    const memoryInspector = rightPanel.locator('section[aria-label="Memory inspector"]')
+    await memoryInspector.scrollIntoViewIfNeeded()
+    await expect(memoryInspector.getByText('Memory snapshot unavailable')).toBeVisible()
+    await expect(memoryInspector.getByText('Resource daemon unavailable')).toBeVisible()
+    await expect(memoryInspector.getByText('Agent memory not observed')).toBeVisible()
 
     await expectAgentWorkspaceControlsInViewport(orcaPage)
     await expectAgentWorkspaceShellsWithoutHorizontalOverflow(orcaPage)

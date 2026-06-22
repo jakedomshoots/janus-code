@@ -96,17 +96,22 @@ function getEmptyTabTitle(label: string): string {
 export function InfoSection({
   title,
   emptyLabel,
+  isEmpty = false,
   children
 }: {
   title: string
   emptyLabel: string
+  isEmpty?: boolean
   children: React.ReactNode
 }): React.JSX.Element {
   return (
     <section className="min-w-0" aria-label={title}>
       <h2 className="mb-2 text-sm font-medium text-muted-foreground">{title}</h2>
-      <div className="min-w-0">{children}</div>
-      <p className="hidden text-sm text-muted-foreground empty:block">{emptyLabel}</p>
+      {isEmpty ? (
+        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
+      ) : (
+        <div className="min-w-0">{children}</div>
+      )}
     </section>
   )
 }

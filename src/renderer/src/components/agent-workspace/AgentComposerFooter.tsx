@@ -123,7 +123,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
     (statusTone === 'error' || recoverablePrompt) && canOpenTerminalDrawer
 
   return (
-    <div className="px-4 pb-3">
+    <div className="agent-composer-footer px-4 pb-3">
       <p
         id="agent-workspace-composer-status"
         className={cn(
@@ -179,8 +179,8 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         onRemoveVerificationCommand={onRemoveVerificationCommand}
         onRemoveAgentMemoryContext={onRemoveAgentMemoryContext}
       />
-      <div className="flex min-h-10 flex-wrap items-center gap-2">
-        <div className="min-w-0 shrink-0">
+      <div className="agent-composer-footer-actions flex min-h-10 flex-wrap items-center gap-2">
+        <div className="agent-composer-footer-tools min-w-0 shrink-0">
           <AgentComposerToolCluster
             voicePromptVisible={voicePromptVisible}
             voicePromptState={voicePromptState}
@@ -195,7 +195,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             onAttachBrowserContext={onAttachBrowserContext}
           />
         </div>
-        <div className="min-w-[13rem] flex-1">
+        <div className="agent-composer-verification min-w-[13rem] flex-1">
           <label className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-background px-2 py-1">
             <ListChecks className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -214,7 +214,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             />
           </label>
         </div>
-        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+        <div className="agent-composer-settings flex min-w-0 flex-wrap items-center justify-end gap-2">
           {canSendToSelectedThread ? null : (
             <PermissionModeSelect value={permissionMode} onChange={onPermissionModeChange} />
           )}
@@ -251,7 +251,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
         <Button
           type="submit"
           size="icon"
-          className="size-9 shrink-0 rounded-full transition-transform active:scale-[0.96]"
+          className="agent-composer-submit size-9 shrink-0 rounded-full transition-transform active:scale-[0.96]"
           disabled={!canSubmit}
           aria-label={translate('auto.components.agentWorkspace.layout.send', 'Send')}
         >
@@ -300,18 +300,27 @@ function PermissionModeSelect({
         <Button
           type="button"
           variant="outline"
-          className="h-9 justify-start gap-2 rounded-lg px-3 text-xs"
+          className="agent-composer-permission-trigger h-9 justify-start gap-2 rounded-lg px-3 text-xs"
           aria-label={translate(
             'auto.components.agentWorkspace.composer.permissionMode',
             'Permission mode'
           )}
+          title={`${translate(
+            'auto.components.agentWorkspace.composer.permissionMode',
+            'Permission mode'
+          )}: ${selectedLabel}`}
         >
           <ShieldCheck className="size-3.5 text-muted-foreground" aria-hidden="true" />
-          <span className="text-muted-foreground">
+          <span className="agent-composer-permission-label text-muted-foreground">
             {translate('auto.components.agentWorkspace.composer.permissions', 'Permissions')}
           </span>
-          <span className="font-medium text-foreground">{selectedLabel}</span>
-          <ChevronDown className="ml-1 size-3.5 text-muted-foreground" aria-hidden="true" />
+          <span className="agent-composer-permission-value font-medium text-foreground">
+            {selectedLabel}
+          </span>
+          <ChevronDown
+            className="agent-composer-permission-chevron ml-1 size-3.5 text-muted-foreground"
+            aria-hidden="true"
+          />
         </Button>
       </PopoverTrigger>
       <ChatDropdownContent align="center" side="top" sideOffset={10}>
