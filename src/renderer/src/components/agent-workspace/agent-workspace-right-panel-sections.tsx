@@ -214,25 +214,85 @@ function InfoRowIcon({
 }
 
 export function SourceGlyphRow({
-  sources
+  sources,
+  onOpenBrowserWorkbench,
+  onOpenProjectFiles,
+  onOpenSourceControl
 }: {
   sources: readonly { id: string; label: string }[]
+  onOpenBrowserWorkbench?: () => void
+  onOpenProjectFiles?: () => void
+  onOpenSourceControl?: () => void
 }): React.JSX.Element | null {
   if (sources.length === 0) {
     return null
   }
   return (
-    <div className="mt-3 flex items-center gap-3 px-1 text-muted-foreground" aria-hidden="true">
+    <div className="mt-3 flex items-center gap-1 px-1 text-muted-foreground">
       {sources.map((source) => {
-        const Icon = source.id.endsWith(':branch')
-          ? GitBranch
-          : source.id.endsWith(':host')
-            ? Globe
-            : Folder
-        return <Icon key={source.id} className="size-4" />
+        const sourceAction = getSourceGlyphAction({
+          sourceId: source.id,
+          onOpenBrowserWorkbench,
+          onOpenProjectFiles,
+          onOpenSourceControl
+        })
+        const Icon = sourceAction.icon
+        return (
+          <button
+            key={source.id}
+            type="button"
+            className="inline-flex size-7 items-center justify-center rounded-md transition-[background-color,color,box-shadow,transform] hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.96] disabled:pointer-events-none disabled:opacity-45"
+            aria-label={sourceAction.label}
+            title={sourceAction.label}
+            disabled={!sourceAction.onClick}
+            onClick={sourceAction.onClick}
+          >
+            <Icon className="size-4" aria-hidden="true" />
+          </button>
+        )
       })}
     </div>
   )
+}
+
+function getSourceGlyphAction({
+  sourceId,
+  onOpenBrowserWorkbench,
+  onOpenProjectFiles,
+  onOpenSourceControl
+}: {
+  sourceId: string
+  onOpenBrowserWorkbench?: () => void
+  onOpenProjectFiles?: () => void
+  onOpenSourceControl?: () => void
+}): { icon: typeof Folder; label: string; onClick?: () => void } {
+  if (sourceId.endsWith(':branch')) {
+    return {
+      icon: GitBranch,
+      label: translate(
+        'auto.components.agentWorkspace.rightPanel.openSourceControl',
+        'Open source control'
+      ),
+      onClick: onOpenSourceControl
+    }
+  }
+
+  if (sourceId.endsWith(':host')) {
+    return {
+      icon: Globe,
+      label: translate(
+        'auto.components.agentWorkspace.rightPanel.openBrowserWorkbench',
+        'Open browser workbench'
+      ),
+      onClick: onOpenBrowserWorkbench
+    }
+  }
+
+  return {
+    icon: Folder,
+    label: translate('auto.components.agentWorkspace.rightPanel.openProjectFiles', 'Open files'),
+    onClick: onOpenProjectFiles
+  }
 }
 
 export function SectionDivider(): React.JSX.Element {

@@ -1,11 +1,4 @@
-import {
-  FolderOpen,
-  Globe,
-  LayoutDashboard,
-  MessageSquarePlus,
-  PanelRightOpen,
-  Terminal
-} from 'lucide-react'
+import { FolderOpen, Globe, LayoutDashboard, MessageSquarePlus, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type {
@@ -45,35 +38,28 @@ export function AgentWorkspaceHeader({
   project,
   thread,
   runSummary = null,
-  rightPanelCollapsed = false,
   terminalAvailable = false,
   browserAvailable = false,
   onNewSession,
   onOpenBrowserWorkbench,
   onOpenTerminalDrawer,
   onOpenWorkbench,
-  onExpandRightPanel,
   onOpenProjectFiles
 }: {
   project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
   runSummary?: AgentWorkspaceThreadChromeSummary | null
-  rightPanelCollapsed?: boolean
   terminalAvailable?: boolean
   browserAvailable?: boolean
   onNewSession?: () => void
   onOpenBrowserWorkbench?: () => void
   onOpenTerminalDrawer?: () => void
   onOpenWorkbench?: () => void
-  onExpandRightPanel?: () => void
   onOpenProjectFiles?: () => void
 }): React.JSX.Element | null {
   const hasThread = thread !== null
   const hasWorkspace = project !== null
-  const canExpandRightPanel =
-    hasThread && rightPanelCollapsed && typeof onExpandRightPanel === 'function'
-  const canOpenProjectFiles =
-    hasThread && !rightPanelCollapsed && typeof onOpenProjectFiles === 'function'
+  const canOpenProjectFiles = hasThread && typeof onOpenProjectFiles === 'function'
   const canStartSession = hasWorkspace && typeof onNewSession === 'function'
   const canOpenBrowser =
     hasWorkspace && browserAvailable && typeof onOpenBrowserWorkbench === 'function'
@@ -89,8 +75,7 @@ export function AgentWorkspaceHeader({
     !canOpenBrowser &&
     !canOpenTerminal &&
     !canOpenWorkbench &&
-    !canOpenProjectFiles &&
-    !canExpandRightPanel
+    !canOpenProjectFiles
   ) {
     return null
   }
@@ -255,28 +240,6 @@ export function AgentWorkspaceHeader({
             <FolderOpen className="size-3.5" aria-hidden="true" />
             <span className="hidden 2xl:inline">
               {translate('auto.components.agentWorkspace.header.files', 'Files')}
-            </span>
-          </Button>
-        ) : null}
-        {canExpandRightPanel ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="xs"
-            className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onExpandRightPanel}
-            aria-label={translate(
-              'auto.components.agentWorkspace.header.showRightPanel',
-              'Show details'
-            )}
-            title={translate(
-              'auto.components.agentWorkspace.header.showRightPanel',
-              'Show details'
-            )}
-          >
-            <PanelRightOpen className="size-3.5" aria-hidden="true" />
-            <span className="hidden 2xl:inline">
-              {translate('auto.components.agentWorkspace.header.details', 'Details')}
             </span>
           </Button>
         ) : null}

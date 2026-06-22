@@ -57,9 +57,7 @@ describe('AgentWorkspaceHeader', () => {
       <AgentWorkspaceHeader
         project={project}
         thread={null}
-        rightPanelCollapsed
         onNewSession={() => undefined}
-        onExpandRightPanel={() => undefined}
         onOpenProjectFiles={() => undefined}
       />
     )
@@ -71,18 +69,11 @@ describe('AgentWorkspaceHeader', () => {
     expect(markup).toContain('New session')
   })
 
-  it('renders a right-panel expand affordance when the panel is collapsed', () => {
-    const markup = renderToStaticMarkup(
-      <AgentWorkspaceHeader
-        project={project}
-        thread={thread}
-        rightPanelCollapsed
-        onExpandRightPanel={() => undefined}
-      />
-    )
+  it('keeps the environment card out of the header command cycle', () => {
+    const markup = renderToStaticMarkup(<AgentWorkspaceHeader project={project} thread={thread} />)
 
-    expect(markup).toContain('Show details')
-    expect(markup).toContain('Details')
+    expect(markup).not.toContain('Show details')
+    expect(markup).not.toContain('Details')
     expect(markup).not.toContain('Open project files')
   })
 

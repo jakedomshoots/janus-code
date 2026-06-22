@@ -11558,7 +11558,10 @@
           "runStatusUnknown": "Unknown",
           "sessionSummary": "Session summary",
           "plan": "Plan",
-          "worktree": "Worktree"
+          "worktree": "Worktree",
+          "openSourceControl": "Open source control",
+          "openBrowserWorkbench": "Open browser workbench",
+          "openProjectFiles": "Open files"
         },
         "timelineRole": {
           "you": "You",

@@ -51,6 +51,26 @@ describe('AgentComposer', () => {
     expect(harness.getDocumentButton('Open provider menu')).not.toBeNull()
   })
 
+  it('reserves right-side overlay room when composing in a selected thread', async () => {
+    await act(async () => {
+      root.render(
+        <AgentComposer activeWorktreeId="worktree-1" selectedThread={harness.runningThread} />
+      )
+    })
+
+    const form = container.querySelector('form')
+    expect(form?.className).toContain('min-[800px]:pr-[clamp(18rem,27vw,21rem)]')
+  })
+
+  it('does not reserve overlay room for a new-session draft composer', async () => {
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)
+    })
+
+    const form = container.querySelector('form')
+    expect(form?.className).not.toContain('min-[800px]:pr-[clamp(18rem,27vw,21rem)]')
+  })
+
   it('renders provider task-fit hints without changing provider selection', async () => {
     await act(async () => {
       root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={null} />)

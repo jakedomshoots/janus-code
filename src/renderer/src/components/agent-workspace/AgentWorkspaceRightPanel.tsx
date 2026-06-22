@@ -1,5 +1,4 @@
-import { Bot, FileDiff, FolderGit2, GitBranch, ListChecks, X, type LucideIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Bot, FileDiff, FolderGit2, GitBranch, ListChecks, type LucideIcon } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
@@ -33,8 +32,10 @@ export function AgentWorkspaceRightPanel({
   diffs,
   review,
   terminalAvailable,
-  onOpenTerminalDrawer,
-  onCollapse
+  onOpenBrowserWorkbench,
+  onOpenProjectFiles,
+  onOpenSourceControl,
+  onOpenTerminalDrawer
 }: {
   project: AgentWorkspaceProject | null
   thread: AgentWorkspaceThread | null
@@ -61,8 +62,10 @@ export function AgentWorkspaceRightPanel({
   onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
   onLaunchReviewOnly?: (source: AgentReviewOnlyLaunchSurface) => void
+  onOpenBrowserWorkbench?: () => void
+  onOpenProjectFiles?: () => void
+  onOpenSourceControl?: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
-  onCollapse?: () => void
 }): React.JSX.Element {
   const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
     useAgentWorkspaceApprovalResponse({
@@ -81,30 +84,11 @@ export function AgentWorkspaceRightPanel({
   })
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 flex min-h-0 w-[clamp(16rem,24vw,18.5rem)] shrink-0 items-start">
-      {/* Bound the floating card to the workspace row because boards above it can grow. */}
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-3 mt-4 flex max-h-[min(24rem,calc(100vh_-_8rem))] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-3 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
-        {onCollapse ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="absolute right-2 top-2 z-10 text-muted-foreground hover:text-foreground"
-            aria-label={translate(
-              'auto.components.agentWorkspace.rightPanel.hideDetails',
-              'Hide details'
-            )}
-            title={translate(
-              'auto.components.agentWorkspace.rightPanel.hideDetails',
-              'Hide details'
-            )}
-            onClick={onCollapse}
-          >
-            <X className="size-3.5" aria-hidden="true" />
-          </Button>
-        ) : null}
-
-        <div className="mb-3 pr-6 text-sm font-medium text-muted-foreground">
+    <aside className="agent-workspace-right-panel pointer-events-none absolute inset-y-0 right-0 z-20 flex min-h-0 w-[clamp(16rem,24vw,18.5rem)] max-w-[calc(100%_-_1rem)] items-start justify-end">
+      {/* Why: Codex-style workspace context floats above the chat instead of
+      reserving a side-panel column or joining the header command cycle. */}
+      <div className="agent-workspace-right-panel-shell pointer-events-auto mr-3 mt-4 flex max-h-[min(24rem,calc(100vh_-_8rem))] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-3 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+        <div className="mb-3 text-sm font-medium text-muted-foreground">
           {translate('auto.components.agentWorkspace.rightPanel.environment', 'Environment')}
         </div>
 
@@ -174,7 +158,12 @@ export function AgentWorkspaceRightPanel({
               )}
             </span>
           </div>
-          <SourceGlyphRow sources={model.sources} />
+          <SourceGlyphRow
+            sources={model.sources}
+            onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+            onOpenProjectFiles={onOpenProjectFiles}
+            onOpenSourceControl={onOpenSourceControl}
+          />
         </section>
 
         {approval ? (

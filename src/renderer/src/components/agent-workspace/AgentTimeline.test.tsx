@@ -46,6 +46,24 @@ describe('AgentTimeline', () => {
     expect(log?.getAttribute('aria-label')).toBe('Agent conversation timeline')
   })
 
+  it('reserves right-side overlay room for selected-thread chat', () => {
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={[]} />)
+    })
+
+    const log = container.querySelector('[role="log"][aria-live="polite"]')
+    expect(log?.className).toContain('min-[800px]:pr-[clamp(18rem,27vw,21rem)]')
+  })
+
+  it('does not reserve the overlay gutter for the empty workspace timeline', () => {
+    act(() => {
+      root.render(<AgentTimeline thread={null} timeline={[]} />)
+    })
+
+    const log = container.querySelector('[role="log"][aria-live="polite"]')
+    expect(log?.className).not.toContain('min-[800px]:pr-[clamp(18rem,27vw,21rem)]')
+  })
+
   it('labels slash commands and marks running entries as busy', () => {
     const timeline: AgentWorkspaceTimelineEntry[] = [
       {

@@ -227,6 +227,8 @@ describe('AgentWorkspacePage', () => {
     expect(markup).toContain('Build the first shell')
     expect(markup).toContain('Message the selected agent')
     expect(markup).toContain('Environment')
+    expect(markup).toContain('agent-workspace-thread-tabs-rail')
+    expect(markup).toContain('min-[800px]:pr-[clamp(18rem,27vw,21rem)]')
     expect(markup).not.toContain('Show details')
     expect(markup).toContain('1 file')
     expect(markup).not.toContain('Run replay export')

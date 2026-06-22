@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
+import { cn } from '@/lib/utils'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { AgentTimelineEntry } from './AgentTimelineEntry'
 import { AgentEditedFilesCard } from './AgentTimelineArtifactCards'
@@ -50,6 +51,9 @@ export function AgentTimeline({
 }): React.JSX.Element {
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
   const editedFilesCard = getEditedFilesCardPlacement(timeline, diffs)
+  // Why: the Environment card floats over the chat on desktop; reserve empty
+  // right-side rail space without making the card part of the layout.
+  const overlayGutterClass = thread ? 'min-[800px]:pr-[clamp(18rem,27vw,21rem)]' : null
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current
@@ -62,7 +66,10 @@ export function AgentTimeline({
   return (
     <div
       ref={scrollAreaRef}
-      className="agent-workspace-timeline scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto px-6 py-6"
+      className={cn(
+        'agent-workspace-timeline scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-auto py-6 pl-6 pr-6',
+        overlayGutterClass
+      )}
       role="log"
       aria-label={translate(
         'auto.components.agentWorkspace.layout.agentConversationTimeline',

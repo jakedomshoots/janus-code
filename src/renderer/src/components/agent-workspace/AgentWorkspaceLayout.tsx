@@ -95,6 +95,7 @@ export function AgentWorkspaceLayout({
     (state) => state.setAgentWorkspaceRightPanelExpanded
   )
   const setRightSidebarOpen = useAppStore((state) => state.setRightSidebarOpen)
+  const setRightSidebarTab = useAppStore((state) => state.setRightSidebarTab)
   const showRightSidebarFiles = useAppStore((state) => state.showRightSidebarFiles)
   const settings = useAppStore((state) => state.settings)
   const memorySnapshot = useAppStore((state) => state.memorySnapshot ?? null)
@@ -190,12 +191,10 @@ export function AgentWorkspaceLayout({
   }
 
   useEffect(() => {
-    const expanded = !selectedRightPanelState.collapsed
-    setAgentWorkspaceRightPanelExpanded(expanded)
-    if (expanded) {
-      setRightSidebarOpen(false)
-    }
-  }, [selectedRightPanelState.collapsed, setAgentWorkspaceRightPanelExpanded, setRightSidebarOpen])
+    // Why: the environment card is overlay chrome, not the old project-right
+    // side panel, so it should not suppress the normal Files sidebar.
+    setAgentWorkspaceRightPanelExpanded(false)
+  }, [setAgentWorkspaceRightPanelExpanded])
 
   useEffect(() => {
     if (terminalDrawerReason === 'browser') {
@@ -240,15 +239,13 @@ export function AgentWorkspaceLayout({
     } satisfies AgentWorkspaceRightPanelState)
   }
 
-  function handleExpandRightPanel(): void {
-    setSelectedRightPanelState((current) => ({
-      ...current,
-      collapsed: false
-    }))
-  }
-
   function handleOpenDiff(diff: AgentWorkspaceDiffSummary): void {
     openAgentWorkspaceDiff({ diff, openDiff, thread: selectedThread })
+  }
+
+  function handleOpenSourceControl(): void {
+    setRightSidebarTab('source-control')
+    setRightSidebarOpen(true)
   }
 
   function handleLaunchReviewOnly(_source: AgentReviewOnlyLaunchSurface): void {
@@ -272,16 +269,13 @@ export function AgentWorkspaceLayout({
           project={selectedProject}
           thread={selectedThread}
           runSummary={selectedThreadChromeSummary}
-          rightPanelCollapsed={selectedRightPanelState.collapsed}
           terminalAvailable={snapshot.terminalAvailable}
           browserAvailable={browserWorkbench.browserAvailable}
           onNewSession={() => handleNewSession(activePaneId)}
           onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
           onOpenTerminalDrawer={() => onOpenTerminalDrawer?.('debug-button')}
           onOpenWorkbench={() => onOpenTerminalDrawer?.('workbench')}
-          onExpandRightPanel={handleExpandRightPanel}
           onOpenProjectFiles={() => {
-            setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
             showRightSidebarFiles()
           }}
         />
@@ -314,12 +308,12 @@ export function AgentWorkspaceLayout({
             onCommitStaged={sourceControlActions.onCommitStaged}
             reviewOnlyWarning={reviewOnlyProfile?.warning ?? null}
             onLaunchReviewOnly={reviewOnlyAgent ? handleLaunchReviewOnly : undefined}
-            onOpenTerminalDrawer={onOpenTerminalDrawer}
-            onCollapse={
-              compactViewport
-                ? () => setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
-                : undefined
+            onOpenBrowserWorkbench={
+              browserWorkbench.browserAvailable ? browserWorkbench.openBrowserWorkbench : undefined
             }
+            onOpenProjectFiles={showRightSidebarFiles}
+            onOpenSourceControl={handleOpenSourceControl}
+            onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )
       }

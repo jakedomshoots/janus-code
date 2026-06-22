@@ -1,5 +1,6 @@
 import { useCallback, useId, useMemo, useState } from 'react'
 import { translate } from '@/i18n/i18n'
+import { cn } from '@/lib/utils'
 import { AgentComposerFooter } from './AgentComposerFooter'
 import { AgentComposerSlashCommandMenu } from './AgentComposerSlashCommandMenu'
 import { AgentComposerTextarea } from './AgentComposerTextarea'
@@ -162,6 +163,9 @@ export function AgentComposerForm({
     [activeAgent, availableSlashCommands, prompt]
   )
   const slashMenuOpen = slashCommands.length > 0
+  // Why: selected-thread composers sit below the floating Environment card;
+  // keep the input rail out from under it without turning the card into a panel.
+  const overlayGutterClass = selectedThread ? 'min-[800px]:pr-[clamp(18rem,27vw,21rem)]' : null
   const boundedActiveSlashCommandIndex =
     slashCommands.length > 0 ? Math.min(activeSlashCommandIndex, slashCommands.length - 1) : 0
   const activeSlashCommandOptionId = slashMenuOpen
@@ -219,7 +223,10 @@ export function AgentComposerForm({
 
   return (
     <form
-      className="agent-workspace-composer border-t border-border/70 bg-background/95 px-6 pb-3 pt-2 backdrop-blur"
+      className={cn(
+        'agent-workspace-composer border-t border-border/70 bg-background/95 pb-3 pl-6 pr-6 pt-2 backdrop-blur',
+        overlayGutterClass
+      )}
       aria-label={translate(
         'auto.components.agentWorkspace.composer.agentChatComposer',
         'Agent chat composer'

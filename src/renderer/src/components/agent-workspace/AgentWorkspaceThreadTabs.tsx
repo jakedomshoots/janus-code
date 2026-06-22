@@ -6,6 +6,7 @@ import { TabGroupPaneActionChrome } from '@/components/tab-group/TabGroupPaneAct
 import { useTabGroupWorkspaceModel } from '@/components/tab-group/useTabGroupWorkspaceModel'
 import type { TabGroupSplitDirection } from '@/components/tab-group/TabGroupPaneActionChrome'
 import { translate } from '@/i18n/i18n'
+import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
@@ -95,6 +96,9 @@ export function AgentWorkspaceThreadTabs({
     tabGroupWorkbenchActive,
     onDismissWorkbench: onDismissWorkbenchSurface
   })
+  // Why: the floating Environment card sits over the upper-right chat area, so
+  // the thread-tab command rail needs the same desktop safe gutter as messages.
+  const overlayGutterClass = selectedThreadId ? 'min-[800px]:pr-[clamp(18rem,27vw,21rem)]' : null
 
   function openWorkbenchSurface(): void {
     onOpenTerminalDrawer?.('workbench')
@@ -102,7 +106,12 @@ export function AgentWorkspaceThreadTabs({
 
   return (
     <div className="h-12 shrink-0 border-b border-border/70 bg-background">
-      <div className="flex h-full min-w-0 items-stretch">
+      <div
+        className={cn(
+          'agent-workspace-thread-tabs-rail flex h-full min-w-0 items-stretch',
+          overlayGutterClass
+        )}
+      >
         <div
           className="scrollbar-sleek flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-4"
           role="tablist"

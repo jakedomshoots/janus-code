@@ -148,6 +148,77 @@ describe('AgentWorkspaceRightPanel', () => {
     expect(container.textContent).toContain('Sources')
   })
 
+  it('floats above the chat surface instead of reserving a side panel column', async () => {
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          project={project}
+          thread={runningThread}
+          threads={[runningThread]}
+          plan={null}
+          approval={null}
+          diffs={[diffSummary]}
+          runEvents={[]}
+          review={null}
+          terminalAvailable
+          selectedTab="details"
+          onSelectedTabChange={() => undefined}
+        />
+      )
+    })
+
+    const shell = container.querySelector<HTMLElement>('.agent-workspace-right-panel')
+    expect(shell?.classList.contains('absolute')).toBe(true)
+    expect(shell?.classList.contains('right-0')).toBe(true)
+    expect(shell?.classList.contains('relative')).toBe(false)
+    expect(shell?.classList.contains('shrink-0')).toBe(false)
+  })
+
+  it('routes source glyphs to real workspace actions', async () => {
+    const onOpenBrowserWorkbench = vi.fn()
+    const onOpenProjectFiles = vi.fn()
+    const onOpenSourceControl = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          project={project}
+          thread={runningThread}
+          threads={[runningThread]}
+          plan={null}
+          approval={null}
+          diffs={[diffSummary]}
+          runEvents={[]}
+          review={null}
+          terminalAvailable
+          selectedTab="details"
+          onSelectedTabChange={() => undefined}
+          onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+          onOpenProjectFiles={onOpenProjectFiles}
+          onOpenSourceControl={onOpenSourceControl}
+        />
+      )
+    })
+
+    const openFiles = container.querySelector<HTMLButtonElement>('button[aria-label="Open files"]')
+    const openBrowser = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Open browser workbench"]'
+    )
+    const openSourceControl = container.querySelector<HTMLButtonElement>(
+      'button[aria-label="Open source control"]'
+    )
+
+    await act(async () => {
+      openFiles?.click()
+      openBrowser?.click()
+      openSourceControl?.click()
+    })
+
+    expect(onOpenProjectFiles).toHaveBeenCalledTimes(1)
+    expect(onOpenBrowserWorkbench).toHaveBeenCalledTimes(1)
+    expect(onOpenSourceControl).toHaveBeenCalledTimes(1)
+  })
+
   it('omits the old tabbed ledger, replay, and inspector controls', async () => {
     await act(async () => {
       root.render(
