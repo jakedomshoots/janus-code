@@ -153,8 +153,10 @@ function runJanusWorkflowSmoke() {
     state = clickElement(janusApp, outputTabIndex)
     expectTree(state, ['selected) Output'])
 
-    state = clickElement(janusApp, findElementIndex(state, ['Changes']))
-    expectTree(state, ['selected) Changes'])
+    const changesTabIndex = findOptionalElementIndex(state, ['Changes'])
+    const diffTabIndex = changesTabIndex ?? findElementIndex(state, ['Diff'])
+    state = clickElement(janusApp, diffTabIndex)
+    expectAnyTree(state, ['selected) Changes', 'selected) Diff'])
     state = runJanusSourceControlSmoke(state)
 
     state = clickElement(janusApp, findElementIndex(state, ['Review']))
