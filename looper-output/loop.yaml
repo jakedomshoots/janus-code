@@ -1,0 +1,245 @@
+version: 1
+meta:
+  name: janus-chat-ui-operability-loop
+  description: >
+    Drive Janus Code's chat-first project workflow from buggy-but-present toward
+    a polished ADE-grade interface through repeated discovery, implementation,
+    installed-app verification, and judge-gated review.
+  author: codex
+  created: 2026-06-23
+
+goal:
+  statement: >
+    Make the Janus Code chat UI workflow highly operable for real project work:
+    a user can open a project workspace, start or select an agent thread, send a
+    prompt, immediately see the user turn, watch agent progress, receive the
+    response, follow up after completion, use browser and terminal affordances,
+    inspect context/output/diff/review/info surfaces, and keep working without
+    dead controls, lost messages, stale thread state, broken layout, or visual
+    regressions.
+  context_sources:
+    - file: ./docs/STYLEGUIDE.md
+    - file: ./src/renderer/src/assets/main.css
+    - file: ./CHANGELOG.md
+    - file: ./package.json
+    - file: ./src/renderer/src/components/agent-workspace/AgentWorkspacePage.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentWorkspacePane.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentWorkspaceLayout.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentWorkspaceChrome.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentTimeline.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentTimelineEntry.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentComposer.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentComposerForm.tsx
+    - file: ./src/renderer/src/components/agent-workspace/useAgentWorkspacePanes.ts
+    - file: ./src/renderer/src/components/agent-workspace/AgentWorkspaceRightPanel.tsx
+    - file: ./src/renderer/src/components/agent-workspace/AgentTerminalDrawer.tsx
+    - file: ./src/renderer/src/lib/launch-agent-in-new-tab.ts
+    - cmd: ["git", "status", "--short", "--branch", "--untracked-files=all"]
+    - cmd:
+        [
+          "rg",
+          "-n",
+          "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|starting|completed thread|recover",
+          "src/renderer/src/components/agent-workspace",
+          "src/renderer/src/lib/launch-agent-in-new-tab.ts",
+        ]
+  definition_of_done: >
+    Janus Code's installed app can be used as the primary project chat surface
+    without workarounds: the full create/send/progress/respond/follow-up/tooling
+    workflow is verified in /Applications/Janus Code.app, all touched controls
+    are wired, message delivery and thread selection are reliable, right-panel
+    and floating-card state is live and non-overlapping, keyboard/focus behavior
+    is sane, visual language follows the Janus styleguide, CHANGELOG.md records
+    each batch, and all configured programmatic and judge gates pass or an
+    honest external blocker is documented with the next concrete path to green.
+  verification:
+    - id: focused-agent-workspace-tests
+      type: programmatic
+      check:
+        [
+          "pnpm",
+          "vitest",
+          "run",
+          "--config",
+          "config/vitest.config.ts",
+          "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx",
+          "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts",
+          "src/renderer/src/lib/launch-agent-in-new-tab.test.ts",
+          "src/renderer/src/components/terminal-pane/pty-connection.test.ts",
+        ]
+      expect: exit_zero
+    - id: workflow-assurance-tests
+      type: programmatic
+      check: ["pnpm", "run", "verify:janus-workflow-assurance"]
+      expect: exit_zero
+    - id: typecheck-web
+      type: programmatic
+      check: ["pnpm", "run", "typecheck:web"]
+      expect: exit_zero
+    - id: changed-react-lint
+      type: programmatic
+      check: ["pnpm", "run", "lint:react-doctor:changed"]
+      expect: exit_zero
+    - id: diff-whitespace
+      type: programmatic
+      check: ["git", "diff", "--check"]
+      expect: exit_zero
+    - id: packaged-build
+      type: programmatic
+      check: ["pnpm", "run", "build:unpack"]
+      expect: exit_zero
+    - id: installed-janus-smoke
+      type: programmatic
+      check: ["pnpm", "run", "smoke:janus-workflow"]
+      expect: exit_zero
+    - id: ade-chat-operability
+      type: judge
+      rubric: >
+        Judge the plan or delivery against the actual Janus chat workflow, not
+        isolated widgets. A pass requires explicit coverage for: project/thread
+        selection, new session launch, first user turn visibility, running and
+        completed states, follow-up recovery, terminal drawer, browser/workbench
+        routing, context/output/diff/review/info surfaces, keyboard/focus, empty
+        and error states, no stale workspace metadata, no dead placeholder
+        controls, and no layout overlap at narrow, medium, and wide widths.
+        Blocking issues must identify the missing workflow step or evidence.
+    - id: visual-polish-and-styleguide
+      type: judge
+      rubric: >
+        Judge whether the delivery feels like a high-end polished ADE. A pass
+        requires restrained operational density, clear hierarchy, intentional
+        microstates, readable contrast, styleguide token usage, consistent
+        spacing, professional timeline/composer/right-panel composition, and no
+        generic AI-dashboard ornament or contradictory chrome. Blocking issues
+        must cite the visible surface and why it harms real use.
+    - id: user-ready-signoff
+      type: human
+      prompt: >
+        Confirm the installed Janus Code app is ready to use as the primary chat
+        interface for real project work, or list the remaining blocker that
+        prevents that.
+
+host:
+  cli: codex
+  model: current-session
+  invoke: ["codex", "exec"]
+  timeout_sec: 900
+
+council:
+  - id: workflow-reviewer
+    role: reviewer
+    cli: codex
+    model: current-session
+    invoke: ["codex", "exec"]
+    timeout_sec: 900
+    scope: [plan, delivery]
+    local: false
+  - id: operability-judge
+    role: judge
+    cli: codex
+    model: current-session
+    invoke: ["codex", "exec"]
+    timeout_sec: 900
+    scope: [plan, delivery]
+    local: false
+
+gates:
+  plan_gate:
+    when: after_plan
+    members: [workflow-reviewer, operability-judge]
+    verdict_policy: revise_until_clean
+    verdict_source: operability-judge
+    criteria: [ade-chat-operability, visual-polish-and-styleguide]
+    max_revisions: 3
+  delivery_gate:
+    when: after_each_delivery
+    members: [workflow-reviewer, operability-judge]
+    verdict_policy: revise_until_clean
+    verdict_source: operability-judge
+    criteria:
+      [
+        focused-agent-workspace-tests,
+        workflow-assurance-tests,
+        typecheck-web,
+        changed-react-lint,
+        diff-whitespace,
+        packaged-build,
+        installed-janus-smoke,
+        ade-chat-operability,
+        visual-polish-and-styleguide,
+        user-ready-signoff,
+      ]
+    max_revisions: 3
+
+loop_control:
+  max_iterations: 10
+  budget:
+    wall_clock_min: 360
+    tokens: 8000000
+  no_progress:
+    max_stalled_iterations: 2
+    signals:
+      - same blocking issue repeats
+      - delivery artifact has no material change
+      - verifier output is unchanged
+      - installed-app smoke fails at the same step after a targeted fix
+    action: human_checkpoint
+  human_checkpoints:
+    - before external model or vendor egress
+    - before any destructive git operation
+    - before final ready-to-use claim
+  stop_conditions:
+    - all delivery criteria pass clean
+    - user confirms the installed app is ready to use for real project chat work
+    - max_iterations reached
+    - same blocker repeats for 2 iterations without new evidence
+    - wall-clock or token budget cap is reached
+
+execution:
+  mode: in_session
+  isolation: current_workspace
+  side_effects:
+    requires_approval: true
+    duplicate_action_check: true
+    allowed_without_extra_approval:
+      - reading files
+      - editing files in this worktree
+      - running tests and builds
+      - rebuilding and reinstalling /Applications/Janus Code.app for verification
+    approval_required:
+      - pushing branches
+      - creating pull requests
+      - deleting files outside this worktree
+      - sending context to any non-current-session model CLI
+
+observability:
+  state_file: state.json
+  run_log: run-log.md
+  checkpoint_granularity: gate
+
+privacy:
+  egress:
+    - to: workflow-reviewer
+      sends: [plan, deliveries, selected source snippets, verification output]
+      redact: [".env", ".env.*", "secrets/**", "**/*.key"]
+      consent: required
+    - to: operability-judge
+      sends: [plan, deliveries, selected source snippets, verification output]
+      redact: [".env", ".env.*", "secrets/**", "**/*.key"]
+      consent: required
+
+workspace:
+  dir: ./loop-workspace
+  layout:
+    [
+      plan.md,
+      "delivery-{n}.md",
+      "review-{n}.md",
+      screenshots,
+      installed-smoke-notes.md,
+      state.json,
+      run-log.md,
+    ]

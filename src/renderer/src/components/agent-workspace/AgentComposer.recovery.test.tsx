@@ -280,6 +280,190 @@ describe('AgentComposer completed-thread recovery', () => {
     expect(container.textContent).not.toContain('Send again')
   })
 
+  it('clears an unchanged restored prompt after the completed-thread reply arrives', async () => {
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    } satisfies ActiveAgentNotesSendResult)
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Still there?')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    const restoreButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.textContent?.includes('Restore message')
+    )
+    expect(restoreButton).not.toBeNull()
+
+    await act(async () => {
+      restoreButton?.click()
+    })
+    expect(textarea?.value).toBe('Still there?')
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={completedThread}
+          timeline={[
+            {
+              id: 'user-1',
+              threadId: 'thread-1',
+              kind: 'user',
+              text: 'Still there?',
+              createdAt: '2026-06-16T12:01:00.000Z',
+              status: 'done'
+            },
+            {
+              id: 'agent-1',
+              threadId: 'thread-1',
+              kind: 'agent',
+              text: 'No, the follow-up completed.',
+              createdAt: '2026-06-16T12:01:02.000Z',
+              status: 'done'
+            }
+          ]}
+        />
+      )
+    })
+
+    expect(container.textContent).not.toContain('Restore message')
+    expect(container.textContent).not.toContain('Send again')
+    expect(textarea?.value).toBe('')
+  })
+
+  it('keeps an edited restored prompt when the original completed-thread reply arrives', async () => {
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'sent'
+    } satisfies ActiveAgentNotesSendResult)
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Still there?')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    const restoreButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (candidate) => candidate.textContent?.includes('Restore message')
+    )
+    expect(restoreButton).not.toBeNull()
+
+    await act(async () => {
+      restoreButton?.click()
+    })
+    await act(async () => {
+      setTextControlValue(textarea!, 'Actually, answer this edited draft.')
+    })
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={completedThread}
+          timeline={[
+            {
+              id: 'user-1',
+              threadId: 'thread-1',
+              kind: 'user',
+              text: 'Still there?',
+              createdAt: '2026-06-16T12:01:00.000Z',
+              status: 'done'
+            },
+            {
+              id: 'agent-1',
+              threadId: 'thread-1',
+              kind: 'agent',
+              text: 'No, the follow-up completed.',
+              createdAt: '2026-06-16T12:01:02.000Z',
+              status: 'done'
+            }
+          ]}
+        />
+      )
+    })
+
+    expect(textarea?.value).toBe('Actually, answer this edited draft.')
+  })
+
+  it('clears a launched follow-up once the prompt appears in the new thread timeline', async () => {
+    mocks.useDetectedAgents.mockReturnValue({
+      detectedIds: ['codex'],
+      isLoading: false,
+      isRefreshing: false,
+      refresh: vi.fn()
+    })
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'no-agent'
+    } satisfies ActiveAgentNotesSendResult)
+    mocks.launchAgentInNewTab.mockReturnValue({
+      tabId: 'tab-codex',
+      startupPlan: {
+        agent: 'codex',
+        launchCommand: 'codex',
+        expectedProcess: 'codex',
+        followupPrompt: null
+      },
+      pasteDraftAfterLaunch: false
+    })
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Launch a new follow-up.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(textarea?.value).toBe('Launch a new follow-up.')
+
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={{ ...completedThread, id: 'thread-2', phase: 'running' }}
+          timeline={[
+            {
+              id: 'user-1',
+              threadId: 'thread-2',
+              kind: 'user',
+              text: 'Launch a new follow-up.',
+              createdAt: '2026-06-16T12:01:00.000Z',
+              status: 'done'
+            }
+          ]}
+        />
+      )
+    })
+
+    expect(textarea?.value).toBe('')
+  })
+
   it('starts a fresh matching agent when a completed thread terminal is stale', async () => {
     mocks.useDetectedAgents.mockReturnValue({
       detectedIds: ['antigravity'],

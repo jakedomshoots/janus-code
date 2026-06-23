@@ -1,0 +1,383 @@
+{
+  "$schema": "https://github.com/ksimback/looper/schema/loop.resolved.v1.json",
+  "compiled_at": "2026-06-23T17:41:40+00:00",
+  "council": [
+    {
+      "cli": "codex",
+      "id": "workflow-reviewer",
+      "invoke": ["codex", "exec"],
+      "local": false,
+      "model": "current-session",
+      "role": "reviewer",
+      "scope": ["plan", "delivery"],
+      "timeout_sec": 900
+    },
+    {
+      "cli": "codex",
+      "id": "operability-judge",
+      "invoke": ["codex", "exec"],
+      "local": false,
+      "model": "current-session",
+      "role": "judge",
+      "scope": ["plan", "delivery"],
+      "timeout_sec": 900
+    }
+  ],
+  "council_by_id": {
+    "operability-judge": {
+      "cli": "codex",
+      "id": "operability-judge",
+      "invoke": ["codex", "exec"],
+      "local": false,
+      "model": "current-session",
+      "role": "judge",
+      "scope": ["plan", "delivery"],
+      "timeout_sec": 900
+    },
+    "workflow-reviewer": {
+      "cli": "codex",
+      "id": "workflow-reviewer",
+      "invoke": ["codex", "exec"],
+      "local": false,
+      "model": "current-session",
+      "role": "reviewer",
+      "scope": ["plan", "delivery"],
+      "timeout_sec": 900
+    }
+  },
+  "criteria_by_id": {
+    "ade-chat-operability": {
+      "id": "ade-chat-operability",
+      "rubric": "Judge the plan or delivery against the actual Janus chat workflow, not isolated widgets. A pass requires explicit coverage for: project/thread selection, new session launch, first user turn visibility, running and completed states, follow-up recovery, terminal drawer, browser/workbench routing, context/output/diff/review/info surfaces, keyboard/focus, empty and error states, no stale workspace metadata, no dead placeholder controls, and no layout overlap at narrow, medium, and wide widths. Blocking issues must identify the missing workflow step or evidence.\n",
+      "type": "judge"
+    },
+    "changed-react-lint": {
+      "check": ["pnpm", "run", "lint:react-doctor:changed"],
+      "expect": "exit_zero",
+      "id": "changed-react-lint",
+      "type": "programmatic"
+    },
+    "diff-whitespace": {
+      "check": ["git", "diff", "--check"],
+      "expect": "exit_zero",
+      "id": "diff-whitespace",
+      "type": "programmatic"
+    },
+    "focused-agent-workspace-tests": {
+      "check": [
+        "pnpm",
+        "vitest",
+        "run",
+        "--config",
+        "config/vitest.config.ts",
+        "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx",
+        "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx",
+        "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx",
+        "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx",
+        "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts",
+        "src/renderer/src/lib/launch-agent-in-new-tab.test.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection.test.ts"
+      ],
+      "expect": "exit_zero",
+      "id": "focused-agent-workspace-tests",
+      "type": "programmatic"
+    },
+    "installed-janus-smoke": {
+      "check": ["pnpm", "run", "smoke:janus-workflow"],
+      "expect": "exit_zero",
+      "id": "installed-janus-smoke",
+      "type": "programmatic"
+    },
+    "packaged-build": {
+      "check": ["pnpm", "run", "build:unpack"],
+      "expect": "exit_zero",
+      "id": "packaged-build",
+      "type": "programmatic"
+    },
+    "typecheck-web": {
+      "check": ["pnpm", "run", "typecheck:web"],
+      "expect": "exit_zero",
+      "id": "typecheck-web",
+      "type": "programmatic"
+    },
+    "user-ready-signoff": {
+      "id": "user-ready-signoff",
+      "prompt": "Confirm the installed Janus Code app is ready to use as the primary chat interface for real project work, or list the remaining blocker that prevents that.\n",
+      "type": "human"
+    },
+    "visual-polish-and-styleguide": {
+      "id": "visual-polish-and-styleguide",
+      "rubric": "Judge whether the delivery feels like a high-end polished ADE. A pass requires restrained operational density, clear hierarchy, intentional microstates, readable contrast, styleguide token usage, consistent spacing, professional timeline/composer/right-panel composition, and no generic AI-dashboard ornament or contradictory chrome. Blocking issues must cite the visible surface and why it harms real use.\n",
+      "type": "judge"
+    },
+    "workflow-assurance-tests": {
+      "check": ["pnpm", "run", "verify:janus-workflow-assurance"],
+      "expect": "exit_zero",
+      "id": "workflow-assurance-tests",
+      "type": "programmatic"
+    }
+  },
+  "execution": {
+    "isolation": "current_workspace",
+    "mode": "in_session",
+    "side_effects": {
+      "allowed_without_extra_approval": [
+        "reading files",
+        "editing files in this worktree",
+        "running tests and builds",
+        "rebuilding and reinstalling /Applications/Janus Code.app for verification"
+      ],
+      "approval_required": [
+        "pushing branches",
+        "creating pull requests",
+        "deleting files outside this worktree",
+        "sending context to any non-current-session model CLI"
+      ],
+      "duplicate_action_check": true,
+      "requires_approval": true
+    }
+  },
+  "gates": {
+    "delivery_gate": {
+      "criteria": [
+        "focused-agent-workspace-tests",
+        "workflow-assurance-tests",
+        "typecheck-web",
+        "changed-react-lint",
+        "diff-whitespace",
+        "packaged-build",
+        "installed-janus-smoke",
+        "ade-chat-operability",
+        "visual-polish-and-styleguide",
+        "user-ready-signoff"
+      ],
+      "max_revisions": 3,
+      "members": ["workflow-reviewer", "operability-judge"],
+      "verdict_policy": "revise_until_clean",
+      "verdict_source": "operability-judge",
+      "when": "after_each_delivery"
+    },
+    "plan_gate": {
+      "criteria": ["ade-chat-operability", "visual-polish-and-styleguide"],
+      "max_revisions": 3,
+      "members": ["workflow-reviewer", "operability-judge"],
+      "verdict_policy": "revise_until_clean",
+      "verdict_source": "operability-judge",
+      "when": "after_plan"
+    }
+  },
+  "goal": {
+    "context_sources": [
+      {
+        "file": "./docs/STYLEGUIDE.md"
+      },
+      {
+        "file": "./src/renderer/src/assets/main.css"
+      },
+      {
+        "file": "./CHANGELOG.md"
+      },
+      {
+        "file": "./package.json"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentWorkspacePage.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentWorkspacePane.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentWorkspaceLayout.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentWorkspaceChrome.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentTimeline.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentTimelineEntry.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentComposer.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentComposerForm.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/useAgentWorkspacePanes.ts"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentWorkspaceRightPanel.tsx"
+      },
+      {
+        "file": "./src/renderer/src/components/agent-workspace/AgentTerminalDrawer.tsx"
+      },
+      {
+        "file": "./src/renderer/src/lib/launch-agent-in-new-tab.ts"
+      },
+      {
+        "cmd": ["git", "status", "--short", "--branch", "--untracked-files=all"]
+      },
+      {
+        "cmd": [
+          "rg",
+          "-n",
+          "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|starting|completed thread|recover",
+          "src/renderer/src/components/agent-workspace",
+          "src/renderer/src/lib/launch-agent-in-new-tab.ts"
+        ]
+      }
+    ],
+    "definition_of_done": "Janus Code's installed app can be used as the primary project chat surface without workarounds: the full create/send/progress/respond/follow-up/tooling workflow is verified in /Applications/Janus Code.app, all touched controls are wired, message delivery and thread selection are reliable, right-panel and floating-card state is live and non-overlapping, keyboard/focus behavior is sane, visual language follows the Janus styleguide, CHANGELOG.md records each batch, and all configured programmatic and judge gates pass or an honest external blocker is documented with the next concrete path to green.\n",
+    "statement": "Make the Janus Code chat UI workflow highly operable for real project work: a user can open a project workspace, start or select an agent thread, send a prompt, immediately see the user turn, watch agent progress, receive the response, follow up after completion, use browser and terminal affordances, inspect context/output/diff/review/info surfaces, and keep working without dead controls, lost messages, stale thread state, broken layout, or visual regressions.\n",
+    "verification": [
+      {
+        "check": [
+          "pnpm",
+          "vitest",
+          "run",
+          "--config",
+          "config/vitest.config.ts",
+          "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx",
+          "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx",
+          "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts",
+          "src/renderer/src/lib/launch-agent-in-new-tab.test.ts",
+          "src/renderer/src/components/terminal-pane/pty-connection.test.ts"
+        ],
+        "expect": "exit_zero",
+        "id": "focused-agent-workspace-tests",
+        "type": "programmatic"
+      },
+      {
+        "check": ["pnpm", "run", "verify:janus-workflow-assurance"],
+        "expect": "exit_zero",
+        "id": "workflow-assurance-tests",
+        "type": "programmatic"
+      },
+      {
+        "check": ["pnpm", "run", "typecheck:web"],
+        "expect": "exit_zero",
+        "id": "typecheck-web",
+        "type": "programmatic"
+      },
+      {
+        "check": ["pnpm", "run", "lint:react-doctor:changed"],
+        "expect": "exit_zero",
+        "id": "changed-react-lint",
+        "type": "programmatic"
+      },
+      {
+        "check": ["git", "diff", "--check"],
+        "expect": "exit_zero",
+        "id": "diff-whitespace",
+        "type": "programmatic"
+      },
+      {
+        "check": ["pnpm", "run", "build:unpack"],
+        "expect": "exit_zero",
+        "id": "packaged-build",
+        "type": "programmatic"
+      },
+      {
+        "check": ["pnpm", "run", "smoke:janus-workflow"],
+        "expect": "exit_zero",
+        "id": "installed-janus-smoke",
+        "type": "programmatic"
+      },
+      {
+        "id": "ade-chat-operability",
+        "rubric": "Judge the plan or delivery against the actual Janus chat workflow, not isolated widgets. A pass requires explicit coverage for: project/thread selection, new session launch, first user turn visibility, running and completed states, follow-up recovery, terminal drawer, browser/workbench routing, context/output/diff/review/info surfaces, keyboard/focus, empty and error states, no stale workspace metadata, no dead placeholder controls, and no layout overlap at narrow, medium, and wide widths. Blocking issues must identify the missing workflow step or evidence.\n",
+        "type": "judge"
+      },
+      {
+        "id": "visual-polish-and-styleguide",
+        "rubric": "Judge whether the delivery feels like a high-end polished ADE. A pass requires restrained operational density, clear hierarchy, intentional microstates, readable contrast, styleguide token usage, consistent spacing, professional timeline/composer/right-panel composition, and no generic AI-dashboard ornament or contradictory chrome. Blocking issues must cite the visible surface and why it harms real use.\n",
+        "type": "judge"
+      },
+      {
+        "id": "user-ready-signoff",
+        "prompt": "Confirm the installed Janus Code app is ready to use as the primary chat interface for real project work, or list the remaining blocker that prevents that.\n",
+        "type": "human"
+      }
+    ]
+  },
+  "host": {
+    "cli": "codex",
+    "invoke": ["codex", "exec"],
+    "model": "current-session",
+    "timeout_sec": 900
+  },
+  "loop_control": {
+    "budget": {
+      "tokens": 8000000,
+      "wall_clock_min": 360
+    },
+    "human_checkpoints": [
+      "before external model or vendor egress",
+      "before any destructive git operation",
+      "before final ready-to-use claim"
+    ],
+    "max_iterations": 10,
+    "no_progress": {
+      "action": "human_checkpoint",
+      "max_stalled_iterations": 2,
+      "signals": [
+        "same blocking issue repeats",
+        "delivery artifact has no material change",
+        "verifier output is unchanged",
+        "installed-app smoke fails at the same step after a targeted fix"
+      ]
+    },
+    "stop_conditions": [
+      "all delivery criteria pass clean",
+      "user confirms the installed app is ready to use for real project chat work",
+      "max_iterations reached",
+      "same blocker repeats for 2 iterations without new evidence",
+      "wall-clock or token budget cap is reached"
+    ]
+  },
+  "meta": {
+    "author": "codex",
+    "created": "2026-06-23",
+    "description": "Drive Janus Code's chat-first project workflow from buggy-but-present toward a polished ADE-grade interface through repeated discovery, implementation, installed-app verification, and judge-gated review.\n",
+    "name": "janus-chat-ui-operability-loop"
+  },
+  "observability": {
+    "checkpoint_granularity": "gate",
+    "run_log": "run-log.md",
+    "state_file": "state.json"
+  },
+  "privacy": {
+    "egress": [
+      {
+        "consent": "required",
+        "redact": [".env", ".env.*", "secrets/**", "**/*.key"],
+        "sends": ["plan", "deliveries", "selected source snippets", "verification output"],
+        "to": "workflow-reviewer"
+      },
+      {
+        "consent": "required",
+        "redact": [".env", ".env.*", "secrets/**", "**/*.key"],
+        "sends": ["plan", "deliveries", "selected source snippets", "verification output"],
+        "to": "operability-judge"
+      }
+    ]
+  },
+  "source": "/Users/jakedom/.codex/worktrees/65ea/janus-code/looper-output/loop.yaml",
+  "version": 1,
+  "workspace": {
+    "dir": "./loop-workspace",
+    "layout": [
+      "plan.md",
+      "delivery-{n}.md",
+      "review-{n}.md",
+      "screenshots",
+      "installed-smoke-notes.md",
+      "state.json",
+      "run-log.md"
+    ]
+  }
+}

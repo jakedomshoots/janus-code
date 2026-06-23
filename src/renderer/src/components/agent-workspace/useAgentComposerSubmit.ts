@@ -28,6 +28,7 @@ export function useAgentComposerSubmit({
   canSendToSelectedThread,
   composerModelSelections,
   onMessageSent,
+  onPromptRepresentedInTranscript,
   onPendingAgentLaunch,
   prompt,
   selectedAgent,
@@ -48,6 +49,7 @@ export function useAgentComposerSubmit({
   canSendToSelectedThread: boolean
   composerModelSelections: Partial<Record<TuiAgent, string>>
   onMessageSent?: AgentComposerMessageSentHandler
+  onPromptRepresentedInTranscript?: (prompt: string) => void
   onPendingAgentLaunch?: () => void
   prompt: string
   selectedAgent: TuiAgent | null
@@ -150,6 +152,7 @@ export function useAgentComposerSubmit({
           setSubmitResult(fallbackResult)
           setSubmitting(false)
           if (fallbackResult.status === 'launching') {
+            onPromptRepresentedInTranscript?.(trimmedPrompt)
             onPendingAgentLaunch?.()
           }
           return
@@ -163,6 +166,7 @@ export function useAgentComposerSubmit({
         setPrompt((currentPrompt) => (currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt))
       }
       if (launchingNewAgent && result.status === 'launching') {
+        onPromptRepresentedInTranscript?.(trimmedPrompt)
         onPendingAgentLaunch?.()
       }
       if (canSendToSelectedThread && result.status === 'sent' && !pendingEcho) {
@@ -184,6 +188,7 @@ export function useAgentComposerSubmit({
       canSendToSelectedThread,
       composerModelSelections,
       onMessageSent,
+      onPromptRepresentedInTranscript,
       onPendingAgentLaunch,
       prompt,
       selectedAgent,

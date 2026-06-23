@@ -1,0 +1,46 @@
+{
+  "blockers": [],
+  "consent": {
+    "current_session_substitute": {
+      "granted_at": "2026-06-23T17:36:00Z",
+      "scope": "Use this Codex session as reviewer and judge; do not invoke external model CLIs."
+    }
+  },
+  "iteration": 1,
+  "last_gate": "delivery_batch_1_passed_with_non_ui_blockers",
+  "live_findings": [
+    {
+      "id": "P0-composer-retains-sent-follow-up",
+      "evidence": "Installed app shows completed-thread follow-up user bubble and agent reply while composer still contains the sent text.",
+      "severity": "P0",
+      "status": "fixed",
+      "verification": "Installed app showed completed-thread transcript with composer empty and Send disabled after rebuild."
+    },
+    {
+      "id": "P0-composer-retains-launched-follow-up",
+      "evidence": "Installed app shows a new running fallback thread and user bubble while composer still contains the sent prompt.",
+      "severity": "P0",
+      "status": "fixed",
+      "verification": "Live installed smoke showed new thread user bubble while composer cleared and Send disabled, then stayed clear after agent completion."
+    }
+  ],
+  "non_ui_gate_notes": [
+    {
+      "id": "release-artifacts-missing",
+      "check": "pnpm run verify:janus-workflow-assurance",
+      "detail": "Vitest portion passed 93 files / 747 tests, then direct-download artifact verification failed because release .dmg/.zip/checksum artifacts are absent."
+    },
+    {
+      "id": "janus-computer-use-accessibility-missing",
+      "check": "pnpm run smoke:janus-workflow",
+      "detail": "Installed workflow smoke cannot run until Accessibility is granted to Janus Computer Use."
+    }
+  ],
+  "status": "delivery_batch_1_passed",
+  "installed_app": {
+    "path": "/Applications/Janus Code.app",
+    "backup": "/Applications/Janus Code.app.backup-20260623-135822",
+    "app_asar_sha256": "346dd06be6bf5f0bcfe22c22cde4c4d6538541a9c1406a4a622e41f29f397d06",
+    "verified_at": "2026-06-23T18:00:20Z"
+  }
+}

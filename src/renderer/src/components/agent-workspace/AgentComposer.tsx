@@ -53,6 +53,8 @@ export function AgentComposer({
   const [prompt, setPrompt] = useState('')
   const [submitResult, setSubmitResult] = useState<AgentComposerFeedback | null>(null)
   const [recoverablePrompt, setRecoverablePrompt] = useState<string | null>(null)
+  const [pendingTranscriptPrompt, setPendingTranscriptPrompt] = useState<string | null>(null)
+  const [restoredRecoverablePrompt, setRestoredRecoverablePrompt] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<TuiAgent | null>(null)
   const settings = useAppStore((state) => state.settings)
@@ -170,6 +172,7 @@ export function AgentComposer({
     canSendToSelectedThread,
     composerModelSelections,
     onMessageSent,
+    onPromptRepresentedInTranscript: setPendingTranscriptPrompt,
     onPendingAgentLaunch,
     prompt,
     selectedAgent,
@@ -210,17 +213,28 @@ export function AgentComposer({
   const handlePromptChange = useCallback(
     (value: string): void => {
       setPrompt(stripInjectedBrowserGrabDump(value))
+      if (pendingTranscriptPrompt && value.trim() !== pendingTranscriptPrompt.trim()) {
+        setPendingTranscriptPrompt(null)
+      }
+      if (restoredRecoverablePrompt && value.trim() !== restoredRecoverablePrompt.trim()) {
+        setRestoredRecoverablePrompt(null)
+      }
       setRecoverablePrompt(null)
       if (submitResult?.status === 'sent' || submitResult?.reason === 'empty') {
         setSubmitResult(null)
       }
     },
-    [submitResult?.reason, submitResult?.status]
+    [pendingTranscriptPrompt, restoredRecoverablePrompt, submitResult?.reason, submitResult?.status]
   )
 
   useCompletedThreadRecoveryCleanup({
     recoverablePrompt,
+    pendingTranscriptPrompt,
+    restoredRecoverablePrompt,
     timeline,
+    setPrompt,
+    setPendingTranscriptPrompt,
+    setRestoredRecoverablePrompt,
     setRecoverablePrompt,
     setSubmitResult
   })
@@ -234,6 +248,7 @@ export function AgentComposer({
       canSendToSelectedThread,
       onMessageSent,
       setPrompt,
+      onRecoverablePromptRestored: setRestoredRecoverablePrompt,
       setRecoverablePrompt,
       setSubmitResult,
       setSubmitting

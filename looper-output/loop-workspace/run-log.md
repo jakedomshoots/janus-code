@@ -1,0 +1,30 @@
+- 2026-06-23T17:36:00Z `loop_started` {"mode":"in_session","target":"looper-output","note":"User confirmed scaffold and asked to handle the Janus chat UI operability loop."}
+- 2026-06-23T17:36:00Z `external_egress_policy` {"decision":"current-session substitute only","redactions":[".env",".env.*","secrets/**","**/*.key"]}
+- 2026-06-23T17:38:00Z `context_read` {"sources":["STYLEGUIDE.md","main.css tokens and agent-workspace CSS","CHANGELOG.md","package.json scripts","agent workspace layout/timeline/composer/pane/right-panel/terminal/launch sources","git status","hot-zone rg scan"]}
+- 2026-06-23T17:40:00Z `installed_app_observation` {"app":"/Applications/Janus Code.app","finding":"Completed-thread follow-up transcript and agent reply are visible, but composer still contains the sent text and Send remains enabled.","severity":"P0 workflow operability"}
+- 2026-06-23T17:45:00Z `plan_written` {"file":"loop-workspace/plan.md","first_batch":"Message Turn Contract"}
+- 2026-06-23T17:45:00Z `plan_gate` {"verdict":"pass","verdict_source":"current-session operability judge","confidence":0.82}
+- 2026-06-23T17:47:00Z `red_test` {"check":"AgentComposer.recovery.test.tsx","result":"failed as expected","failure":"unchanged restored prompt remained after matching completed-thread reply"}
+- 2026-06-23T17:48:00Z `implementation` {"batch":"Message Turn Contract","files":["AgentComposer.tsx","useCompletedThreadRecoveryCleanup.ts","useAgentComposerRecoverablePromptActions.ts","AgentComposer.recovery.test.tsx","CHANGELOG.md"],"summary":"Track restored recovery drafts and clear only the unchanged prompt after matching reply evidence arrives."}
+- 2026-06-23T17:48:00Z `focused_check` {"check":"AgentComposer.recovery.test.tsx","result":"pass","tests":7}
+- 2026-06-23T17:48:00Z `focused_check` {"check":"focused agent workspace bundle","result":"pass","files":7,"tests":221}
+- 2026-06-23T17:49:00Z `programmatic_check` {"check":"typecheck:web","result":"pass"}
+- 2026-06-23T17:49:00Z `programmatic_check` {"check":"lint:react-doctor:changed","result":"pass"}
+- 2026-06-23T17:49:00Z `programmatic_check` {"check":"git diff --check","result":"pass"}
+- 2026-06-23T17:49:00Z `programmatic_check` {"check":"verify:janus-workflow-assurance","result":"partial","passed":"93 files, 747 tests","blocker":"Missing direct-download release artifacts and SHA256SUMS.txt after test phase."}
+- 2026-06-23T17:51:00Z `programmatic_check` {"check":"build:unpack","result":"pass"}
+- 2026-06-23T17:52:00Z `installed_app_rebuild` {"installed":"/Applications/Janus Code.app","hash":"a61b8c677012865cd94aac88d62fe1e3f3215918909615620d231605497fbb0a","result":"installed hash matches dist app.asar"}
+- 2026-06-23T17:52:00Z `programmatic_check` {"check":"smoke:janus-workflow","result":"blocked","blocker":"Janus Computer Use Accessibility permission is not granted for the installed helper."}
+- 2026-06-23T17:53:00Z `installed_app_observation` {"finding":"Completed-thread fallback launched a new running thread and showed the user prompt, but composer still retained the sent prompt while running.","severity":"P0 workflow operability"}
+- 2026-06-23T17:54:00Z `red_test` {"check":"AgentComposer.recovery.test.tsx","result":"failed as expected","failure":"launched follow-up prompt remained after matching user entry appeared in new thread timeline"}
+- 2026-06-23T17:54:00Z `implementation` {"batch":"Message Turn Contract","summary":"Track launched prompts awaiting transcript evidence and clear unchanged drafts when the matching non-failed user entry appears."}
+- 2026-06-23T17:54:00Z `focused_check` {"check":"AgentComposer.recovery.test.tsx","result":"pass","tests":8}
+- 2026-06-23T17:55:00Z `focused_check` {"check":"focused agent workspace bundle","result":"pass","files":7,"tests":222}
+- 2026-06-23T17:55:00Z `programmatic_check` {"check":"typecheck:web","result":"pass"}
+- 2026-06-23T17:55:00Z `programmatic_check` {"check":"lint:react-doctor:changed","result":"pass"}
+- 2026-06-23T17:55:00Z `programmatic_check` {"check":"git diff --check","result":"pass"}
+- 2026-06-23T17:57:00Z `programmatic_check` {"check":"build:unpack","result":"pass","notes":"Renderer and native helper packaged successfully."}
+- 2026-06-23T17:58:00Z `installed_app_rebuild` {"installed":"/Applications/Janus Code.app","backup":"/Applications/Janus Code.app.backup-20260623-135822","hash":"346dd06be6bf5f0bcfe22c22cde4c4d6538541a9c1406a4a622e41f29f397d06","result":"installed app.asar hash matches dist app.asar"}
+- 2026-06-23T17:59:00Z `installed_app_observation` {"finding":"Freshly installed app restored the previous completed smoke thread with transcript intact, composer empty, and Send disabled.","result":"pass"}
+- 2026-06-23T18:00:00Z `installed_app_smoke` {"action":"Sent completed-thread follow-up: reply only: final loop smoke ok","evidence":"New running thread selected; user bubble appeared in the timeline; composer immediately cleared and Send became disabled.","result":"pass"}
+- 2026-06-23T18:00:20Z `installed_app_smoke` {"action":"Waited for agent completion","evidence":"Completed thread shows user and agent turns; composer remains empty and Send disabled.","result":"pass"}

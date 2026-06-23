@@ -16,7 +16,8 @@ export function useAgentComposerRecoverablePromptActions({
   setPrompt,
   setRecoverablePrompt,
   setSubmitResult,
-  setSubmitting
+  setSubmitting,
+  onRecoverablePromptRestored
 }: {
   activeWorktreeId: string | null
   selectedThread: AgentWorkspaceThread | null
@@ -28,6 +29,7 @@ export function useAgentComposerRecoverablePromptActions({
   setRecoverablePrompt: Dispatch<SetStateAction<string | null>>
   setSubmitResult: Dispatch<SetStateAction<AgentComposerFeedback | null>>
   setSubmitting: Dispatch<SetStateAction<boolean>>
+  onRecoverablePromptRestored?: (prompt: string) => void
 }): {
   restoreRecoverablePrompt: () => void
   retryRecoverablePrompt: () => Promise<void>
@@ -37,9 +39,16 @@ export function useAgentComposerRecoverablePromptActions({
       return
     }
     setPrompt(recoverablePrompt)
+    onRecoverablePromptRestored?.(recoverablePrompt)
     setRecoverablePrompt(null)
     setSubmitResult(null)
-  }, [recoverablePrompt, setPrompt, setRecoverablePrompt, setSubmitResult])
+  }, [
+    onRecoverablePromptRestored,
+    recoverablePrompt,
+    setPrompt,
+    setRecoverablePrompt,
+    setSubmitResult
+  ])
 
   const retryRecoverablePrompt = useCallback(async (): Promise<void> => {
     if (!recoverablePrompt || submitting || !canSendToSelectedThread) {

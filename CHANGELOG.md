@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Cleared unchanged completed-thread follow-up prompts once the matching prompt appears in the transcript, including recovered launch paths, while preserving edited drafts.
 - Fixed draft-launched agent sessions so the chat pane selects their starting transcript immediately, even when older threads already exist.
 - Moved the agent workspace evidence rail into an opt-in Info tab and restored the compact floating card treatment with a reserved chat gutter.
 - Split oversized Landing, Mobile, Add Project, and feature user-story collector modules into focused files so the max-lines lint guard passes without disabling it.
