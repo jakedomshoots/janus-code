@@ -6,8 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspaceApproval,
+  AgentWorkspaceTimelineEntry,
   AgentWorkspaceProject,
-  AgentWorkspaceThread
+  AgentWorkspaceThread,
+  AgentWorkspaceReviewSummary
 } from './agent-workspace-types'
 import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 
@@ -47,6 +49,58 @@ const diffSummary: AgentWorkspaceDiffSummary = {
   deletions: 7,
   status: 'modified'
 }
+
+const secondDiffSummary: AgentWorkspaceDiffSummary = {
+  id: 'diff-2',
+  threadId: 'thread-2',
+  filePath: 'src/renderer/src/components/agent-workspace/AgentWorkspaceEvidenceRail.tsx',
+  additions: 68,
+  deletions: 9,
+  status: 'added'
+}
+
+const secondThread: AgentWorkspaceThread = {
+  id: 'thread-2',
+  worktreeId: 'worktree-1',
+  title: 'Implement evidence rail',
+  agentKind: 'claude',
+  phase: 'completed',
+  updatedAt: '2026-06-16T12:10:00.000Z',
+  branchName: 'feature/janus-gui-workspace',
+  cwd: '/Users/jakedom/janus-code'
+}
+
+const reviewSummary: AgentWorkspaceReviewSummary = {
+  id: 'review-1',
+  worktreeId: 'worktree-1',
+  provider: 'github',
+  providerLabel: 'GitHub',
+  number: 17,
+  title: 'Implement evidence rail',
+  state: 'open',
+  status: 'success',
+  url: 'https://example.test/review/17',
+  updatedAt: '2026-06-16T12:11:00.000Z'
+}
+
+const timeline: AgentWorkspaceTimelineEntry[] = [
+  {
+    id: 'thread-1:user',
+    threadId: 'thread-1',
+    kind: 'user',
+    text: 'Make agent work reviewable.',
+    createdAt: '2026-06-16T12:00:00.000Z',
+    status: 'done'
+  },
+  {
+    id: 'thread-1:tool',
+    threadId: 'thread-1',
+    kind: 'tool',
+    text: 'pnpm test',
+    createdAt: '2026-06-16T12:02:00.000Z',
+    status: 'running'
+  }
+]
 
 const approvalRequest: AgentWorkspaceApproval = {
   id: 'thread-1:approval:approval-1',
@@ -161,5 +215,70 @@ describe('AgentWorkspaceRightPanel', () => {
       decision: 'deny',
       onOpenTerminalDrawer
     })
+  })
+
+  it('renders evidence, lifecycle, candidate, and preview recovery controls', async () => {
+    const onSelectThread = vi.fn()
+    const onOpenBrowserWorkbench = vi.fn()
+    const onOpenTerminalDrawer = vi.fn()
+    const onReviewDiffs = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <AgentWorkspaceRightPanel
+          project={project}
+          thread={runningThread}
+          threads={[runningThread, secondThread]}
+          plan={null}
+          approval={null}
+          diffs={[diffSummary]}
+          allDiffs={[diffSummary, secondDiffSummary]}
+          review={reviewSummary}
+          reviews={[reviewSummary]}
+          timeline={timeline}
+          terminalAvailable
+          browserAvailable
+          selectedTab="review"
+          onSelectedTabChange={() => undefined}
+          onSelectThread={onSelectThread}
+          onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+          onReviewDiffs={onReviewDiffs}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('Lifecycle')
+    expect(container.textContent).toContain('Evidence')
+    expect(container.textContent).toContain('Candidate A')
+    expect(container.textContent).toContain('Candidate B')
+    expect(container.textContent).toContain('Needs review')
+    expect(container.textContent).toContain('Changed files')
+    expect(container.textContent).toContain('Preview health')
+
+    const candidateButton = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('button')
+    ).find((button) => button.textContent?.includes('Candidate B'))
+    const previewButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Open preview')
+    )
+    const terminalButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Open terminal')
+    )
+    const reviewButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent?.includes('Review changes')
+    )
+
+    await act(async () => {
+      candidateButton?.click()
+      previewButton?.click()
+      terminalButton?.click()
+      reviewButton?.click()
+    })
+
+    expect(onSelectThread).toHaveBeenCalledWith('thread-2')
+    expect(onOpenBrowserWorkbench).toHaveBeenCalled()
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('debug-button')
+    expect(onReviewDiffs).toHaveBeenCalled()
   })
 })

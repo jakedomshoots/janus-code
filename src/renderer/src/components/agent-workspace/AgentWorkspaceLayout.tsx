@@ -271,17 +271,24 @@ export function AgentWorkspaceLayout({
             plan={selectedPlan}
             approval={selectedApproval}
             diffs={diffs}
+            allDiffs={snapshot.diffs}
             review={selectedReview}
+            reviews={snapshot.reviews ?? []}
+            timeline={getThreadTimeline(snapshot, selectedThread)}
             sourceControlBusy={sourceControlActions.sourceControlBusy}
             sourceControlError={sourceControlActions.sourceControlError}
             terminalAvailable={snapshot.terminalAvailable}
+            browserAvailable={browserWorkbench.browserAvailable}
             selectedTab={selectedRightPanelState.selectedTab}
             onSelectedTabChange={handleRightPanelTabChange}
+            onSelectThread={(threadId) => handlePaneThreadSelect(activePaneId, threadId)}
             onOpenDiff={selectedThread?.cwd ? handleOpenDiff : undefined}
             onStageDiff={sourceControlActions.onStageDiff}
             onUnstageDiff={sourceControlActions.onUnstageDiff}
             onDiscardDiff={sourceControlActions.onDiscardDiff}
             onCommitStaged={sourceControlActions.onCommitStaged}
+            onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
+            onReviewDiffs={() => handleRightPanelTabChange('review')}
             onOpenTerminalDrawer={onOpenTerminalDrawer}
           />
         )

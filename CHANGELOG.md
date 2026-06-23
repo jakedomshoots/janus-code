@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added an agent workspace evidence rail with lifecycle state, implementation candidates, concrete evidence, preview health, and wired recovery actions.
+- Upgraded agent workspace review mode with recommended file order, local viewed state, stale-review warnings, hosted review context, and captured test evidence.
 - Improved Mobile page responsiveness inside the Janus app shell by making its hero breakpoints respond to the page container, not only the outer window.
 - Removed inactive Mobile preview slides from keyboard and screen reader navigation so off-stage mock controls cannot receive focus.
 - Auto-collapsed the worktree sidebar when the app viewport enters compact widths, preventing active pages from staying mostly offscreen at 320px.

@@ -7,8 +7,10 @@ import type {
   AgentWorkspacePlan,
   AgentWorkspaceProject,
   AgentWorkspaceReviewSummary,
-  AgentWorkspaceThread
+  AgentWorkspaceThread,
+  AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
+import { AgentWorkspaceEvidenceRail } from './AgentWorkspaceEvidenceRail'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
 import { buildAgentWorkspaceRightCardModel } from './agent-workspace-right-card-model'
 import {
@@ -22,7 +24,7 @@ import {
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
 import { useAgentWorkspaceApprovalResponse } from './useAgentWorkspaceApprovalResponse'
 import { AgentWorkspaceRightPanelChanges } from './AgentWorkspaceRightPanelChanges'
-import { PanelSummary, PlanProgress } from './AgentWorkspaceRightPanelSummary'
+import { PanelSummary, PlanProgress, ReviewModePanel } from './AgentWorkspaceRightPanelSummary'
 
 export function AgentWorkspaceRightPanel({
   project,
@@ -31,16 +33,23 @@ export function AgentWorkspaceRightPanel({
   plan,
   approval,
   diffs,
+  allDiffs,
   review,
+  reviews,
+  timeline,
   sourceControlBusy,
   sourceControlError,
   terminalAvailable,
+  browserAvailable,
   selectedTab,
   onSelectedTabChange,
+  onSelectThread,
   onStageDiff,
   onUnstageDiff,
   onDiscardDiff,
   onCommitStaged,
+  onOpenBrowserWorkbench,
+  onReviewDiffs,
   onOpenTerminalDrawer
 }: {
   project: AgentWorkspaceProject | null
@@ -49,17 +58,24 @@ export function AgentWorkspaceRightPanel({
   plan: AgentWorkspacePlan | null
   approval: AgentWorkspaceApproval | null
   diffs: readonly AgentWorkspaceDiffSummary[]
+  allDiffs?: readonly AgentWorkspaceDiffSummary[]
   review: AgentWorkspaceReviewSummary | null
+  reviews?: readonly AgentWorkspaceReviewSummary[]
+  timeline?: readonly AgentWorkspaceTimelineEntry[]
   sourceControlBusy?: boolean
   sourceControlError?: string | null
   terminalAvailable: boolean
+  browserAvailable?: boolean
   selectedTab: AgentWorkspaceRightPanelTab
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
+  onSelectThread?: (threadId: string) => void
   onOpenDiff?: (diff: AgentWorkspaceDiffSummary) => void
   onStageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onUnstageDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onDiscardDiff?: (diff: AgentWorkspaceDiffSummary) => void | Promise<void>
   onCommitStaged?: (message: string) => boolean | void | Promise<boolean | void>
+  onOpenBrowserWorkbench?: () => void
+  onReviewDiffs?: () => void
   onOpenTerminalDrawer?: (reason: AgentTerminalRevealReason) => void
 }): React.JSX.Element {
   const { approvalFeedback, approvalBusy, canRespondInTerminal, handleApprovalDecision } =
@@ -80,13 +96,31 @@ export function AgentWorkspaceRightPanel({
 
   return (
     <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="agent-workspace-right-panel-shell pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+      <div className="agent-workspace-right-panel-shell scrollbar-sleek pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
           diffs={diffs}
           sources={model.sources.length}
           subagents={model.subagents.length}
+        />
+        <AgentWorkspaceEvidenceRail
+          project={project}
+          thread={thread}
+          threads={threads}
+          plan={plan}
+          approval={approval}
+          diffs={diffs}
+          allDiffs={allDiffs ?? diffs}
+          review={review}
+          reviews={reviews ?? (review ? [review] : [])}
+          timeline={timeline ?? []}
+          terminalAvailable={terminalAvailable}
+          browserAvailable={browserAvailable === true}
+          onSelectThread={onSelectThread}
+          onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+          onOpenTerminalDrawer={onOpenTerminalDrawer}
+          onReviewDiffs={onReviewDiffs}
         />
         <PanelTabs
           selectedTab={selectedTab}
@@ -146,28 +180,12 @@ export function AgentWorkspaceRightPanel({
             </>
           ) : null}
           {selectedTab === 'review' ? (
-            <InfoSection
-              title={translate('auto.components.agentWorkspace.rightPanel.review', 'Review')}
-              emptyLabel={translate(
-                'auto.components.agentWorkspace.rightPanel.noReviewYet',
-                'No review yet'
-              )}
-            >
-              <ItemList
-                items={
-                  review
-                    ? [
-                        {
-                          id: review.id,
-                          label: review.title,
-                          detail: `${review.providerLabel} #${review.number} · ${review.state}`
-                        }
-                      ]
-                    : []
-                }
-                iconKind="output"
-              />
-            </InfoSection>
+            <ReviewModePanel
+              thread={thread}
+              diffs={diffs}
+              review={review}
+              timeline={timeline ?? []}
+            />
           ) : null}
           {selectedTab === 'details' ? (
             <>
