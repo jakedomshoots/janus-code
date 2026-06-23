@@ -1,16 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import { createAgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
-import { selectPanesAfterProjectThreadUpdate } from './agent-workspace-pane-thread-selection'
+import {
+  findNewAgentWorkspaceThread,
+  selectPanesAfterProjectThreadUpdate
+} from './agent-workspace-pane-thread-selection'
 import type { AgentWorkspacePaneState } from './agent-workspace-pane-state'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 
-function thread(id: string): AgentWorkspaceThread {
+function thread(
+  id: string,
+  phase: AgentWorkspaceThread['phase'] = 'running'
+): AgentWorkspaceThread {
   return {
     id,
     worktreeId: 'worktree-1',
     title: 'Build the workspace flow',
     agentKind: 'codex',
-    phase: 'running',
+    phase,
     updatedAt: '2026-06-19T20:00:00.000Z',
     branchName: null,
     cwd: '/repo/janus-code'
@@ -18,6 +24,15 @@ function thread(id: string): AgentWorkspaceThread {
 }
 
 describe('selectPanesAfterProjectThreadUpdate', () => {
+  it('treats starting threads as new draft-launch candidates', () => {
+    const olderThread = thread('thread-old', 'completed')
+    const startingThread = thread('thread-starting', 'starting')
+
+    expect(
+      findNewAgentWorkspaceThread([startingThread, olderThread], new Set([olderThread.id]))
+    ).toBe(startingThread)
+  })
+
   it('consumes the selected draft session when its first real agent thread appears', () => {
     const draftSession = createAgentWorkspaceDraftSession('codex')
     const pane: AgentWorkspacePaneState = {

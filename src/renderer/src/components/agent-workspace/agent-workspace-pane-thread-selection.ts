@@ -1,6 +1,13 @@
 import type { AgentWorkspacePaneState } from './agent-workspace-pane-state'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 
+export function findNewAgentWorkspaceThread(
+  projectThreads: readonly AgentWorkspaceThread[],
+  previousThreadIds: ReadonlySet<string>
+): AgentWorkspaceThread | undefined {
+  return projectThreads.find((thread) => !previousThreadIds.has(thread.id))
+}
+
 export function selectPanesAfterProjectThreadUpdate({
   panes,
   launchedThread,

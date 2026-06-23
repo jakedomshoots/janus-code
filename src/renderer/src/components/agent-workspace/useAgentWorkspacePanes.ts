@@ -14,7 +14,10 @@ import type {
   AgentWorkspacePaneState,
   AgentWorkspaceSplitDirection
 } from './agent-workspace-pane-state'
-import { selectPanesAfterProjectThreadUpdate } from './agent-workspace-pane-thread-selection'
+import {
+  findNewAgentWorkspaceThread,
+  selectPanesAfterProjectThreadUpdate
+} from './agent-workspace-pane-thread-selection'
 import {
   createInitialPaneState,
   finalizeDraftSessionAgentBeforeSwitch,
@@ -247,9 +250,9 @@ export function useAgentWorkspacePanes({
   useEffect(() => {
     const hadProjectThreads = previousProjectThreadIdsKeyRef.current.length > 0
     const previousThreadIds = new Set(previousProjectThreadIdsKeyRef.current.split('\u0000'))
-    const launchedThread = projectThreads.find(
-      (thread) => thread.phase === 'running' && !previousThreadIds.has(thread.id)
-    )
+    // Why: first transcript visibility must follow fast status updates too,
+    // including pending startup rows that are not running yet.
+    const launchedThread = findNewAgentWorkspaceThread(projectThreads, previousThreadIds)
     previousProjectThreadIdsKeyRef.current = projectThreadIdsKey
     setPanes((currentPanes) => {
       const nextPanes = selectPanesAfterProjectThreadUpdate({
