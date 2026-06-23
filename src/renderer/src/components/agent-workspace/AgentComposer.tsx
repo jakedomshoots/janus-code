@@ -17,15 +17,8 @@ import {
   getAgentComposerReadinessMessage,
   isSelectedThreadReady
 } from './agent-composer-readiness'
-import { createPromptDeliveredFeedback } from './agent-composer-delivery-feedback'
-import { launchSelectedAgent } from './agent-composer-launch'
-import { getCompletedThreadRecoveryFeedback } from './agent-composer-completed-thread-recovery'
 import { useAgentComposerModelDiscovery } from './agent-composer-model-discovery'
 import { handleAgentComposerPaste } from './agent-composer-paste'
-import { launchProjectlessPlanningComposerAgent } from './agent-composer-projectless-launch'
-import { submitAgentComposerMessage } from './agent-composer-submit'
-import { launchCompletedThreadFallback } from './agent-composer-completed-thread-fallback'
-import { notifyAgentComposerMessageSent } from './agent-composer-message-sent'
 import {
   EMPTY_DISABLED_TUI_AGENTS,
   getAgentComposerDetectionTarget,
@@ -37,6 +30,7 @@ import { useAgentComposerBrowserContextAttachment } from './useAgentComposerBrow
 import { useAgentComposerRecoverablePromptActions } from './useAgentComposerRecoverablePromptActions'
 import { useAgentComposerSettingsActions } from './useAgentComposerSettingsActions'
 import { useAgentComposerStateSync } from './useAgentComposerStateSync'
+import { useAgentComposerSubmit } from './useAgentComposerSubmit'
 import { useCompletedThreadRecoveryCleanup } from './useCompletedThreadRecoveryCleanup'
 
 const EMPTY_AGENT_TIMELINE: readonly AgentWorkspaceTimelineEntry[] = []
@@ -171,123 +165,27 @@ export function AgentComposer({
     setSubmitting(false)
   }, [submitContextKey])
 
-  const handleSubmit = useCallback(
-    async (event?: React.FormEvent<HTMLFormElement>): Promise<void> => {
-      event?.preventDefault()
-      if (submitting || !trimmedPrompt) {
-        return
-      }
-      const submitSequence = submitSequenceRef.current + 1
-      submitSequenceRef.current = submitSequence
-      const requestContextKey = submitContextKey
-      setSubmitting(true)
-      const launchingNewAgent = !canSendToSelectedThread && Boolean(activeWorktreeId)
-      const result = canSendToSelectedThread
-        ? await submitAgentComposerMessage({
-            activeWorktreeId,
-            selectedThread,
-            prompt
-          })
-        : activeWorktreeId
-          ? launchSelectedAgent({
-              activeWorktreeId,
-              selectedAgent,
-              selectedModel,
-              thinkingMode,
-              prompt: trimmedPrompt,
-              onPromptDelivered: () => {
-                if (
-                  submitSequenceRef.current !== submitSequence ||
-                  submitContextKeyRef.current !== requestContextKey
-                ) {
-                  return
-                }
-                setSubmitResult(createPromptDeliveredFeedback(selectedAgent))
-                setPrompt((currentPrompt) =>
-                  currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
-                )
-              }
-            })
-          : await launchProjectlessPlanningComposerAgent({
-              prompt: trimmedPrompt,
-              selectedAgent
-            })
-      if (
-        submitSequenceRef.current !== submitSequence ||
-        submitContextKeyRef.current !== requestContextKey
-      ) {
-        return
-      }
-      if (canSendToSelectedThread) {
-        const completedThreadSubmitResult = result as Awaited<
-          ReturnType<typeof submitAgentComposerMessage>
-        >
-        const fallbackResult = launchCompletedThreadFallback({
-          result: completedThreadSubmitResult,
-          selectedThread,
-          activeWorktreeId,
-          composerModelSelections,
-          thinkingMode,
-          prompt: trimmedPrompt,
-          onPromptDelivered: (agent) => {
-            if (
-              submitSequenceRef.current !== submitSequence ||
-              submitContextKeyRef.current !== requestContextKey
-            ) {
-              return
-            }
-            setSubmitResult(createPromptDeliveredFeedback(agent))
-            setPrompt((currentPrompt) =>
-              currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
-            )
-          }
-        })
-        if (fallbackResult) {
-          setSubmitResult(fallbackResult)
-          setSubmitting(false)
-          if (fallbackResult.status === 'launching') {
-            onPendingAgentLaunch?.()
-          }
-          return
-        }
-      }
-      setSubmitResult(result)
-      setSubmitting(false)
-      if (launchingNewAgent && result.status === 'launching') {
-        onPendingAgentLaunch?.()
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        notifyAgentComposerMessageSent(onMessageSent, result)
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        setPrompt('')
-      }
-      if (canSendToSelectedThread && result.status === 'sent') {
-        const recoveryFeedback = getCompletedThreadRecoveryFeedback({ result, selectedThread })
-        if (recoveryFeedback) {
-          setRecoverablePrompt(result.prompt)
-          setSubmitResult(recoveryFeedback)
-        } else {
-          setRecoverablePrompt(null)
-        }
-      }
-    },
-    [
-      activeWorktreeId,
-      canSendToSelectedThread,
-      composerModelSelections,
-      prompt,
-      selectedAgent,
-      selectedModel,
-      selectedThread,
-      onMessageSent,
-      onPendingAgentLaunch,
-      submitContextKey,
-      submitting,
-      thinkingMode,
-      trimmedPrompt
-    ]
-  )
+  const handleSubmit = useAgentComposerSubmit({
+    activeWorktreeId,
+    canSendToSelectedThread,
+    composerModelSelections,
+    onMessageSent,
+    onPendingAgentLaunch,
+    prompt,
+    selectedAgent,
+    selectedModel,
+    selectedThread,
+    setPrompt,
+    setRecoverablePrompt,
+    setSubmitResult,
+    setSubmitting,
+    submitContextKey,
+    submitContextKeyRef,
+    submitSequenceRef,
+    submitting,
+    thinkingMode,
+    trimmedPrompt
+  })
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {

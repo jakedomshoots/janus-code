@@ -20,7 +20,8 @@ describe('notifyAgentComposerMessageSent', () => {
     expect(onMessageSent).toHaveBeenCalledWith({
       threadId: 'thread-1',
       prompt: 'Keep using this thread.',
-      sentAt: expect.any(String)
+      sentAt: expect.any(String),
+      status: 'done'
     })
   })
 })

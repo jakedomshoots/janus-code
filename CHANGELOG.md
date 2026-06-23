@@ -22,3 +22,4 @@
 - Raised Retro 95 Space page hint-copy contrast when the copy sits directly on the teal app canvas.
 - Rendered live assistant reply previews in the workspace timeline while CLI agents are still working, reducing the perceived lag between terminal output and composer chat.
 - Upgraded workspace assistant replies from plain pre-wrapped text to compact Markdown formatting for headings, lists, code blocks, links, quotes, and tables.
+- Echoed running-thread follow-up messages into the workspace timeline immediately while terminal delivery is pending, with failed sends marked locally without dropping the draft.

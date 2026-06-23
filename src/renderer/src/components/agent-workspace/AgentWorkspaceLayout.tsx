@@ -5,10 +5,7 @@ import { joinPath } from '@/lib/path'
 import { useAppStore } from '@/store'
 import type {
   AgentWorkspaceDiffSummary,
-  AgentWorkspacePlan,
-  AgentWorkspaceReviewSummary,
   AgentWorkspaceSnapshot,
-  AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
@@ -18,7 +15,6 @@ import { AgentWorkspaceRightPanel } from './AgentWorkspaceRightPanel'
 import {
   getDefaultAgentWorkspaceRightPanelState,
   type AgentWorkspaceRightPanelState,
-  type AgentWorkspaceRightPanelStateInput,
   type AgentWorkspaceRightPanelTab
 } from './agent-workspace-right-panel-state'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
@@ -34,6 +30,11 @@ import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import { compareAgentTimelineEntries } from './agent-timeline-order'
+import { upsertLocalUserTimelineEntry } from './agent-workspace-local-user-timeline'
+import {
+  getRightPanelStateInput,
+  getRightPanelStateInputKey
+} from './agent-workspace-right-panel-input'
 import { openAgentMarkdownArtifact } from './open-agent-markdown-artifact'
 import {
   getProjectThreads,
@@ -43,35 +44,6 @@ import {
   getThreadReview,
   getThreadTimeline
 } from './agent-workspace-layout-selectors'
-
-function getRightPanelStateInput(
-  thread: AgentWorkspaceThread | null,
-  diffs: readonly AgentWorkspaceDiffSummary[],
-  plan: AgentWorkspacePlan | null,
-  review: AgentWorkspaceReviewSummary | null
-): AgentWorkspaceRightPanelStateInput {
-  return {
-    thread,
-    diffs,
-    review,
-    hasStructuredPlan: plan !== null
-  }
-}
-
-function getRightPanelStateInputKey({
-  thread,
-  diffs,
-  review,
-  hasStructuredPlan
-}: AgentWorkspaceRightPanelStateInput): string {
-  return [
-    thread?.id ?? 'no-thread',
-    thread?.phase ?? 'no-phase',
-    hasStructuredPlan ? 'plan' : 'no-plan',
-    review?.id ?? 'no-review',
-    diffs.map((diff) => diff.id).join(',')
-  ].join(':')
-}
 
 export function AgentWorkspaceLayout({
   snapshot,
@@ -90,12 +62,12 @@ export function AgentWorkspaceLayout({
   const defaultThread = projectThreads[0] ?? null
   const [selectedRightPanelState, setSelectedRightPanelState] = useState(() =>
     getDefaultAgentWorkspaceRightPanelState(
-      getRightPanelStateInput(
-        defaultThread,
-        getThreadDiffs(snapshot, defaultThread),
-        selectAgentWorkspacePlanForThread(snapshot, defaultThread),
-        getThreadReview(snapshot, defaultThread)
-      )
+      getRightPanelStateInput({
+        thread: defaultThread,
+        diffs: getThreadDiffs(snapshot, defaultThread),
+        plan: selectAgentWorkspacePlanForThread(snapshot, defaultThread),
+        review: getThreadReview(snapshot, defaultThread)
+      })
     )
   )
   const projectThreadIdsKey = projectThreads.map((thread) => thread.id).join('\u0000')
@@ -135,12 +107,12 @@ export function AgentWorkspaceLayout({
   const selectedPlan = selectAgentWorkspacePlanForThread(snapshot, selectedThread)
   const selectedApproval = getThreadApproval(snapshot, selectedThread)
   const selectedReview = getThreadReview(snapshot, selectedThread)
-  const rightPanelStateInput = getRightPanelStateInput(
-    selectedThread,
+  const rightPanelStateInput = getRightPanelStateInput({
+    thread: selectedThread,
     diffs,
-    selectedPlan,
-    selectedReview
-  )
+    plan: selectedPlan,
+    review: selectedReview
+  })
   const rightPanelStateInputKey = getRightPanelStateInputKey(rightPanelStateInput)
   const previousRightPanelStateInputKeyRef = useRef(rightPanelStateInputKey)
   const lastPrunedAgentBrowserWorktreeRef = useRef<string | null>(null)
@@ -264,15 +236,8 @@ export function AgentWorkspaceLayout({
 
   const handleMessageSent: AgentComposerMessageSentHandler = (message) => {
     localUserTimelineSequenceRef.current += 1
-    const entry: AgentWorkspaceTimelineEntry = {
-      id: `${message.threadId}:local-user:${Date.now()}:${localUserTimelineSequenceRef.current}`,
-      threadId: message.threadId,
-      kind: 'user',
-      text: message.prompt,
-      createdAt: message.sentAt,
-      status: 'done'
-    }
-    setLocalUserTimeline((current) => [entry, ...current].slice(0, 100))
+    const sequence = localUserTimelineSequenceRef.current
+    setLocalUserTimeline((current) => upsertLocalUserTimelineEntry({ current, message, sequence }))
   }
 
   return (

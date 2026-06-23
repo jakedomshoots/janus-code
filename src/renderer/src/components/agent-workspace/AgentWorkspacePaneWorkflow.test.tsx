@@ -9,12 +9,12 @@ import type { AgentWorkspaceSnapshot } from './agent-workspace-types'
 
 const roots: Root[] = []
 const storeMocks = vi.hoisted(() => {
-  const createBrowserTab = vi.fn(() => ({
+  const createBrowserTab = vi.fn((worktreeId: string, url: string) => ({
     id: 'browser-tab-1',
-    worktreeId: 'worktree-1',
+    worktreeId,
     activePageId: 'browser-page-1',
     pageIds: ['browser-page-1'],
-    url: 'data:text/html,',
+    url,
     title: 'New Browser Tab',
     loading: false,
     faviconUrl: null,
@@ -27,6 +27,7 @@ const storeMocks = vi.hoisted(() => {
   const ensureWorktreeRootGroup = vi.fn()
   const createUnifiedTab = vi.fn()
   const closeBrowserTab = vi.fn()
+  const setBrowserPageUrl = vi.fn()
   const state = {
     browserDefaultUrl: 'data:text/html,',
     settings: { guiAgentWorkspaceEnabled: false, defaultTuiAgent: 'grok', disabledTuiAgents: [] },
@@ -47,6 +48,7 @@ const storeMocks = vi.hoisted(() => {
     ensureWorktreeRootGroup,
     createUnifiedTab,
     closeBrowserTab,
+    setBrowserPageUrl,
     setAgentWorkspaceRightPanelExpanded: vi.fn(),
     setRightSidebarOpen: vi.fn(),
     showRightSidebarFiles: vi.fn()
@@ -58,7 +60,8 @@ const storeMocks = vi.hoisted(() => {
     openFile: state.openFile,
     openModal: state.openModal,
     createBrowserTab,
-    focusBrowserTabInWorktree
+    focusBrowserTabInWorktree,
+    setBrowserPageUrl
   }
 })
 const launchMocks = vi.hoisted(() => ({
@@ -222,6 +225,17 @@ function setTextControlValue(control: HTMLTextAreaElement, value: string): void 
   control.dispatchEvent(new Event('input', { bubbles: true }))
 }
 
+function deferred<T>(): {
+  promise: Promise<T>
+  resolve: (value: T) => void
+} {
+  let resolve: (value: T) => void = () => undefined
+  const promise = new Promise<T>((innerResolve) => {
+    resolve = innerResolve
+  })
+  return { promise, resolve }
+}
+
 async function clickPaneAction(label: string, container: HTMLElement): Promise<void> {
   const action = buttons(container).find((button) => button.textContent?.includes(label))
 
@@ -263,6 +277,7 @@ afterEach(() => {
   storeMocks.openModal.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
+  storeMocks.setBrowserPageUrl.mockClear()
   launchMocks.launchAgentInNewTab.mockClear()
   sendMocks.sendNotesToActiveAgentSession.mockReset()
   storeMocks.state.browserTabsByWorktree = {}
@@ -385,6 +400,113 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelector('textarea')?.placeholder).toBe(
       'Ask a follow-up in this thread...'
     )
+  })
+
+  it('echoes running-thread follow-up messages while terminal delivery is pending', async () => {
+    const send = deferred<{ status: 'sent' }>()
+    const runningThread = {
+      id: 'thread-running',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'running' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    sendMocks.sendNotesToActiveAgentSession.mockReturnValue(send.promise)
+
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [runningThread],
+        timeline: [
+          {
+            id: 'timeline-agent',
+            threadId: runningThread.id,
+            kind: 'agent',
+            text: 'I am ready for the next instruction.',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ]
+      })
+    )
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Apply the latency fix.')
+    })
+    await act(async () => {
+      button?.click()
+      await Promise.resolve()
+    })
+
+    const pendingEntry = container.querySelector(
+      '[data-agent-timeline-entry-kind="user"][data-agent-timeline-entry-status="pending"]'
+    )
+    expect(pendingEntry?.textContent).toContain('Apply the latency fix.')
+    expect(textarea?.value).toBe('Apply the latency fix.')
+
+    await act(async () => {
+      send.resolve({ status: 'sent' })
+      await send.promise
+    })
+  })
+
+  it('marks pending follow-up messages failed without dropping the draft', async () => {
+    const runningThread = {
+      id: 'thread-running',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'waiting-for-user' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    sendMocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'not-ready'
+    })
+
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [runningThread],
+        timeline: [
+          {
+            id: 'timeline-agent',
+            threadId: runningThread.id,
+            kind: 'agent',
+            text: 'Can you clarify the target platform?',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ]
+      })
+    )
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Use macOS first.')
+    })
+    await act(async () => {
+      button?.click()
+      await Promise.resolve()
+    })
+
+    const failedEntry = container.querySelector(
+      '[data-agent-timeline-entry-kind="user"][data-agent-timeline-entry-status="failed"]'
+    )
+    expect(failedEntry?.textContent).toContain('Use macOS first.')
+    expect(textarea?.value).toBe('Use macOS first.')
+    expect(container.textContent).toContain('The agent is not ready for input yet.')
   })
 
   it('keeps waiting-thread chat history visible when sending an answer', async () => {
@@ -616,7 +738,7 @@ describe('AgentWorkspace pane workflow', () => {
 
     expect(storeMocks.createBrowserTab).toHaveBeenCalledWith(
       'worktree-1',
-      'data:text/html,',
+      'http://localhost:3000/',
       expect.objectContaining({
         activate: true,
         focusAddressBar: true,
