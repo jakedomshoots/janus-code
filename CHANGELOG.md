@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Reworked launched CLI chat mirroring so terminal trust prompts, control residue, and tool chatter stay out of GUI chat bubbles; working agents now show a typing-dot indicator until a final Markdown/image-capable answer is available.
 - Mirrored launch-backed CLI agent terminal replies into the GUI workspace timeline, seeded follow-up prompts after successful sends across all configured CLI agents, and focused the selected agent terminal before opening the terminal drawer.
 - Routed active CLI-agent follow-up sends through bracketed paste plus a separate submit, added hookless launched-terminal threads for the GUI workspace, let launch-backed agents recover from generic idle-probe timeouts, and taught title/status/readiness detection to recognize Kimi.
 - Fixed Antigravity feedback hooks so questions observed through PostToolUse appear as a stable pending chat row instead of generic tool chatter or a duplicate flickering assistant bubble.

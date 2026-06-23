@@ -11448,7 +11448,8 @@
           "showMoreFiles": "Show {{count}} more files",
           "copyCode": "Copy code block",
           "copied": "Copied",
-          "copy": "Copy"
+          "copy": "Copy",
+          "agentTyping": "Agent is typing"
         },
         "evidence": {
           "lifecycle": "Lifecycle",

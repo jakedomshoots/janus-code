@@ -141,6 +141,29 @@ describe('AgentTimeline', () => {
     expect(runningEntry?.querySelector('.animate-spin')).not.toBeNull()
   })
 
+  it('renders running agent entries without text as a typing indicator', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: '',
+        status: 'running',
+        createdAt: '2026-06-18T14:01:02.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const typingIndicator = container.querySelector('[data-agent-typing-indicator="true"]')
+
+    expect(typingIndicator?.getAttribute('aria-label')).toBe('Agent is typing')
+    expect(typingIndicator?.querySelectorAll('[data-agent-typing-dot="true"]')).toHaveLength(3)
+    expect(container.querySelector('[data-agent-message-markdown="true"]')).toBeNull()
+  })
+
   it('renders markdown artifact cards that open the document preview', () => {
     const onOpenMarkdownArtifact = vi.fn()
     const timeline: AgentWorkspaceTimelineEntry[] = [
@@ -300,6 +323,47 @@ describe('AgentTimeline', () => {
     expect(image?.getAttribute('alt')).toBe('Workbench screenshot')
     expect(image?.classList.contains('agent-timeline-markdown-image')).toBe(true)
     expect(image?.getAttribute('loading')).toBe('lazy')
+  })
+
+  it('loads local assistant markdown images through the file preview API', async () => {
+    const createObjectUrl = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:agent-image')
+    const readFile = vi.fn().mockResolvedValue({
+      isBinary: true,
+      content: 'AA==',
+      mimeType: 'image/png'
+    })
+    window.api = {
+      ...window.api,
+      fs: { readFile }
+    } as never
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: '![Workbench screenshot](artifacts/workbench.png)',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    await act(async () => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    const image = container.querySelector<HTMLImageElement>(
+      '[data-agent-message-markdown="true"] img'
+    )
+
+    expect(readFile).toHaveBeenCalledWith({
+      filePath: '/Users/jakedom/janus-code/artifacts/workbench.png',
+      connectionId: undefined
+    })
+    expect(createObjectUrl).toHaveBeenCalled()
+    expect(image?.getAttribute('src')).toBe('blob:agent-image')
+    expect(image?.getAttribute('alt')).toBe('Workbench screenshot')
   })
 
   it('routes assistant reply links through Janus link handling', () => {

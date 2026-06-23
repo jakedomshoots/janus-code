@@ -221,9 +221,8 @@ function runJanusSourceControlSmoke(state) {
 
 function findSourceControlChangedRowIndex(state) {
   const statusPattern = /\b(modified|added|deleted|renamed|untracked|copied|M|A|D|R|U|C)\b/
-  const nonFilePattern = /\b(button|tab|toolbar|menu|heading|text entry|container)\b/
   for (const line of treeTextForState(state).split('\n')) {
-    if (nonFilePattern.test(line) || !statusPattern.test(line)) {
+    if (!/\brow\b/.test(line) || !statusPattern.test(line)) {
       continue
     }
     const match = line.trim().match(/^(\d+)\b/)

@@ -2,8 +2,7 @@ import type { AppState } from '@/store'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import type {
   AgentStatusConversationTurn,
-  AgentStatusEntry,
-  AgentStatusToolEventStatus
+  AgentStatusEntry
 } from '../../../../shared/agent-status-types'
 import type { PendingAgentLaunch } from '@/store/slices/terminals'
 import type { AgentWorkspaceThread, AgentWorkspaceTimelineEntry } from './agent-workspace-types'
@@ -16,19 +15,6 @@ function getIsoTimestamp(value: number): string | null {
 
 function getPromptTimestamp(entry: AgentStatusEntry): number {
   return Math.min(entry.stateStartedAt, entry.updatedAt, entry.failure?.occurredAt ?? Infinity)
-}
-
-function toTimelineStatus(
-  status: AgentStatusToolEventStatus
-): AgentWorkspaceTimelineEntry['status'] {
-  switch (status) {
-    case 'running':
-      return 'running'
-    case 'completed':
-      return 'done'
-    case 'failed':
-      return 'failed'
-  }
 }
 
 function toUserPromptTimelineEntry(
@@ -73,23 +59,6 @@ function appendConversationTurnTimelineEntries(
     createdAt: getIsoTimestamp(turn.completedAt),
     status: 'done'
   })
-}
-
-function toToolTimelineEntry(
-  thread: AgentWorkspaceThread,
-  entry: AgentStatusEntry
-): AgentWorkspaceTimelineEntry | null {
-  if (!entry.toolEvent) {
-    return null
-  }
-  return {
-    id: `${thread.id}:tool:${entry.toolEvent.id}`,
-    threadId: thread.id,
-    kind: 'tool',
-    text: entry.toolEvent.fallbackText,
-    createdAt: getIsoTimestamp(entry.updatedAt),
-    status: toTimelineStatus(entry.toolEvent.status)
-  }
 }
 
 function toFailureTimelineEntry(
@@ -156,18 +125,22 @@ function toLiveAssistantTimelineEntry(
   }
 }
 
-function toLegacyToolSnapshotEntry(
+function toWorkingIndicatorTimelineEntry(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
-  if (entry.toolEvent || entry.state !== 'working' || !entry.toolName) {
+  const text = entry.lastAssistantMessage?.trim()
+  if (entry.state !== 'working' || text || entry.failure) {
+    return null
+  }
+  if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {
     return null
   }
   return {
-    id: `${thread.id}:tool-snapshot:${entry.stateStartedAt}:${entry.toolName}`,
+    id: `${thread.id}:working-indicator:${entry.stateStartedAt}`,
     threadId: thread.id,
-    kind: 'tool',
-    text: entry.toolName,
+    kind: 'agent',
+    text: '',
     createdAt: getIsoTimestamp(entry.updatedAt),
     status: 'running'
   }
@@ -206,14 +179,6 @@ function appendTimelineEntries(
   if (userPromptEntry) {
     timeline.push(userPromptEntry)
   }
-  const toolEntry = toToolTimelineEntry(thread, entry)
-  if (toolEntry) {
-    timeline.push(toolEntry)
-  }
-  const legacyToolEntry = toLegacyToolSnapshotEntry(thread, entry)
-  if (legacyToolEntry) {
-    timeline.push(legacyToolEntry)
-  }
   const waitingEntry = toWaitingTimelineEntry(thread, entry)
   if (waitingEntry) {
     timeline.push(waitingEntry)
@@ -221,6 +186,10 @@ function appendTimelineEntries(
   const liveAssistantEntry = toLiveAssistantTimelineEntry(thread, entry)
   if (liveAssistantEntry) {
     timeline.push(liveAssistantEntry)
+  }
+  const workingIndicatorEntry = toWorkingIndicatorTimelineEntry(thread, entry)
+  if (workingIndicatorEntry) {
+    timeline.push(workingIndicatorEntry)
   }
   const failureEntry = toFailureTimelineEntry(thread, entry)
   if (failureEntry) {

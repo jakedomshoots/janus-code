@@ -92,6 +92,8 @@ function shouldDropTranscriptLine(line: string, prompt: string): boolean {
 
   const withoutPrefix = line.replace(/^[•●*-]\s+/, '')
   return (
+    isTerminalProtocolResidueLine(withoutPrefix) ||
+    isCliTrustPromptLine(withoutPrefix) ||
     isTerminalBannerLine(withoutPrefix) ||
     isShellNoiseLine(withoutPrefix) ||
     isCollapsedTerminalLine(withoutPrefix) ||
@@ -113,6 +115,23 @@ function isPromptEchoLine(line: string, prompt: string): boolean {
 function isTerminalBannerLine(line: string): boolean {
   return /^(welcome to .*(code|cli)!?|send \/help|directory:|session:|model:|version:)\b/i.test(
     line
+  )
+}
+
+function isTerminalProtocolResidueLine(line: string): boolean {
+  const compact = line.replace(/\s+/g, '')
+  return /^(?:\d{1,4};[A-Za-z?])+$/.test(compact)
+}
+
+function isCliTrustPromptLine(line: string): boolean {
+  const compact = normalizeComparable(line).replace(/\s+/g, '')
+  return (
+    compact.includes('doyoutrustthecontentsofthisdirectory') ||
+    compact.includes('workingwithuntrustedcontents') ||
+    compact.includes('trustingthedirectoryallows') ||
+    compact.includes('pressentertocontinue') ||
+    compact.includes('yes,continue2.no') ||
+    compact.includes('0hquit')
   )
 }
 

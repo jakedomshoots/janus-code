@@ -300,9 +300,12 @@ describe('computer-use smoke script', () => {
     expect(calls[2]).toEqual(expect.arrayContaining(['click', '--element-index', '33']))
   })
 
-  it('accepts the selected Changes panel when source control has no changed rows', () => {
+  it('ignores assistant reply prose when source control has no changed rows', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'orca-computer-smoke-test-'))
-    const cliPath = writeFakeJanusWorkflowCli(root, { noChanges: true })
+    const cliPath = writeFakeJanusWorkflowCli(root, {
+      noChanges: true,
+      includeAssistantAnswerInChanges: true
+    })
 
     const result = spawnSync(process.execPath, [smokeScript, '--janus-workflow'], {
       encoding: 'utf8',
@@ -479,6 +482,14 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
       'const command = args.slice(0, 2).join(" ");',
       'const elementIndex = readFlag("--element-index");',
       `const noChanges = ${JSON.stringify(Boolean(options.noChanges))};`,
+      `const assistantLines = ${JSON.stringify(
+        options.includeAssistantAnswerInChanges
+          ? [
+              '61 text UX: offline-first, iPhone-friendly, and intended to be added to the home screen as a PWA',
+              '62 text A dashboard with today’s totals, recent activity, quick add, and sleep tracking'
+            ]
+          : []
+      )};`,
       `fs.writeFileSync(${JSON.stringify(path.join(root, 'user-data-path.txt'))}, process.env.ORCA_USER_DATA_PATH || "");`,
       'if (command === "computer get-app-state") {',
       '  printState(fs.readFileSync(statePath, "utf8"));',
@@ -518,7 +529,7 @@ function writeFakeJanusWorkflowCli(root, options = {}) {
       '    browser: ["62 button Back to chat", "68 combo box about:blank", "76 text New Tab Type a URL above to start browsing.", "106 container"].join("\\n"),',
       '    output: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab (selected) Output", "90 tab Changes", "91 tab Review", "94 container Outputs"].join("\\n"),',
       '    changes: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 row src/app.ts modified"].join("\\n"),',
-      '    "changes-empty": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 text No changes"].join("\\n"),',
+      '    "changes-empty": [...assistantLines, "72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 text No changes"].join("\\n"),',
       '    "changes-selected": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "94 heading Changes", "96 row selected src/app.ts modified", "120 toolbar 1 selected", "121 button Stage (1)", "122 button Clear selection"].join("\\n"),',
       '    "actions-menu": ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "84 button More commit and remote actions expanded", "85 button disabled Commit", "89 tab Output", "90 tab (selected) Changes", "91 tab Review", "100 menu", "101 menu item Fetch", "102 menu item Pull", "103 menu item Push", "104 menu item Sync"].join("\\n"),',
       '    review: ["72 container Agent chat composer", "74 text entry area Description: Message agent, Placeholder: Ask a follow-up in this thread...", "89 tab Output", "90 tab Changes", "91 tab (selected) Review", "94 container Review", "97 text None"].join("\\n"),',

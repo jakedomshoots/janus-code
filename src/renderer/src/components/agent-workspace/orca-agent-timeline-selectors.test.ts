@@ -58,6 +58,50 @@ describe('orca agent timeline selectors', () => {
     ])
   })
 
+  it('shows quiet agent activity while a CLI agent is working without publishable text', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'working',
+            prompt: 'Start the dev server.'
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Start the dev server.', 'done'],
+      ['agent', '', 'running']
+    ])
+  })
+
+  it('keeps structured tool lifecycle events out of chat bubbles', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'working',
+            prompt: 'Run the test suite.',
+            toolEvent: {
+              id: 'tool-1',
+              status: 'completed',
+              name: 'Bash',
+              input: 'pnpm test',
+              output: '154 tests passed',
+              fallbackText: 'Completed Bash: pnpm test'
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Run the test suite.', 'done'],
+      ['agent', '', 'running']
+    ])
+  })
+
   it('renders waiting assistant questions as one durable pending row', () => {
     const snapshot = selectAgentWorkspaceSnapshot(
       getState({

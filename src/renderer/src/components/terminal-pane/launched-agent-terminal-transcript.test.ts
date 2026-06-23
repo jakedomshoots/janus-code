@@ -42,4 +42,60 @@ describe('createLaunchedAgentTerminalTranscriptMirror', () => {
 
     expect(preview).toBe('The project has a clean local-first MVP.')
   })
+
+  it('does not publish CLI trust prompts as assistant chat output', () => {
+    const mirror = createLaunchedAgentTerminalTranscriptMirror()
+
+    const preview = mirror.observe({
+      data: [
+        '\x1b]133;C\x07',
+        '> tell me about this app',
+        '133;C',
+        '10;?11;?',
+        'You are in /Users/jakedom/Documents/Fam-OSDoyoutrustthecontentsofthisdirectory?',
+        'Workingwithuntrustedcontentscomeswithhigherriskofpromptinjection.',
+        'Trustingthedirectoryallowsproject-localconfig,hooks,andexecpoliciestoload.',
+        '1. Yes, continue2.No, 0HquitPress enter to continue',
+        '10;?',
+        '11;?'
+      ].join('\r\n'),
+      prompt: 'tell me about this app'
+    })
+
+    expect(preview).toBeNull()
+  })
+
+  it('waits through launch chatter and then publishes only the final answer', () => {
+    const mirror = createLaunchedAgentTerminalTranscriptMirror()
+
+    expect(
+      mirror.observe({
+        data: [
+          '> tell me about this app',
+          '133;C',
+          'Do you trust the contents of this directory?',
+          'Press enter to continue'
+        ].join('\r\n'),
+        prompt: 'tell me about this app'
+      })
+    ).toBeNull()
+
+    const preview = mirror.observe({
+      data: [
+        '',
+        'Fam-OS is a local-first family operating system for coordinating daily household work.',
+        '',
+        '## Current workflow',
+        '',
+        '- Track baby care events in a shared PWA.',
+        '- Sync changes locally first, then through Convex when online.'
+      ].join('\r\n'),
+      prompt: 'tell me about this app'
+    })
+
+    expect(preview).toContain('Fam-OS is a local-first family operating system')
+    expect(preview).toContain('## Current workflow')
+    expect(preview).not.toContain('Do you trust')
+    expect(preview).not.toContain('133;C')
+  })
 })

@@ -1,19 +1,9 @@
-import {
-  isValidElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode
-} from 'react'
+import { useMemo } from 'react'
 import {
   Bot,
-  Check,
   CircleAlert,
   ClipboardCheck,
   Clock3,
-  Copy,
   Loader2,
   ShieldQuestion,
   User,
@@ -25,8 +15,10 @@ import type { Components } from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
+import { markdownPreviewUrlTransform } from '@/components/editor/markdown-preview-url-transform'
 import { translate } from '@/i18n/i18n'
 import { openHttpLink } from '@/lib/http-link-routing'
+import { joinPath } from '@/lib/path'
 import { cn } from '@/lib/utils'
 import {
   formatAgentWorkspaceTimelineKind,
@@ -39,14 +31,15 @@ import {
   getAgentTimelineMarkdownArtifacts,
   type AgentTimelineMarkdownArtifact
 } from './agent-timeline-artifacts'
+import { AgentTimelineCodeBlock } from './AgentTimelineCodeBlock'
 import { AgentTimelineMarkdownImage } from './AgentTimelineMarkdownImage'
 
 const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
 const AGENT_MESSAGE_REHYPE_PLUGINS = [rehypeHighlight]
 const AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS: Components = {
-  img: AgentTimelineMarkdownImage,
   pre: AgentTimelineCodeBlock
 }
+const AGENT_RESPONSE_MARKDOWN_FILE = '__agent-response__.md'
 
 export function AgentTimelineEntry({
   entry,
@@ -128,7 +121,7 @@ export function AgentTimelineEntry({
               </span>
             ) : null}
           </div>
-          <AgentTimelineMessageBody entry={entry} worktreeId={worktreeId} />
+          <AgentTimelineMessageBody entry={entry} cwd={cwd} worktreeId={worktreeId} />
           {markdownArtifacts.map((artifact) => (
             <AgentMarkdownArtifactCard
               key={artifact.id}
@@ -144,15 +137,22 @@ export function AgentTimelineEntry({
 
 function AgentTimelineMessageBody({
   entry,
+  cwd,
   worktreeId
 }: {
   entry: AgentWorkspaceTimelineEntry
+  cwd?: string | null
   worktreeId?: string | null
 }): React.JSX.Element {
   const markdownComponents = useMemo(
-    () => getAgentMessageMarkdownComponents(worktreeId),
-    [worktreeId]
+    () => getAgentMessageMarkdownComponents(worktreeId, cwd),
+    [worktreeId, cwd]
   )
+  const isLive = entry.status === 'pending' || entry.status === 'running'
+
+  if (entry.kind === 'agent' && isLive && entry.text.trim().length === 0) {
+    return <AgentTimelineTypingIndicator />
+  }
 
   if (entry.kind === 'agent') {
     return (
@@ -162,6 +162,7 @@ function AgentTimelineMessageBody({
       >
         <Markdown
           components={markdownComponents}
+          urlTransform={markdownPreviewUrlTransform}
           remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}
           rehypePlugins={AGENT_MESSAGE_REHYPE_PLUGINS}
         >
@@ -178,15 +179,47 @@ function AgentTimelineMessageBody({
   )
 }
 
-function getAgentMessageMarkdownComponents(worktreeId?: string | null): Components {
+function AgentTimelineTypingIndicator(): React.JSX.Element {
+  return (
+    <div
+      className="agent-timeline-typing-indicator"
+      data-agent-typing-indicator="true"
+      role="status"
+      aria-label={translate(
+        'auto.components.agentWorkspace.timeline.agentTyping',
+        'Agent is typing'
+      )}
+    >
+      <span data-agent-typing-dot="true" aria-hidden="true" />
+      <span data-agent-typing-dot="true" aria-hidden="true" />
+      <span data-agent-typing-dot="true" aria-hidden="true" />
+    </div>
+  )
+}
+
+function getAgentMessageMarkdownComponents(
+  worktreeId?: string | null,
+  cwd?: string | null
+): Components {
+  const imageFilePath = getAgentTimelineImageFilePath(cwd)
   return {
     ...AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS,
+    img: ({ children: _children, ...props }) => (
+      <AgentTimelineMarkdownImage {...props} filePath={imageFilePath} />
+    ),
     a: ({ href, children, ...props }) => (
       <AgentTimelineMarkdownLink href={href} worktreeId={worktreeId} {...props}>
         {children}
       </AgentTimelineMarkdownLink>
     )
   }
+}
+
+function getAgentTimelineImageFilePath(cwd?: string | null): string {
+  const trimmedCwd = cwd?.trim()
+  return trimmedCwd
+    ? joinPath(trimmedCwd, AGENT_RESPONSE_MARKDOWN_FILE)
+    : `/${AGENT_RESPONSE_MARKDOWN_FILE}`
 }
 
 function AgentTimelineMarkdownLink({
@@ -235,142 +268,6 @@ function getAgentTimelineHttpHref(href: string): string | null {
 function isAgentTimelineSystemBrowserModifier(event: React.MouseEvent<HTMLAnchorElement>): boolean {
   const isMac = navigator.userAgent.includes('Mac')
   return event.shiftKey && (isMac ? event.metaKey : event.ctrlKey)
-}
-
-function AgentTimelineCodeBlock({
-  children,
-  ...props
-}: React.ComponentProps<'pre'>): React.JSX.Element {
-  const [copied, setCopied] = useState(false)
-  const resetTimerRef = useRef<number | null>(null)
-  const codeText = getReactNodeText(children).replace(/\n$/, '')
-  const codeLanguage = getCodeBlockLanguage(children)
-  const codeLanguageLabel = codeLanguage ? formatCodeBlockLanguageLabel(codeLanguage) : null
-
-  const clearResetTimer = useCallback((): void => {
-    if (resetTimerRef.current !== null) {
-      window.clearTimeout(resetTimerRef.current)
-      resetTimerRef.current = null
-    }
-  }, [])
-
-  useEffect(() => clearResetTimer, [clearResetTimer])
-
-  const handleCopy = useCallback((): void => {
-    const writeClipboardText =
-      window.api?.ui?.writeClipboardText ??
-      navigator.clipboard?.writeText?.bind(navigator.clipboard)
-    if (!codeText || !writeClipboardText) {
-      return
-    }
-    void writeClipboardText(codeText)
-      .then(() => {
-        clearResetTimer()
-        setCopied(true)
-        resetTimerRef.current = window.setTimeout(() => {
-          resetTimerRef.current = null
-          setCopied(false)
-        }, 1500)
-      })
-      .catch(() => {
-        /* best-effort */
-      })
-  }, [clearResetTimer, codeText])
-
-  return (
-    <div className="agent-timeline-code-block" data-agent-code-block="true">
-      <div className="agent-timeline-code-block-header">
-        {codeLanguage && codeLanguageLabel ? (
-          <span className="agent-timeline-code-language" data-agent-code-language={codeLanguage}>
-            {codeLanguageLabel}
-          </span>
-        ) : null}
-        <button
-          type="button"
-          className="agent-timeline-code-copy-button"
-          onClick={handleCopy}
-          disabled={!codeText}
-          aria-label={translate(
-            'auto.components.agentWorkspace.timeline.copyCode',
-            'Copy code block'
-          )}
-        >
-          {copied ? (
-            <Check className="size-3" aria-hidden="true" />
-          ) : (
-            <Copy className="size-3" aria-hidden="true" />
-          )}
-          <span>
-            {copied
-              ? translate('auto.components.agentWorkspace.timeline.copied', 'Copied')
-              : translate('auto.components.agentWorkspace.timeline.copy', 'Copy')}
-          </span>
-        </button>
-      </div>
-      <pre {...props}>{children}</pre>
-    </div>
-  )
-}
-
-function getCodeBlockLanguage(node: ReactNode): string | null {
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const language = getCodeBlockLanguage(child)
-      if (language) {
-        return language
-      }
-    }
-    return null
-  }
-  if (!isValidElement<{ className?: string; children?: ReactNode }>(node)) {
-    return null
-  }
-  const className = node.props.className ?? ''
-  const language = className.match(/\blanguage-([^\s]+)/)?.[1]?.trim()
-  return language ? language.toLowerCase() : getCodeBlockLanguage(node.props.children)
-}
-
-function formatCodeBlockLanguageLabel(language: string): string {
-  switch (language) {
-    case 'js':
-      return 'JavaScript'
-    case 'jsx':
-      return 'JSX'
-    case 'ts':
-      return 'TypeScript'
-    case 'tsx':
-      return 'TSX'
-    case 'py':
-    case 'python':
-      return 'Python'
-    case 'sh':
-    case 'shell':
-    case 'bash':
-      return 'Shell'
-    case 'md':
-    case 'markdown':
-      return 'Markdown'
-    case 'json':
-      return 'JSON'
-    case 'yaml':
-    case 'yml':
-      return 'YAML'
-    default:
-      return language.toUpperCase()
-  }
-}
-
-function getReactNodeText(node: ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node)
-  }
-  if (Array.isArray(node)) {
-    return node.map((child) => getReactNodeText(child)).join('')
-  }
-  if (isValidElement<{ children?: ReactNode }>(node)) {
-    return getReactNodeText(node.props.children)
-  }
-  return ''
 }
 
 function getTimelineEntryRoleLabel(kind: AgentWorkspaceTimelineEntry['kind']): string {

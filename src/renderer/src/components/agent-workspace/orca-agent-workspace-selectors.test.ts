@@ -425,7 +425,7 @@ describe('orca agent workspace selectors', () => {
     ])
   })
 
-  it('maps structured tool lifecycle events to timeline entries', () => {
+  it('keeps structured tool lifecycle events out of chat timeline entries', () => {
     const running = worktree('wt-tool-event', {
       path: '/repo/janus-code/worktrees/tool-event',
       branch: 'refs/heads/feature/tool-event'
@@ -463,12 +463,12 @@ describe('orca agent workspace selectors', () => {
         status: 'done'
       },
       {
-        id: `${paneKey}:tool:tool-1`,
+        id: `${paneKey}:working-indicator:1781534400000`,
         threadId: paneKey,
-        kind: 'tool',
-        text: 'Completed Bash: pnpm test',
+        kind: 'agent',
+        text: '',
         createdAt: '2026-06-15T14:40:00.000Z',
-        status: 'done'
+        status: 'running'
       }
     ])
   })
