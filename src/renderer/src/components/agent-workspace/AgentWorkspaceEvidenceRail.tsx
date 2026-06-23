@@ -288,8 +288,16 @@ function CandidateSection({
                 ) : null}
               </span>
               <span className="block truncate text-[11px] text-muted-foreground">
-                {candidate.agentLabel} · {candidate.phaseLabel} · {candidate.diffCount} files ·{' '}
-                {candidate.changedLines} lines
+                {translate(
+                  'auto.components.agentWorkspace.candidates.metadata',
+                  '{{agentLabel}} · {{phaseLabel}} · {{diffCount}} files · {{changedLines}} lines',
+                  {
+                    agentLabel: candidate.agentLabel,
+                    changedLines: candidate.changedLines,
+                    diffCount: candidate.diffCount,
+                    phaseLabel: candidate.phaseLabel
+                  }
+                )}
               </span>
             </span>
           </button>

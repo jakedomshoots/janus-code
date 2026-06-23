@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Split oversized Landing, Mobile, Add Project, and feature user-story collector modules into focused files so the max-lines lint guard passes without disabling it.
+- Applied the standard sleek scrollbar styling to the compact Automations layout scroll container.
 - Added an agent workspace evidence rail with lifecycle state, implementation candidates, concrete evidence, preview health, and wired recovery actions.
 - Upgraded agent workspace review mode with recommended file order, local viewed state, stale-review warnings, hosted review context, and captured test evidence.
 - Added explicit composer delivery states for queued, accepted, running, needs-input, and failed handoffs.

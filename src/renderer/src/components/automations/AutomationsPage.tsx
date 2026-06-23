@@ -2044,7 +2044,7 @@ export default function AutomationsPage(): React.JSX.Element {
         </DialogContent>
       </Dialog>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(280px,360px)_1fr] overflow-hidden border-t border-border/50 max-lg:flex max-lg:flex-col max-lg:overflow-y-auto">
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(280px,360px)_1fr] overflow-hidden border-t border-border/50 max-lg:flex max-lg:flex-col max-lg:scrollbar-sleek max-lg:overflow-y-auto">
         <section
           className="flex min-h-0 flex-col border-r border-border/50 bg-muted/20 max-lg:min-h-[360px] max-lg:border-b max-lg:border-r-0"
           data-contextual-tour-target="automations-list"
