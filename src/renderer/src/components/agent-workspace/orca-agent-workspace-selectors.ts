@@ -1,30 +1,26 @@
 import type { AppState } from '@/store'
 import type { PendingAgentLaunch } from '@/store/slices/terminals'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { branchName } from '@/lib/git-utils'
-import { getRuntimePathBasename } from '../../../../shared/cross-platform-path'
 import { parsePaneKey } from '../../../../shared/stable-pane-id'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
-import type { TerminalTab, Worktree } from '../../../../shared/types'
-import { formatAgentTypeLabel } from '@/lib/agent-status'
+import type { TerminalTab } from '../../../../shared/types'
 import type {
   AgentWorkspaceProject,
   AgentWorkspaceSnapshot,
   AgentWorkspaceThread
 } from './agent-workspace-types'
-import {
-  getAgentDetectionTargetFromHostId,
-  getFolderExecutionHostId,
-  getFolderHostKind,
-  getWorktreeExecutionHostId,
-  getWorktreeHostKind
-} from './orca-agent-workspace-host-selectors'
 import { selectAgentWorkspaceApprovals } from './orca-agent-approval-selectors'
 import { selectAgentWorkspaceDiffs } from './orca-agent-diff-selectors'
 import { getPhaseForAgentState } from './orca-agent-phase-selectors'
+import { selectAgentWorkspaceProjects } from './orca-agent-workspace-project-selectors'
 import { selectAgentWorkspacePlans } from './orca-agent-plan-snapshot-selectors'
 import { selectAgentWorkspaceReviews } from './orca-agent-review-selectors'
 import { selectAgentWorkspaceTimeline } from './orca-agent-timeline-selectors'
+import { appendLaunchedTabWorkspaceThreads } from './orca-launched-agent-thread-selectors'
+
+export { selectAgentWorkspaceProjects } from './orca-agent-workspace-project-selectors'
 
 type WorkspaceThreadMeta = {
   path: string
@@ -43,6 +39,9 @@ type SnapshotCache = {
   repos: AppState['repos']
   settings: AppState['settings']
   tabsByWorktree: AppState['tabsByWorktree']
+  ptyIdsByTabId: AppState['ptyIdsByTabId']
+  runtimePaneTitlesByTabId: AppState['runtimePaneTitlesByTabId']
+  terminalLayoutsByTabId: AppState['terminalLayoutsByTabId']
   agentStatusByPaneKey: AppState['agentStatusByPaneKey']
   retainedAgentsByPaneKey: AppState['retainedAgentsByPaneKey']
   pendingAgentLaunchesByPaneKey: AppState['pendingAgentLaunchesByPaneKey']
@@ -57,18 +56,6 @@ let snapshotCache: SnapshotCache | null = null
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim()
   return trimmed ? trimmed : null
-}
-
-function pathFallback(path: string): string {
-  return getRuntimePathBasename(path) || path
-}
-
-function getWorktreeLabel(worktree: Worktree): string {
-  return (
-    nonEmpty(worktree.displayName) ??
-    nonEmpty(branchName(worktree.branch)) ??
-    pathFallback(worktree.path)
-  )
 }
 
 function getWorkspaceThreadMeta(state: AppState): Map<string, WorkspaceThreadMeta> {
@@ -173,50 +160,6 @@ function toPendingAgentWorkspaceThread(
   }
 }
 
-export function selectAgentWorkspaceProjects(state: AppState): readonly AgentWorkspaceProject[] {
-  const projects: AgentWorkspaceProject[] = []
-  for (const worktrees of Object.values(state.worktreesByRepo)) {
-    for (const worktree of worktrees) {
-      if (worktree.isArchived) {
-        continue
-      }
-      projects.push({
-        id: worktree.id,
-        label: getWorktreeLabel(worktree),
-        path: worktree.path,
-        hostKind: getWorktreeHostKind(state, worktree),
-        branchName: branchName(worktree.branch),
-        repoId: worktree.repoId,
-        canCreateWorktree: true,
-        canDeleteWorktree: !worktree.isMainWorktree,
-        pushTarget: worktree.pushTarget,
-        agentDetectionTarget: getAgentDetectionTargetFromHostId(
-          getWorktreeExecutionHostId(state, worktree)
-        )
-      })
-    }
-  }
-  for (const folderWorkspace of state.folderWorkspaces) {
-    if (folderWorkspace.isArchived) {
-      continue
-    }
-    projects.push({
-      id: folderWorkspaceKey(folderWorkspace.id),
-      label: nonEmpty(folderWorkspace.name) ?? pathFallback(folderWorkspace.folderPath),
-      path: folderWorkspace.folderPath,
-      hostKind: getFolderHostKind(state, folderWorkspace),
-      branchName: null,
-      repoId: null,
-      canCreateWorktree: false,
-      canDeleteWorktree: false,
-      agentDetectionTarget: getAgentDetectionTargetFromHostId(
-        getFolderExecutionHostId(state, folderWorkspace)
-      )
-    })
-  }
-  return projects
-}
-
 export function selectAgentWorkspaceThreads(state: AppState): readonly AgentWorkspaceThread[] {
   const tabMatchesById = getTabMatchesById(state.tabsByWorktree)
   const workspaceMeta = getWorkspaceThreadMeta(state)
@@ -238,6 +181,8 @@ export function selectAgentWorkspaceThreads(state: AppState): readonly AgentWork
     }
     threads.push(toPendingAgentWorkspaceThread(paneKey, launch, workspaceMeta))
   }
+
+  appendLaunchedTabWorkspaceThreads(threads, state, workspaceMeta)
 
   for (const [paneKey, retained] of Object.entries(state.retainedAgentsByPaneKey)) {
     if (paneKey in state.agentStatusByPaneKey) {
@@ -276,6 +221,9 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     snapshotCache.repos === state.repos &&
     snapshotCache.settings === state.settings &&
     snapshotCache.tabsByWorktree === state.tabsByWorktree &&
+    snapshotCache.ptyIdsByTabId === state.ptyIdsByTabId &&
+    snapshotCache.runtimePaneTitlesByTabId === state.runtimePaneTitlesByTabId &&
+    snapshotCache.terminalLayoutsByTabId === state.terminalLayoutsByTabId &&
     snapshotCache.agentStatusByPaneKey === state.agentStatusByPaneKey &&
     snapshotCache.retainedAgentsByPaneKey === state.retainedAgentsByPaneKey &&
     snapshotCache.pendingAgentLaunchesByPaneKey === state.pendingAgentLaunchesByPaneKey &&
@@ -311,6 +259,9 @@ export function selectAgentWorkspaceSnapshot(state: AppState): AgentWorkspaceSna
     repos: state.repos,
     settings: state.settings,
     tabsByWorktree: state.tabsByWorktree,
+    ptyIdsByTabId: state.ptyIdsByTabId,
+    runtimePaneTitlesByTabId: state.runtimePaneTitlesByTabId,
+    terminalLayoutsByTabId: state.terminalLayoutsByTabId,
     agentStatusByPaneKey: state.agentStatusByPaneKey,
     retainedAgentsByPaneKey: state.retainedAgentsByPaneKey,
     pendingAgentLaunchesByPaneKey: state.pendingAgentLaunchesByPaneKey,

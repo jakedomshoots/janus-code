@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Routed active CLI-agent follow-up sends through bracketed paste plus a separate submit, added hookless launched-terminal threads for the GUI workspace, let launch-backed agents recover from generic idle-probe timeouts, and taught title/status/readiness detection to recognize Kimi.
 - Fixed Antigravity feedback hooks so questions observed through PostToolUse appear as a stable pending chat row instead of generic tool chatter or a duplicate flickering assistant bubble.
 - Updated the Janus installed workflow smoke to accept the current Diff right-panel tab while retaining compatibility with older Changes-labeled builds.
 - Cleared unchanged completed-thread follow-up prompts once the matching prompt appears in the transcript, including recovered launch paths, while preserving edited drafts.

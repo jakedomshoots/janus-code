@@ -56,7 +56,8 @@ const testState = vi.hoisted(() => ({
     settings: Record<string, unknown>
   },
   callRuntimeRpc: vi.fn(),
-  getActiveRuntimeTarget: vi.fn(() => ({ kind: 'local' }))
+  getActiveRuntimeTarget: vi.fn(() => ({ kind: 'local' })),
+  sendBracketedPasteToRunningAgent: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -71,6 +72,10 @@ vi.mock('@/store', () => ({
 vi.mock('@/runtime/runtime-rpc-client', () => ({
   callRuntimeRpc: testState.callRuntimeRpc,
   getActiveRuntimeTarget: testState.getActiveRuntimeTarget
+}))
+
+vi.mock('./agent-paste-draft', () => ({
+  sendBracketedPasteToRunningAgent: testState.sendBracketedPasteToRunningAgent
 }))
 
 describe('active agent note send', () => {
@@ -96,6 +101,8 @@ describe('active agent note send', () => {
     testState.callRuntimeRpc.mockReset()
     testState.getActiveRuntimeTarget.mockClear()
     testState.getActiveRuntimeTarget.mockReturnValue({ kind: 'local' })
+    testState.sendBracketedPasteToRunningAgent.mockReset()
+    testState.sendBracketedPasteToRunningAgent.mockResolvedValue(true)
   })
 
   it('resolves the current worktree terminal pane from renderer state', () => {
@@ -276,7 +283,7 @@ describe('active agent note send', () => {
     expect(getActiveAgentNoteTarget(testState.appState, 'wt-1', NOW)).toBeNull()
   })
 
-  it('sends notes only after the active terminal is verified as an idle agent', async () => {
+  it('submits notes through the focused PTY after verifying the terminal is an idle agent', async () => {
     testState.callRuntimeRpc.mockImplementation(async (_target, method, params) => {
       if (method === 'terminal.list') {
         return {
@@ -331,15 +338,25 @@ describe('active agent note send', () => {
     )
     expect(testState.callRuntimeRpc).toHaveBeenCalledWith(
       { kind: 'local' },
-      'terminal.send',
+      'terminal.wait',
       {
         terminal: 'term-1',
-        text: 'File: src/app.ts',
-        enter: true,
-        client: { id: 'orca-desktop', type: 'desktop' }
+        for: 'tui-idle',
+        timeoutMs: 8000
       },
-      { timeoutMs: 15000 }
+      { timeoutMs: 13000 }
     )
+    expect(testState.callRuntimeRpc).not.toHaveBeenCalledWith(
+      expect.anything(),
+      'terminal.send',
+      expect.anything(),
+      expect.anything()
+    )
+    expect(testState.sendBracketedPasteToRunningAgent).toHaveBeenCalledWith({
+      ptyId: 'pty-1',
+      content: 'File: src/app.ts',
+      settings: { activeRuntimeEnvironmentId: null }
+    })
   })
 
   it('sends notes to a freshly completed agent without waiting for tui-idle', async () => {
@@ -390,17 +407,17 @@ describe('active agent note send', () => {
       expect.anything(),
       expect.anything()
     )
-    expect(testState.callRuntimeRpc).toHaveBeenCalledWith(
-      { kind: 'local' },
+    expect(testState.callRuntimeRpc).not.toHaveBeenCalledWith(
+      expect.anything(),
       'terminal.send',
-      {
-        terminal: 'term-1',
-        text: 'follow up',
-        enter: true,
-        client: { id: 'orca-desktop', type: 'desktop' }
-      },
-      { timeoutMs: 15000 }
+      expect.anything(),
+      expect.anything()
     )
+    expect(testState.sendBracketedPasteToRunningAgent).toHaveBeenCalledWith({
+      ptyId: 'pty-1',
+      content: 'follow up',
+      settings: { activeRuntimeEnvironmentId: null }
+    })
   })
 
   it('does not write notes when the active terminal is not an agent', async () => {
@@ -486,6 +503,52 @@ describe('active agent note send', () => {
       expect.anything(),
       expect.anything()
     )
+  })
+
+  it('best-effort submits to a launched CLI agent when generic tui-idle times out', async () => {
+    testState.appState.tabsByWorktree = {
+      'wt-1': [{ id: 'tab-1', launchAgent: 'kimi' }]
+    }
+    testState.callRuntimeRpc.mockImplementation(async (_target, method) => {
+      if (method === 'terminal.list') {
+        return {
+          terminals: [
+            {
+              handle: 'term-1',
+              worktreeId: 'wt-1',
+              worktreePath: '/repo',
+              branch: 'main',
+              tabId: 'tab-1',
+              leafId: LEAF_ID,
+              title: 'tell me about this project',
+              connected: true,
+              writable: true,
+              lastOutputAt: null,
+              preview: ''
+            }
+          ],
+          totalCount: 1,
+          truncated: false
+        }
+      }
+      if (method === 'terminal.isRunningAgent') {
+        return { isRunningAgent: true }
+      }
+      if (method === 'terminal.wait') {
+        throw new Error('timeout')
+      }
+      throw new Error(`unexpected method ${method}`)
+    })
+
+    await expect(
+      sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: 'tell me about this project' })
+    ).resolves.toEqual({ status: 'sent' })
+
+    expect(testState.sendBracketedPasteToRunningAgent).toHaveBeenCalledWith({
+      ptyId: 'pty-1',
+      content: 'tell me about this project',
+      settings: { activeRuntimeEnvironmentId: null }
+    })
   })
 
   it('does not call runtime when no terminal pane is known for the worktree', async () => {

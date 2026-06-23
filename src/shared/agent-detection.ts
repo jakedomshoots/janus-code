@@ -178,6 +178,14 @@ function containsAny(title: string, words: readonly string[]): boolean {
   return words.some((word) => lower.includes(word))
 }
 
+const TITLE_AGENT_LABELS = [
+  ['codex', 'Codex'],
+  ['openclaude', 'OpenClaude'],
+  ['copilot', 'GitHub Copilot'],
+  ['kimi', 'Kimi'],
+  ['grok', 'Grok']
+] as const
+
 /**
  * Strip working-status indicators from a title so that
  * `detectAgentStatusFromTitle` will no longer return 'working'.
@@ -369,17 +377,10 @@ export function getAgentLabel(title: string): string | null {
   // heuristic so mixed-agent hovercards stay truthful. Token-match (not
   // substring) so cwd/worktree titles like "opencode-blinker" don't mint a
   // false agent identity.
-  if (titleHasAgentName(title, 'codex')) {
-    return 'Codex'
-  }
-  if (titleHasAgentName(title, 'openclaude')) {
-    return 'OpenClaude'
-  }
-  if (titleHasAgentName(title, 'copilot')) {
-    return 'GitHub Copilot'
-  }
-  if (titleHasAgentName(title, 'grok')) {
-    return 'Grok'
+  for (const [agentName, label] of TITLE_AGENT_LABELS) {
+    if (titleHasAgentName(title, agentName)) {
+      return label
+    }
   }
   if (titleHasAgentName(title, 'antigravity') || AGY_AGENT_NAME_RE.test(title)) {
     return 'Antigravity'

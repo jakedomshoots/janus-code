@@ -18597,7 +18597,8 @@ function detectTerminalWaitBlockedReason(preview: string): RuntimeTerminalWaitBl
 function findKnownReadyPromptIndex(normalized: string): number | null {
   const indexes = [
     findCodexReadyPromptIndex(normalized),
-    findAntigravityReadyPromptIndex(normalized)
+    findAntigravityReadyPromptIndex(normalized),
+    findKimiReadyPromptIndex(normalized)
   ].filter((index): index is number => index !== null)
   return indexes.length > 0 ? Math.max(...indexes) : null
 }
@@ -18611,6 +18612,20 @@ function findCodexReadyPromptIndex(normalized: string): number | null {
   // Why: current Codex prints permissions only in YOLO mode. The stable ready
   // header is OpenAI Codex + model + directory.
   return readySegment.includes('model:') && readySegment.includes('directory:') ? headerIndex : null
+}
+
+function findKimiReadyPromptIndex(normalized: string): number | null {
+  const headerIndex = normalized.lastIndexOf('welcome to kimi code!')
+  if (headerIndex === -1) {
+    return null
+  }
+  const readySegment = normalized.slice(headerIndex)
+  return readySegment.includes('directory:') &&
+    readySegment.includes('session:') &&
+    readySegment.includes('model:') &&
+    readySegment.includes('version:')
+    ? headerIndex
+    : null
 }
 
 function findAntigravityReadyPromptIndex(normalized: string): number | null {

@@ -548,6 +548,20 @@ function antigravityReadyScreen(model = 'Gemini 3.5 Flash (High)'): string {
   ].join('\n')
 }
 
+function kimiReadyScreen(): string {
+  return [
+    'Welcome to Kimi Code!',
+    'Send /help for help information.',
+    '',
+    'Directory: /Users/jakedom/Documents/Fam-OS',
+    'Session:   session_5d65e5de-a2f4-48fc-ac6a-7d9de14cb206',
+    'Model:     K2.7 Code',
+    'Version:   0.18.0',
+    '',
+    '> '
+  ].join('\n')
+}
+
 function antigravityPromptBeforeModelReadyScreen(model = 'Gemini 3.5 Flash (High)'): string {
   return [
     'Antigravity CLI 1.0.3',
@@ -5077,6 +5091,26 @@ describe('OrcaRuntimeService', () => {
     })
     const { handle } = await runtime.createTerminal(`path:${TEST_WORKTREE_PATH}`)
     runtime.onPtyData('pty-bg', antigravityReadyScreen('Gemini 4 Experimental (High)'), Date.now())
+
+    await expect(
+      runtime.waitForTerminal(handle, { condition: 'tui-idle', timeoutMs: 1_000 })
+    ).resolves.toMatchObject({
+      handle,
+      condition: 'tui-idle',
+      status: 'running'
+    })
+  })
+
+  it('resolves tui-idle from a Kimi ready prompt preview', async () => {
+    const runtime = new OrcaRuntimeService(store)
+    runtime.setPtyController({
+      spawn: vi.fn().mockResolvedValue({ id: 'pty-bg' }),
+      write: () => true,
+      kill: () => true,
+      getForegroundProcess: async () => null
+    })
+    const { handle } = await runtime.createTerminal(`path:${TEST_WORKTREE_PATH}`)
+    runtime.onPtyData('pty-bg', kimiReadyScreen(), Date.now())
 
     await expect(
       runtime.waitForTerminal(handle, { condition: 'tui-idle', timeoutMs: 1_000 })

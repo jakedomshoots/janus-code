@@ -132,7 +132,7 @@ export function getActiveAgentNoteTarget(
     return null
   }
 
-  const activePtyId = getActivePanePtyId(state, noteTarget)
+  const activePtyId = getActiveTerminalNotePtyId(state, noteTarget)
   if (!activePtyId) {
     return null
   }
@@ -159,7 +159,7 @@ export function getActiveAgentRuntimeProbeDescriptor(
   if (!noteTarget || !isTerminalLeafId(noteTarget.leafId)) {
     return null
   }
-  const activePtyId = getActivePanePtyId(state, noteTarget)
+  const activePtyId = getActiveTerminalNotePtyId(state, noteTarget)
   if (!activePtyId) {
     return null
   }
@@ -221,7 +221,7 @@ export async function findActiveRuntimeTerminal(
   )
 }
 
-function getActivePanePtyId(
+export function getActiveTerminalNotePtyId(
   state: ActiveTerminalNoteTargetState,
   noteTarget: ActiveTerminalNoteTarget
 ): string | null {

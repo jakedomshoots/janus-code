@@ -1,15 +1,24 @@
-import type { RuntimeTerminalSend, RuntimeTerminalWait } from '../../../shared/runtime-types'
-import { AGENT_STATUS_STALE_AFTER_MS } from '../../../shared/agent-status-types'
+import type { RuntimeTerminalWait } from '../../../shared/runtime-types'
+import {
+  AGENT_STATUS_STALE_AFTER_MS,
+  type AgentStatusEntry
+} from '../../../shared/agent-status-types'
 import { makePaneKey } from '../../../shared/stable-pane-id'
 import { useAppStore } from '@/store'
 import { callRuntimeRpc, getActiveRuntimeTarget } from '@/runtime/runtime-rpc-client'
 import { getSettingsForWorktreeRuntimeOwner } from '@/lib/worktree-runtime-owner'
-import { findActiveRuntimeTerminal, getActiveTerminalNoteTarget } from './active-agent-note-target'
+import { sendBracketedPasteToRunningAgent } from './agent-paste-draft'
+import {
+  findActiveRuntimeTerminal,
+  getActiveTerminalNotePtyId,
+  getActiveTerminalNoteTarget
+} from './active-agent-note-target'
 import { isExplicitAgentStatusFresh } from './agent-status'
 
 export {
   getActiveAgentNoteTarget,
   getActiveAgentRuntimeProbeDescriptor,
+  getActiveTerminalNotePtyId,
   getActiveTerminalNoteTarget,
   probeActiveAgentNoteTarget,
   useCanSendNotesToActiveTerminal,
@@ -18,6 +27,7 @@ export {
 
 const ACTIVE_AGENT_SEND_TIMEOUT_MS = 8000
 const ACTIVE_AGENT_SEND_RPC_TIMEOUT_MS = 15000
+const LAUNCH_BACKED_AGENT_IDLE_PROBE_TIMEOUT_MS = 750
 
 export type ActiveAgentNotesSendStatus =
   | 'sent'
@@ -55,9 +65,12 @@ export async function sendNotesToActiveAgentSession({
 
   // Route by the worktree's owner host so the agent terminal is found and driven
   // on the host that actually runs it, not on the focused runtime.
-  const runtimeTarget = getActiveRuntimeTarget(
-    getSettingsForWorktreeRuntimeOwner(state, worktreeId)
-  )
+  const runtimeSettings = getSettingsForWorktreeRuntimeOwner(state, worktreeId)
+  const runtimeTarget = getActiveRuntimeTarget(runtimeSettings)
+  const activePtyId = getActiveTerminalNotePtyId(state, resolvedNoteTarget)
+  if (!activePtyId) {
+    return { status: 'no-active-terminal' }
+  }
   const terminal = await findActiveRuntimeTerminal(
     runtimeTarget,
     worktreeId,
@@ -80,13 +93,19 @@ export async function sendNotesToActiveAgentSession({
     return { status: 'no-agent' }
   }
 
-  if (!hasFreshCompletedAgentStatus(state, resolvedNoteTarget)) {
+  const freshStatus = getFreshAgentStatusEntry(state, resolvedNoteTarget)
+  if (!isCompletedAgentStatus(freshStatus)) {
+    const allowLaunchBackedBestEffort =
+      !freshStatus && hasLaunchBackedAgentTab(state, worktreeId, resolvedNoteTarget)
+    const waitTimeoutMs = allowLaunchBackedBestEffort
+      ? Math.min(timeoutMs, LAUNCH_BACKED_AGENT_IDLE_PROBE_TIMEOUT_MS)
+      : timeoutMs
     try {
       const { wait } = await callRuntimeRpc<{ wait: RuntimeTerminalWait }>(
         runtimeTarget,
         'terminal.wait',
-        { terminal: terminal.handle, for: 'tui-idle', timeoutMs },
-        { timeoutMs: timeoutMs + 5000 }
+        { terminal: terminal.handle, for: 'tui-idle', timeoutMs: waitTimeoutMs },
+        { timeoutMs: waitTimeoutMs + 5000 }
       )
       if (!wait.satisfied) {
         return { status: 'not-ready' }
@@ -96,41 +115,52 @@ export async function sendNotesToActiveAgentSession({
         return { status: 'no-active-terminal' }
       }
       if (isRuntimeTimeout(error)) {
-        return { status: 'not-ready' }
+        // Why: hookless launched CLIs such as Kimi can be fully writable while
+        // lacking the OSC/title transition that terminal.wait needs. The
+        // bracketed-paste submit below is still verified against the live PTY.
+        if (!allowLaunchBackedBestEffort) {
+          return { status: 'not-ready' }
+        }
+      } else {
+        throw error
       }
-      throw error
     }
   }
 
-  const { send } = await callRuntimeRpc<{ send: RuntimeTerminalSend }>(
-    runtimeTarget,
-    'terminal.send',
-    {
-      terminal: terminal.handle,
-      text: trimmedPrompt,
-      enter: true,
-      client: { id: 'orca-desktop', type: 'desktop' }
-    },
-    { timeoutMs: ACTIVE_AGENT_SEND_RPC_TIMEOUT_MS }
-  )
-  return send.accepted ? { status: 'sent' } : { status: 'not-writable' }
+  const sent = await sendBracketedPasteToRunningAgent({
+    ptyId: activePtyId,
+    content: trimmedPrompt,
+    settings: runtimeSettings
+  })
+  return sent ? { status: 'sent' } : { status: 'not-writable' }
 }
 
-function hasFreshCompletedAgentStatus(
+function getFreshAgentStatusEntry(
   state: ReturnType<typeof useAppStore.getState>,
   noteTarget: { tabId: string; leafId: string }
-): boolean {
+): AgentStatusEntry | null {
   const entry = state.agentStatusByPaneKey?.[makePaneKey(noteTarget.tabId, noteTarget.leafId)]
-  if (!entry || entry.state !== 'done') {
-    return false
+  if (!entry) {
+    return null
   }
   if (!isExplicitAgentStatusFresh(entry, Date.now(), AGENT_STATUS_STALE_AFTER_MS)) {
-    return false
+    return null
   }
-  if (entry.failure) {
-    return false
-  }
-  return true
+  return entry
+}
+
+function isCompletedAgentStatus(entry: AgentStatusEntry | null): boolean {
+  return entry?.state === 'done' && !entry.failure
+}
+
+function hasLaunchBackedAgentTab(
+  state: ReturnType<typeof useAppStore.getState>,
+  worktreeId: string,
+  noteTarget: { tabId: string }
+): boolean {
+  return Boolean(
+    (state.tabsByWorktree[worktreeId] ?? []).find((tab) => tab.id === noteTarget.tabId)?.launchAgent
+  )
 }
 
 export function activeAgentNotesSendFailureMessage(status: ActiveAgentNotesSendStatus): string {

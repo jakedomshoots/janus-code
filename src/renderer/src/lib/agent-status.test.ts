@@ -164,6 +164,12 @@ describe('detectAgentStatusFromTitle', () => {
     expect(detectAgentStatusFromTitle('opencode')).toBe('idle')
   })
 
+  it('classifies Kimi titles', () => {
+    expect(detectAgentStatusFromTitle('Kimi Code ready')).toBe('idle')
+    expect(detectAgentStatusFromTitle('Kimi Code thinking')).toBe('working')
+    expect(detectAgentStatusFromTitle('Kimi Code waiting for input')).toBe('permission')
+  })
+
   it('classifies OpenClaude titles without falling through to Claude naming', () => {
     expect(detectAgentStatusFromTitle('OpenClaude ready')).toBe('idle')
     expect(detectAgentStatusFromTitle('OpenClaude running')).toBe('working')
@@ -430,6 +436,7 @@ describe('getAgentLabel', () => {
     expect(getAgentLabel('Droid ready')).toBe('Droid')
     expect(getAgentLabel('⠋ Hermes')).toBe('Hermes')
     expect(getAgentLabel('Hermes ready')).toBe('Hermes')
+    expect(getAgentLabel('Kimi Code ready')).toBe('Kimi')
   })
 
   it('does not label the Claude agents management title', () => {
@@ -810,6 +817,10 @@ describe('formatAgentTypeLabel', () => {
 
   it("maps 'command-code' to 'Command Code'", () => {
     expect(formatAgentTypeLabel('command-code')).toBe('Command Code')
+  })
+
+  it("maps 'kimi' to 'Kimi'", () => {
+    expect(formatAgentTypeLabel('kimi')).toBe('Kimi')
   })
 
   it('passes through arbitrary custom agent names as-is', () => {
