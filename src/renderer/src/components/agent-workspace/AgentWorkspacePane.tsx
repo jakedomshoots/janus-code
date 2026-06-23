@@ -21,6 +21,7 @@ import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-session
 import { AgentBrowserWorkbenchSurface } from './AgentBrowserWorkbenchSurface'
 import { AgentTabGroupWorkbenchSurface } from './AgentTabGroupWorkbenchSurface'
 import { useAgentBrowserWorkbench } from './useAgentBrowserWorkbench'
+import { sendAgentTerminalChoice } from '@/lib/active-agent-terminal-choice'
 
 function AgentFailureTerminalBanner({
   thread,
@@ -140,6 +141,19 @@ export function AgentWorkspacePane({
     },
     [activeDraftSession, onUpdateDraftSessionAgent]
   )
+  const handleSelectTimelineChoice = useCallback(
+    async (_entry: AgentWorkspaceTimelineEntry, choice: { input: string }) => {
+      if (!thread) {
+        return
+      }
+      await sendAgentTerminalChoice({
+        worktreeId: thread.worktreeId,
+        threadId: thread.id,
+        input: choice.input
+      })
+    },
+    [thread]
+  )
 
   function dismissWorkbenchSurfaces(): void {
     if (workbenchSurfaceActive) {
@@ -213,6 +227,7 @@ export function AgentWorkspacePane({
               terminalAvailable={terminalAvailable}
               diffs={diffs}
               onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+              onSelectChoice={handleSelectTimelineChoice}
               onReviewDiffs={onReviewDiffs}
             />
             <AgentComposer

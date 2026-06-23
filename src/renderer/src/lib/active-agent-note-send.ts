@@ -14,6 +14,10 @@ import {
   getActiveTerminalNoteTarget
 } from './active-agent-note-target'
 import { isExplicitAgentStatusFresh } from './agent-status'
+import {
+  isSlashCommandPrompt,
+  projectSlashCommandInteractivePrompt
+} from './active-agent-terminal-choice'
 
 export {
   getActiveAgentNoteTarget,
@@ -142,6 +146,15 @@ export async function sendNotesToActiveAgentSession({
     noteTarget: resolvedNoteTarget,
     prompt: trimmedPrompt
   })
+  if (isSlashCommandPrompt(trimmedPrompt)) {
+    await projectSlashCommandInteractivePrompt({
+      runtimeTarget,
+      terminalHandle: terminal.handle,
+      worktreeId,
+      noteTarget: resolvedNoteTarget,
+      prompt: trimmedPrompt
+    })
+  }
   return { status: 'sent' }
 }
 

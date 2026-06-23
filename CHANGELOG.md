@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Projected terminal slash-command pickers into the GUI timeline as selectable choices so commands like `/model` can continue without opening the terminal drawer.
 - Kept in-progress CLI agent replies as a quiet typing indicator so raw tool output or verbose working text no longer flashes in chat before the final Markdown response arrives.
 - Made the installed Janus workflow smoke re-read settled accessibility state after right-panel tab clicks so the gate catches real tab failures without tripping on stale click snapshots.
 - Made agent workspace tabs and high-frequency workspace buttons activate on primary pointer-down so tab, workbench, panel, artifact, and drawer controls respond immediately while keyboard activation still uses native click.

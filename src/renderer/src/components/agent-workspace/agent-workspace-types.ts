@@ -80,6 +80,13 @@ export type AgentWorkspaceTimelineEntry = {
   readonly text: string
   readonly createdAt: string | null
   readonly status?: 'pending' | 'running' | 'done' | 'failed'
+  readonly choices?: readonly AgentWorkspaceTimelineChoice[]
+}
+
+export type AgentWorkspaceTimelineChoice = {
+  readonly id: string
+  readonly label: string
+  readonly input: string
 }
 
 export type AgentWorkspaceDiffSummary = {

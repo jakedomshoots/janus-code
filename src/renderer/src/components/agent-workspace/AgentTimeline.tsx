@@ -19,6 +19,7 @@ import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspaceThread,
+  AgentWorkspaceTimelineChoice,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
@@ -33,6 +34,7 @@ export function AgentTimeline({
   onOpenBrowserWorkbench,
   onOpenTerminalDrawer,
   onOpenMarkdownArtifact,
+  onSelectChoice,
   onReviewDiffs,
   diffs = EMPTY_DIFFS,
   browserAvailable = false,
@@ -44,6 +46,10 @@ export function AgentTimeline({
   onOpenBrowserWorkbench?: () => void
   onOpenTerminalDrawer?: () => void
   onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
+  onSelectChoice?: (
+    entry: AgentWorkspaceTimelineEntry,
+    choice: AgentWorkspaceTimelineChoice
+  ) => void
   onReviewDiffs?: () => void
   diffs?: readonly AgentWorkspaceDiffSummary[]
   browserAvailable?: boolean
@@ -96,6 +102,7 @@ export function AgentTimeline({
                       cwd={thread.cwd}
                       worktreeId={thread.worktreeId}
                       onOpenMarkdownArtifact={onOpenMarkdownArtifact}
+                      onSelectChoice={onSelectChoice}
                     />
                     {entry.id === editedFilesCard?.ownerId ? (
                       <AgentEditedFilesCard

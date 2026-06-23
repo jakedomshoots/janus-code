@@ -16,6 +16,7 @@ import rehypeHighlight from 'rehype-highlight'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { markdownPreviewUrlTransform } from '@/components/editor/markdown-preview-url-transform'
+import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { openHttpLink } from '@/lib/http-link-routing'
 import { joinPath } from '@/lib/path'
@@ -25,7 +26,10 @@ import {
   formatAgentWorkspaceTimelineStatus
 } from './agent-workspace-labels'
 import { getTimelineSlashCommand } from './agent-timeline-slash-command'
-import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
+import type {
+  AgentWorkspaceTimelineChoice,
+  AgentWorkspaceTimelineEntry
+} from './agent-workspace-types'
 import { AgentMarkdownArtifactCard } from './AgentTimelineArtifactCards'
 import {
   getAgentTimelineMarkdownArtifacts,
@@ -45,12 +49,17 @@ export function AgentTimelineEntry({
   entry,
   cwd = null,
   worktreeId = null,
-  onOpenMarkdownArtifact
+  onOpenMarkdownArtifact,
+  onSelectChoice
 }: {
   entry: AgentWorkspaceTimelineEntry
   cwd?: string | null
   worktreeId?: string | null
   onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
+  onSelectChoice?: (
+    entry: AgentWorkspaceTimelineEntry,
+    choice: AgentWorkspaceTimelineChoice
+  ) => void
 }): React.JSX.Element {
   const isUser = entry.kind === 'user'
   const isAgent = entry.kind === 'agent'
@@ -121,7 +130,12 @@ export function AgentTimelineEntry({
               </span>
             ) : null}
           </div>
-          <AgentTimelineMessageBody entry={entry} cwd={cwd} worktreeId={worktreeId} />
+          <AgentTimelineMessageBody
+            entry={entry}
+            cwd={cwd}
+            worktreeId={worktreeId}
+            onSelectChoice={onSelectChoice}
+          />
           {markdownArtifacts.map((artifact) => (
             <AgentMarkdownArtifactCard
               key={artifact.id}
@@ -138,11 +152,16 @@ export function AgentTimelineEntry({
 function AgentTimelineMessageBody({
   entry,
   cwd,
-  worktreeId
+  worktreeId,
+  onSelectChoice
 }: {
   entry: AgentWorkspaceTimelineEntry
   cwd?: string | null
   worktreeId?: string | null
+  onSelectChoice?: (
+    entry: AgentWorkspaceTimelineEntry,
+    choice: AgentWorkspaceTimelineChoice
+  ) => void
 }): React.JSX.Element {
   const markdownComponents = useMemo(
     () => getAgentMessageMarkdownComponents(worktreeId, cwd),
@@ -152,6 +171,16 @@ function AgentTimelineMessageBody({
 
   if (entry.kind === 'agent' && isLive && entry.text.trim().length === 0) {
     return <AgentTimelineTypingIndicator />
+  }
+
+  if (entry.kind === 'approval' && entry.choices && entry.choices.length > 0) {
+    return (
+      <AgentTimelineChoicePanel
+        entry={entry}
+        choices={entry.choices}
+        onSelectChoice={onSelectChoice}
+      />
+    )
   }
 
   if (entry.kind === 'agent') {
@@ -176,6 +205,43 @@ function AgentTimelineMessageBody({
     <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
       {entry.text}
     </p>
+  )
+}
+
+function AgentTimelineChoicePanel({
+  entry,
+  choices,
+  onSelectChoice
+}: {
+  entry: AgentWorkspaceTimelineEntry
+  choices: readonly AgentWorkspaceTimelineChoice[]
+  onSelectChoice?: (
+    entry: AgentWorkspaceTimelineEntry,
+    choice: AgentWorkspaceTimelineChoice
+  ) => void
+}): React.JSX.Element {
+  return (
+    <div className="space-y-3" data-agent-terminal-choice-panel="true">
+      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
+        {entry.text}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {choices.map((choice) => (
+          <Button
+            key={choice.id}
+            type="button"
+            variant="outline"
+            size="sm"
+            className="inline-flex min-h-8 items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-left text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            data-agent-choice-input={choice.input}
+            onClick={() => onSelectChoice?.(entry, choice)}
+          >
+            <span className="font-mono text-muted-foreground">{choice.input}</span>
+            <span>{choice.label}</span>
+          </Button>
+        ))}
+      </div>
+    </div>
   )
 }
 

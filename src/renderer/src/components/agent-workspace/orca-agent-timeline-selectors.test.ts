@@ -145,6 +145,39 @@ describe('orca agent timeline selectors', () => {
     ])
   })
 
+  it('keeps terminal prompt choices on waiting approval timeline entries', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'waiting',
+            prompt: '/model',
+            approval: {
+              id: 'terminal-choice-1',
+              status: 'requested',
+              title: 'Select an option',
+              fallbackText: 'Select model\n1. gpt-5.4\n2. gpt-5.4-mini',
+              choices: [
+                { id: '1', label: 'gpt-5.4', input: '1' },
+                { id: '2', label: 'gpt-5.4-mini', input: '2' }
+              ]
+            }
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.at(-1)).toMatchObject({
+      kind: 'approval',
+      text: 'Select model\n1. gpt-5.4\n2. gpt-5.4-mini',
+      status: 'pending',
+      choices: [
+        { id: '1', label: 'gpt-5.4', input: '1' },
+        { id: '2', label: 'gpt-5.4-mini', input: '2' }
+      ]
+    })
+  })
+
   it('hides internal runtime prompts from chat timeline bubbles', () => {
     const snapshot = selectAgentWorkspaceSnapshot(
       getState({

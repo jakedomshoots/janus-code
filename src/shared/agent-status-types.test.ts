@@ -6,6 +6,7 @@ import {
   AGENT_STATUS_TOOL_INPUT_MAX_LENGTH,
   AGENT_STATUS_TOOL_EVENT_FALLBACK_TEXT_MAX_LENGTH,
   AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH,
+  AGENT_STATUS_APPROVAL_CHOICES_MAX_LENGTH,
   AGENT_STATUS_ASSISTANT_MESSAGE_MAX_LENGTH,
   AGENT_STATUS_PLAN_MAX_STEPS,
   AGENT_STATUS_STATES,
@@ -388,6 +389,10 @@ describe('parseAgentStatusPayload', () => {
           description: 'Run test suite before commit.',
           toolName: 'Bash',
           toolInput: 'pnpm test\npnpm lint',
+          choices: [
+            { id: ' 1 ', label: '  gpt-5.4  ', input: ' 1 ' },
+            { id: 'broken', label: '', input: 'x' }
+          ],
           fallbackText: 'Approve Bash: pnpm test'
         }
       })
@@ -400,8 +405,31 @@ describe('parseAgentStatusPayload', () => {
       description: 'Run test suite before commit.',
       toolName: 'Bash',
       toolInput: 'pnpm test pnpm lint',
+      choices: [{ id: '1', label: 'gpt-5.4', input: '1' }],
       fallbackText: 'Approve Bash: pnpm test'
     })
+  })
+
+  it('bounds structured approval choices', () => {
+    const result = parseAgentStatusPayload(
+      JSON.stringify({
+        state: 'waiting',
+        approval: {
+          id: 'approval-1',
+          fallbackText: 'Select model',
+          choices: Array.from(
+            { length: AGENT_STATUS_APPROVAL_CHOICES_MAX_LENGTH + 3 },
+            (_, index) => ({
+              id: `choice-${index}`,
+              label: `Model ${index}`,
+              input: String(index + 1)
+            })
+          )
+        }
+      })
+    )
+
+    expect(result!.approval?.choices).toHaveLength(AGENT_STATUS_APPROVAL_CHOICES_MAX_LENGTH)
   })
 
   it('bounds approval fallback text and permits explicit approval clears', () => {

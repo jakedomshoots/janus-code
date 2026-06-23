@@ -426,6 +426,88 @@ describe('active agent note send', () => {
     })
   })
 
+  it('projects slash-command terminal model choices into the agent timeline', async () => {
+    const paneKey = makePaneKey('tab-1', LEAF_ID)
+    testState.appState.agentStatusByPaneKey[paneKey] = agentStatusEntry(paneKey, {
+      state: 'done',
+      updatedAt: Date.now(),
+      stateStartedAt: Date.now()
+    })
+    testState.callRuntimeRpc.mockImplementation(async (_target, method, params) => {
+      if (method === 'terminal.list') {
+        return {
+          terminals: [
+            {
+              handle: 'term-1',
+              worktreeId: 'wt-1',
+              worktreePath: '/repo',
+              branch: 'main',
+              tabId: 'tab-1',
+              leafId: LEAF_ID,
+              title: 'Codex',
+              connected: true,
+              writable: true,
+              lastOutputAt: 1,
+              preview: ''
+            }
+          ],
+          totalCount: 1,
+          truncated: false
+        }
+      }
+      if (method === 'terminal.isRunningAgent') {
+        return { isRunningAgent: true }
+      }
+      if (method === 'terminal.wait') {
+        expect(params).toMatchObject({ terminal: 'term-1', for: 'tui-idle' })
+        return {
+          wait: {
+            handle: 'term-1',
+            condition: 'tui-idle',
+            satisfied: false,
+            status: 'running',
+            exitCode: null,
+            blockedReason: 'codex-interactive-prompt'
+          }
+        }
+      }
+      if (method === 'terminal.read') {
+        return {
+          terminal: {
+            handle: 'term-1',
+            status: 'running',
+            tail: ['Select model', '1. gpt-5.4', '2. gpt-5.4-mini', '3. gpt-5.3-codex'],
+            truncated: false,
+            nextCursor: null
+          }
+        }
+      }
+      throw new Error(`unexpected method ${method}`)
+    })
+
+    await expect(
+      sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: '/model' })
+    ).resolves.toEqual({ status: 'sent' })
+
+    expect(testState.appState.setAgentStatus).toHaveBeenLastCalledWith(paneKey, {
+      state: 'waiting',
+      prompt: '/model',
+      agentType: 'codex',
+      approval: {
+        id: expect.stringContaining(`${paneKey}:terminal-choice:`),
+        status: 'requested',
+        title: 'Select an option',
+        description: 'Choose from the terminal prompt to continue.',
+        fallbackText: expect.stringContaining('Select model'),
+        choices: [
+          { id: '1', label: 'gpt-5.4', input: '1' },
+          { id: '2', label: 'gpt-5.4-mini', input: '2' },
+          { id: '3', label: 'gpt-5.3-codex', input: '3' }
+        ]
+      }
+    })
+  })
+
   it('does not write notes when the active terminal is not an agent', async () => {
     testState.callRuntimeRpc.mockImplementation(async (_target, method) => {
       if (method === 'terminal.list') {

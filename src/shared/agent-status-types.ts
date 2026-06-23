@@ -142,6 +142,13 @@ export type AgentStatusApproval = {
   toolName?: string
   toolInput?: string
   fallbackText: string
+  choices?: AgentStatusApprovalChoice[]
+}
+
+export type AgentStatusApprovalChoice = {
+  id: string
+  label: string
+  input: string
 }
 
 export type AgentStatusEntry = {
@@ -313,6 +320,10 @@ export const AGENT_STATUS_APPROVAL_TITLE_MAX_LENGTH = 200
 export const AGENT_STATUS_APPROVAL_DESCRIPTION_MAX_LENGTH = 2000
 /** Maximum character length for structured approval fallback text. */
 export const AGENT_STATUS_APPROVAL_FALLBACK_TEXT_MAX_LENGTH = 500
+/** Maximum number of terminal-choice options kept on an approval prompt. */
+export const AGENT_STATUS_APPROVAL_CHOICES_MAX_LENGTH = 8
+/** Maximum character length for a structured approval choice label/input. */
+export const AGENT_STATUS_APPROVAL_CHOICE_TEXT_MAX_LENGTH = 200
 /**
  * Freshness threshold for explicit agent status. Retained past this point so
  * WorktreeCard's sidebar dot can decay "working" back to "active" when the
@@ -597,6 +608,7 @@ function normalizeStructuredApproval(value: unknown): AgentStatusApproval | null
   )
   const toolName = normalizeOptionalField(obj.toolName, AGENT_STATUS_TOOL_NAME_MAX_LENGTH)
   const toolInput = normalizeOptionalField(obj.toolInput, AGENT_STATUS_TOOL_INPUT_MAX_LENGTH)
+  const choices = normalizeApprovalChoices(obj.choices)
 
   return {
     id,
@@ -605,8 +617,31 @@ function normalizeStructuredApproval(value: unknown): AgentStatusApproval | null
     ...(description ? { description } : {}),
     ...(toolName ? { toolName } : {}),
     ...(toolInput ? { toolInput } : {}),
+    ...(choices.length > 0 ? { choices } : {}),
     fallbackText
   }
+}
+
+function normalizeApprovalChoices(value: unknown): AgentStatusApprovalChoice[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value
+    .slice(0, AGENT_STATUS_APPROVAL_CHOICES_MAX_LENGTH)
+    .flatMap((entry): AgentStatusApprovalChoice[] => {
+      if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+        return []
+      }
+      const obj = entry as Record<string, unknown>
+      const id = normalizeOptionalField(obj.id, AGENT_STATUS_APPROVAL_CHOICE_TEXT_MAX_LENGTH)
+      const label = normalizeOptionalField(obj.label, AGENT_STATUS_APPROVAL_CHOICE_TEXT_MAX_LENGTH)
+      const input = normalizeOptionalField(obj.input, AGENT_STATUS_APPROVAL_CHOICE_TEXT_MAX_LENGTH)
+      if (!id || !label || !input) {
+        return []
+      }
+      return [{ id, label, input }]
+    })
 }
 
 /**

@@ -100,7 +100,8 @@ function toWaitingTimelineEntry(
     kind: 'approval',
     text,
     createdAt: getIsoTimestamp(entry.updatedAt),
-    status: 'pending'
+    status: 'pending',
+    choices: entry.approval?.choices
   }
 }
 

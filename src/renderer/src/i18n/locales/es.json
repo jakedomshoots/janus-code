@@ -504,6 +504,10 @@
         "createProjectFailed": "Could not create Janus Ideas.",
         "openProjectFailed": "Could not open Janus Ideas.",
         "webPairingRequired": "Connect Janus Code before starting a planning agent."
+      },
+      "activeAgentTerminalChoice": {
+        "selectOption": "Select an option",
+        "chooseFromPrompt": "Choose from the terminal prompt to continue."
       }
     },
     "hooks": {

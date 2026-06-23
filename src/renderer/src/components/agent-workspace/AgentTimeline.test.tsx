@@ -164,6 +164,45 @@ describe('AgentTimeline', () => {
     expect(container.querySelector('[data-agent-message-markdown="true"]')).toBeNull()
   })
 
+  it('renders terminal prompt choices as selectable approval buttons', () => {
+    const onSelectChoice = vi.fn()
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-model-choice',
+        threadId: thread.id,
+        kind: 'approval',
+        text: 'Select model\n1. gpt-5.4\n2. gpt-5.4-mini',
+        status: 'pending',
+        createdAt: '2026-06-18T14:01:02.000Z',
+        choices: [
+          { id: '1', label: 'gpt-5.4', input: '1' },
+          { id: '2', label: 'gpt-5.4-mini', input: '2' }
+        ]
+      }
+    ]
+
+    act(() => {
+      root.render(
+        <AgentTimeline thread={thread} timeline={timeline} onSelectChoice={onSelectChoice} />
+      )
+    })
+
+    const miniButton = container.querySelector<HTMLButtonElement>('[data-agent-choice-input="2"]')
+
+    expect(container.querySelector('[data-agent-terminal-choice-panel="true"]')).not.toBeNull()
+    expect(miniButton?.textContent).toContain('gpt-5.4-mini')
+
+    act(() => {
+      miniButton?.click()
+    })
+
+    expect(onSelectChoice).toHaveBeenCalledWith(timeline[0], {
+      id: '2',
+      label: 'gpt-5.4-mini',
+      input: '2'
+    })
+  })
+
   it('renders markdown artifact cards that open the document preview', () => {
     const onOpenMarkdownArtifact = vi.fn()
     const timeline: AgentWorkspaceTimelineEntry[] = [
