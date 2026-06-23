@@ -1059,6 +1059,79 @@
   white-space: pre;
 }
 
+/* Why: agent replies share the document highlighter, but chat bubbles need
+   token-driven colors that adapt across Modern, dark, and Retro themes. */
+.agent-timeline-markdown .hljs {
+  color: var(--foreground);
+}
+
+.agent-timeline-markdown .hljs-comment,
+.agent-timeline-markdown .hljs-quote {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.agent-timeline-markdown .hljs-keyword,
+.agent-timeline-markdown .hljs-selector-tag,
+.agent-timeline-markdown .hljs-template-tag {
+  color: color-mix(in srgb, var(--foreground) 52%, var(--destructive));
+}
+
+.agent-timeline-markdown .hljs-string,
+.agent-timeline-markdown .hljs-doctag,
+.agent-timeline-markdown .hljs-regexp {
+  color: color-mix(in srgb, var(--foreground) 50%, var(--chart-3));
+}
+
+.agent-timeline-markdown .hljs-number,
+.agent-timeline-markdown .hljs-literal,
+.agent-timeline-markdown .hljs-type,
+.agent-timeline-markdown .hljs-built_in,
+.agent-timeline-markdown .hljs-attr,
+.agent-timeline-markdown .hljs-attribute {
+  color: color-mix(in srgb, var(--foreground) 48%, var(--chart-4));
+}
+
+.agent-timeline-markdown .hljs-title,
+.agent-timeline-markdown .hljs-section,
+.agent-timeline-markdown .hljs-function {
+  color: color-mix(in srgb, var(--foreground) 48%, var(--chart-5));
+}
+
+.agent-timeline-markdown .hljs-variable,
+.agent-timeline-markdown .hljs-template-variable,
+.agent-timeline-markdown .hljs-operator,
+.agent-timeline-markdown .hljs-property,
+.agent-timeline-markdown .hljs-meta {
+  color: color-mix(in srgb, var(--foreground) 55%, var(--chart-2));
+}
+
+.agent-timeline-markdown .hljs-tag,
+.agent-timeline-markdown .hljs-name,
+.agent-timeline-markdown .hljs-symbol,
+.agent-timeline-markdown .hljs-bullet,
+.agent-timeline-markdown .hljs-selector-class,
+.agent-timeline-markdown .hljs-selector-id {
+  color: color-mix(in srgb, var(--foreground) 52%, var(--chart-1));
+}
+
+.agent-timeline-markdown .hljs-addition {
+  background: color-mix(in srgb, var(--chart-2) 18%, transparent);
+}
+
+.agent-timeline-markdown .hljs-deletion {
+  background: color-mix(in srgb, var(--destructive) 14%, transparent);
+  color: color-mix(in srgb, var(--foreground) 54%, var(--destructive));
+}
+
+.agent-timeline-markdown .hljs-emphasis {
+  font-style: italic;
+}
+
+.agent-timeline-markdown .hljs-strong {
+  font-weight: 700;
+}
+
 .agent-timeline-markdown blockquote {
   margin: 0.55em 0;
   border-left: 3px solid var(--border);

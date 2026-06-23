@@ -22,6 +22,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import Markdown from 'react-markdown'
 import type { Components } from 'react-markdown'
+import rehypeHighlight from 'rehype-highlight'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { translate } from '@/i18n/i18n'
@@ -39,6 +40,7 @@ import {
 } from './agent-timeline-artifacts'
 
 const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
+const AGENT_MESSAGE_REHYPE_PLUGINS = [rehypeHighlight]
 const AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS: Components = {
   pre: AgentTimelineCodeBlock
 }
@@ -155,7 +157,11 @@ function AgentTimelineMessageBody({
         data-agent-message-markdown="true"
         className="agent-timeline-markdown markdown-body text-sm leading-relaxed text-foreground"
       >
-        <Markdown components={markdownComponents} remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}>
+        <Markdown
+          components={markdownComponents}
+          remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}
+          rehypePlugins={AGENT_MESSAGE_REHYPE_PLUGINS}
+        >
           {entry.text}
         </Markdown>
       </div>

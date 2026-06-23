@@ -29,3 +29,4 @@
 - Labeled assistant Markdown code blocks with their fenced language to make generated snippets easier to scan.
 - Routed assistant reply links through Janus link handling so chat URLs respect in-app browser settings and remote runtime constraints.
 - Kept the workspace timeline pinned to the newest streamed assistant text as live replies grow, reducing perceived CLI-to-chat lag.
+- Syntax-highlighted assistant Markdown code blocks in the workspace timeline with existing theme tokens.

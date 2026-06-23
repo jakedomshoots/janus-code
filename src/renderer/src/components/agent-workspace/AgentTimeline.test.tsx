@@ -254,6 +254,29 @@ describe('AgentTimeline', () => {
     expect(copyButton?.textContent).toContain('Copied')
   })
 
+  it('syntax highlights assistant fenced code blocks', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: ['```ts', 'const latencyBudgetMs = 250', '```'].join('\n'),
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const highlightedCode = container.querySelector('pre code.hljs')
+
+    expect(highlightedCode).not.toBeNull()
+    expect(highlightedCode?.className ?? '').toContain('language-ts')
+    expect(highlightedCode?.querySelector('.hljs-keyword')?.textContent).toBe('const')
+  })
+
   it('routes assistant reply links through Janus link handling', () => {
     const timeline: AgentWorkspaceTimelineEntry[] = [
       {
