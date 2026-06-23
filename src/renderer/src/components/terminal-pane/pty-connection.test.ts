@@ -36,7 +36,16 @@ function leafIdForPane(paneId: number): string {
 
 type StoreState = {
   activeWorktreeId: string | null
-  tabsByWorktree: Record<string, { id: string; ptyId: string | null; title?: string }[]>
+  tabsByWorktree: Record<
+    string,
+    {
+      id: string
+      ptyId: string | null
+      title?: string
+      defaultTitle?: string
+      launchAgent?: string
+    }[]
+  >
   ptyIdsByTabId?: Record<string, string[]>
   terminalLayoutsByTabId?: Record<string, TerminalLayoutSnapshot>
   unreadTerminalTabs?: Record<string, true>
@@ -1109,6 +1118,70 @@ describe('connectPanePty', () => {
       },
       undefined
     )
+  })
+
+  it('mirrors launched CLI assistant output into the workspace agent status', async () => {
+    vi.useFakeTimers()
+    const { connectPanePty } = await import('./pty-connection')
+    const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
+    const transport = createMockTransport()
+    transport.connect.mockImplementation(async ({ callbacks }: { callbacks: ConnectCallbacks }) => {
+      capturedDataCallback.current = callbacks.onData ?? null
+      return 'pty-kimi'
+    })
+    transportFactoryQueue.push(transport)
+
+    const paneKey = makePaneKey('tab-1', LEAF_1)
+    mockStoreState = {
+      ...mockStoreState,
+      tabsByWorktree: { 'wt-1': [{ id: 'tab-1', ptyId: null, launchAgent: 'kimi' }] },
+      agentStatusByPaneKey: {
+        [paneKey]: {
+          paneKey,
+          state: 'working',
+          prompt: 'tell me about this project',
+          agentType: 'kimi',
+          updatedAt: Date.now(),
+          stateStartedAt: Date.now(),
+          stateHistory: []
+        }
+      }
+    }
+
+    connectPanePty(createPane(1) as never, createManager(1) as never, createDeps() as never)
+    vi.runOnlyPendingTimers()
+    await flushAsyncTicks()
+    expect(capturedDataCallback.current).not.toBeNull()
+
+    capturedDataCallback.current?.(
+      [
+        '✨ Tell me about this project',
+        '● The user is asking again "Tell me about this project". I already answered.',
+        '● This is Fam-OS - a shared family operating system built as a Progressive Web App (PWA).',
+        '',
+        'Core purpose',
+        '',
+        "It's designed for two-parent households to coordinate daily family life from their phones."
+      ].join('\r\n')
+    )
+
+    expect(mockStoreState.agentStatusByPaneKey[paneKey]).toMatchObject({
+      state: 'working',
+      prompt: 'tell me about this project',
+      agentType: 'kimi',
+      lastAssistantMessage: expect.stringContaining('This is Fam-OS')
+    })
+    expect(mockStoreState.agentStatusByPaneKey[paneKey]).not.toMatchObject({
+      lastAssistantMessage: expect.stringContaining('The user is asking')
+    })
+
+    vi.advanceTimersByTime(1500)
+    expect(mockStoreState.agentStatusByPaneKey[paneKey]).toMatchObject({
+      state: 'done',
+      prompt: 'tell me about this project',
+      agentType: 'kimi',
+      lastAssistantMessage: expect.stringContaining('This is Fam-OS')
+    })
   })
 
   it('delivers terminal-paste startup commands through xterm before submitting', async () => {

@@ -77,6 +77,7 @@ import {
   pasteTerminalText
 } from './terminal-bracketed-paste'
 import { createCommandCodeOutputStatusDetector } from './command-code-output-status'
+import { createLaunchedAgentTerminalTranscriptMirror } from './launched-agent-terminal-transcript'
 import type { PtyDataMeta } from './pty-dispatcher'
 import { getEagerPtyBufferHandle } from './pty-dispatcher'
 import { createTerminalGitHubPRLinkDetector } from '@/lib/terminal-github-pr-link-detector'
@@ -106,6 +107,7 @@ const AGENT_TASK_COMPLETE_NOTIFICATION_GRACE_MS = 250
 const AGENT_TASK_COMPLETE_NOTIFICATION_MAX_WAIT_MS = 1500
 const AGENT_TASK_COMPLETE_NOTIFICATION_DETAIL_MAX_AGE_MS = 10_000
 const COMMAND_CODE_OUTPUT_DONE_SETTLE_MS = 1500
+const LAUNCHED_AGENT_TERMINAL_TRANSCRIPT_DONE_SETTLE_MS = 1500
 const HIDDEN_OUTPUT_RESTORE_SCROLLBACK_ROWS = 5000
 const HIDDEN_OUTPUT_RESTORE_PENDING_CHARS = 512 * 1024
 const HIDDEN_OUTPUT_RESTORE_DEFERRED_RETRY_MS = 50
@@ -1160,6 +1162,7 @@ export function connectPanePty(
 
   const onExit = (ptyId: string): void => {
     agentCompletionCoordinator.dispose()
+    clearLaunchedAgentTerminalTranscriptDoneTimer()
     clearPanePtyFitBinding()
     deps.syncPanePtyLayoutBinding(pane.id, null)
     deps.clearRuntimePaneTitle(deps.tabId, pane.id)
@@ -1330,6 +1333,114 @@ export function connectPanePty(
     onWorking: seedCommandCodeOutputWorkingStatus,
     onDone: scheduleCommandCodeOutputDoneStatus
   })
+  const launchedAgentTerminalTranscriptMirror = createLaunchedAgentTerminalTranscriptMirror()
+  let launchedAgentTerminalTranscriptDoneTimer: ReturnType<typeof setTimeout> | null = null
+  let launchedAgentLastMirroredAssistantMessage: string | null = null
+  const clearLaunchedAgentTerminalTranscriptDoneTimer = (): void => {
+    if (launchedAgentTerminalTranscriptDoneTimer !== null) {
+      clearTimeout(launchedAgentTerminalTranscriptDoneTimer)
+      launchedAgentTerminalTranscriptDoneTimer = null
+    }
+  }
+  const getLaunchBackedAgentType = (entry: AgentStatusEntry | undefined): string | null => {
+    const launchAgent = (useAppStore.getState().tabsByWorktree[deps.worktreeId] ?? []).find(
+      (candidate) => candidate.id === deps.tabId
+    )?.launchAgent
+    const startupAgent = paneStartup?.initialAgentStatus?.agent
+    const agentType = entry?.agentType ?? launchAgent ?? startupAgent ?? null
+    if (!agentType || agentType === 'command-code') {
+      return null
+    }
+    if (!launchAgent && !startupAgent) {
+      return null
+    }
+    return agentType
+  }
+  const structuredStatusOwnsTranscript = (entry: AgentStatusEntry | undefined): boolean => {
+    if (!entry) {
+      return false
+    }
+    if (entry.providerSession || entry.toolEvent || entry.plan || entry.approval || entry.failure) {
+      return true
+    }
+    return Boolean(
+      entry.lastAssistantMessage &&
+      entry.lastAssistantMessage !== launchedAgentLastMirroredAssistantMessage
+    )
+  }
+  const scheduleLaunchedAgentTerminalTranscriptDoneStatus = ({
+    prompt,
+    agentType,
+    assistantMessage
+  }: {
+    prompt: string
+    agentType: string
+    assistantMessage: string
+  }): void => {
+    clearLaunchedAgentTerminalTranscriptDoneTimer()
+    launchedAgentTerminalTranscriptDoneTimer = setTimeout(() => {
+      launchedAgentTerminalTranscriptDoneTimer = null
+      if (disposed) {
+        return
+      }
+      const currentState = useAppStore.getState()
+      const currentEntry = currentState.agentStatusByPaneKey[cacheKey]
+      if (
+        currentEntry?.state !== 'working' ||
+        currentEntry.prompt.trim() !== prompt ||
+        currentEntry.agentType !== agentType ||
+        currentEntry.lastAssistantMessage?.trim() !== assistantMessage.trim() ||
+        structuredStatusOwnsTranscript(currentEntry)
+      ) {
+        return
+      }
+      const currentTitle = currentState.runtimePaneTitlesByTabId?.[deps.tabId]?.[pane.id]
+      currentState.setAgentStatus(
+        cacheKey,
+        {
+          state: 'done',
+          prompt,
+          agentType,
+          lastAssistantMessage: assistantMessage
+        },
+        currentTitle
+      )
+      launchedAgentLastMirroredAssistantMessage = assistantMessage
+    }, LAUNCHED_AGENT_TERMINAL_TRANSCRIPT_DONE_SETTLE_MS)
+  }
+  const mirrorLaunchedAgentTerminalTranscript = (data: string): void => {
+    const currentState = useAppStore.getState()
+    const currentEntry = currentState.agentStatusByPaneKey[cacheKey]
+    const agentType = getLaunchBackedAgentType(currentEntry)
+    const prompt = (currentEntry?.prompt ?? paneStartup?.initialAgentStatus?.prompt ?? '').trim()
+    if (!agentType || !prompt || structuredStatusOwnsTranscript(currentEntry)) {
+      return
+    }
+    const assistantMessage = launchedAgentTerminalTranscriptMirror.observe({ data, prompt })
+    if (!assistantMessage || assistantMessage === currentEntry?.lastAssistantMessage) {
+      return
+    }
+    const currentTitle = currentState.runtimePaneTitlesByTabId?.[deps.tabId]?.[pane.id]
+    const state = currentEntry?.state === 'done' ? 'done' : 'working'
+    currentState.setAgentStatus(
+      cacheKey,
+      {
+        state,
+        prompt,
+        agentType,
+        lastAssistantMessage: assistantMessage
+      },
+      currentTitle
+    )
+    launchedAgentLastMirroredAssistantMessage = assistantMessage
+    if (state === 'working') {
+      scheduleLaunchedAgentTerminalTranscriptDoneStatus({
+        prompt,
+        agentType,
+        assistantMessage
+      })
+    }
+  }
   const observeTerminalGitHubPRLink = createTerminalGitHubPRLinkDetector()
 
   const onPtySpawn = (ptyId: string): void => {
@@ -1671,6 +1782,7 @@ export function connectPanePty(
     ...(shouldOwnAgentStatusInRenderer
       ? {
           onAgentStatus: (payload) => {
+            clearLaunchedAgentTerminalTranscriptDoneTimer()
             // Why: capture the store snapshot once so the title lookup and the
             // setAgentStatus call observe the same state. Re-reading getState()
             // between the two lines opens a brief window where the title could
@@ -2952,6 +3064,7 @@ export function connectPanePty(
         useAppStore.getState().observeTerminalGitHubPullRequestLink(deps.worktreeId, link)
       }
       commandCodeOutputStatusDetector.observe(data)
+      mirrorLaunchedAgentTerminalTranscript(data)
       commandLifecycle.handlePtyData(data)
       // Why: split-pane layouts have multiple visible-but-inactive panes whose
       // output the user is watching. Throttle only when the pane or whole
@@ -3645,6 +3758,7 @@ export function connectPanePty(
       interruptInference.dispose()
       clearTitleOnlyInterruptTimer()
       clearCommandCodeOutputDoneTimer()
+      clearLaunchedAgentTerminalTranscriptDoneTimer()
       // Why: actively resolve any in-flight passphrase-gate waits so their
       // zustand subscribers + async IIFEs don't hang for the rest of the
       // session when the pane is torn down before SSH state changes.

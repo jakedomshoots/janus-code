@@ -132,7 +132,17 @@ export async function sendNotesToActiveAgentSession({
     content: trimmedPrompt,
     settings: runtimeSettings
   })
-  return sent ? { status: 'sent' } : { status: 'not-writable' }
+  if (!sent) {
+    return { status: 'not-writable' }
+  }
+
+  markSubmittedAgentPrompt({
+    state: useAppStore.getState(),
+    worktreeId,
+    noteTarget: resolvedNoteTarget,
+    prompt: trimmedPrompt
+  })
+  return { status: 'sent' }
 }
 
 function getFreshAgentStatusEntry(
@@ -161,6 +171,33 @@ function hasLaunchBackedAgentTab(
   return Boolean(
     (state.tabsByWorktree[worktreeId] ?? []).find((tab) => tab.id === noteTarget.tabId)?.launchAgent
   )
+}
+
+function markSubmittedAgentPrompt({
+  state,
+  worktreeId,
+  noteTarget,
+  prompt
+}: {
+  state: ReturnType<typeof useAppStore.getState>
+  worktreeId: string
+  noteTarget: { tabId: string; leafId: string }
+  prompt: string
+}): void {
+  const paneKey = makePaneKey(noteTarget.tabId, noteTarget.leafId)
+  const existing = state.agentStatusByPaneKey?.[paneKey]
+  const tab = (state.tabsByWorktree[worktreeId] ?? []).find(
+    (entry) => entry.id === noteTarget.tabId
+  )
+  const agentType = existing?.agentType ?? tab?.launchAgent ?? 'unknown'
+  // Why: hookless agents can accept the paste before any hook/title event lands.
+  // Seed the same status row the workspace timeline reads so terminal output can
+  // attach to the submitted prompt instead of staying terminal-only.
+  state.setAgentStatus(paneKey, {
+    state: 'working',
+    prompt,
+    agentType
+  })
 }
 
 export function activeAgentNotesSendFailureMessage(status: ActiveAgentNotesSendStatus): string {

@@ -37,7 +37,8 @@ const testState = vi.hoisted(() => ({
       }
     },
     agentStatusByPaneKey: {},
-    settings: {}
+    settings: {},
+    setAgentStatus: vi.fn()
   } as {
     activeWorktreeId: string | null
     activeTabType: 'terminal' | 'editor'
@@ -56,6 +57,7 @@ const testState = vi.hoisted(() => ({
     >
     agentStatusByPaneKey: Record<string, AgentStatusEntry>
     settings: Record<string, unknown>
+    setAgentStatus: ReturnType<typeof vi.fn>
   },
   callRuntimeRpc: vi.fn(),
   getActiveRuntimeTarget: vi.fn(() => ({ kind: 'local' })),
@@ -98,13 +100,15 @@ describe('active agent note send', () => {
         'tab-1': { activeLeafId: LEAF_ID, ptyIdsByLeafId: { [LEAF_ID]: 'pty-1' } }
       },
       agentStatusByPaneKey: {},
-      settings: {}
+      settings: {},
+      setAgentStatus: vi.fn()
     }
     testState.callRuntimeRpc.mockReset()
     testState.getActiveRuntimeTarget.mockClear()
     testState.getActiveRuntimeTarget.mockReturnValue({ kind: 'local' })
     testState.sendBracketedPasteToRunningAgent.mockReset()
     testState.sendBracketedPasteToRunningAgent.mockResolvedValue(true)
+    testState.appState.setAgentStatus.mockClear()
   })
 
   it('resolves the current worktree terminal pane from renderer state', () => {
@@ -553,6 +557,14 @@ describe('active agent note send', () => {
         content: 'follow up all agents',
         settings: { activeRuntimeEnvironmentId: null }
       })
+      expect(testState.appState.setAgentStatus).toHaveBeenCalledWith(
+        makePaneKey('tab-1', LEAF_ID),
+        {
+          state: 'working',
+          prompt: 'follow up all agents',
+          agentType: agent
+        }
+      )
     }
   )
 

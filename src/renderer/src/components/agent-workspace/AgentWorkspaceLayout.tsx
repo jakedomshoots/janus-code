@@ -6,6 +6,7 @@ import { useAppStore } from '@/store'
 import type {
   AgentWorkspaceDiffSummary,
   AgentWorkspaceSnapshot,
+  AgentWorkspaceThread,
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import { AgentWorkspaceChrome } from './AgentWorkspaceChrome'
@@ -47,6 +48,7 @@ import {
   getThreadReview,
   getThreadTimeline
 } from './agent-workspace-layout-selectors'
+import { focusAgentWorkspaceThreadTerminal } from './agent-workspace-thread-terminal-focus'
 
 export function AgentWorkspaceLayout({
   snapshot,
@@ -237,6 +239,23 @@ export function AgentWorkspaceLayout({
     )
   }
 
+  function handleOpenTerminalDrawerForThread(
+    reason: AgentTerminalRevealReason | null,
+    thread: AgentWorkspaceThread | null
+  ): void {
+    if (reason && reason !== 'browser' && reason !== 'workbench' && thread) {
+      focusAgentWorkspaceThreadTerminal({
+        threadId: thread.id,
+        worktreeId: thread.worktreeId
+      })
+    }
+    onOpenTerminalDrawer?.(reason)
+  }
+
+  function handleOpenSelectedTerminalDrawer(reason: AgentTerminalRevealReason | null): void {
+    handleOpenTerminalDrawerForThread(reason, selectedThread)
+  }
+
   const handleMessageSent: AgentComposerMessageSentHandler = (message) => {
     localUserTimelineSequenceRef.current += 1
     const sequence = localUserTimelineSequenceRef.current
@@ -254,7 +273,7 @@ export function AgentWorkspaceLayout({
           browserAvailable={browserWorkbench.browserAvailable}
           onNewSession={() => handleNewSession(activePaneId)}
           onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
-          onOpenTerminalDrawer={() => onOpenTerminalDrawer?.('debug-button')}
+          onOpenTerminalDrawer={() => handleOpenSelectedTerminalDrawer('debug-button')}
           onExpandRightPanel={handleExpandRightPanel}
           onOpenProjectFiles={() => {
             setSelectedRightPanelState((current) => ({ ...current, collapsed: true }))
@@ -289,7 +308,7 @@ export function AgentWorkspaceLayout({
             onCommitStaged={sourceControlActions.onCommitStaged}
             onOpenBrowserWorkbench={() => browserWorkbench.openBrowserWorkbench()}
             onReviewDiffs={() => handleRightPanelTabChange('review')}
-            onOpenTerminalDrawer={onOpenTerminalDrawer}
+            onOpenTerminalDrawer={handleOpenSelectedTerminalDrawer}
           />
         )
       }
@@ -306,6 +325,9 @@ export function AgentWorkspaceLayout({
           const paneApproval = getThreadApproval(snapshot, paneThread)
           const paneDiffs = getThreadDiffs(snapshot, paneThread)
           const backendTimeline = getThreadTimeline(snapshot, paneThread)
+          const handleOpenPaneTerminalDrawer = (reason: AgentTerminalRevealReason | null): void => {
+            handleOpenTerminalDrawerForThread(reason, paneThread)
+          }
           const paneTimeline = [
             ...backendTimeline,
             ...localUserTimeline.filter(
@@ -378,7 +400,7 @@ export function AgentWorkspaceLayout({
                   handleSplitPane(pane.id, splitDirection)
                 }}
                 onClosePane={() => handleClosePane(pane.id)}
-                onOpenTerminalDrawer={onOpenTerminalDrawer}
+                onOpenTerminalDrawer={handleOpenPaneTerminalDrawer}
               />
             </div>
           )
