@@ -277,6 +277,31 @@ describe('AgentTimeline', () => {
     expect(highlightedCode?.querySelector('.hljs-keyword')?.textContent).toBe('const')
   })
 
+  it('bounds assistant markdown images inside chat replies', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: '![Workbench screenshot](https://example.com/workbench.png)',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const image = container.querySelector<HTMLImageElement>(
+      '[data-agent-message-markdown="true"] img'
+    )
+
+    expect(image?.getAttribute('alt')).toBe('Workbench screenshot')
+    expect(image?.classList.contains('agent-timeline-markdown-image')).toBe(true)
+    expect(image?.getAttribute('loading')).toBe('lazy')
+  })
+
   it('routes assistant reply links through Janus link handling', () => {
     const timeline: AgentWorkspaceTimelineEntry[] = [
       {

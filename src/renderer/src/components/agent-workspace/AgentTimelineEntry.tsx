@@ -32,16 +32,19 @@ import {
   formatAgentWorkspaceTimelineKind,
   formatAgentWorkspaceTimelineStatus
 } from './agent-workspace-labels'
+import { getTimelineSlashCommand } from './agent-timeline-slash-command'
 import type { AgentWorkspaceTimelineEntry } from './agent-workspace-types'
 import { AgentMarkdownArtifactCard } from './AgentTimelineArtifactCards'
 import {
   getAgentTimelineMarkdownArtifacts,
   type AgentTimelineMarkdownArtifact
 } from './agent-timeline-artifacts'
+import { AgentTimelineMarkdownImage } from './AgentTimelineMarkdownImage'
 
 const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
 const AGENT_MESSAGE_REHYPE_PLUGINS = [rehypeHighlight]
 const AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS: Components = {
+  img: AgentTimelineMarkdownImage,
   pre: AgentTimelineCodeBlock
 }
 
@@ -413,15 +416,4 @@ function formatAgentTimelineTimestamp(value: string | null): string {
     hour: 'numeric',
     minute: '2-digit'
   }).format(date)
-}
-
-function getTimelineSlashCommand(entry: AgentWorkspaceTimelineEntry): string | null {
-  if (entry.kind !== 'user') {
-    return null
-  }
-  const [firstToken] = entry.text.trim().split(/\s+/, 1)
-  if (!firstToken?.startsWith('/') || firstToken.length === 1) {
-    return null
-  }
-  return firstToken
 }

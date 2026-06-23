@@ -967,6 +967,17 @@
   margin: 0.18em 0;
 }
 
+.agent-timeline-markdown-image {
+  display: block;
+  max-width: 100%;
+  max-height: min(24rem, 52vh);
+  margin: 0.65em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--muted) 52%, var(--background));
+  object-fit: contain;
+}
+
 .agent-timeline-code-block {
   margin: 0.65em 0;
   overflow: hidden;
