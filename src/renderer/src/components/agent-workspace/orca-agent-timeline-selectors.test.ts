@@ -39,6 +39,25 @@ function agentEntry(overrides: Partial<AgentStatusEntry>): AgentStatusEntry {
 }
 
 describe('orca agent timeline selectors', () => {
+  it('surfaces live assistant text while a CLI agent is still working', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'working',
+            prompt: 'Draft the latency fix.',
+            lastAssistantMessage: 'I found the slow handoff and am wiring the preview.'
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Draft the latency fix.', 'done'],
+      ['agent', 'I found the slow handoff and am wiring the preview.', 'running']
+    ])
+  })
+
   it('hides internal runtime prompts from chat timeline bubbles', () => {
     const snapshot = selectAgentWorkspaceSnapshot(
       getState({

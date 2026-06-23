@@ -124,6 +124,43 @@ describe('AgentTimeline', () => {
     })
   })
 
+  it('renders assistant replies as structured markdown content', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: [
+          '## Summary',
+          '',
+          '- Render `markdown` inside chat replies.',
+          '',
+          '```ts',
+          'const latencyBudgetMs = 250',
+          '```',
+          '',
+          '[Open docs](https://example.com/docs)'
+        ].join('\n'),
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const agentEntry = container.querySelector('[data-agent-timeline-entry-kind="agent"]')
+    const markdown = agentEntry?.querySelector('[data-agent-message-markdown="true"]')
+
+    expect(markdown?.querySelector('h2')?.textContent).toBe('Summary')
+    expect(markdown?.querySelector('li')?.textContent).toContain(
+      'Render markdown inside chat replies.'
+    )
+    expect(markdown?.querySelector('pre code')?.textContent).toContain('latencyBudgetMs')
+    expect(markdown?.querySelector('a')?.getAttribute('href')).toBe('https://example.com/docs')
+  })
+
   it('renders an edited files card with review routing', () => {
     const onReviewDiffs = vi.fn()
     const diffs: AgentWorkspaceDiffSummary[] = [

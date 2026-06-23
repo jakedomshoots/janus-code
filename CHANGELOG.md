@@ -20,3 +20,5 @@
 - Switched task-source active filter chips to documented active-state token pairs across providers and themes.
 - Added a tokenized hover state to Cmd+J palette result rows so Modern-dark command results have the same visible pointer feedback as Retro.
 - Raised Retro 95 Space page hint-copy contrast when the copy sits directly on the teal app canvas.
+- Rendered live assistant reply previews in the workspace timeline while CLI agents are still working, reducing the perceived lag between terminal output and composer chat.
+- Upgraded workspace assistant replies from plain pre-wrapped text to compact Markdown formatting for headings, lists, code blocks, links, quotes, and tables.

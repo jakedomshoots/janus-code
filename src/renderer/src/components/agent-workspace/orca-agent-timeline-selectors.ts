@@ -131,6 +131,27 @@ function toWaitingTimelineEntry(
   }
 }
 
+function toLiveAssistantTimelineEntry(
+  thread: AgentWorkspaceThread,
+  entry: AgentStatusEntry
+): AgentWorkspaceTimelineEntry | null {
+  const text = entry.lastAssistantMessage?.trim()
+  if (!text || entry.state === 'done' || entry.failure) {
+    return null
+  }
+  if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {
+    return null
+  }
+  return {
+    id: `${thread.id}:live-assistant:${entry.stateStartedAt}`,
+    threadId: thread.id,
+    kind: 'agent',
+    text,
+    createdAt: getIsoTimestamp(entry.updatedAt),
+    status: entry.state === 'working' ? 'running' : 'pending'
+  }
+}
+
 function toLegacyToolSnapshotEntry(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
@@ -192,6 +213,10 @@ function appendTimelineEntries(
   const waitingEntry = toWaitingTimelineEntry(thread, entry)
   if (waitingEntry) {
     timeline.push(waitingEntry)
+  }
+  const liveAssistantEntry = toLiveAssistantTimelineEntry(thread, entry)
+  if (liveAssistantEntry) {
+    timeline.push(liveAssistantEntry)
   }
   const failureEntry = toFailureTimelineEntry(thread, entry)
   if (failureEntry) {

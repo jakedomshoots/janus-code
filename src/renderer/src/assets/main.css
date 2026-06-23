@@ -890,6 +890,136 @@
     inset -2px -2px 0 var(--win-border-dark) !important;
 }
 
+/* Why: agent replies are Markdown transcript content, but the full document
+   preview spacing is too roomy inside compact chat bubbles. */
+.agent-timeline-markdown {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.agent-timeline-markdown > :first-child,
+.agent-timeline-markdown > :first-child > :first-child {
+  margin-top: 0;
+}
+
+.agent-timeline-markdown > :last-child,
+.agent-timeline-markdown > :last-child > :last-child {
+  margin-bottom: 0;
+}
+
+.agent-timeline-markdown h1,
+.agent-timeline-markdown h2,
+.agent-timeline-markdown h3,
+.agent-timeline-markdown h4,
+.agent-timeline-markdown h5,
+.agent-timeline-markdown h6 {
+  margin: 0.9em 0 0.4em;
+  color: inherit;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.agent-timeline-markdown h1 {
+  font-size: 1.08em;
+}
+
+.agent-timeline-markdown h2 {
+  font-size: 1.04em;
+}
+
+.agent-timeline-markdown h3,
+.agent-timeline-markdown h4,
+.agent-timeline-markdown h5,
+.agent-timeline-markdown h6 {
+  font-size: 1em;
+}
+
+.agent-timeline-markdown p {
+  margin: 0.45em 0;
+}
+
+.agent-timeline-markdown a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+  text-underline-offset: 2px;
+}
+
+.agent-timeline-markdown a:hover {
+  text-decoration-color: currentColor;
+}
+
+.agent-timeline-markdown ul,
+.agent-timeline-markdown ol {
+  margin: 0.45em 0;
+  padding-left: 1.35em;
+}
+
+.agent-timeline-markdown ul {
+  list-style: disc;
+}
+
+.agent-timeline-markdown ol {
+  list-style: decimal;
+}
+
+.agent-timeline-markdown li {
+  margin: 0.18em 0;
+}
+
+.agent-timeline-markdown code {
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--muted) 78%, transparent);
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.agent-timeline-markdown pre {
+  margin: 0.65em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--muted) 64%, var(--background));
+  padding: 0.75em 0.9em;
+}
+
+.agent-timeline-markdown pre code {
+  display: block;
+  background: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+.agent-timeline-markdown blockquote {
+  margin: 0.55em 0;
+  border-left: 3px solid var(--border);
+  padding: 0.15em 0 0.15em 0.75em;
+  color: var(--muted-foreground);
+}
+
+.agent-timeline-markdown table {
+  display: block;
+  max-width: 100%;
+  margin: 0.65em 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.agent-timeline-markdown th,
+.agent-timeline-markdown td {
+  border: 1px solid var(--border);
+  padding: 0.35em 0.55em;
+  text-align: left;
+}
+
+.agent-timeline-markdown th {
+  background: color-mix(in srgb, var(--muted) 72%, transparent);
+  font-weight: 650;
+}
+
 .theme-retro95 .agent-composer-shell {
   border: 0 !important;
   background: var(--win-surface) !important;

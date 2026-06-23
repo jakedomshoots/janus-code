@@ -9,6 +9,9 @@ import {
   Wrench
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import Markdown from 'react-markdown'
+import remarkBreaks from 'remark-breaks'
+import remarkGfm from 'remark-gfm'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import {
@@ -21,6 +24,8 @@ import {
   getAgentTimelineMarkdownArtifacts,
   type AgentTimelineMarkdownArtifact
 } from './agent-timeline-artifacts'
+
+const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
 
 export function AgentTimelineEntry({
   entry,
@@ -100,9 +105,7 @@ export function AgentTimelineEntry({
               </span>
             ) : null}
           </div>
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
-            {entry.text}
-          </p>
+          <AgentTimelineMessageBody entry={entry} />
           {markdownArtifacts.map((artifact) => (
             <AgentMarkdownArtifactCard
               key={artifact.id}
@@ -113,6 +116,29 @@ export function AgentTimelineEntry({
         </div>
       </div>
     </article>
+  )
+}
+
+function AgentTimelineMessageBody({
+  entry
+}: {
+  entry: AgentWorkspaceTimelineEntry
+}): React.JSX.Element {
+  if (entry.kind === 'agent') {
+    return (
+      <div
+        data-agent-message-markdown="true"
+        className="agent-timeline-markdown markdown-body text-sm leading-relaxed text-foreground"
+      >
+        <Markdown remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}>{entry.text}</Markdown>
+      </div>
+    )
+  }
+
+  return (
+    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
+      {entry.text}
+    </p>
   )
 }
 
