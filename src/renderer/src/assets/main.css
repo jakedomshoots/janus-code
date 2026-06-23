@@ -1171,6 +1171,35 @@
   font-weight: 650;
 }
 
+.agent-workspace-right-panel {
+  width: min(24rem, calc(100% - 1.5rem));
+}
+
+/* Keep the context card floating while preserving a clear chat lane on wide windows. */
+@media (min-width: 1180px) {
+  .agent-workspace-content-shell--floating-card .agent-workspace-timeline,
+  .agent-workspace-content-shell--floating-card .agent-workspace-composer {
+    padding-right: calc(24rem + 1.5rem);
+  }
+
+  .agent-workspace-content-shell--floating-card .agent-workspace-timeline-inner,
+  .agent-workspace-content-shell--floating-card .agent-workspace-composer > div {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 1179px) {
+  .agent-workspace-right-panel {
+    right: 0.75rem;
+  }
+
+  .agent-workspace-right-panel-shell {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 .theme-retro95 .agent-composer-shell {
   border: 0 !important;
   background: var(--win-surface) !important;

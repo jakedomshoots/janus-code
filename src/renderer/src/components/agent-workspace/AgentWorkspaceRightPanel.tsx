@@ -95,32 +95,14 @@ export function AgentWorkspaceRightPanel({
   })
 
   return (
-    <aside className="agent-workspace-right-panel pointer-events-none relative z-10 w-[24rem] shrink-0">
-      <div className="agent-workspace-right-panel-shell scrollbar-sleek pointer-events-auto sticky top-4 mx-4 mt-4 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
+    <aside className="agent-workspace-right-panel pointer-events-none absolute inset-y-0 right-0 z-10">
+      <div className="agent-workspace-right-panel-shell pointer-events-auto mx-4 mt-4 flex max-h-[calc(100%-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-card/95 p-4 text-card-foreground shadow-xs transition-[border-color,box-shadow,transform]">
         <PanelSummary
           thread={thread}
           plan={plan}
           diffs={diffs}
           sources={model.sources.length}
           subagents={model.subagents.length}
-        />
-        <AgentWorkspaceEvidenceRail
-          project={project}
-          thread={thread}
-          threads={threads}
-          plan={plan}
-          approval={approval}
-          diffs={diffs}
-          allDiffs={allDiffs ?? diffs}
-          review={review}
-          reviews={reviews ?? (review ? [review] : [])}
-          timeline={timeline ?? []}
-          terminalAvailable={terminalAvailable}
-          browserAvailable={browserAvailable === true}
-          onSelectThread={onSelectThread}
-          onOpenBrowserWorkbench={onOpenBrowserWorkbench}
-          onOpenTerminalDrawer={onOpenTerminalDrawer}
-          onReviewDiffs={onReviewDiffs}
         />
         <PanelTabs
           selectedTab={selectedTab}
@@ -138,7 +120,28 @@ export function AgentWorkspaceRightPanel({
               tab: selectedTab
             }
           )}
+          className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto pr-1"
         >
+          {selectedTab === 'info' ? (
+            <AgentWorkspaceEvidenceRail
+              project={project}
+              thread={thread}
+              threads={threads}
+              plan={plan}
+              approval={approval}
+              diffs={diffs}
+              allDiffs={allDiffs ?? diffs}
+              review={review}
+              reviews={reviews ?? (review ? [review] : [])}
+              timeline={timeline ?? []}
+              terminalAvailable={terminalAvailable}
+              browserAvailable={browserAvailable === true}
+              onSelectThread={onSelectThread}
+              onOpenBrowserWorkbench={onOpenBrowserWorkbench}
+              onOpenTerminalDrawer={onOpenTerminalDrawer}
+              onReviewDiffs={onReviewDiffs}
+            />
+          ) : null}
           {selectedTab === 'plan' ? (
             <>
               <PlanProgress plan={plan} />

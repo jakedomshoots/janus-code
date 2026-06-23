@@ -11427,7 +11427,9 @@
           "nowStep": "Now: {{title}}",
           "environment": "Environment",
           "branch": "Branch",
-          "workingDirectory": "Working directory"
+          "workingDirectory": "Working directory",
+          "diff": "Diff",
+          "info": "Info"
         },
         "timelineRole": {
           "you": "You",

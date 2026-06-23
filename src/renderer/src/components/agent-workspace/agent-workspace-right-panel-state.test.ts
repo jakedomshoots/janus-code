@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  coerceAgentWorkspaceRightPanelTab,
   getDefaultAgentWorkspaceRightPanelState,
   getDefaultAgentWorkspaceRightPanelTab,
   type AgentWorkspaceRightPanelStateInput
@@ -95,5 +96,9 @@ describe('agent workspace right panel state', () => {
       selectedTab: 'details',
       collapsed: true
     })
+  })
+
+  it('accepts the info side-panel tab as a persisted value', () => {
+    expect(coerceAgentWorkspaceRightPanelTab('info')).toBe('info')
   })
 })

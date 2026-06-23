@@ -31,7 +31,7 @@ export function PanelTabs({
     },
     {
       id: 'diff',
-      label: translate('auto.components.agentWorkspace.rightPanel.changes', 'Changes'),
+      label: translate('auto.components.agentWorkspace.rightPanel.diff', 'Diff'),
       count: diffs,
       available: diffs > 0
     },
@@ -39,6 +39,11 @@ export function PanelTabs({
       id: 'review',
       label: translate('auto.components.agentWorkspace.rightPanel.review', 'Review'),
       available: hasReview
+    },
+    {
+      id: 'info',
+      label: translate('auto.components.agentWorkspace.rightPanel.info', 'Info'),
+      available: true
     },
     {
       id: 'details',
@@ -49,7 +54,7 @@ export function PanelTabs({
 
   return (
     <div
-      className="mb-4 grid grid-cols-4 gap-1 rounded-2xl border border-border bg-background p-1"
+      className="mb-4 grid grid-cols-5 gap-1 rounded-2xl border border-border bg-background p-1"
       role="tablist"
       aria-label={translate(
         'auto.components.agentWorkspace.rightPanel.agentWorkspaceRightPanel',
@@ -61,7 +66,7 @@ export function PanelTabs({
           key={tab.id}
           type="button"
           className={cn(
-            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-2 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
+            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
             selectedTab === tab.id
               ? 'bg-card text-foreground shadow-xs'
               : 'text-muted-foreground hover:bg-accent hover:text-foreground'

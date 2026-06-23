@@ -152,10 +152,12 @@ describe('AgentWorkspaceRightPanel', () => {
     })
 
     expect(container.textContent).toContain('Output')
-    expect(container.textContent).toContain('Changes')
+    expect(container.textContent).toContain('Diff')
+    expect(container.textContent).toContain('Info')
     expect(container.textContent).toContain('Context')
     expect(container.textContent).toContain('AgentWorkspaceLayout.tsx')
     expect(container.textContent).toContain('modified')
+    expect(container.textContent).not.toContain('Preview health')
   })
 
   it('sends approve and deny decisions from the info card', async () => {
@@ -217,7 +219,7 @@ describe('AgentWorkspaceRightPanel', () => {
     })
   })
 
-  it('renders evidence, lifecycle, candidate, and preview recovery controls', async () => {
+  it('renders evidence, lifecycle, candidate, and preview recovery controls in the info tab', async () => {
     const onSelectThread = vi.fn()
     const onOpenBrowserWorkbench = vi.fn()
     const onOpenTerminalDrawer = vi.fn()
@@ -238,7 +240,7 @@ describe('AgentWorkspaceRightPanel', () => {
           timeline={timeline}
           terminalAvailable
           browserAvailable
-          selectedTab="review"
+          selectedTab="info"
           onSelectedTabChange={() => undefined}
           onSelectThread={onSelectThread}
           onOpenBrowserWorkbench={onOpenBrowserWorkbench}

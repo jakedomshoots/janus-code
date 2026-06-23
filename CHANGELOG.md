@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Moved the agent workspace evidence rail into an opt-in Info tab and restored the compact floating card treatment with a reserved chat gutter.
 - Split oversized Landing, Mobile, Add Project, and feature user-story collector modules into focused files so the max-lines lint guard passes without disabling it.
 - Applied the standard sleek scrollbar styling to the compact Automations layout scroll container.
 - Added an agent workspace evidence rail with lifecycle state, implementation candidates, concrete evidence, preview health, and wired recovery actions.
