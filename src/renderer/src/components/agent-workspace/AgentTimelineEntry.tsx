@@ -160,6 +160,8 @@ function AgentTimelineCodeBlock({
   const [copied, setCopied] = useState(false)
   const resetTimerRef = useRef<number | null>(null)
   const codeText = getReactNodeText(children).replace(/\n$/, '')
+  const codeLanguage = getCodeBlockLanguage(children)
+  const codeLanguageLabel = codeLanguage ? formatCodeBlockLanguageLabel(codeLanguage) : null
 
   const clearResetTimer = useCallback((): void => {
     if (resetTimerRef.current !== null) {
@@ -194,6 +196,11 @@ function AgentTimelineCodeBlock({
   return (
     <div className="agent-timeline-code-block" data-agent-code-block="true">
       <div className="agent-timeline-code-block-header">
+        {codeLanguage && codeLanguageLabel ? (
+          <span className="agent-timeline-code-language" data-agent-code-language={codeLanguage}>
+            {codeLanguageLabel}
+          </span>
+        ) : null}
         <button
           type="button"
           className="agent-timeline-code-copy-button"
@@ -219,6 +226,54 @@ function AgentTimelineCodeBlock({
       <pre {...props}>{children}</pre>
     </div>
   )
+}
+
+function getCodeBlockLanguage(node: ReactNode): string | null {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const language = getCodeBlockLanguage(child)
+      if (language) {
+        return language
+      }
+    }
+    return null
+  }
+  if (!isValidElement<{ className?: string; children?: ReactNode }>(node)) {
+    return null
+  }
+  const className = node.props.className ?? ''
+  const language = className.match(/\blanguage-([^\s]+)/)?.[1]?.trim()
+  return language ? language.toLowerCase() : getCodeBlockLanguage(node.props.children)
+}
+
+function formatCodeBlockLanguageLabel(language: string): string {
+  switch (language) {
+    case 'js':
+      return 'JavaScript'
+    case 'jsx':
+      return 'JSX'
+    case 'ts':
+      return 'TypeScript'
+    case 'tsx':
+      return 'TSX'
+    case 'py':
+    case 'python':
+      return 'Python'
+    case 'sh':
+    case 'shell':
+    case 'bash':
+      return 'Shell'
+    case 'md':
+    case 'markdown':
+      return 'Markdown'
+    case 'json':
+      return 'JSON'
+    case 'yaml':
+    case 'yml':
+      return 'YAML'
+    default:
+      return language.toUpperCase()
+  }
 }
 
 function getReactNodeText(node: ReactNode): string {

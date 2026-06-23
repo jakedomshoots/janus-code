@@ -26,3 +26,4 @@
 - Echoed completed-thread follow-up messages immediately while Janus decides whether to reuse the old terminal or launch a continuation agent.
 - Preserved optimistic follow-up bubble timestamps when delivery settles so user messages do not jump below live assistant previews.
 - Added a compact Copy affordance to assistant Markdown code blocks in the workspace timeline.
+- Labeled assistant Markdown code blocks with their fenced language to make generated snippets easier to scan.

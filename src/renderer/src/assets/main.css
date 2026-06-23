@@ -977,10 +977,29 @@
 
 .agent-timeline-code-block-header {
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
   justify-content: flex-end;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--muted) 72%, transparent);
   padding: 0.25rem 0.35rem;
+}
+
+.agent-timeline-code-language {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-timeline-code-language + .agent-timeline-code-copy-button {
+  margin-left: auto;
 }
 
 .agent-timeline-code-copy-button {

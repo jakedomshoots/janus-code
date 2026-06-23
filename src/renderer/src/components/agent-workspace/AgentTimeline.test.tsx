@@ -186,7 +186,9 @@ describe('AgentTimeline', () => {
     const copyButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
       (button) => button.getAttribute('aria-label') === 'Copy code block'
     )
+    const languageLabel = container.querySelector('[data-agent-code-language="ts"]')
     expect(copyButton).toBeDefined()
+    expect(languageLabel?.textContent).toBe('TypeScript')
 
     await act(async () => {
       copyButton?.click()
