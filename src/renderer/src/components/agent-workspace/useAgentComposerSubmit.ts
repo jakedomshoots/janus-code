@@ -12,6 +12,7 @@ import { launchSelectedAgent } from './agent-composer-launch'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import { notifyAgentComposerMessageSent } from './agent-composer-message-sent'
 import {
+  markPendingAgentComposerEchoDelivered,
   settlePendingAgentComposerEcho,
   startPendingAgentComposerEcho
 } from './agent-composer-pending-echo'
@@ -104,15 +105,17 @@ export function useAgentComposerSubmit({
               }
             })
           : await launchProjectlessPlanningComposerAgent({ prompt: trimmedPrompt, selectedAgent })
-      settlePendingAgentComposerEcho(
-        pendingEcho,
-        result as Awaited<ReturnType<typeof submitAgentComposerMessage>>,
-        onMessageSent
-      )
       if (
         submitSequenceRef.current !== submitSequence ||
         submitContextKeyRef.current !== requestContextKey
       ) {
+        if (canSendToSelectedThread) {
+          settlePendingAgentComposerEcho(
+            pendingEcho,
+            result as Awaited<ReturnType<typeof submitAgentComposerMessage>>,
+            onMessageSent
+          )
+        }
         return
       }
       if (canSendToSelectedThread) {
@@ -127,6 +130,7 @@ export function useAgentComposerSubmit({
           thinkingMode,
           prompt: trimmedPrompt,
           onPromptDelivered: (agent) => {
+            markPendingAgentComposerEchoDelivered(pendingEcho, onMessageSent)
             if (
               submitSequenceRef.current !== submitSequence ||
               submitContextKeyRef.current !== requestContextKey
@@ -140,6 +144,9 @@ export function useAgentComposerSubmit({
           }
         })
         if (fallbackResult) {
+          if (fallbackResult.status !== 'launching') {
+            settlePendingAgentComposerEcho(pendingEcho, completedThreadSubmitResult, onMessageSent)
+          }
           setSubmitResult(fallbackResult)
           setSubmitting(false)
           if (fallbackResult.status === 'launching') {
@@ -147,6 +154,7 @@ export function useAgentComposerSubmit({
           }
           return
         }
+        settlePendingAgentComposerEcho(pendingEcho, completedThreadSubmitResult, onMessageSent)
       }
       setSubmitResult(result)
       setSubmitting(false)

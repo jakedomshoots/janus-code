@@ -402,6 +402,61 @@ describe('AgentWorkspace pane workflow', () => {
     )
   })
 
+  it('echoes completed-thread follow-up messages while terminal delivery is pending', async () => {
+    const send = deferred<{ status: 'sent' }>()
+    const completedThread = {
+      id: 'thread-completed',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'completed' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    sendMocks.sendNotesToActiveAgentSession.mockReturnValue(send.promise)
+
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [completedThread],
+        timeline: [
+          {
+            id: 'timeline-old',
+            threadId: completedThread.id,
+            kind: 'agent',
+            text: 'Old completed output',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ]
+      })
+    )
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Continue with a tiny fix.')
+    })
+    await act(async () => {
+      button?.click()
+      await Promise.resolve()
+    })
+
+    const pendingEntry = container.querySelector(
+      '[data-agent-timeline-entry-kind="user"][data-agent-timeline-entry-status="pending"]'
+    )
+    expect(pendingEntry?.textContent).toContain('Continue with a tiny fix.')
+    expect(textarea?.value).toBe('Continue with a tiny fix.')
+
+    await act(async () => {
+      send.resolve({ status: 'sent' })
+      await send.promise
+    })
+  })
+
   it('echoes running-thread follow-up messages while terminal delivery is pending', async () => {
     const send = deferred<{ status: 'sent' }>()
     const runningThread = {

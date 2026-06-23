@@ -47,19 +47,41 @@ export function settlePendingAgentComposerEcho(
     return
   }
   if (result.status === 'sent') {
-    notifyAgentComposerMessageSent(onMessageSent, result, {
-      localId: pendingEcho.localId
-    })
+    markPendingAgentComposerEchoDelivered(pendingEcho, onMessageSent)
     return
   }
   notifyAgentComposerMessageFailed(onMessageSent, pendingEcho)
+}
+
+export function markPendingAgentComposerEchoDelivered(
+  pendingEcho: PendingAgentComposerEcho | null,
+  onMessageSent?: AgentComposerMessageSentHandler
+): void {
+  if (!pendingEcho) {
+    return
+  }
+  notifyAgentComposerMessageSent(
+    onMessageSent,
+    {
+      status: 'sent',
+      context: {
+        activeWorktreeId: null,
+        worktreeId: null,
+        threadId: pendingEcho.threadId,
+        agentKind: null
+      },
+      message: '',
+      prompt: pendingEcho.prompt
+    },
+    { localId: pendingEcho.localId }
+  )
 }
 
 function canCreatePendingComposerEcho(
   canSendToSelectedThread: boolean,
   selectedThread: AgentWorkspaceThread | null
 ): selectedThread is AgentWorkspaceThread {
-  // Why: completed threads can fall back to launching a new agent, so only
-  // active in-terminal follow-ups get an optimistic transcript turn.
-  return canSendToSelectedThread && Boolean(selectedThread) && selectedThread?.phase !== 'completed'
+  // Why: terminal handoff can lag for active and completed follow-ups; keep the
+  // user's message visible while routing decides whether to send or relaunch.
+  return canSendToSelectedThread && Boolean(selectedThread)
 }

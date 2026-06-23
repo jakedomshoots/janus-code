@@ -585,7 +585,81 @@ describe('AgentComposer', () => {
       prompt: 'Start a follow-up agent.'
     })
     expect(onPendingAgentLaunch).not.toHaveBeenCalled()
+    expect(onMessageSent).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        prompt: 'Start a follow-up agent.',
+        status: 'pending'
+      })
+    )
+    expect(onMessageSent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        prompt: 'Start a follow-up agent.',
+        status: 'done'
+      })
+    )
+    expect(textarea?.value).toBe('')
+  })
+
+  it('keeps completed-thread fallback echoes pending until launch delivery', async () => {
+    const onMessageSent = vi.fn()
+    mocks.sendNotesToActiveAgentSession.mockResolvedValue({
+      status: 'no-agent'
+    } satisfies ActiveAgentNotesSendResult)
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={makeThread({ phase: 'completed' })}
+          onMessageSent={onMessageSent}
+        />
+      )
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Continue from the old result.')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
     expect(onMessageSent).toHaveBeenCalledTimes(1)
+    expect(onMessageSent).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        prompt: 'Continue from the old result.',
+        status: 'pending'
+      })
+    )
+    expect(mocks.launchAgentInNewTab).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agent: 'codex',
+        prompt: 'Continue from the old result.',
+        promptDelivery: 'auto-submit',
+        onPromptDelivered: expect.any(Function)
+      })
+    )
+
+    const launchArgs = mocks.launchAgentInNewTab.mock.calls.at(-1)?.[0] as
+      | { onPromptDelivered?: () => void }
+      | undefined
+    await act(async () => {
+      launchArgs?.onPromptDelivered?.()
+    })
+
+    expect(onMessageSent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        prompt: 'Continue from the old result.',
+        status: 'done'
+      })
+    )
     expect(textarea?.value).toBe('')
   })
 
