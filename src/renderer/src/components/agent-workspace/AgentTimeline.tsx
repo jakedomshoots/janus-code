@@ -50,6 +50,7 @@ export function AgentTimeline({
 }): React.JSX.Element {
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
   const editedFilesCard = getEditedFilesCardPlacement(timeline, diffs)
+  const timelineScrollKey = getTimelineScrollKey(timeline)
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current
@@ -57,7 +58,7 @@ export function AgentTimeline({
       return
     }
     scrollArea.scrollTop = scrollArea.scrollHeight
-  }, [thread, timeline.length])
+  }, [thread, timelineScrollKey])
 
   return (
     <div
@@ -118,6 +119,22 @@ export function AgentTimeline({
       </div>
     </div>
   )
+}
+
+function getTimelineScrollKey(timeline: readonly AgentWorkspaceTimelineEntry[]): string {
+  const latestEntry = timeline.at(-1)
+  if (!latestEntry) {
+    return '0'
+  }
+
+  // Streamed assistant previews grow in place, so row count alone misses new text.
+  return [
+    timeline.length,
+    latestEntry.id,
+    latestEntry.status ?? '',
+    latestEntry.text.length,
+    latestEntry.text.slice(-120)
+  ].join('|')
 }
 
 function getEditedFilesCardPlacement(

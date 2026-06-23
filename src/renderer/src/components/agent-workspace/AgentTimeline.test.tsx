@@ -61,6 +61,53 @@ describe('AgentTimeline', () => {
     expect(log?.getAttribute('aria-label')).toBe('Agent conversation timeline')
   })
 
+  it('keeps live assistant output pinned as a streaming reply grows', () => {
+    const initialEntry: AgentWorkspaceTimelineEntry = {
+      id: 'entry-1',
+      threadId: thread.id,
+      kind: 'agent',
+      text: 'Checking the current workspace.',
+      status: 'running',
+      createdAt: '2026-06-18T14:01:02.000Z'
+    }
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={[]} />)
+    })
+
+    const log = container.querySelector<HTMLDivElement>('[role="log"]')
+    expect(log).not.toBeNull()
+    setScrollMetrics(log, 240)
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={[initialEntry]} />)
+    })
+
+    expect(log?.scrollTop).toBe(240)
+
+    setScrollMetrics(log, 520)
+
+    act(() => {
+      root.render(
+        <AgentTimeline
+          thread={thread}
+          timeline={[
+            {
+              ...initialEntry,
+              text: [
+                'Checking the current workspace.',
+                'Found the changed files.',
+                'Preparing the summarized reply now.'
+              ].join('\n')
+            }
+          ]}
+        />
+      )
+    })
+
+    expect(log?.scrollTop).toBe(520)
+  })
+
   it('labels slash commands and marks running entries as busy', () => {
     const timeline: AgentWorkspaceTimelineEntry[] = [
       {
@@ -401,4 +448,15 @@ function diff(overrides: Partial<AgentWorkspaceDiffSummary>): AgentWorkspaceDiff
     status: 'modified',
     ...overrides
   }
+}
+
+function setScrollMetrics(element: HTMLDivElement | null, scrollHeight: number): void {
+  if (!element) {
+    return
+  }
+
+  Object.defineProperty(element, 'scrollHeight', {
+    configurable: true,
+    value: scrollHeight
+  })
 }
