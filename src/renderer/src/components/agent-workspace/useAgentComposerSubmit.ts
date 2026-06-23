@@ -158,6 +158,10 @@ export function useAgentComposerSubmit({
       }
       setSubmitResult(result)
       setSubmitting(false)
+      if (!canSendToSelectedThread && !activeWorktreeId && result.status === 'launching') {
+        // Projectless launches do not get a delivered callback, so clear only the accepted draft.
+        setPrompt((currentPrompt) => (currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt))
+      }
       if (launchingNewAgent && result.status === 'launching') {
         onPendingAgentLaunch?.()
       }

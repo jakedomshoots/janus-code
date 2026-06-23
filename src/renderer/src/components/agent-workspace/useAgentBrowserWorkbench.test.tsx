@@ -37,6 +37,7 @@ const storeMocks = vi.hoisted(() => {
   const setActiveTabType = vi.fn()
   const ensureWorktreeRootGroup = vi.fn()
   const openNewBrowserTabInActiveWorkspace = vi.fn(async () => undefined)
+  const setBrowserPageUrl = vi.fn()
   const state = {
     browserDefaultUrl: 'data:text/html,',
     settings: { activeRuntimeEnvironmentId: 'runtime-1' },
@@ -57,7 +58,8 @@ const storeMocks = vi.hoisted(() => {
     setActiveBrowserTab,
     setActiveTabType,
     openNewBrowserTabInActiveWorkspace,
-    ensureWorktreeRootGroup
+    ensureWorktreeRootGroup,
+    setBrowserPageUrl
   }
 
   return {
@@ -70,7 +72,8 @@ const storeMocks = vi.hoisted(() => {
     setActiveBrowserTab,
     setActiveTabType,
     openNewBrowserTabInActiveWorkspace,
-    ensureWorktreeRootGroup
+    ensureWorktreeRootGroup,
+    setBrowserPageUrl
   }
 })
 
@@ -132,6 +135,7 @@ describe('useAgentBrowserWorkbench', () => {
     storeMocks.setActiveBrowserTab.mockClear()
     storeMocks.setActiveTabType.mockClear()
     storeMocks.ensureWorktreeRootGroup.mockClear()
+    storeMocks.setBrowserPageUrl.mockClear()
     storeMocks.openNewBrowserTabInActiveWorkspace.mockClear()
     storeMocks.state.browserTabsByWorktree = {}
     storeMocks.state.activeBrowserTabIdByWorktree = {}
@@ -186,7 +190,7 @@ describe('useAgentBrowserWorkbench', () => {
     expect(createWebRuntimeSessionBrowserTabMock).toHaveBeenCalledWith({
       worktreeId: 'worktree-1',
       environmentId: 'runtime-1',
-      url: 'data:text/html,',
+      url: 'http://localhost:3000/',
       targetGroupId: 'group-1'
     })
     expect(storeMocks.createBrowserTab).not.toHaveBeenCalled()
@@ -216,7 +220,7 @@ describe('useAgentBrowserWorkbench', () => {
     expect(storeMocks.ensureWorktreeRootGroup).toHaveBeenCalledWith('worktree-1')
     expect(storeMocks.createBrowserTab).toHaveBeenCalledWith(
       'worktree-1',
-      'data:text/html,',
+      'http://localhost:3000/',
       expect.objectContaining({
         activate: true,
         focusAddressBar: true,

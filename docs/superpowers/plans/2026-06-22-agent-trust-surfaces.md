@@ -48,7 +48,7 @@
 **Files:**
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Update CHANGELOG.md** with user-facing behavior changes.
-- [ ] **Step 2: Run typecheck, targeted tests, lint where feasible, and browser screenshots at 320/768/1440.**
-- [ ] **Step 3: Verify no dead buttons via DOM/action checks.**
-- [ ] **Step 4: Commit validation docs/changelog if changed.**
+- [x] **Step 1: Update CHANGELOG.md** with user-facing behavior changes.
+- [x] **Step 2: Run typecheck, targeted tests, lint where feasible, and browser screenshots at 320/768/1440.**
+- [x] **Step 3: Verify no dead buttons via DOM/action checks.**
+- [x] **Step 4: Commit validation docs/changelog if changed.**

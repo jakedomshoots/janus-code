@@ -216,7 +216,7 @@ function DeliveryStateStrip({
 }: {
   feedback: AgentComposerDeliveryFeedback
 }): React.JSX.Element | null {
-  if (feedback.state === 'idle') {
+  if (feedback.state === 'idle' || feedback.state === 'blocked') {
     return null
   }
 

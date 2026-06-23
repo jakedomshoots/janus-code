@@ -17,23 +17,27 @@ import {
 } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 
-const tabs = [
-  { label: translate('mobile.chatWorkspace.tabs.chat', 'Chat'), icon: MessageSquare, active: true },
-  { label: translate('mobile.chatWorkspace.tabs.files', 'Files'), icon: Folder, active: false },
-  {
-    label: translate('mobile.chatWorkspace.tabs.changes', 'Changes'),
-    icon: GitPullRequestArrow,
-    active: false
-  },
-  { label: translate('mobile.chatWorkspace.tabs.preview', 'Preview'), icon: Eye, active: false },
-  {
-    label: translate('mobile.chatWorkspace.tabs.terminal', 'Terminal'),
-    icon: Terminal,
-    active: false
-  }
-] as const
-
 export function ChatWorkspaceSlide(): React.JSX.Element {
+  const tabs = [
+    {
+      label: translate('mobile.chatWorkspace.tabs.chat', 'Chat'),
+      icon: MessageSquare,
+      active: true
+    },
+    { label: translate('mobile.chatWorkspace.tabs.files', 'Files'), icon: Folder, active: false },
+    {
+      label: translate('mobile.chatWorkspace.tabs.changes', 'Changes'),
+      icon: GitPullRequestArrow,
+      active: false
+    },
+    { label: translate('mobile.chatWorkspace.tabs.preview', 'Preview'), icon: Eye, active: false },
+    {
+      label: translate('mobile.chatWorkspace.tabs.terminal', 'Terminal'),
+      icon: Terminal,
+      active: false
+    }
+  ] as const
+
   return (
     <div className="mp-device-screen">
       <div className="mp-chat-chrome">
