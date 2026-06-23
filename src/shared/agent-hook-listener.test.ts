@@ -686,6 +686,45 @@ describe('shared agent-hook-listener', () => {
     })
   })
 
+  it('maps observed Antigravity feedback tool completions to waiting state', () => {
+    normalizeHookPayload(
+      state,
+      'antigravity',
+      {
+        paneKey: PANE_KEY,
+        hook_event_name: 'PreInvocation',
+        payload: { prompt: 'start the dev server' }
+      },
+      'production'
+    )
+
+    const question = normalizeHookPayload(
+      state,
+      'antigravity',
+      {
+        paneKey: PANE_KEY,
+        hook_event_name: 'PostToolUse',
+        payload: {
+          toolCall: {
+            name: 'ask_question',
+            args: { Prompt: 'Which port should I use for the dev server?' }
+          }
+        }
+      },
+      'production'
+    )
+
+    expect(question?.payload).toMatchObject({
+      state: 'waiting',
+      prompt: 'start the dev server',
+      agentType: 'antigravity',
+      toolName: 'ask_question',
+      toolInput: 'Which port should I use for the dev server?',
+      lastAssistantMessage: 'Which port should I use for the dev server?'
+    })
+    expect(question?.payload.toolEvent).toBeUndefined()
+  })
+
   it('resets Antigravity tool state on a new invocation', () => {
     normalizeHookPayload(
       state,

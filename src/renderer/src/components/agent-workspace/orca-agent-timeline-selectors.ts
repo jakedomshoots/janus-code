@@ -116,7 +116,11 @@ function toWaitingTimelineEntry(
   if (entry.state !== 'waiting') {
     return null
   }
+  const assistantText = entry.lastAssistantMessage?.trim()
   const text =
+    entry.approval?.fallbackText ??
+    assistantText ??
+    entry.toolInput ??
     entry.toolEvent?.fallbackText ??
     (entry.toolName
       ? `Waiting for approval: ${entry.toolName}`
@@ -136,7 +140,7 @@ function toLiveAssistantTimelineEntry(
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
   const text = entry.lastAssistantMessage?.trim()
-  if (!text || entry.state === 'done' || entry.failure) {
+  if (!text || entry.state === 'done' || entry.state === 'waiting' || entry.failure) {
     return null
   }
   if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {

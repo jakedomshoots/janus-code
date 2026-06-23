@@ -7,7 +7,7 @@
     }
   },
   "iteration": 1,
-  "last_gate": "delivery_batch_1_passed_with_non_ui_blockers",
+  "last_gate": "terminal_question_batch_passed_with_installed_smoke_blocker",
   "live_findings": [
     {
       "id": "P0-composer-retains-sent-follow-up",
@@ -22,25 +22,46 @@
       "severity": "P0",
       "status": "fixed",
       "verification": "Live installed smoke showed new thread user bubble while composer cleared and Send disabled, then stayed clear after agent completion."
+    },
+    {
+      "id": "P0-antigravity-question-not-visible",
+      "evidence": "User reported an Antigravity dev-server thread where the terminal asked a question but the GUI only showed a flickering broken chat bubble.",
+      "severity": "P0",
+      "status": "fixed",
+      "verification": "Regression tests prove observed Antigravity PostToolUse ask_question events now become waiting feedback with the question text and no generic completed-tool event."
+    },
+    {
+      "id": "P1-antigravity-feedback-bubble-duplicates",
+      "evidence": "Waiting states with assistant text rendered as a generic approval row plus a separate pending assistant bubble.",
+      "severity": "P1",
+      "status": "fixed",
+      "verification": "Timeline selector regression test now renders one durable pending row containing the actual question."
+    },
+    {
+      "id": "P0-installed-profile-no-active-chat-workspace",
+      "evidence": "After rebuilding and launching the installed app, the app opened to the first-run workspace selector; the visible Fam-OS row did not navigate to chat, and New Agent produced a Janus Ideas already-exists toast.",
+      "severity": "P0",
+      "status": "blocked",
+      "verification": "pnpm run smoke:janus-workflow cannot reach Agent chat composer in the current installed profile."
     }
   ],
   "non_ui_gate_notes": [
     {
       "id": "release-artifacts-missing",
       "check": "pnpm run verify:janus-workflow-assurance",
-      "detail": "Vitest portion passed 93 files / 747 tests, then direct-download artifact verification failed because release .dmg/.zip/checksum artifacts are absent."
+      "detail": "Vitest portion passed 93 files / 748 tests, then direct-download artifact verification failed because release .dmg/.zip/checksum artifacts are absent."
     },
     {
-      "id": "janus-computer-use-accessibility-missing",
+      "id": "installed-profile-no-active-chat-workspace",
       "check": "pnpm run smoke:janus-workflow",
-      "detail": "Installed workflow smoke cannot run until Accessibility is granted to Janus Computer Use."
+      "detail": "Accessibility and screenshots are granted, but the installed profile currently restores to a first-run workspace selector with no reachable Agent chat composer."
     }
   ],
-  "status": "delivery_batch_1_passed",
+  "status": "terminal_question_batch_passed_programmatic_with_installed_smoke_blocker",
   "installed_app": {
     "path": "/Applications/Janus Code.app",
-    "backup": "/Applications/Janus Code.app.backup-20260623-135822",
-    "app_asar_sha256": "346dd06be6bf5f0bcfe22c22cde4c4d6538541a9c1406a4a622e41f29f397d06",
-    "verified_at": "2026-06-23T18:00:20Z"
+    "backup": "/Applications/Janus Code.app.backup-20260623-142906",
+    "app_asar_sha256": "9ab480a479292f1c830c49eb229724b1c5f5483ffec97778219fd1157036548f",
+    "verified_at": "2026-06-23T18:29:06Z"
   }
 }

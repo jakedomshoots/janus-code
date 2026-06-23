@@ -1175,10 +1175,17 @@ function extractAntigravityToolFields(
     const toolInput =
       deriveToolInputPreview(toolName, toolCall.toolInputSource) ??
       deriveFallbackToolInputPreview(toolCall.toolInputSource)
-    return toolUpdate(
+    const update = toolUpdate(
       { toolName, toolInput },
       { hasToolInputField: toolCall.toolInputSource !== undefined }
     )
+    if (isAntigravityFeedbackTool(toolName)) {
+      // Why: Antigravity feedback tools carry the visible human question in
+      // tool args, not as a separate assistant-message hook.
+      update.lastAssistantMessage = toolInput
+      update.clearLastAssistantMessage = toolInput === undefined
+    }
+    return update
   }
   if (eventName === 'Stop') {
     if (isAntigravityStopStillBusy(hookPayload)) {
@@ -2434,19 +2441,23 @@ function normalizeAntigravityEvent(
 
   const toolName = readAntigravityToolCall(hookPayload).toolName
   const stopStillBusy = eventName === 'Stop' && isAntigravityStopStillBusy(hookPayload)
-  const stateName =
-    eventName === 'PreToolUse' && isAntigravityFeedbackTool(toolName)
-      ? 'waiting'
-      : eventName === 'Stop'
-        ? stopStillBusy
-          ? 'working'
-          : 'done'
-        : eventName === 'PreInvocation' ||
-            eventName === 'PostInvocation' ||
-            eventName === 'PreToolUse' ||
-            eventName === 'PostToolUse'
-          ? 'working'
-          : null
+  // Why: Janus observes Antigravity feedback through PostToolUse, so treating
+  // only PreToolUse as waiting loses terminal questions in the GUI.
+  const isFeedbackToolEvent =
+    (eventName === 'PreToolUse' || eventName === 'PostToolUse') &&
+    isAntigravityFeedbackTool(toolName)
+  const stateName = isFeedbackToolEvent
+    ? 'waiting'
+    : eventName === 'Stop'
+      ? stopStillBusy
+        ? 'working'
+        : 'done'
+      : eventName === 'PreInvocation' ||
+          eventName === 'PostInvocation' ||
+          eventName === 'PreToolUse' ||
+          eventName === 'PostToolUse'
+        ? 'working'
+        : null
 
   if (!stateName) {
     return null
@@ -2464,7 +2475,9 @@ function normalizeAntigravityEvent(
     extractToolFields('antigravity', eventName, hookPayload),
     { resetOnNewTurn: resetsTurn }
   )
-  const toolEvent = buildToolEvent({ source: 'antigravity', eventName, hookPayload, snapshot })
+  const toolEvent = isFeedbackToolEvent
+    ? undefined
+    : buildToolEvent({ source: 'antigravity', eventName, hookPayload, snapshot })
 
   const payload = parseAgentStatusPayload(
     JSON.stringify({

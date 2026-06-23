@@ -58,6 +58,28 @@ describe('orca agent timeline selectors', () => {
     ])
   })
 
+  it('renders waiting assistant questions as one durable pending row', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'waiting',
+            prompt: 'Start the dev server.',
+            agentType: 'antigravity',
+            toolName: 'ask_question',
+            toolInput: 'Which port should I use for the dev server?',
+            lastAssistantMessage: 'Which port should I use for the dev server?'
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Start the dev server.', 'done'],
+      ['approval', 'Which port should I use for the dev server?', 'pending']
+    ])
+  })
+
   it('hides internal runtime prompts from chat timeline bubbles', () => {
     const snapshot = selectAgentWorkspaceSnapshot(
       getState({

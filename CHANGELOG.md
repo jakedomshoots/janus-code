@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed Antigravity feedback hooks so questions observed through PostToolUse appear as a stable pending chat row instead of generic tool chatter or a duplicate flickering assistant bubble.
 - Updated the Janus installed workflow smoke to accept the current Diff right-panel tab while retaining compatibility with older Changes-labeled builds.
 - Cleared unchanged completed-thread follow-up prompts once the matching prompt appears in the transcript, including recovered launch paths, while preserving edited drafts.
 - Fixed draft-launched agent sessions so the chat pane selects their starting transcript immediately, even when older threads already exist.
