@@ -512,6 +512,73 @@ describe('AgentWorkspace pane workflow', () => {
     })
   })
 
+  it('keeps a repeated follow-up visible when older backend prompt text matches', async () => {
+    const send = deferred<{ status: 'sent' }>()
+    const runningThread = {
+      id: 'thread-running',
+      worktreeId: 'worktree-1',
+      title: 'Janus Ideas',
+      agentKind: 'codex' as const,
+      phase: 'running' as const,
+      updatedAt: '2026-06-18T17:20:00.000Z',
+      branchName: null,
+      cwd: '/Users/jakedom/janus-code'
+    }
+    sendMocks.sendNotesToActiveAgentSession.mockReturnValue(send.promise)
+
+    const container = await renderLayout(
+      baseSnapshot({
+        threads: [runningThread],
+        timeline: [
+          {
+            id: 'timeline-old-prompt',
+            threadId: runningThread.id,
+            kind: 'user',
+            text: 'retry please',
+            createdAt: '2026-06-18T17:19:00.000Z',
+            status: 'done'
+          },
+          {
+            id: 'timeline-agent',
+            threadId: runningThread.id,
+            kind: 'agent',
+            text: 'I am ready for the next instruction.',
+            createdAt: '2026-06-18T17:21:00.000Z',
+            status: 'done'
+          }
+        ]
+      })
+    )
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'retry please')
+    })
+    await act(async () => {
+      button?.click()
+      await Promise.resolve()
+    })
+
+    const userEntries = Array.from(
+      container.querySelectorAll('[data-agent-timeline-entry-kind="user"]')
+    )
+    expect(userEntries).toHaveLength(2)
+    expect(
+      container.querySelector(
+        '[data-agent-timeline-entry-kind="user"][data-agent-timeline-entry-status="pending"]'
+      )?.textContent
+    ).toContain('retry please')
+
+    await act(async () => {
+      send.resolve({ status: 'sent' })
+      await send.promise
+    })
+  })
+
   it('marks pending follow-up messages failed without dropping the draft', async () => {
     const runningThread = {
       id: 'thread-running',

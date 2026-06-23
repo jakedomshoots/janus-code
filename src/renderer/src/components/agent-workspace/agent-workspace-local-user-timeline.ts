@@ -28,3 +28,29 @@ export function upsertLocalUserTimelineEntry({
   }
   return current.map((currentEntry, index) => (index === existingIndex ? entry : currentEntry))
 }
+
+export function shouldSuppressLocalUserTimelineEntry({
+  entry,
+  backendTimeline
+}: {
+  entry: AgentWorkspaceTimelineEntry
+  backendTimeline: readonly AgentWorkspaceTimelineEntry[]
+}): boolean {
+  return backendTimeline.some((backendEntry) => {
+    if (
+      backendEntry.kind !== 'user' ||
+      backendEntry.threadId !== entry.threadId ||
+      backendEntry.text !== entry.text
+    ) {
+      return false
+    }
+    const localTime = entry.createdAt ? Date.parse(entry.createdAt) : Number.NaN
+    const backendTime = backendEntry.createdAt ? Date.parse(backendEntry.createdAt) : Number.NaN
+    if (!Number.isFinite(localTime) || !Number.isFinite(backendTime)) {
+      return true
+    }
+    // Why: repeated prompts must echo immediately; only newer backend turns
+    // prove that this specific local echo has arrived from the runtime.
+    return backendTime >= localTime - 2_000
+  })
+}

@@ -30,3 +30,4 @@
 - Routed assistant reply links through Janus link handling so chat URLs respect in-app browser settings and remote runtime constraints.
 - Kept the workspace timeline pinned to the newest streamed assistant text as live replies grow, reducing perceived CLI-to-chat lag.
 - Syntax-highlighted assistant Markdown code blocks in the workspace timeline with existing theme tokens.
+- Kept repeated follow-up prompts visible immediately when older backend timeline entries have the same text.

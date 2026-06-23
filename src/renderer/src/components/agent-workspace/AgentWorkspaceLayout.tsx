@@ -30,7 +30,10 @@ import { useAgentWorkspacePanes } from './useAgentWorkspacePanes'
 import { useAgentWorkspaceActionBridgeRegistration } from './useAgentWorkspaceActionBridgeRegistration'
 import type { AgentComposerMessageSentHandler } from './agent-composer-message-sent'
 import { compareAgentTimelineEntries } from './agent-timeline-order'
-import { upsertLocalUserTimelineEntry } from './agent-workspace-local-user-timeline'
+import {
+  shouldSuppressLocalUserTimelineEntry,
+  upsertLocalUserTimelineEntry
+} from './agent-workspace-local-user-timeline'
 import {
   getRightPanelStateInput,
   getRightPanelStateInputKey
@@ -296,17 +299,12 @@ export function AgentWorkspaceLayout({
           const paneApproval = getThreadApproval(snapshot, paneThread)
           const paneDiffs = getThreadDiffs(snapshot, paneThread)
           const backendTimeline = getThreadTimeline(snapshot, paneThread)
-          const backendUserPromptKeys = new Set(
-            backendTimeline
-              .filter((entry) => entry.kind === 'user')
-              .map((entry) => `${entry.threadId}:${entry.text}`)
-          )
           const paneTimeline = [
             ...backendTimeline,
             ...localUserTimeline.filter(
               (entry) =>
                 entry.threadId === paneThread?.id &&
-                !backendUserPromptKeys.has(`${entry.threadId}:${entry.text}`)
+                !shouldSuppressLocalUserTimelineEntry({ entry, backendTimeline })
             )
           ].sort((a, b) => {
             // Why: chat transcripts read oldest-to-newest; backend and local
