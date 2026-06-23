@@ -13,15 +13,16 @@ export function upsertLocalUserTimelineEntry({
   sequence: number
 }): AgentWorkspaceTimelineEntry[] {
   const entryId = message.localId ?? `${message.threadId}:local-user:${Date.now()}:${sequence}`
+  const existingIndex = current.findIndex((currentEntry) => currentEntry.id === entryId)
+  const existingEntry = existingIndex === -1 ? null : current[existingIndex]
   const entry: AgentWorkspaceTimelineEntry = {
     id: entryId,
     threadId: message.threadId,
     kind: 'user',
     text: message.prompt,
-    createdAt: message.sentAt,
+    createdAt: existingEntry?.createdAt ?? message.sentAt,
     status: message.status ?? 'done'
   }
-  const existingIndex = current.findIndex((currentEntry) => currentEntry.id === entryId)
   if (existingIndex === -1) {
     return [entry, ...current].slice(0, 100)
   }
