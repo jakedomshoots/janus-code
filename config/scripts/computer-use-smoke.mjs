@@ -148,19 +148,20 @@ function runJanusWorkflowSmoke() {
   state = clickElement(janusApp, findElementIndex(state, ['Back to chat']))
   expectTree(state, ['Agent chat composer', 'Message agent'])
 
-  const outputTabIndex = findOptionalElementIndex(state, ['Output'])
+  const outputTabIndex = findOptionalElementIndex(state, ['tab', 'Output'])
   if (outputTabIndex) {
     state = clickElement(janusApp, outputTabIndex)
-    expectTree(state, ['selected) Output'])
+    state = expectTreeAfterRefresh(state, ['selected) Output'])
+    sleep(150)
 
-    const changesTabIndex = findOptionalElementIndex(state, ['Changes'])
-    const diffTabIndex = changesTabIndex ?? findElementIndex(state, ['Diff'])
+    const changesTabIndex = findOptionalElementIndex(state, ['tab', 'Changes'])
+    const diffTabIndex = changesTabIndex ?? findElementIndex(state, ['tab', 'Diff'])
     state = clickElement(janusApp, diffTabIndex)
-    expectAnyTree(state, ['selected) Changes', 'selected) Diff'])
+    state = expectAnyTreeAfterRefresh(state, ['selected) Changes', 'selected) Diff'])
     state = runJanusSourceControlSmoke(state)
 
-    state = clickElement(janusApp, findElementIndex(state, ['Review']))
-    expectTree(state, ['selected) Review'])
+    state = clickElement(janusApp, findElementIndex(state, ['tab', 'Review']))
+    state = expectTreeAfterRefresh(state, ['selected) Review'])
   }
 
   const composerIndex = findElementIndex(state, ['Message agent'])
@@ -340,15 +341,62 @@ function expectTree(state, terms) {
   }
 }
 
+function expectTreeAfterRefresh(state, terms) {
+  let currentState = state
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const treeText = treeTextForState(currentState)
+    if (terms.every((term) => treeText.includes(term))) {
+      return currentState
+    }
+    // Why: accessibility click results can contain the pre-click tree before React settles.
+    sleep(150)
+    currentState = getAppState(janusApp)
+  }
+  expectTree(currentState, terms)
+  return currentState
+}
+
 function expectAnyTree(state, terms) {
   const treeText = treeTextForState(state)
   if (!terms.some((term) => treeText.includes(term))) {
-    fail(`Janus workflow expected tree text to include one of: ${terms.join(', ')}`)
+    fail(
+      [
+        `Janus workflow expected tree text to include one of: ${terms.join(', ')}`,
+        tabTreeExcerpt(treeText)
+      ]
+        .filter(Boolean)
+        .join('\n')
+    )
   }
+}
+
+function expectAnyTreeAfterRefresh(state, terms) {
+  let currentState = state
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (terms.some((term) => treeTextForState(currentState).includes(term))) {
+      return currentState
+    }
+    sleep(150)
+    currentState = getAppState(janusApp)
+  }
+  expectAnyTree(currentState, terms)
+  return currentState
 }
 
 function treeTextForState(state) {
   return String(state?.snapshot?.treeText ?? '')
+}
+
+function tabTreeExcerpt(treeText) {
+  const lines = treeText
+    .split('\n')
+    .filter((line) => /\b(tab|tab group)\b|Output|Diff|Changes|Review/.test(line))
+    .slice(0, 20)
+  return lines.length ? `Relevant tree lines:\n${lines.join('\n')}` : ''
+}
+
+function sleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
 }
 
 function parseCliFailure(raw) {

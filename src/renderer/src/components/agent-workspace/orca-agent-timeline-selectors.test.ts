@@ -39,7 +39,7 @@ function agentEntry(overrides: Partial<AgentStatusEntry>): AgentStatusEntry {
 }
 
 describe('orca agent timeline selectors', () => {
-  it('surfaces live assistant text while a CLI agent is still working', () => {
+  it('shows a quiet typing row instead of live assistant text while a CLI agent is still working', () => {
     const snapshot = selectAgentWorkspaceSnapshot(
       getState({
         agentStatusByPaneKey: {
@@ -54,7 +54,28 @@ describe('orca agent timeline selectors', () => {
 
     expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
       ['user', 'Draft the latency fix.', 'done'],
-      ['agent', 'I found the slow handoff and am wiring the preview.', 'running']
+      ['agent', '', 'running']
+    ])
+  })
+
+  it('keeps tool result chatter out of working chat bubbles until the final reply arrives', () => {
+    const snapshot = selectAgentWorkspaceSnapshot(
+      getState({
+        agentStatusByPaneKey: {
+          [paneKey]: agentEntry({
+            state: 'working',
+            prompt: 'Run the test suite.',
+            toolName: 'Bash',
+            toolInput: 'pnpm test',
+            lastAssistantMessage: '17634 tests passed. Now I will summarize.'
+          })
+        }
+      })
+    )
+
+    expect(snapshot.timeline.map((entry) => [entry.kind, entry.text, entry.status])).toEqual([
+      ['user', 'Run the test suite.', 'done'],
+      ['agent', '', 'running']
     ])
   })
 

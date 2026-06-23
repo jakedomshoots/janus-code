@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Kept in-progress CLI agent replies as a quiet typing indicator so raw tool output or verbose working text no longer flashes in chat before the final Markdown response arrives.
+- Made the installed Janus workflow smoke re-read settled accessibility state after right-panel tab clicks so the gate catches real tab failures without tripping on stale click snapshots.
 - Made agent workspace tabs and high-frequency workspace buttons activate on primary pointer-down so tab, workbench, panel, artifact, and drawer controls respond immediately while keyboard activation still uses native click.
 - Opened Markdown artifact cards from agent chat in the in-app preview workbench so generated docs are readable without leaving Janus.
 - Reworked launched CLI chat mirroring so terminal trust prompts, control residue, and tool chatter stay out of GUI chat bubbles; working agents now show a typing-dot indicator until a final Markdown/image-capable answer is available.

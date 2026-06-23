@@ -104,24 +104,24 @@ function toWaitingTimelineEntry(
   }
 }
 
-function toLiveAssistantTimelineEntry(
+function toBlockedAssistantTimelineEntry(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
   const text = entry.lastAssistantMessage?.trim()
-  if (!text || entry.state === 'done' || entry.state === 'waiting' || entry.failure) {
+  if (!text || entry.state !== 'blocked' || entry.failure) {
     return null
   }
   if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {
     return null
   }
   return {
-    id: `${thread.id}:live-assistant:${entry.stateStartedAt}`,
+    id: `${thread.id}:blocked-assistant:${entry.stateStartedAt}`,
     threadId: thread.id,
-    kind: 'agent',
+    kind: 'approval',
     text,
     createdAt: getIsoTimestamp(entry.updatedAt),
-    status: entry.state === 'working' ? 'running' : 'pending'
+    status: 'pending'
   }
 }
 
@@ -129,13 +129,13 @@ function toWorkingIndicatorTimelineEntry(
   thread: AgentWorkspaceThread,
   entry: AgentStatusEntry
 ): AgentWorkspaceTimelineEntry | null {
-  const text = entry.lastAssistantMessage?.trim()
-  if (entry.state !== 'working' || text || entry.failure) {
+  if (entry.state !== 'working' || entry.failure) {
     return null
   }
   if (entry.prompt && !isAgentWorkspaceVisibleUserPrompt(entry.prompt)) {
     return null
   }
+  // Why: working hook payloads can carry raw tool output; chat shows dots until final prose.
   return {
     id: `${thread.id}:working-indicator:${entry.stateStartedAt}`,
     threadId: thread.id,
@@ -183,9 +183,9 @@ function appendTimelineEntries(
   if (waitingEntry) {
     timeline.push(waitingEntry)
   }
-  const liveAssistantEntry = toLiveAssistantTimelineEntry(thread, entry)
-  if (liveAssistantEntry) {
-    timeline.push(liveAssistantEntry)
+  const blockedAssistantEntry = toBlockedAssistantTimelineEntry(thread, entry)
+  if (blockedAssistantEntry) {
+    timeline.push(blockedAssistantEntry)
   }
   const workingIndicatorEntry = toWorkingIndicatorTimelineEntry(thread, entry)
   if (workingIndicatorEntry) {
