@@ -18,6 +18,10 @@ import {
 } from './AgentComposerChatDropdown'
 import { AgentComposerAgentSettingsPopover } from './AgentComposerAgentSettingsPopover'
 import { AgentComposerToolCluster } from './AgentComposerToolCluster'
+import {
+  resolveAgentComposerDeliveryFeedback,
+  type AgentComposerDeliveryFeedback
+} from './agent-composer-delivery-feedback'
 
 type AgentComposerFooterProps = {
   statusMessage: string | null
@@ -84,6 +88,13 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
 }: AgentComposerFooterProps): React.JSX.Element {
   const showTerminalRecovery =
     (statusTone === 'error' || recoverablePrompt) && canOpenTerminalDrawer
+  const deliveryFeedback = resolveAgentComposerDeliveryFeedback({
+    submitting,
+    statusTone,
+    statusMessage,
+    selectedThread,
+    recoverablePrompt
+  })
 
   return (
     <div className="px-4 pb-4">
@@ -136,6 +147,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
           </Button>
         ) : null}
       </p>
+      <DeliveryStateStrip feedback={deliveryFeedback} />
       <div className="flex min-h-10 flex-wrap items-center gap-2">
         <div className="min-w-0 shrink-0">
           <AgentComposerToolCluster
@@ -198,6 +210,67 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
     </div>
   )
 })
+
+function DeliveryStateStrip({
+  feedback
+}: {
+  feedback: AgentComposerDeliveryFeedback
+}): React.JSX.Element | null {
+  if (feedback.state === 'idle') {
+    return null
+  }
+
+  return (
+    <div
+      className={cn(
+        'mb-3 rounded-lg border bg-background/65 p-2',
+        feedback.state === 'failed' ? 'border-destructive/35' : 'border-border/80'
+      )}
+      data-agent-composer-delivery-state={feedback.state}
+      aria-live="polite"
+    >
+      <div className="flex min-w-0 items-center gap-2">
+        <DeliveryStateIcon state={feedback.state} />
+        <span className="text-xs font-medium text-foreground">{feedback.label}</span>
+        <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
+          {feedback.detail}
+        </span>
+      </div>
+      <div className="mt-2 grid grid-cols-5 gap-1" aria-hidden="true">
+        {feedback.steps.map((step) => (
+          <span
+            key={step.id}
+            className={cn(
+              'h-1.5 rounded-full',
+              step.state === 'complete'
+                ? 'bg-primary/65'
+                : step.state === 'current'
+                  ? feedback.state === 'failed'
+                    ? 'bg-destructive'
+                    : 'bg-primary'
+                  : 'bg-muted'
+            )}
+            title={step.label}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DeliveryStateIcon({
+  state
+}: {
+  state: AgentComposerDeliveryFeedback['state']
+}): React.JSX.Element {
+  if (state === 'queued') {
+    return <Loader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+  }
+  if (state === 'failed') {
+    return <RotateCcw className="size-3.5 shrink-0 text-destructive" />
+  }
+  return <ShieldCheck className="size-3.5 shrink-0 text-muted-foreground" />
+}
 
 function PermissionModeSelect({
   value,

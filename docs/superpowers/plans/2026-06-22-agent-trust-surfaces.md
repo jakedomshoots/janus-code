@@ -38,10 +38,10 @@
 - Modify: `src/renderer/src/components/agent-workspace/AgentComposer.tsx`
 - Test: `agent-composer-submit.test.ts`, existing composer tests
 
-- [ ] **Step 1: Write failing tests** for queued/accepted/running/needs-input/failed copy and local echo states.
-- [ ] **Step 2: Run tests red.**
-- [ ] **Step 3: Implement copy/state mapping and footer presentation.**
-- [ ] **Step 4: Run targeted tests and commit.**
+- [x] **Step 1: Write failing tests** for queued/accepted/running/needs-input/failed copy and local echo states.
+- [x] **Step 2: Run tests red.**
+- [x] **Step 3: Implement copy/state mapping and footer presentation.**
+- [x] **Step 4: Run targeted tests and commit.**
 
 ### Task 3: Validation and changelog
 

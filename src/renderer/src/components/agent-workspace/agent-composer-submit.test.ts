@@ -148,7 +148,7 @@ describe('submitAgentComposerMessage', () => {
     })
     expect(result).toEqual({
       status: 'sent',
-      message: 'Sent to codex.',
+      message: 'Message accepted by Codex.',
       prompt: 'Run the next step.',
       context: {
         activeWorktreeId: 'worktree-1',

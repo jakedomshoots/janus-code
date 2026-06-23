@@ -4,6 +4,7 @@ import {
   type ActiveAgentNotesSendStatus
 } from '@/lib/active-agent-note-send'
 import { translate } from '@/i18n/i18n'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { parsePaneKey } from '../../../../shared/stable-pane-id'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
@@ -143,10 +144,10 @@ export async function submitAgentComposerMessage({
   return {
     status: 'sent',
     message: translate(
-      'auto.components.agentWorkspace.composer.sentToAgent',
-      'Sent to {{agent}}.',
+      'auto.components.agentWorkspace.composer.messageAcceptedByAgent',
+      'Message accepted by {{agent}}.',
       {
-        agent: selectedThread.agentKind
+        agent: formatAgentTypeLabel(selectedThread.agentKind)
       }
     ),
     prompt: trimmedPrompt,

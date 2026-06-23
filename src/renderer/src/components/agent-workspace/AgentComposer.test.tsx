@@ -294,6 +294,38 @@ describe('AgentComposer', () => {
     expect(container.textContent).toContain('The agent is not ready for input yet.')
   })
 
+  it('shows queued and accepted delivery states for running-thread sends', async () => {
+    const send = deferred<ActiveAgentNotesSendResult>()
+    mocks.sendNotesToActiveAgentSession.mockReturnValue(send.promise)
+
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, 'Is delivery visible?')
+    })
+    await act(async () => {
+      button?.click()
+    })
+
+    expect(container.textContent).toContain('Queued')
+    expect(container.textContent).toContain('Waiting for terminal acceptance.')
+
+    await act(async () => {
+      send.resolve({ status: 'sent' })
+      await send.promise
+    })
+
+    expect(container.textContent).toContain('Agent accepted')
+    expect(container.textContent).toContain('Message accepted by Codex.')
+  })
+
   it('attaches current browser annotations to the composer draft', async () => {
     mocks.browserState.browserTabsByWorktree = {
       'worktree-1': [
