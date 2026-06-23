@@ -27,3 +27,4 @@
 - Preserved optimistic follow-up bubble timestamps when delivery settles so user messages do not jump below live assistant previews.
 - Added a compact Copy affordance to assistant Markdown code blocks in the workspace timeline.
 - Labeled assistant Markdown code blocks with their fenced language to make generated snippets easier to scan.
+- Routed assistant reply links through Janus link handling so chat URLs respect in-app browser settings and remote runtime constraints.

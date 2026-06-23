@@ -10,6 +10,14 @@ import type {
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 
+const { openHttpLinkMock } = vi.hoisted(() => ({
+  openHttpLinkMock: vi.fn()
+}))
+
+vi.mock('@/lib/http-link-routing', () => ({
+  openHttpLink: openHttpLinkMock
+}))
+
 const thread: AgentWorkspaceThread = {
   id: 'thread-1',
   worktreeId: 'worktree-1',
@@ -35,6 +43,7 @@ describe('AgentTimeline', () => {
         writeClipboardText: vi.fn().mockResolvedValue(undefined)
       }
     } as never
+    openHttpLinkMock.mockReset()
   })
 
   afterEach(() => {
@@ -196,6 +205,35 @@ describe('AgentTimeline', () => {
 
     expect(window.api.ui.writeClipboardText).toHaveBeenCalledWith('const latencyBudgetMs = 250')
     expect(copyButton?.textContent).toContain('Copied')
+  })
+
+  it('routes assistant reply links through Janus link handling', () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: '[Open docs](https://example.com/docs)',
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const link = container.querySelector<HTMLAnchorElement>(
+      '[data-agent-message-markdown="true"] a'
+    )
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+
+    const defaultAllowed = link?.dispatchEvent(event)
+
+    expect(defaultAllowed).toBe(false)
+    expect(openHttpLinkMock).toHaveBeenCalledWith('https://example.com/docs', {
+      worktreeId: thread.worktreeId
+    })
   })
 
   it('renders an edited files card with review routing', () => {

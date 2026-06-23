@@ -1,4 +1,12 @@
-import { isValidElement, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  isValidElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode
+} from 'react'
 import {
   Bot,
   Check,
@@ -13,9 +21,11 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Markdown from 'react-markdown'
+import type { Components } from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { translate } from '@/i18n/i18n'
+import { openHttpLink } from '@/lib/http-link-routing'
 import { cn } from '@/lib/utils'
 import {
   formatAgentWorkspaceTimelineKind,
@@ -29,17 +39,19 @@ import {
 } from './agent-timeline-artifacts'
 
 const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
-const AGENT_MESSAGE_MARKDOWN_COMPONENTS = {
+const AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS: Components = {
   pre: AgentTimelineCodeBlock
 }
 
 export function AgentTimelineEntry({
   entry,
   cwd = null,
+  worktreeId = null,
   onOpenMarkdownArtifact
 }: {
   entry: AgentWorkspaceTimelineEntry
   cwd?: string | null
+  worktreeId?: string | null
   onOpenMarkdownArtifact?: (artifact: AgentTimelineMarkdownArtifact) => void
 }): React.JSX.Element {
   const isUser = entry.kind === 'user'
@@ -111,7 +123,7 @@ export function AgentTimelineEntry({
               </span>
             ) : null}
           </div>
-          <AgentTimelineMessageBody entry={entry} />
+          <AgentTimelineMessageBody entry={entry} worktreeId={worktreeId} />
           {markdownArtifacts.map((artifact) => (
             <AgentMarkdownArtifactCard
               key={artifact.id}
@@ -126,20 +138,24 @@ export function AgentTimelineEntry({
 }
 
 function AgentTimelineMessageBody({
-  entry
+  entry,
+  worktreeId
 }: {
   entry: AgentWorkspaceTimelineEntry
+  worktreeId?: string | null
 }): React.JSX.Element {
+  const markdownComponents = useMemo(
+    () => getAgentMessageMarkdownComponents(worktreeId),
+    [worktreeId]
+  )
+
   if (entry.kind === 'agent') {
     return (
       <div
         data-agent-message-markdown="true"
         className="agent-timeline-markdown markdown-body text-sm leading-relaxed text-foreground"
       >
-        <Markdown
-          components={AGENT_MESSAGE_MARKDOWN_COMPONENTS}
-          remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}
-        >
+        <Markdown components={markdownComponents} remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}>
           {entry.text}
         </Markdown>
       </div>
@@ -151,6 +167,65 @@ function AgentTimelineMessageBody({
       {entry.text}
     </p>
   )
+}
+
+function getAgentMessageMarkdownComponents(worktreeId?: string | null): Components {
+  return {
+    ...AGENT_MESSAGE_BASE_MARKDOWN_COMPONENTS,
+    a: ({ href, children, ...props }) => (
+      <AgentTimelineMarkdownLink href={href} worktreeId={worktreeId} {...props}>
+        {children}
+      </AgentTimelineMarkdownLink>
+    )
+  }
+}
+
+function AgentTimelineMarkdownLink({
+  href,
+  worktreeId,
+  children,
+  onClick,
+  ...props
+}: React.ComponentProps<'a'> & {
+  worktreeId?: string | null
+}): React.JSX.Element {
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+    onClick?.(event)
+    if (event.defaultPrevented || !href) {
+      return
+    }
+
+    const httpHref = getAgentTimelineHttpHref(href)
+    if (!httpHref) {
+      return
+    }
+
+    event.preventDefault()
+    const forceSystemBrowser = isAgentTimelineSystemBrowserModifier(event)
+    // Why: chat is not a navigation surface; HTTP links should honor Janus's
+    // in-app browser and remote-runtime link-routing rules.
+    openHttpLink(httpHref, forceSystemBrowser ? { worktreeId, forceSystemBrowser } : { worktreeId })
+  }
+
+  return (
+    <a href={href} {...props} onClick={handleClick}>
+      {children}
+    </a>
+  )
+}
+
+function getAgentTimelineHttpHref(href: string): string | null {
+  try {
+    const url = new URL(href)
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null
+  } catch {
+    return null
+  }
+}
+
+function isAgentTimelineSystemBrowserModifier(event: React.MouseEvent<HTMLAnchorElement>): boolean {
+  const isMac = navigator.userAgent.includes('Mac')
+  return event.shiftKey && (isMac ? event.metaKey : event.ctrlKey)
 }
 
 function AgentTimelineCodeBlock({

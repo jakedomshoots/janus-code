@@ -92,6 +92,7 @@ export function AgentTimeline({
                     <AgentTimelineEntry
                       entry={entry}
                       cwd={thread.cwd}
+                      worktreeId={thread.worktreeId}
                       onOpenMarkdownArtifact={onOpenMarkdownArtifact}
                     />
                     {entry.id === editedFilesCard?.ownerId ? (
