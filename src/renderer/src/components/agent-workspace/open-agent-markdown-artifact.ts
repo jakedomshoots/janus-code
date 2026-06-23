@@ -2,37 +2,42 @@ import { detectLanguage } from '@/lib/language-detect'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
 
+type OpenMarkdownPreview = (
+  file: {
+    filePath: string
+    relativePath: string
+    worktreeId: string
+    language: string
+    runtimeEnvironmentId?: string | null
+  },
+  options?: { anchor?: string | null; targetGroupId?: string; sourceFileId?: string }
+) => void
+
 export function openAgentMarkdownArtifact({
   thread,
   artifact,
-  openFile
+  openMarkdownPreview,
+  targetGroupId,
+  onOpenWorkbench
 }: {
   readonly thread: AgentWorkspaceThread | null
   readonly artifact: AgentTimelineMarkdownArtifact
-  readonly openFile:
-    | ((
-        file: {
-          filePath: string
-          relativePath: string
-          worktreeId: string
-          language: string
-          mode: 'edit'
-        },
-        options?: { preview?: boolean }
-      ) => void)
-    | undefined
+  readonly openMarkdownPreview: OpenMarkdownPreview | undefined
+  readonly targetGroupId?: string | null
+  readonly onOpenWorkbench?: () => void
 }): void {
-  if (!thread || typeof openFile !== 'function') {
+  if (!thread || typeof openMarkdownPreview !== 'function') {
     return
   }
-  openFile(
+
+  openMarkdownPreview(
     {
       filePath: artifact.absolutePath,
       relativePath: artifact.filePath,
       worktreeId: thread.worktreeId,
-      language: detectLanguage(artifact.filePath),
-      mode: 'edit'
+      language: detectLanguage(artifact.filePath)
     },
-    { preview: false }
+    { targetGroupId: targetGroupId ?? undefined }
   )
+  onOpenWorkbench?.()
 }

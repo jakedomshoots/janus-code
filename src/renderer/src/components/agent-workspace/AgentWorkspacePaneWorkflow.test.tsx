@@ -35,6 +35,7 @@ const storeMocks = vi.hoisted(() => {
     worktreesByRepo: {},
     openDiff: vi.fn(),
     openFile: vi.fn(),
+    openMarkdownPreview: vi.fn(),
     openModal: vi.fn(),
     browserTabsByWorktree: {},
     browserAnnotationsByPageId: {},
@@ -58,6 +59,7 @@ const storeMocks = vi.hoisted(() => {
     state,
     openDiff: state.openDiff,
     openFile: state.openFile,
+    openMarkdownPreview: state.openMarkdownPreview,
     openModal: state.openModal,
     createBrowserTab,
     focusBrowserTabInWorktree,
@@ -274,6 +276,7 @@ afterEach(() => {
   })
   storeMocks.openDiff.mockClear()
   storeMocks.openFile.mockClear()
+  storeMocks.openMarkdownPreview.mockClear()
   storeMocks.openModal.mockClear()
   storeMocks.createBrowserTab.mockClear()
   storeMocks.focusBrowserTabInWorktree.mockClear()
@@ -693,7 +696,8 @@ describe('AgentWorkspace pane workflow', () => {
     expect(container.querySelector('textarea')?.placeholder).toBe('Message the selected agent...')
   })
 
-  it('opens markdown artifact cards and routes edited files to the changes panel', async () => {
+  it('opens markdown artifact cards in the in-app preview panel and routes edited files to the changes panel', async () => {
+    const onOpenTerminalDrawer = vi.fn()
     const thread = {
       id: 'thread-artifacts',
       worktreeId: 'worktree-1',
@@ -735,7 +739,8 @@ describe('AgentWorkspace pane workflow', () => {
             status: 'modified'
           }
         ]
-      })
+      }),
+      { onOpenTerminalDrawer }
     )
 
     const openButton = buttons(container).find((button) => button.textContent === 'Open')
@@ -745,16 +750,17 @@ describe('AgentWorkspace pane workflow', () => {
     })
 
     expect(storeMocks.openDiff).not.toHaveBeenCalled()
-    expect(storeMocks.openFile).toHaveBeenCalledWith(
+    expect(storeMocks.openFile).not.toHaveBeenCalled()
+    expect(storeMocks.openMarkdownPreview).toHaveBeenCalledWith(
       {
         filePath: '/Users/jakedom/janus-code/docs/reference/handoff.md',
         relativePath: 'docs/reference/handoff.md',
         worktreeId: 'worktree-1',
-        language: 'markdown',
-        mode: 'edit'
+        language: 'markdown'
       },
-      { preview: false }
+      { targetGroupId: 'group-1' }
     )
+    expect(onOpenTerminalDrawer).toHaveBeenCalledWith('workbench')
 
     await act(async () => {
       buttons(container)
