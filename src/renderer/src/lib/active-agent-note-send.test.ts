@@ -9,11 +9,13 @@ import {
 } from './active-agent-note-send'
 import type { AgentStatusEntry } from '../../../shared/agent-status-types'
 import { makePaneKey } from '../../../shared/stable-pane-id'
-import type { TerminalLayoutSnapshot } from '../../../shared/types'
+import { TUI_AGENT_CONFIG } from '../../../shared/tui-agent-config'
+import type { TerminalLayoutSnapshot, TuiAgent } from '../../../shared/types'
 
 const LEAF_ID = '11111111-1111-4111-8111-111111111111'
 const OTHER_LEAF_ID = '22222222-2222-4222-8222-222222222222'
 const NOW = 1_700_000_000_000
+const ALL_TUI_AGENTS = Object.keys(TUI_AGENT_CONFIG) as TuiAgent[]
 
 const testState = vi.hoisted(() => ({
   appState: {
@@ -505,51 +507,54 @@ describe('active agent note send', () => {
     )
   })
 
-  it('best-effort submits to a launched CLI agent when generic tui-idle times out', async () => {
-    testState.appState.tabsByWorktree = {
-      'wt-1': [{ id: 'tab-1', launchAgent: 'kimi' }]
-    }
-    testState.callRuntimeRpc.mockImplementation(async (_target, method) => {
-      if (method === 'terminal.list') {
-        return {
-          terminals: [
-            {
-              handle: 'term-1',
-              worktreeId: 'wt-1',
-              worktreePath: '/repo',
-              branch: 'main',
-              tabId: 'tab-1',
-              leafId: LEAF_ID,
-              title: 'tell me about this project',
-              connected: true,
-              writable: true,
-              lastOutputAt: null,
-              preview: ''
-            }
-          ],
-          totalCount: 1,
-          truncated: false
+  it.each(ALL_TUI_AGENTS)(
+    'best-effort submits to launched %s when generic tui-idle times out',
+    async (agent) => {
+      testState.appState.tabsByWorktree = {
+        'wt-1': [{ id: 'tab-1', launchAgent: agent }]
+      }
+      testState.callRuntimeRpc.mockImplementation(async (_target, method) => {
+        if (method === 'terminal.list') {
+          return {
+            terminals: [
+              {
+                handle: 'term-1',
+                worktreeId: 'wt-1',
+                worktreePath: '/repo',
+                branch: 'main',
+                tabId: 'tab-1',
+                leafId: LEAF_ID,
+                title: `${agent} follow-up`,
+                connected: true,
+                writable: true,
+                lastOutputAt: null,
+                preview: ''
+              }
+            ],
+            totalCount: 1,
+            truncated: false
+          }
         }
-      }
-      if (method === 'terminal.isRunningAgent') {
-        return { isRunningAgent: true }
-      }
-      if (method === 'terminal.wait') {
-        throw new Error('timeout')
-      }
-      throw new Error(`unexpected method ${method}`)
-    })
+        if (method === 'terminal.isRunningAgent') {
+          return { isRunningAgent: true }
+        }
+        if (method === 'terminal.wait') {
+          throw new Error('timeout')
+        }
+        throw new Error(`unexpected method ${method}`)
+      })
 
-    await expect(
-      sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: 'tell me about this project' })
-    ).resolves.toEqual({ status: 'sent' })
+      await expect(
+        sendNotesToActiveAgentSession({ worktreeId: 'wt-1', prompt: 'follow up all agents' })
+      ).resolves.toEqual({ status: 'sent' })
 
-    expect(testState.sendBracketedPasteToRunningAgent).toHaveBeenCalledWith({
-      ptyId: 'pty-1',
-      content: 'tell me about this project',
-      settings: { activeRuntimeEnvironmentId: null }
-    })
-  })
+      expect(testState.sendBracketedPasteToRunningAgent).toHaveBeenCalledWith({
+        ptyId: 'pty-1',
+        content: 'follow up all agents',
+        settings: { activeRuntimeEnvironmentId: null }
+      })
+    }
+  )
 
   it('does not call runtime when no terminal pane is known for the worktree', async () => {
     testState.appState.activeTabType = 'editor'
