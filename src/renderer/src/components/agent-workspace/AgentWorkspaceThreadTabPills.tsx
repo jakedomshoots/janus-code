@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { formatAgentWorkspacePhase } from './agent-workspace-labels'
 import type { AgentWorkspaceThread } from './agent-workspace-types'
 import type { AgentWorkspaceDraftSession } from './agent-workspace-draft-sessions'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 type WorkbenchTabPillProps = {
   label: string
@@ -33,13 +34,14 @@ export const WorkbenchTabPill = memo(function WorkbenchTabPill({
 }: WorkbenchTabPillProps): React.JSX.Element {
   const Icon =
     contentType === 'simulator' ? Smartphone : contentType === 'browser' ? Globe : FileText
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
 
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-1.5 text-left outline-none"
-        onClick={onSelect}
+        {...selectAction}
         title={label}
       >
         <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
@@ -71,12 +73,14 @@ export const BrowserTabPill = memo(function BrowserTabPill({
   onClose,
   onDuplicate
 }: BrowserTabPillProps): React.JSX.Element {
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
+
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-1.5 text-left outline-none"
-        onClick={onSelect}
+        {...selectAction}
         title={label}
       >
         <Globe className="size-3.5 shrink-0 text-blue-500" aria-hidden="true" />
@@ -147,13 +151,14 @@ export const DraftSessionTab = memo(function DraftSessionTab({
   const label = draftSession.preferredAgent
     ? formatAgentTypeLabel(draftSession.preferredAgent)
     : translate('auto.components.agentWorkspace.threadTabs.newSession', 'New session')
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
 
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none"
-        onClick={onSelect}
+        {...selectAction}
         title={label}
       >
         <DraftSessionIcon agent={draftSession.preferredAgent} />
@@ -183,12 +188,14 @@ export const ThreadTab = memo(function ThreadTab({
   onSelect,
   onClose
 }: ThreadTabProps): React.JSX.Element {
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
+
   return (
     <div role="tab" aria-selected={selected} className={getTabPillClassName(selected)}>
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none"
-        onClick={onSelect}
+        {...selectAction}
         title={thread.title}
       >
         <AgentIcon agent={agentTypeToIconAgent(thread.agentKind)} size={14} />
@@ -223,6 +230,10 @@ function CloseTabButton({
   label: string
   onClose: () => void
 }): React.JSX.Element {
+  const closeAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onClose, {
+    stopPropagation: true
+  })
+
   return (
     <Button
       type="button"
@@ -231,10 +242,7 @@ function CloseTabButton({
       className="shrink-0 opacity-0 transition-[background-color,color,opacity] group-hover:opacity-70 hover:opacity-100 focus-visible:opacity-100"
       aria-label={label}
       title={label}
-      onClick={(event) => {
-        event.stopPropagation()
-        onClose()
-      }}
+      {...closeAction}
     >
       <X className="size-3" aria-hidden="true" />
     </Button>

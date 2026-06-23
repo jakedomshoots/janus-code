@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Made agent workspace tabs and high-frequency workspace buttons activate on primary pointer-down so tab, workbench, panel, artifact, and drawer controls respond immediately while keyboard activation still uses native click.
 - Opened Markdown artifact cards from agent chat in the in-app preview workbench so generated docs are readable without leaving Janus.
 - Reworked launched CLI chat mirroring so terminal trust prompts, control residue, and tool chatter stay out of GUI chat bubbles; working agents now show a typing-dot indicator until a final Markdown/image-capable answer is available.
 - Mirrored launch-backed CLI agent terminal replies into the GUI workspace timeline, seeded follow-up prompts after successful sends across all configured CLI agents, and focused the selected agent terminal before opening the terminal drawer.

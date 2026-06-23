@@ -3,6 +3,7 @@ import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 type AgentComposerToolClusterProps = {
   canOpenTerminalDrawer: boolean
@@ -23,6 +24,13 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
   browserAnnotationCount,
   onAttachBrowserContext
 }: AgentComposerToolClusterProps): React.JSX.Element {
+  const browserAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenBrowserWorkbench)
+  const attachContextAction =
+    useAgentWorkspaceInstantAction<HTMLButtonElement>(onAttachBrowserContext)
+  const terminalAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onOpenTerminalDrawer ? () => onOpenTerminalDrawer('debug-button') : undefined
+  )
+
   return (
     <div
       role="group"
@@ -43,7 +51,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
           'auto.components.agentWorkspace.composer.openBrowserWorkbench',
           'Open browser workbench'
         )}
-        onClick={onOpenBrowserWorkbench}
+        {...browserAction}
       >
         <Globe className="size-4" aria-hidden="true" />
       </Button>
@@ -62,7 +70,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
           'Attach browser context ({{count}} annotations)',
           { count: browserAnnotationCount }
         )}
-        onClick={onAttachBrowserContext}
+        {...attachContextAction}
       >
         <span className="relative inline-flex">
           <MessageSquarePlus className="size-4" aria-hidden="true" />
@@ -87,7 +95,7 @@ export const AgentComposerToolCluster = memo(function AgentComposerToolCluster({
           'auto.components.agentWorkspace.composer.openTerminalDrawer',
           'Open terminal drawer'
         )}
-        onClick={() => onOpenTerminalDrawer?.('debug-button')}
+        {...terminalAction}
       >
         <PanelBottom className="size-4" aria-hidden="true" />
       </Button>

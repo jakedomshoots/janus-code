@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 export function AgentTerminalDrawer({
   open,
@@ -30,6 +31,7 @@ export function AgentTerminalDrawer({
         'auto.components.agentWorkspace.layout.closeTerminalDrawer',
         'Close terminal drawer'
       )
+  const closeAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onClose)
 
   return (
     <aside
@@ -50,7 +52,7 @@ export function AgentTerminalDrawer({
         variant="ghost"
         size="icon-xs"
         className="absolute right-3 top-2 z-10 rounded-full bg-background/80 shadow-xs backdrop-blur hover:bg-accent"
-        onClick={onClose}
+        {...closeAction}
         aria-label={closeLabel}
       >
         <X className="size-3.5" aria-hidden="true" />

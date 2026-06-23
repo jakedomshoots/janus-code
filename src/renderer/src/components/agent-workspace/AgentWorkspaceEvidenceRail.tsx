@@ -27,6 +27,7 @@ import {
 import { buildAgentWorkspaceEvidence } from './agent-workspace-evidence'
 import { resolveAgentWorkspaceLifecycle } from './agent-workspace-lifecycle'
 import type { AgentTerminalRevealReason } from './agent-terminal-visibility'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 export function AgentWorkspaceEvidenceRail({
   project,
@@ -102,6 +103,13 @@ export function AgentWorkspaceEvidenceRail({
       window.setTimeout(() => setCopied(false), 1200)
     })
   }
+  const browserAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenBrowserWorkbench)
+  const terminalAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onOpenTerminalDrawer ? () => onOpenTerminalDrawer('debug-button') : undefined
+  )
+  const reviewAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onReviewDiffs)
+  const copyContextAction =
+    useAgentWorkspaceInstantAction<HTMLButtonElement>(handleCopyRecoveryContext)
 
   return (
     <div className="mb-4 space-y-4" data-agent-evidence-rail="true">
@@ -198,29 +206,24 @@ export function AgentWorkspaceEvidenceRail({
         </ul>
         <div className="mt-3 flex flex-wrap gap-2">
           {browserAvailable && onOpenBrowserWorkbench ? (
-            <Button type="button" variant="outline" size="xs" onClick={onOpenBrowserWorkbench}>
+            <Button type="button" variant="outline" size="xs" {...browserAction}>
               <ExternalLink className="size-3" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.evidence.openPreview', 'Open preview')}
             </Button>
           ) : null}
           {terminalAvailable && onOpenTerminalDrawer ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="xs"
-              onClick={() => onOpenTerminalDrawer('debug-button')}
-            >
+            <Button type="button" variant="outline" size="xs" {...terminalAction}>
               <PanelBottom className="size-3" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.evidence.openTerminal', 'Open terminal')}
             </Button>
           ) : null}
           {diffs.length > 0 && onReviewDiffs ? (
-            <Button type="button" variant="outline" size="xs" onClick={onReviewDiffs}>
+            <Button type="button" variant="outline" size="xs" {...reviewAction}>
               <FileCheck2 className="size-3" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.evidence.reviewChanges', 'Review changes')}
             </Button>
           ) : null}
-          <Button type="button" variant="ghost" size="xs" onClick={handleCopyRecoveryContext}>
+          <Button type="button" variant="ghost" size="xs" {...copyContextAction}>
             {copied ? (
               <Check className="size-3" aria-hidden="true" />
             ) : (
@@ -265,46 +268,68 @@ function CandidateSection({
       </h2>
       <div className="space-y-1">
         {candidates.map((candidate) => (
-          <button
+          <CandidateButton
             key={candidate.threadId}
-            type="button"
-            className={cn(
-              'flex w-full min-w-0 items-center gap-2 rounded-lg border p-2 text-left text-xs transition-[background-color,border-color,transform] active:scale-[0.99]',
-              candidate.selected
-                ? 'border-ring bg-accent text-accent-foreground'
-                : 'border-border bg-background/60 hover:bg-accent/60'
-            )}
-            aria-current={candidate.selected ? 'true' : undefined}
-            onClick={() => onSelectThread?.(candidate.threadId)}
-          >
-            <GitBranch className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5">
-                <span className="font-medium text-foreground">{candidate.label}</span>
-                {recommendedCandidateId === candidate.threadId ? (
-                  <span className="rounded-md bg-muted px-1 text-[10px] text-muted-foreground">
-                    {translate('auto.components.agentWorkspace.candidates.suggested', 'Suggested')}
-                  </span>
-                ) : null}
-              </span>
-              <span className="block truncate text-[11px] text-muted-foreground">
-                {translate(
-                  'auto.components.agentWorkspace.candidates.metadata',
-                  '{{agentLabel}} · {{phaseLabel}} · {{diffCount}} files · {{changedLines}} lines',
-                  {
-                    agentLabel: candidate.agentLabel,
-                    changedLines: candidate.changedLines,
-                    diffCount: candidate.diffCount,
-                    phaseLabel: candidate.phaseLabel
-                  }
-                )}
-              </span>
-            </span>
-          </button>
+            candidate={candidate}
+            suggested={recommendedCandidateId === candidate.threadId}
+            onSelectThread={onSelectThread}
+          />
         ))}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{recommendation}</p>
     </section>
+  )
+}
+
+function CandidateButton({
+  candidate,
+  suggested,
+  onSelectThread
+}: {
+  candidate: AgentWorkspaceCandidate
+  suggested: boolean
+  onSelectThread?: (threadId: string) => void
+}): React.JSX.Element {
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onSelectThread ? () => onSelectThread(candidate.threadId) : undefined
+  )
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        'flex w-full min-w-0 items-center gap-2 rounded-lg border p-2 text-left text-xs transition-[background-color,border-color,transform] active:scale-[0.99]',
+        candidate.selected
+          ? 'border-ring bg-accent text-accent-foreground'
+          : 'border-border bg-background/60 hover:bg-accent/60'
+      )}
+      aria-current={candidate.selected ? 'true' : undefined}
+      {...selectAction}
+    >
+      <GitBranch className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1.5">
+          <span className="font-medium text-foreground">{candidate.label}</span>
+          {suggested ? (
+            <span className="rounded-md bg-muted px-1 text-[10px] text-muted-foreground">
+              {translate('auto.components.agentWorkspace.candidates.suggested', 'Suggested')}
+            </span>
+          ) : null}
+        </span>
+        <span className="block truncate text-[11px] text-muted-foreground">
+          {translate(
+            'auto.components.agentWorkspace.candidates.metadata',
+            '{{agentLabel}} · {{phaseLabel}} · {{diffCount}} files · {{changedLines}} lines',
+            {
+              agentLabel: candidate.agentLabel,
+              changedLines: candidate.changedLines,
+              diffCount: candidate.diffCount,
+              phaseLabel: candidate.phaseLabel
+            }
+          )}
+        </span>
+      </span>
+    </button>
   )
 }
 

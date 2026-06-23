@@ -18,6 +18,7 @@ import {
 } from './AgentWorkspaceThreadTabPills'
 import { openMarkdownFileInActiveWorkspace } from './open-markdown-file-in-workspace'
 import { useAgentWorkspaceBrowserTabStrip } from './useAgentWorkspaceBrowserTabStrip'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 import { useAgentWorkspaceWorkbenchTabStrip } from './useAgentWorkspaceWorkbenchTabStrip'
 
 export function AgentWorkspaceThreadTabs({
@@ -99,6 +100,10 @@ export function AgentWorkspaceThreadTabs({
   function openWorkbenchSurface(): void {
     onOpenTerminalDrawer?.('workbench')
   }
+  const backToChatAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(() => {
+    onFocusPane()
+    onDismissWorkbenchSurface()
+  })
 
   return (
     <div className="h-12 shrink-0 border-b border-border/70 bg-background">
@@ -244,10 +249,7 @@ export function AgentWorkspaceThreadTabs({
               variant="ghost"
               size="xs"
               className="hidden h-7 shrink-0 sm:inline-flex"
-              onClick={() => {
-                onFocusPane()
-                onDismissWorkbenchSurface()
-              }}
+              {...backToChatAction}
             >
               <MessageSquare className="size-3.5" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.threadTabs.backToChat', 'Back to chat')}

@@ -22,6 +22,7 @@ import type {
   AgentWorkspaceTimelineEntry
 } from './agent-workspace-types'
 import type { AgentTimelineMarkdownArtifact } from './agent-timeline-artifacts'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 const EMPTY_DIFFS: readonly AgentWorkspaceDiffSummary[] = []
 
@@ -206,6 +207,10 @@ function WorkbenchEmptyState({
   browserAvailable: boolean
   terminalAvailable: boolean
 }): React.JSX.Element {
+  const newSessionAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onNewSession)
+  const browserAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenBrowserWorkbench)
+  const terminalAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenTerminalDrawer)
+
   return (
     <div className="flex min-h-[420px] flex-col items-center justify-center gap-5 px-6 text-center">
       <h2 className="text-2xl font-semibold text-foreground">
@@ -218,7 +223,7 @@ function WorkbenchEmptyState({
             variant="outline"
             size="lg"
             className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
-            onClick={onNewSession}
+            {...newSessionAction}
           >
             <Plus className="size-4" aria-hidden="true" />
             {translate('auto.components.agentWorkspace.layout.newSession', 'New session')}
@@ -230,7 +235,7 @@ function WorkbenchEmptyState({
             variant="outline"
             size="lg"
             className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
-            onClick={onOpenBrowserWorkbench}
+            {...browserAction}
           >
             <Globe className="size-4" aria-hidden="true" />
             {translate('auto.components.agentWorkspace.layout.openBrowser', 'Browser')}
@@ -242,7 +247,7 @@ function WorkbenchEmptyState({
             variant="outline"
             size="lg"
             className="h-10 rounded-xl px-4 transition-transform active:scale-[0.98]"
-            onClick={onOpenTerminalDrawer}
+            {...terminalAction}
           >
             <PanelBottom className="size-4" aria-hidden="true" />
             {translate('auto.components.agentWorkspace.layout.openTerminal', 'Terminal')}

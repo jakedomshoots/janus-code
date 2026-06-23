@@ -7,6 +7,7 @@ import {
   summarizeAgentTimelineDiffs,
   type AgentTimelineMarkdownArtifact
 } from './agent-timeline-artifacts'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 export function AgentMarkdownArtifactCard({
   artifact,
@@ -15,6 +16,10 @@ export function AgentMarkdownArtifactCard({
   artifact: AgentTimelineMarkdownArtifact
   onOpen?: (artifact: AgentTimelineMarkdownArtifact) => void
 }): React.JSX.Element {
+  const openAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onOpen ? () => onOpen(artifact) : undefined
+  )
+
   return (
     <div
       className="mt-3 flex min-w-0 items-center gap-3 rounded-xl border border-border bg-background/70 p-3 shadow-xs"
@@ -32,13 +37,7 @@ export function AgentMarkdownArtifactCard({
           {translate('auto.components.agentWorkspace.timeline.documentMd', 'Document · MD')}
         </div>
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={!onOpen}
-        onClick={() => onOpen?.(artifact)}
-      >
+      <Button type="button" variant="outline" size="sm" disabled={!onOpen} {...openAction}>
         {translate('auto.components.agentWorkspace.timeline.open', 'Open')}
       </Button>
     </div>
@@ -55,6 +54,10 @@ export function AgentEditedFilesCard({
   const [expanded, setExpanded] = useState(false)
   const summary = summarizeAgentTimelineDiffs(diffs)
   const visibleDiffs = expanded ? diffs : summary.visibleDiffs
+  const reviewAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onReview)
+  const expandAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(() =>
+    setExpanded((current) => !current)
+  )
 
   if (summary.fileCount === 0) {
     return null
@@ -92,7 +95,7 @@ export function AgentEditedFilesCard({
             </span>
           </div>
         </div>
-        <Button type="button" variant="outline" size="sm" disabled={!onReview} onClick={onReview}>
+        <Button type="button" variant="outline" size="sm" disabled={!onReview} {...reviewAction}>
           {translate('auto.components.agentWorkspace.timeline.review', 'Review')}
         </Button>
       </div>
@@ -112,7 +115,7 @@ export function AgentEditedFilesCard({
           <button
             type="button"
             className="flex h-9 w-full items-center justify-between gap-2 border-t border-border px-3 text-left text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            onClick={() => setExpanded((current) => !current)}
+            {...expandAction}
           >
             <span>
               {expanded

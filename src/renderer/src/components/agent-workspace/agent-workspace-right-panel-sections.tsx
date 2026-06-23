@@ -2,8 +2,15 @@ import { Bot, Folder, GitBranch, Globe, Info, Laptop } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { AgentWorkspaceRightPanelTab } from './agent-workspace-right-panel-state'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 const VISIBLE_ITEM_COUNT = 6
+type PanelTabModel = {
+  id: AgentWorkspaceRightPanelTab
+  label: string
+  count?: number
+  available: boolean
+}
 
 export function PanelTabs({
   selectedTab,
@@ -18,12 +25,7 @@ export function PanelTabs({
   hasReview: boolean
   onSelectedTabChange: (tab: AgentWorkspaceRightPanelTab) => void
 }): React.JSX.Element {
-  const tabs: readonly {
-    id: AgentWorkspaceRightPanelTab
-    label: string
-    count?: number
-    available: boolean
-  }[] = [
+  const tabs: readonly PanelTabModel[] = [
     {
       id: 'plan',
       label: translate('auto.components.agentWorkspace.rightPanel.output', 'Output'),
@@ -62,29 +64,49 @@ export function PanelTabs({
       )}
     >
       {tabs.map((tab) => (
-        <button
+        <PanelTabButton
           key={tab.id}
-          type="button"
-          className={cn(
-            'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
-            selectedTab === tab.id
-              ? 'bg-card text-foreground shadow-xs'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-          )}
-          role="tab"
-          aria-selected={selectedTab === tab.id}
-          title={tab.available ? tab.label : getEmptyTabTitle(tab.label)}
-          onClick={() => onSelectedTabChange(tab.id)}
-        >
-          <span className="truncate">{tab.label}</span>
-          {typeof tab.count === 'number' && tab.count > 0 ? (
-            <span className="rounded-full bg-muted px-1 text-[10px] text-muted-foreground">
-              {tab.count}
-            </span>
-          ) : null}
-        </button>
+          tab={tab}
+          selected={selectedTab === tab.id}
+          onSelect={() => onSelectedTabChange(tab.id)}
+        />
       ))}
     </div>
+  )
+}
+
+function PanelTabButton({
+  tab,
+  selected,
+  onSelect
+}: {
+  tab: PanelTabModel
+  selected: boolean
+  onSelect: () => void
+}): React.JSX.Element {
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        'flex h-8 min-w-0 items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-medium transition-[background-color,color,box-shadow,transform] active:scale-[0.98]',
+        selected
+          ? 'bg-card text-foreground shadow-xs'
+          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+      )}
+      role="tab"
+      aria-selected={selected}
+      title={tab.available ? tab.label : getEmptyTabTitle(tab.label)}
+      {...selectAction}
+    >
+      <span className="truncate">{tab.label}</span>
+      {typeof tab.count === 'number' && tab.count > 0 ? (
+        <span className="rounded-full bg-muted px-1 text-[10px] text-muted-foreground">
+          {tab.count}
+        </span>
+      ) : null}
+    </button>
   )
 }
 

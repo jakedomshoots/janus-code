@@ -2,6 +2,7 @@ import { FolderOpen, Globe, MessageSquarePlus, PanelRightOpen, Terminal } from '
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import type { AgentWorkspaceProject, AgentWorkspaceThread } from './agent-workspace-types'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 export function AgentWorkspaceHeader({
   project,
@@ -37,6 +38,11 @@ export function AgentWorkspaceHeader({
     hasWorkspace && browserAvailable && typeof onOpenBrowserWorkbench === 'function'
   const canOpenTerminal =
     hasWorkspace && terminalAvailable && typeof onOpenTerminalDrawer === 'function'
+  const newSessionAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onNewSession)
+  const browserAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenBrowserWorkbench)
+  const terminalAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenTerminalDrawer)
+  const filesAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onOpenProjectFiles)
+  const expandPanelAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onExpandRightPanel)
 
   if (
     !hasWorkspace &&
@@ -76,7 +82,7 @@ export function AgentWorkspaceHeader({
             variant="default"
             size="xs"
             className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onNewSession}
+            {...newSessionAction}
             aria-label={translate(
               'auto.components.agentWorkspace.header.newSession',
               'New session'
@@ -95,7 +101,7 @@ export function AgentWorkspaceHeader({
             variant="outline"
             size="xs"
             className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onOpenBrowserWorkbench}
+            {...browserAction}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openBrowser',
               'Open browser'
@@ -114,7 +120,7 @@ export function AgentWorkspaceHeader({
             variant="outline"
             size="xs"
             className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onOpenTerminalDrawer}
+            {...terminalAction}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openTerminal',
               'Open terminal'
@@ -133,7 +139,7 @@ export function AgentWorkspaceHeader({
             variant="outline"
             size="xs"
             className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onOpenProjectFiles}
+            {...filesAction}
             aria-label={translate(
               'auto.components.agentWorkspace.header.openProjectFiles',
               'Open project files'
@@ -155,7 +161,7 @@ export function AgentWorkspaceHeader({
             variant="outline"
             size="xs"
             className="shrink-0 transition-[background-color,border-color,color,box-shadow,transform] active:scale-[0.98]"
-            onClick={onExpandRightPanel}
+            {...expandPanelAction}
             aria-label={translate(
               'auto.components.agentWorkspace.header.showRightPanel',
               'Show right panel'

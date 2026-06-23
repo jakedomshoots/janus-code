@@ -5,6 +5,7 @@ import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { formatAgentWorkspaceDiffStatus } from './agent-workspace-labels'
 import type { AgentWorkspaceDiffSummary } from './agent-workspace-types'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 function formatDiffArea(area: AgentWorkspaceDiffSummary['area']): string {
   switch (area) {
@@ -90,28 +91,12 @@ export function AgentWorkspaceRightPanelChanges({
       </div>
       <div className="space-y-1">
         {diffs.slice(0, 4).map((diff) => (
-          <button
+          <ChangeSelectionButton
             key={diff.id}
-            type="button"
-            className={cn(
-              'flex h-9 w-full min-w-0 items-center gap-2 rounded-xl px-1.5 text-left text-sm transition-colors',
-              selectedDiff?.id === diff.id
-                ? 'bg-accent text-accent-foreground'
-                : 'hover:bg-accent/50'
-            )}
-            onClick={() => setSelectedDiffId(diff.id)}
-          >
-            <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <span className="min-w-0 flex-1 truncate">{diff.filePath}</span>
-            <span className="shrink-0 text-[11px] text-muted-foreground">
-              {formatAgentWorkspaceDiffStatus(diff.status)}
-            </span>
-            {diff.area ? (
-              <span className="shrink-0 text-[11px] text-muted-foreground">
-                {formatDiffArea(diff.area)}
-              </span>
-            ) : null}
-          </button>
+            diff={diff}
+            selected={selectedDiff?.id === diff.id}
+            onSelect={() => setSelectedDiffId(diff.id)}
+          />
         ))}
       </div>
       {selectedDiff ? (
@@ -188,5 +173,39 @@ export function AgentWorkspaceRightPanelChanges({
         <p className="mt-2 text-xs text-destructive">{sourceControlError}</p>
       ) : null}
     </section>
+  )
+}
+
+function ChangeSelectionButton({
+  diff,
+  selected,
+  onSelect
+}: {
+  diff: AgentWorkspaceDiffSummary
+  selected: boolean
+  onSelect: () => void
+}): React.JSX.Element {
+  const selectAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(onSelect)
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        'flex h-9 w-full min-w-0 items-center gap-2 rounded-xl px-1.5 text-left text-sm transition-colors',
+        selected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
+      )}
+      {...selectAction}
+    >
+      <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate">{diff.filePath}</span>
+      <span className="shrink-0 text-[11px] text-muted-foreground">
+        {formatAgentWorkspaceDiffStatus(diff.status)}
+      </span>
+      {diff.area ? (
+        <span className="shrink-0 text-[11px] text-muted-foreground">
+          {formatDiffArea(diff.area)}
+        </span>
+      ) : null}
+    </button>
   )
 }

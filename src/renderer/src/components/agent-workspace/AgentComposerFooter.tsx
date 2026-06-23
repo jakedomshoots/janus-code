@@ -22,6 +22,7 @@ import {
   resolveAgentComposerDeliveryFeedback,
   type AgentComposerDeliveryFeedback
 } from './agent-composer-delivery-feedback'
+import { useAgentWorkspaceInstantAction } from './useAgentWorkspaceInstantAction'
 
 type AgentComposerFooterProps = {
   statusMessage: string | null
@@ -95,6 +96,14 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
     selectedThread,
     recoverablePrompt
   })
+  const restorePromptAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onRestoreRecoverablePrompt
+  )
+  const retryPromptAction =
+    useAgentWorkspaceInstantAction<HTMLButtonElement>(onRetryRecoverablePrompt)
+  const openTerminalRecoveryAction = useAgentWorkspaceInstantAction<HTMLButtonElement>(
+    onOpenTerminalDrawer ? () => onOpenTerminalDrawer('debug-button') : undefined
+  )
 
   return (
     <div className="px-4 pb-4">
@@ -114,7 +123,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
               variant="ghost"
               size="xs"
               className="ml-2 h-5 px-1.5 text-[11px]"
-              onClick={onRestoreRecoverablePrompt}
+              {...restorePromptAction}
             >
               {translate(
                 'auto.components.agentWorkspace.composer.restoreMessage',
@@ -127,7 +136,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
               size="xs"
               className="ml-1 h-5 px-1.5 text-[11px]"
               disabled={submitting}
-              onClick={onRetryRecoverablePrompt}
+              {...retryPromptAction}
             >
               <RotateCcw className="size-3" aria-hidden="true" />
               {translate('auto.components.agentWorkspace.composer.sendAgain', 'Send again')}
@@ -140,7 +149,7 @@ export const AgentComposerFooter = memo(function AgentComposerFooter({
             variant="ghost"
             size="xs"
             className="ml-1 h-5 px-1.5 text-[11px]"
-            onClick={() => onOpenTerminalDrawer?.('debug-button')}
+            {...openTerminalRecoveryAction}
           >
             <Terminal className="size-3" aria-hidden="true" />
             {translate('auto.components.agentWorkspace.composer.openTerminal', 'Open terminal')}
