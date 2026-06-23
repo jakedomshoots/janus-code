@@ -30,11 +30,17 @@ describe('AgentTimeline', () => {
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
+    window.api = {
+      ui: {
+        writeClipboardText: vi.fn().mockResolvedValue(undefined)
+      }
+    } as never
   })
 
   afterEach(() => {
     act(() => root.unmount())
     document.body.replaceChildren()
+    delete (window as Partial<Window>).api
   })
 
   it('announces timeline updates through a log region', () => {
@@ -159,6 +165,35 @@ describe('AgentTimeline', () => {
     )
     expect(markdown?.querySelector('pre code')?.textContent).toContain('latencyBudgetMs')
     expect(markdown?.querySelector('a')?.getAttribute('href')).toBe('https://example.com/docs')
+  })
+
+  it('copies assistant code blocks through the app clipboard API', async () => {
+    const timeline: AgentWorkspaceTimelineEntry[] = [
+      {
+        id: 'entry-1',
+        threadId: thread.id,
+        kind: 'agent',
+        text: ['```ts', 'const latencyBudgetMs = 250', '```'].join('\n'),
+        status: 'done',
+        createdAt: '2026-06-18T14:02:00.000Z'
+      }
+    ]
+
+    act(() => {
+      root.render(<AgentTimeline thread={thread} timeline={timeline} />)
+    })
+
+    const copyButton = Array.from(container.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.getAttribute('aria-label') === 'Copy code block'
+    )
+    expect(copyButton).toBeDefined()
+
+    await act(async () => {
+      copyButton?.click()
+    })
+
+    expect(window.api.ui.writeClipboardText).toHaveBeenCalledWith('const latencyBudgetMs = 250')
+    expect(copyButton?.textContent).toContain('Copied')
   })
 
   it('renders an edited files card with review routing', () => {

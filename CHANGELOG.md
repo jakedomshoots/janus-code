@@ -25,3 +25,4 @@
 - Echoed running-thread follow-up messages into the workspace timeline immediately while terminal delivery is pending, with failed sends marked locally without dropping the draft.
 - Echoed completed-thread follow-up messages immediately while Janus decides whether to reuse the old terminal or launch a continuation agent.
 - Preserved optimistic follow-up bubble timestamps when delivery settles so user messages do not jump below live assistant previews.
+- Added a compact Copy affordance to assistant Markdown code blocks in the workspace timeline.

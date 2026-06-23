@@ -1,8 +1,11 @@
+import { isValidElement, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Bot,
+  Check,
   CircleAlert,
   ClipboardCheck,
   Clock3,
+  Copy,
   Loader2,
   ShieldQuestion,
   User,
@@ -26,6 +29,9 @@ import {
 } from './agent-timeline-artifacts'
 
 const AGENT_MESSAGE_REMARK_PLUGINS = [remarkGfm, remarkBreaks]
+const AGENT_MESSAGE_MARKDOWN_COMPONENTS = {
+  pre: AgentTimelineCodeBlock
+}
 
 export function AgentTimelineEntry({
   entry,
@@ -130,7 +136,12 @@ function AgentTimelineMessageBody({
         data-agent-message-markdown="true"
         className="agent-timeline-markdown markdown-body text-sm leading-relaxed text-foreground"
       >
-        <Markdown remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}>{entry.text}</Markdown>
+        <Markdown
+          components={AGENT_MESSAGE_MARKDOWN_COMPONENTS}
+          remarkPlugins={AGENT_MESSAGE_REMARK_PLUGINS}
+        >
+          {entry.text}
+        </Markdown>
       </div>
     )
   }
@@ -140,6 +151,87 @@ function AgentTimelineMessageBody({
       {entry.text}
     </p>
   )
+}
+
+function AgentTimelineCodeBlock({
+  children,
+  ...props
+}: React.ComponentProps<'pre'>): React.JSX.Element {
+  const [copied, setCopied] = useState(false)
+  const resetTimerRef = useRef<number | null>(null)
+  const codeText = getReactNodeText(children).replace(/\n$/, '')
+
+  const clearResetTimer = useCallback((): void => {
+    if (resetTimerRef.current !== null) {
+      window.clearTimeout(resetTimerRef.current)
+      resetTimerRef.current = null
+    }
+  }, [])
+
+  useEffect(() => clearResetTimer, [clearResetTimer])
+
+  const handleCopy = useCallback((): void => {
+    const writeClipboardText =
+      window.api?.ui?.writeClipboardText ??
+      navigator.clipboard?.writeText?.bind(navigator.clipboard)
+    if (!codeText || !writeClipboardText) {
+      return
+    }
+    void writeClipboardText(codeText)
+      .then(() => {
+        clearResetTimer()
+        setCopied(true)
+        resetTimerRef.current = window.setTimeout(() => {
+          resetTimerRef.current = null
+          setCopied(false)
+        }, 1500)
+      })
+      .catch(() => {
+        /* best-effort */
+      })
+  }, [clearResetTimer, codeText])
+
+  return (
+    <div className="agent-timeline-code-block" data-agent-code-block="true">
+      <div className="agent-timeline-code-block-header">
+        <button
+          type="button"
+          className="agent-timeline-code-copy-button"
+          onClick={handleCopy}
+          disabled={!codeText}
+          aria-label={translate(
+            'auto.components.agentWorkspace.timeline.copyCode',
+            'Copy code block'
+          )}
+        >
+          {copied ? (
+            <Check className="size-3" aria-hidden="true" />
+          ) : (
+            <Copy className="size-3" aria-hidden="true" />
+          )}
+          <span>
+            {copied
+              ? translate('auto.components.agentWorkspace.timeline.copied', 'Copied')
+              : translate('auto.components.agentWorkspace.timeline.copy', 'Copy')}
+          </span>
+        </button>
+      </div>
+      <pre {...props}>{children}</pre>
+    </div>
+  )
+}
+
+function getReactNodeText(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node)
+  }
+  if (Array.isArray(node)) {
+    return node.map((child) => getReactNodeText(child)).join('')
+  }
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    return getReactNodeText(node.props.children)
+  }
+  return ''
 }
 
 function getTimelineEntryRoleLabel(kind: AgentWorkspaceTimelineEntry['kind']): string {
