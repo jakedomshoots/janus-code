@@ -1,4 +1,4 @@
-# Run `janus-chat-ui-operability-loop` In This Session
+# Run `janus-real-dev-gauntlet-loop` In This Session
 
 Use this prompt when the user wants to run the Looper-designed loop in the current LLM session.
 This is the default/easy execution path. The Python runner is the advanced path for running later or outside the session.
@@ -33,11 +33,11 @@ Do not use `run-loop.py` unless the user explicitly asks for the advanced extern
 
 ## Goal
 
-Make the Janus Code chat UI workflow highly operable for real project work: a user can open a project workspace, start or select an agent thread, send a prompt, immediately see the user turn, watch agent progress, receive the response, follow up after completion, use browser and terminal affordances, inspect context/output/diff/review/info surfaces, and keep working without dead controls, lost messages, stale thread state, broken layout, or visual regressions.
+Prove whether the installed Janus Code app is ready for real development work by creating a disposable fake project and using Janus end to end: project onboarding, agent launch, chat follow-ups, slash-command prompts, terminal and browser workbench, file/artifact opening, right-panel tabs, diff/review/context/info surfaces, keyboard/focus navigation, responsive layout, error recovery, rebuild/install verification, and no dead controls.
 
 ## Definition Of Done
 
-Janus Code's installed app can be used as the primary project chat surface without workarounds: the full create/send/progress/respond/follow-up/tooling workflow is verified in /Applications/Janus Code.app, all touched controls are wired, message delivery and thread selection are reliable, right-panel and floating-card state is live and non-overlapping, keyboard/focus behavior is sane, visual language follows the Janus styleguide, CHANGELOG.md records each batch, and all configured programmatic and judge gates pass or an honest external blocker is documented with the next concrete path to green.
+The installed /Applications/Janus Code.app has been rebuilt from this worktree and can run the fake-project gauntlet without lost messages, stuck slash-command pickers, duplicate terminals, stale right-panel state, broken artifact/file open buttons, dead top-level controls, hidden questions, layout overlap, keyboard traps, or raw tool chatter in final chat bubbles. All feasible blockers discovered by the gauntlet are fixed, tested, logged in CHANGELOG.md, rebuilt into the installed app, and committed. If a blocker cannot be fixed inside this session, it is documented with reproduction steps, evidence, severity, likely root cause, and the concrete path to 100%.
 
 ## Context Sources
 
@@ -45,6 +45,8 @@ Janus Code's installed app can be used as the primary project chat surface witho
 - Read file `./src/renderer/src/assets/main.css`
 - Read file `./CHANGELOG.md`
 - Read file `./package.json`
+- Read file `./config/scripts/computer-use-smoke.mjs`
+- Read file `./config/scripts/run-janus-workflow-assurance.mjs`
 - Read file `./src/renderer/src/components/agent-workspace/AgentWorkspacePage.tsx`
 - Read file `./src/renderer/src/components/agent-workspace/AgentWorkspacePane.tsx`
 - Read file `./src/renderer/src/components/agent-workspace/AgentWorkspaceLayout.tsx`
@@ -53,33 +55,36 @@ Janus Code's installed app can be used as the primary project chat surface witho
 - Read file `./src/renderer/src/components/agent-workspace/AgentTimelineEntry.tsx`
 - Read file `./src/renderer/src/components/agent-workspace/AgentComposer.tsx`
 - Read file `./src/renderer/src/components/agent-workspace/AgentComposerForm.tsx`
-- Read file `./src/renderer/src/components/agent-workspace/useAgentWorkspacePanes.ts`
 - Read file `./src/renderer/src/components/agent-workspace/AgentWorkspaceRightPanel.tsx`
 - Read file `./src/renderer/src/components/agent-workspace/AgentTerminalDrawer.tsx`
-- Read file `./src/renderer/src/lib/launch-agent-in-new-tab.ts`
+- Read file `./src/renderer/src/lib/active-agent-note-send.ts`
+- Read file `./src/renderer/src/lib/active-agent-terminal-choice.ts`
+- Read file `./src/renderer/src/lib/terminal-prompt-choices.ts`
 - Run command `["git", "status", "--short", "--branch", "--untracked-files=all"]`
-- Run command `["rg", "-n", "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|starting|completed thread|recover", "src/renderer/src/components/agent-workspace", "src/renderer/src/lib/launch-agent-in-new-tab.ts"]`
+- Run command `["rg", "-n", "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|terminal-choice|approval|fallbackText|open.*artifact|New session|Browser|Terminal|Files", "src/renderer/src/components/agent-workspace", "src/renderer/src/lib", "config/scripts"]`
 
 ## Verification Criteria
 
-- `focused-agent-workspace-tests` programmatic: run `["pnpm", "vitest", "run", "--config", "config/vitest.config.ts", "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx", "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx", "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx", "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx", "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts", "src/renderer/src/lib/launch-agent-in-new-tab.test.ts", "src/renderer/src/components/terminal-pane/pty-connection.test.ts"]` and expect `exit_zero`
-- `workflow-assurance-tests` programmatic: run `["pnpm", "run", "verify:janus-workflow-assurance"]` and expect `exit_zero`
-- `typecheck-web` programmatic: run `["pnpm", "run", "typecheck:web"]` and expect `exit_zero`
-- `changed-react-lint` programmatic: run `["pnpm", "run", "lint:react-doctor:changed"]` and expect `exit_zero`
+- `fake-project-created` programmatic: run `["test", "-f", "looper-output/loop-workspace/fake-project/package.json"]` and expect `exit_zero`
+- `defect-ledger-present` programmatic: run `["test", "-f", "looper-output/loop-workspace/defects.md"]` and expect `exit_zero`
+- `focused-workflow-tests` programmatic: run `["pnpm", "exec", "vitest", "run", "src/renderer/src/lib/active-agent-note-send.test.ts", "src/renderer/src/components/agent-workspace/AgentTimeline.test.tsx", "src/renderer/src/components/agent-workspace/orca-agent-timeline-selectors.test.ts", "src/shared/agent-status-types.test.ts", "--config", "config/vitest.config.ts", "--maxWorkers=1"]` and expect `exit_zero`
+- `workflow-assurance` programmatic: run `["pnpm", "run", "verify:janus-workflow-assurance"]` and expect `exit_zero`
+- `typecheck` programmatic: run `["pnpm", "run", "typecheck"]` and expect `exit_zero`
+- `lint` programmatic: run `["pnpm", "run", "lint"]` and expect `exit_zero`
 - `diff-whitespace` programmatic: run `["git", "diff", "--check"]` and expect `exit_zero`
 - `packaged-build` programmatic: run `["pnpm", "run", "build:unpack"]` and expect `exit_zero`
-- `installed-janus-smoke` programmatic: run `["pnpm", "run", "smoke:janus-workflow"]` and expect `exit_zero`
-- `ade-chat-operability` judge rubric: Judge the plan or delivery against the actual Janus chat workflow, not isolated widgets. A pass requires explicit coverage for: project/thread selection, new session launch, first user turn visibility, running and completed states, follow-up recovery, terminal drawer, browser/workbench routing, context/output/diff/review/info surfaces, keyboard/focus, empty and error states, no stale workspace metadata, no dead placeholder controls, and no layout overlap at narrow, medium, and wide widths. Blocking issues must identify the missing workflow step or evidence.
+- `installed-smoke` programmatic: run `["pnpm", "run", "smoke:janus-workflow"]` and expect `exit_zero`
+- `gauntlet-evidence` judge rubric: Pass only if loop-workspace contains a fake-project test record covering project add/open, agent start, normal chat, follow-up after completion, slash-command option picking, terminal drawer, browser workbench, file or artifact open buttons, right-panel Output/Diff/Review/Info/Context tabs, keyboard/focus navigation, responsive layout at narrow/medium/wide widths, and at least one error/recovery path. Every failure must have a defect ID, severity, reproduction steps, evidence, status, and next action. Do not pass on generic statements without evidence.
 
-- `visual-polish-and-styleguide` judge rubric: Judge whether the delivery feels like a high-end polished ADE. A pass requires restrained operational density, clear hierarchy, intentional microstates, readable contrast, styleguide token usage, consistent spacing, professional timeline/composer/right-panel composition, and no generic AI-dashboard ornament or contradictory chrome. Blocking issues must cite the visible surface and why it harms real use.
+- `production-readiness` judge rubric: Pass only if the installed app can plausibly be used for real dev work through Janus without terminal workarounds for core chat flow. Blocking issues include: hidden terminal questions, lost or delayed user turns, stuck typing state, duplicate unmanaged terminals, raw tool chatter in GUI final responses, dead visible controls, broken artifact/file opens, stale thread/right-panel metadata, layout overlap at supported widths, failed build/smoke checks, or uncommitted fixes.
 
-- `user-ready-signoff` human signoff: Confirm the installed Janus Code app is ready to use as the primary chat interface for real project work, or list the remaining blocker that prevents that.
+- `final-human-stop` human signoff: Stop only after the current session has either reached evidence-backed production readiness or documented honest blockers with a specific path to readiness.
 
 
 ## Council
 
-- `workflow-reviewer` reviewer via `["codex", "exec"]` (non-local; timeout 900s)
-- `operability-judge` judge via `["codex", "exec"]` (non-local; timeout 900s)
+- `current-session-reviewer` reviewer via `["codex", "exec"]` (local; timeout 900s)
+- `current-session-judge` judge via `["codex", "exec"]` (local; timeout 900s)
 
 ## Gates
 
@@ -87,27 +92,29 @@ Janus Code's installed app can be used as the primary project chat surface witho
 
 - When: `after_plan`
 - Policy: `revise_until_clean`
-- Verdict source: `operability-judge`
-- Criteria: `ade-chat-operability, visual-polish-and-styleguide`
-- Max revisions: `3`
+- Verdict source: `current-session-judge`
+- Criteria: `gauntlet-evidence, production-readiness`
+- Max revisions: `2`
 
 ### delivery_gate
 
 - When: `after_each_delivery`
 - Policy: `revise_until_clean`
-- Verdict source: `operability-judge`
-- Criteria: `focused-agent-workspace-tests, workflow-assurance-tests, typecheck-web, changed-react-lint, diff-whitespace, packaged-build, installed-janus-smoke, ade-chat-operability, visual-polish-and-styleguide, user-ready-signoff`
+- Verdict source: `current-session-judge`
+- Criteria: `fake-project-created, defect-ledger-present, focused-workflow-tests, workflow-assurance, typecheck, lint, diff-whitespace, packaged-build, installed-smoke, gauntlet-evidence, production-readiness, final-human-stop`
 - Max revisions: `3`
 
 ## Loop Control
 
 - Max iterations: `10`
 - Budget: `{"tokens": 8000000, "wall_clock_min": 360}`
-- No-progress: `{"action": "human_checkpoint", "max_stalled_iterations": 2, "signals": ["same blocking issue repeats", "delivery artifact has no material change", "verifier output is unchanged", "installed-app smoke fails at the same step after a targeted fix"]}`
-- Human checkpoints: `before external model or vendor egress, before any destructive git operation, before final ready-to-use claim`
+- No-progress: `{"action": "human_checkpoint", "max_stalled_iterations": 2, "signals": ["same defect or smoke failure repeats after a targeted fix", "no new gauntlet coverage is added in an iteration", "verifier output is unchanged", "installed app cannot be controlled or inspected after rebuild"]}`
+- Human checkpoints: `before sending context to any non-current-session model, before destructive file operations outside this worktree or fake project, before claiming production readiness`
 - Stop conditions:
-  - all delivery criteria pass clean
-  - user confirms the installed app is ready to use for real project chat work
+  - all programmatic checks pass
+  - fake-project gauntlet has evidence for every required surface
+  - no P0 or P1 app-workflow blockers remain
+  - all feasible P2 blockers discovered in this loop are fixed or explicitly deferred with rationale
   - max_iterations reached
   - same blocker repeats for 2 iterations without new evidence
   - wall-clock or token budget cap is reached
@@ -116,7 +123,7 @@ Janus Code's installed app can be used as the primary project chat surface witho
 
 - Mode: `in_session`
 - Isolation: `current_workspace`
-- Side effects: `{"allowed_without_extra_approval": ["reading files", "editing files in this worktree", "running tests and builds", "rebuilding and reinstalling /Applications/Janus Code.app for verification"], "approval_required": ["pushing branches", "creating pull requests", "deleting files outside this worktree", "sending context to any non-current-session model CLI"], "duplicate_action_check": true, "requires_approval": true}`
+- Side effects: `{"allowed_without_extra_approval": ["reading files", "editing files in this worktree", "creating and deleting files under looper-output/loop-workspace/fake-project", "running tests and builds", "rebuilding and reinstalling /Applications/Janus Code.app for verification"], "approval_required": ["pushing branches", "creating pull requests", "deleting files outside this worktree or fake project", "sending context to any non-current-session model CLI"], "duplicate_action_check": true, "requires_approval": true}`
 
 If the loop needs scheduled runs, child-agent lifecycle management, concurrency control, or restart-safe step retries, stop and tell the user this Looper spec should be handed to a durable orchestrator.
 
@@ -130,8 +137,8 @@ Use `state.json` for the latest resumable status and `run-log.md` for the append
 
 ## Privacy
 
-- Before sending `plan, deliveries, selected source snippets, verification output` to `workflow-reviewer`, confirm consent and apply redactions `.env, .env.*, secrets/**, **/*.key`.
-- Before sending `plan, deliveries, selected source snippets, verification output` to `operability-judge`, confirm consent and apply redactions `.env, .env.*, secrets/**, **/*.key`.
+- Before sending `plan, deliveries, selected source snippets, verification output` to `current-session-reviewer`, confirm consent and apply redactions `.env, .env.*, secrets/**, **/*.key`.
+- Before sending `plan, deliveries, selected source snippets, verification output` to `current-session-judge`, confirm consent and apply redactions `.env, .env.*, secrets/**, **/*.key`.
 
 ## Start Now
 

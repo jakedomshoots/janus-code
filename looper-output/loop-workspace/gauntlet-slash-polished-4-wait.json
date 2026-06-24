@@ -1,0 +1,57 @@
+{
+  "id": "736b4663-e7bb-42fd-b35e-1fa6958c209f",
+  "ok": true,
+  "result": {
+    "screenshot": {
+      "width": 3044,
+      "scale": 2,
+      "format": "png",
+      "height": 2008,
+      "path": "/var/folders/_2/qhd8f8dn61q3jj7j1pvf3ck80000gn/T/orca-computer-use/736b4663-e7bb-42fd-b35e-1fa6958c209f-screenshot.png",
+      "dataOmitted": true,
+      "expiresAt": "2026-06-25T00:01:21.324Z"
+    },
+    "snapshot": {
+      "focusedElementId": 2,
+      "truncation": {
+        "maxNodes": 1200,
+        "maxDepth": 64,
+        "truncated": false,
+        "maxDepthReached": false
+      },
+      "window": {
+        "isMinimized": false,
+        "isOffscreen": false,
+        "y": 67,
+        "title": "Janus Code",
+        "width": 1522,
+        "screenIndex": 0,
+        "x": 116,
+        "platform": {
+          "layer": 0
+        },
+        "height": 1004,
+        "id": 19676
+      },
+      "coordinateSpace": "window",
+      "id": "CB71A181-9AC3-40E4-B529-27F19434A15F",
+      "elementCount": 119,
+      "treeText": "App=com.jakedom.januscode (pid 22789)\nWindow: \"Janus Code\", App: Janus Code.\n\n0 standard window Janus Code\n\t1 container Janus Code\n\t\t2 HTML content Janus Code\n\t\t\t3 container\n\t\t\t\t4 container Janus Code\n\t\t\t\t\t5 text Janus Code\n\t\t\t\t6 button Toggle sidebar\n\t\t\t\t7 container\n\t\t\t\t\t8 button New Agent\n\t\t\t\t\t9 button Tasks\n\t\t\t\t\t10 button Automations\n\t\t\t\t\t11 button Agents 2\n\t\t\t\t\t12 button Janus Mobile\n\t\t\t\t\t13 button Search worktrees and browser tabs\n\t\t\t\t\t14 text Projects\n\t\t\t\t\t15 pop up button Workspace options\n\t\t\t\t\t16 button Add Project\n\t\t\t\t\t17 button New workspace\n\t\t\t\t\t18 list box Worktrees\n\t\t\t\t\t\t19 button fake-project 7 workspaces Project actions for fake-project Create new worktree for fake-project\n\t\t\t\t\t\t20 menu item, Value: not selected\n\t\t\t\t\t\t21 menu item, Value: not selected\n\t\t\t\t\t\t22 menu item, Value: not selected\n\t\t\t\t\t\t23 menu item, Value: not selected\n\t\t\t\t\t\t24 menu item, Value: not selected\n\t\t\t\t\t\t25 menu item, Value: not selected\n\t\t\t\t\t\t26 menu item, Value: not selected\n\t\t\t\t\t\t27 button Fam-OS 1 workspace Project actions for Fam-OS Create workspace for Fam-OS\n\t\t\t\t\t\t28 menu item, Value: not selected\n\t\t\t\t\t29 text Add a setup script\n\t\t\t\t\t30 button Dismiss setup scripts\n\t\t\t\t\t31 text fake-project\n\t\t\t\t\t32 text Save the detected command to run it whenever Janus Code creates a worktree.\n\t\t\t\t\t33 text DETECTED SETUP\n\t\t\t\t\t34 text entry area (settable) Detected setup script npm install\n\t\t\t\t\t35 container, Text: Detected from package.json\n\t\t\t\t\t36 button Save\n\t\t\t\t\t37 button Configure manually\n\t\t\t\t\t38 button Settings\n\t\t\t\t\t39 pop up button Help\n\t\t\t\t\t40 button Reveal active workspace\n\t\t\t\t\t41 toggle button Workspace board, Value: 0\n\t\t\t\t42 container\n\t\t\t\t\t43 container\n\t\t\t\t\t\t44 container Agent workspace\n\t\t\t\t\t\t\t45 container\n\t\t\t\t\t\t\t\t46 container\n\t\t\t\t\t\t\t\t\t47 text janus-gauntlet-slash-polished-4\n\t\t\t\t\t\t\t\t\t48 text Codex ready\n\t\t\t\t\t\t\t\t\t49 container Workspace commands\n\t\t\t\t\t\t\t\t\t\t50 button New session\n\t\t\t\t\t\t\t\t\t\t51 button Open browser\n\t\t\t\t\t\t\t\t\t\t52 button Open terminal\n\t\t\t\t\t\t\t\t\t\t53 button Open project files\n\t\t\t\t\t\t\t\t54 container\n\t\t\t\t\t\t\t\t\t55 container\n\t\t\t\t\t\t\t\t\t\t56 tab group Workspace tabs\n\t\t\t\t\t\t\t\t\t\t\t57 tab (selected) Codex ready Codex completed Close thread, Value: 1\n\t\t\t\t\t\t\t\t\t\t\t58 pop up button New tab\n\t\t\t\t\t\t\t\t\t\t59 button Add quick command\n\t\t\t\t\t\t\t\t\t\t60 pop up button Pane Actions\n\t\t\t\t\t\t\t\t\t\t61 container\n\t\t\t\t\t\t\t\t\t\t\t62 container Agent conversation timeline\n\t\t\t\t\t\t\t\t\t\t\t\t63 heading Codex ready\n\t\t\t\t\t\t\t\t\t\t\t\t64 text completed\n\t\t\t\t\t\t\t\t\t\t\t\t65 text Codex\n\t\t\t\t\t\t\t\t\t\t\t\t66 text janus-gauntlet-slash-polished-4\n\t\t\t\t\t\t\t\t\t\t\t\t67 text 2026-06-24T00:01:18.794Z\n\t\t\t\t\t\t\t\t\t\t\t\t68 text This conversation is complete, but you can keep chatting in the same thread.\n\t\t\t\t\t\t\t\t\t\t\t\t69 container You, done\n\t\t\t\t\t\t\t\t\t\t\t\t\t70 text You\n\t\t\t\t\t\t\t\t\t\t\t\t\t71 text done\n\t\t\t\t\t\t\t\t\t\t\t\t\t72 text 8:01 PM\n\t\t\t\t\t\t\t\t\t\t\t\t\t73 text Reply exactly: polished slash test four ready.\n\t\t\t\t\t\t\t\t\t\t\t\t74 container Agent, done\n\t\t\t\t\t\t\t\t\t\t\t\t\t75 text Agent\n\t\t\t\t\t\t\t\t\t\t\t\t\t76 text done\n\t\t\t\t\t\t\t\t\t\t\t\t\t77 text 8:01 PM\n\t\t\t\t\t\t\t\t\t\t\t\t\t78 text polished slash test four ready.\n\t\t\t\t\t\t\t\t\t\t\t79 container Agent chat composer\n\t\t\t\t\t\t\t\t\t\t\t\t80 text entry area (settable) Message agent, Placeholder: Ask a follow-up in this thread...\n\t\t\t\t\t\t\t\t\t\t\t\t81 container Tools\n\t\t\t\t\t\t\t\t\t\t\t\t\t82 button Open browser workbench\n\t\t\t\t\t\t\t\t\t\t\t\t\t83 button (disabled) Attach browser context\n\t\t\t\t\t\t\t\t\t\t\t\t\t84 button Open terminal drawer\n\t\t\t\t\t\t\t\t\t\t\t\t85 text Completed thread\n\t\t\t\t\t\t\t\t\t\t\t\t86 text Codex\n\t\t\t\t\t\t\t\t\t\t\t\t87 button (disabled) Send\n\t\t\t\t\t\t\t\t\t88 container\n\t\t\t\t\t\t\t\t\t\t89 container, Text: Codex ready Codex · completed No plan 0 changes 1 agents 3 sources\n\t\t\t\t\t\t\t\t\t\t90 tab group Agent workspace right panel\n\t\t\t\t\t\t\t\t\t\t\t91 tab (settable) Output, Value: 0\n\t\t\t\t\t\t\t\t\t\t\t92 tab (settable) Diff, Value: 0\n\t\t\t\t\t\t\t\t\t\t\t93 tab (settable) Review, Value: 0\n\t\t\t\t\t\t\t\t\t\t\t94 tab (settable) Info, Value: 0\n\t\t\t\t\t\t\t\t\t\t\t95 tab (selected) Context, Value: 1\n\t\t\t\t\t\t\t\t\t\t96 container details panel\n\t\t\t\t\t\t\t\t\t\t\t97 container Subagents\n\t\t\t\t\t\t\t\t\t\t\t\t98 heading Subagents\n\t\t\t\t\t\t\t\t\t\t\t\t99 text Codex ready\n\t\t\t\t\t\t\t\t\t\t\t\t100 text Codex · completed\n\t\t\t\t\t\t\t\t\t\t\t101 container Sources\n\t\t\t\t\t\t\t\t\t\t\t\t102 heading Sources\n\t\t\t\t\t\t\t\t\t\t\t\t103 text janus-gauntlet-slash-polished-4\n\t\t\t\t\t\t\t\t\t\t\t\t104 text /Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-slash-polished-4\n\t\t\t\t\t\t\t\t\t\t\t\t105 text Environment\n\t\t\t\t\t\t\t\t\t\t\t\t106 text Local\n\t\t\t\t\t\t\t\t\t\t\t\t107 text Branch\n\t\t\t\t\t\t\t\t\t\t\t\t108 text janus-gauntlet-slash-polished-4\n\t\t\t\t\t109 toggle button Show floating workspace, Value: 0\n\t\t\t\t110 container\n\t\t\t\t\t111 button Connect an AI account to see usage\n\t\t\t\t\t112 pop up button Pet menu\n\t\t\t\t\t113 pop up button Resource Manager, 6 terminal sessions\n\t\t\t\t\t114 pop up button Ports, 0 workspace ports\n\t\t\t\t115 container Notifications alt+T\n\t116 close button\n\t117 full screen button, Secondary Actions: zoom the window\n\t118 minimize button\n\nThe focused UI element is 2 HTML content Janus Code.",
+      "app": {
+        "name": "Janus Code",
+        "pid": 22789,
+        "bundleId": "com.jakedom.januscode"
+      }
+    },
+    "screenshotStatus": {
+      "metadata": {
+        "engine": "screenCaptureKit",
+        "windowId": 19676
+      },
+      "state": "captured"
+    }
+  },
+  "_meta": {
+    "runtimeId": "d38a9357-a7bd-4022-876a-4a4e6733203d"
+  }
+}

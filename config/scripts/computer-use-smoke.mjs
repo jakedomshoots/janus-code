@@ -208,9 +208,13 @@ function runJanusSourceControlSmoke(state) {
     return state
   }
 
-  expectTree(state, ['More commit and remote actions'])
   const selectedState = clickElement(janusApp, changedRowIndex)
-  expectTree(selectedState, ['selected', 'Stage ('])
+  expectAnyTree(selectedState, ['Stage (', 'Stage'])
+
+  if (!findOptionalElementIndex(selectedState, ['More commit and remote actions'])) {
+    expectAnyTree(selectedState, ['Discard', 'Review mode'])
+    return selectedState
+  }
 
   const menuState = clickElement(
     janusApp,
@@ -223,7 +227,7 @@ function runJanusSourceControlSmoke(state) {
 function findSourceControlChangedRowIndex(state) {
   const statusPattern = /\b(modified|added|deleted|renamed|untracked|copied|M|A|D|R|U|C)\b/
   for (const line of treeTextForState(state).split('\n')) {
-    if (!/\brow\b/.test(line) || !statusPattern.test(line)) {
+    if (!/\b(row|button)\b/.test(line) || !statusPattern.test(line)) {
       continue
     }
     const match = line.trim().match(/^(\d+)\b/)

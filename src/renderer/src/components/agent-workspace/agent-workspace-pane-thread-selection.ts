@@ -56,6 +56,15 @@ export function selectPanesAfterProjectThreadUpdate({
               selectedDraftSessionId: null,
               pendingLaunchedThreadSelection: false
             }
-          : pane
+          : defaultThreadId !== null && !pane.selectedThreadId && !pane.selectedDraftSessionId
+            ? {
+                // Why: CLI-created agent tabs can arrive without a draft marker;
+                // the pane should still bind the available thread instead of
+                // leaving the chat surface on the empty-state hero.
+                ...pane,
+                selectedThreadId: defaultThreadId,
+                pendingLaunchedThreadSelection: false
+              }
+            : pane
   )
 }

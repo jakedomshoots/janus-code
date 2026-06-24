@@ -1,67 +1,21 @@
 {
-  "blockers": [],
-  "consent": {
-    "current_session_substitute": {
-      "granted_at": "2026-06-23T17:36:00Z",
-      "scope": "Use this Codex session as reviewer and judge; do not invoke external model CLIs."
+  "blockers": [
+    {
+      "id": "JDG-003",
+      "severity": "P1",
+      "summary": "Kimi persistent TUI prompt lands in terminal but does not execute through the GUI launch/send adapter.",
+      "evidence": [
+        "looper-output/loop-workspace/gauntlet-kimi-live-wait.json",
+        "terminal term_45ed6c17-76fe-4393-a045-e7d29a280cc6 read after direct Enter"
+      ]
     }
+  ],
+  "consent": {
+    "current_session_review": true,
+    "external_model_egress": false
   },
   "iteration": 1,
-  "last_gate": "terminal_question_batch_passed_with_installed_smoke_blocker",
-  "live_findings": [
-    {
-      "id": "P0-composer-retains-sent-follow-up",
-      "evidence": "Installed app shows completed-thread follow-up user bubble and agent reply while composer still contains the sent text.",
-      "severity": "P0",
-      "status": "fixed",
-      "verification": "Installed app showed completed-thread transcript with composer empty and Send disabled after rebuild."
-    },
-    {
-      "id": "P0-composer-retains-launched-follow-up",
-      "evidence": "Installed app shows a new running fallback thread and user bubble while composer still contains the sent prompt.",
-      "severity": "P0",
-      "status": "fixed",
-      "verification": "Live installed smoke showed new thread user bubble while composer cleared and Send disabled, then stayed clear after agent completion."
-    },
-    {
-      "id": "P0-antigravity-question-not-visible",
-      "evidence": "User reported an Antigravity dev-server thread where the terminal asked a question but the GUI only showed a flickering broken chat bubble.",
-      "severity": "P0",
-      "status": "fixed",
-      "verification": "Regression tests prove observed Antigravity PostToolUse ask_question events now become waiting feedback with the question text and no generic completed-tool event."
-    },
-    {
-      "id": "P1-antigravity-feedback-bubble-duplicates",
-      "evidence": "Waiting states with assistant text rendered as a generic approval row plus a separate pending assistant bubble.",
-      "severity": "P1",
-      "status": "fixed",
-      "verification": "Timeline selector regression test now renders one durable pending row containing the actual question."
-    },
-    {
-      "id": "P0-installed-profile-no-active-chat-workspace",
-      "evidence": "After rebuilding and launching the installed app, the app opened to the first-run workspace selector; the visible Fam-OS row did not navigate to chat, and New Agent produced a Janus Ideas already-exists toast.",
-      "severity": "P0",
-      "status": "blocked",
-      "verification": "pnpm run smoke:janus-workflow cannot reach Agent chat composer in the current installed profile."
-    }
-  ],
-  "non_ui_gate_notes": [
-    {
-      "id": "release-artifacts-missing",
-      "check": "pnpm run verify:janus-workflow-assurance",
-      "detail": "Vitest portion passed 93 files / 748 tests, then direct-download artifact verification failed because release .dmg/.zip/checksum artifacts are absent."
-    },
-    {
-      "id": "installed-profile-no-active-chat-workspace",
-      "check": "pnpm run smoke:janus-workflow",
-      "detail": "Accessibility and screenshots are granted, but the installed profile currently restores to a first-run workspace selector with no reachable Agent chat composer."
-    }
-  ],
-  "status": "terminal_question_batch_passed_programmatic_with_installed_smoke_blocker",
-  "installed_app": {
-    "path": "/Applications/Janus Code.app",
-    "backup": "/Applications/Janus Code.app.backup-20260623-142906",
-    "app_asar_sha256": "9ab480a479292f1c830c49eb229724b1c5f5483ffec97778219fd1157036548f",
-    "verified_at": "2026-06-23T18:29:06Z"
-  }
+  "last_gate": "installed_live_agent_gauntlet",
+  "status": "blocked",
+  "updated_at": "2026-06-23T20:08:00-04:00"
 }

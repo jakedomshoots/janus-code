@@ -1,0 +1,63 @@
+{
+  "id": "efef5095-c43f-47b3-b16f-22040a9eed69",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "051fe387-3772-4b20-8f5e-f341545c57ca::/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-opencode-live",
+      "instanceId": "8a799a40-08ca-4819-8ae7-ee8bd3fd054a",
+      "repoId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "projectId": "repo:051fe387-3772-4b20-8f5e-f341545c57ca",
+      "hostId": "local",
+      "projectHostSetupId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-opencode-live",
+      "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+      "branch": "refs/heads/janus-gauntlet-opencode-live",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "janus-gauntlet-opencode-live",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1782259720721,
+      "lastActivityAt": 1782259720721,
+      "createdAt": 1782259720721,
+      "createdWithAgent": "opencode",
+      "baseRef": "main",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-opencode-live",
+        "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+        "branch": "refs/heads/janus-gauntlet-opencode-live",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "startupTerminal": {
+      "spawned": true,
+      "handle": "term_f895e000-35ef-4bd6-8420-5fc7cba0e7c1",
+      "tabId": "30378376-083b-4883-92c8-99f2b69ef279",
+      "surface": "background"
+    }
+  },
+  "_meta": {
+    "runtimeId": "d38a9357-a7bd-4022-876a-4a4e6733203d"
+  }
+}

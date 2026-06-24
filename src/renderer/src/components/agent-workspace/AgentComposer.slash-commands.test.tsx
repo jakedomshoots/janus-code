@@ -177,6 +177,53 @@ describe('AgentComposer slash commands', () => {
     })
   })
 
+  it('clears an accepted slash command when the thread phase updates mid-submit', async () => {
+    const completedThread: AgentWorkspaceThread = {
+      ...runningThread,
+      phase: 'completed'
+    }
+    let resolveSend: ((result: ActiveAgentNotesSendResult) => void) | null = null
+    mocks.sendNotesToActiveAgentSession.mockImplementation(
+      () =>
+        new Promise<ActiveAgentNotesSendResult>((resolve) => {
+          resolveSend = resolve
+        })
+    )
+
+    await act(async () => {
+      root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={completedThread} />)
+    })
+
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea')
+    const button = container.querySelector<HTMLButtonElement>('button[type="submit"]')
+    expect(textarea).not.toBeNull()
+    expect(button).not.toBeNull()
+
+    await act(async () => {
+      setTextControlValue(textarea!, '/model')
+    })
+    expect(container.querySelector('[role="listbox"][aria-label="Slash commands"]')).not.toBeNull()
+
+    act(() => {
+      button?.click()
+    })
+    await act(async () => {
+      root.render(
+        <AgentComposer
+          activeWorktreeId="worktree-1"
+          selectedThread={{ ...completedThread, phase: 'running' }}
+        />
+      )
+    })
+    await act(async () => {
+      resolveSend?.({ status: 'sent' })
+      await Promise.resolve()
+    })
+
+    expect(textarea?.value).toBe('')
+    expect(container.querySelector('[role="listbox"][aria-label="Slash commands"]')).toBeNull()
+  })
+
   it('offers slash commands and inserts the selected command into the composer draft', async () => {
     await act(async () => {
       root.render(<AgentComposer activeWorktreeId="worktree-1" selectedThread={runningThread} />)

@@ -120,8 +120,10 @@ export function AgentComposer({
     selectedAgent,
     selectedModel
   ].join(':')
+  const selectedThreadIdentityKey = `${selectedThread?.id ?? ''}\u0000${selectedThread?.worktreeId ?? ''}`
   const submitSequenceRef = useRef(0)
   const submitContextKeyRef = useRef(submitContextKey)
+  const selectedThreadIdentityKeyRef = useRef(selectedThreadIdentityKey)
   const composerDisabled = submitting
   const canSubmit = !submitting && readinessMessage === null && trimmedPrompt.length > 0
   const statusMessage = submitResult?.message ?? readinessMessage
@@ -162,10 +164,11 @@ export function AgentComposer({
 
   useLayoutEffect(() => {
     submitContextKeyRef.current = submitContextKey
+    selectedThreadIdentityKeyRef.current = selectedThreadIdentityKey
     submitSequenceRef.current += 1
     setSubmitResult(null)
     setSubmitting(false)
-  }, [submitContextKey])
+  }, [selectedThreadIdentityKey, submitContextKey])
 
   const handleSubmit = useAgentComposerSubmit({
     activeWorktreeId,
@@ -178,6 +181,7 @@ export function AgentComposer({
     selectedAgent,
     selectedModel,
     selectedThread,
+    selectedThreadIdentityKeyRef,
     setPrompt,
     setRecoverablePrompt,
     setSubmitResult,

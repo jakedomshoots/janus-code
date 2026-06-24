@@ -1,0 +1,63 @@
+{
+  "id": "c01001b8-7c7d-4457-816e-df060b777694",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "051fe387-3772-4b20-8f5e-f341545c57ca::/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-slash-polished-4",
+      "instanceId": "c50136a9-8a2d-425a-beb4-c9f99a1444c1",
+      "repoId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "projectId": "repo:051fe387-3772-4b20-8f5e-f341545c57ca",
+      "hostId": "local",
+      "projectHostSetupId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-slash-polished-4",
+      "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+      "branch": "refs/heads/janus-gauntlet-slash-polished-4",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "janus-gauntlet-slash-polished-4",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1782259267475,
+      "lastActivityAt": 1782259267475,
+      "createdAt": 1782259267475,
+      "createdWithAgent": "codex",
+      "baseRef": "main",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-slash-polished-4",
+        "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+        "branch": "refs/heads/janus-gauntlet-slash-polished-4",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "startupTerminal": {
+      "spawned": true,
+      "handle": "term_d7b9a911-ad78-44d6-9474-3ea49ab8b92a",
+      "tabId": "53596fa4-fc04-418c-add1-c97a1c31fee9",
+      "surface": "background"
+    }
+  },
+  "_meta": {
+    "runtimeId": "d38a9357-a7bd-4022-876a-4a4e6733203d"
+  }
+}

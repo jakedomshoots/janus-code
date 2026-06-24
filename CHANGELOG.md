@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Hardened the completed-thread slash-command bridge so `/model` and chained terminal pickers render clean GUI choices, accept selections, and return the thread to a completed state without opening the terminal drawer.
+- Kept accepted slash-command drafts from being cleared after unrelated thread switches while still clearing the accepted draft when the same thread changes phase during submit.
 - Projected terminal slash-command pickers into the GUI timeline as selectable choices so commands like `/model` can continue without opening the terminal drawer.
 - Kept in-progress CLI agent replies as a quiet typing indicator so raw tool output or verbose working text no longer flashes in chat before the final Markdown response arrives.
 - Made the installed Janus workflow smoke re-read settled accessibility state after right-panel tab clicks so the gate catches real tab failures without tripping on stale click snapshots.

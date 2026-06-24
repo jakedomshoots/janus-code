@@ -34,6 +34,7 @@ export function useAgentComposerSubmit({
   selectedAgent,
   selectedModel,
   selectedThread,
+  selectedThreadIdentityKeyRef,
   setPrompt,
   setRecoverablePrompt,
   setSubmitResult,
@@ -55,6 +56,7 @@ export function useAgentComposerSubmit({
   selectedAgent: TuiAgent | null
   selectedModel: string
   selectedThread: AgentWorkspaceThread | null
+  selectedThreadIdentityKeyRef: MutableRefObject<string>
   setPrompt: Dispatch<SetStateAction<string>>
   setRecoverablePrompt: Dispatch<SetStateAction<string | null>>
   setSubmitResult: Dispatch<SetStateAction<AgentComposerFeedback | null>>
@@ -75,6 +77,7 @@ export function useAgentComposerSubmit({
       const submitSequence = submitSequenceRef.current + 1
       submitSequenceRef.current = submitSequence
       const requestContextKey = submitContextKey
+      const requestThreadIdentityKey = getAgentComposerThreadIdentityKey(selectedThread)
       setSubmitting(true)
       const launchingNewAgent = !canSendToSelectedThread && Boolean(activeWorktreeId)
       const pendingEcho = startPendingAgentComposerEcho({
@@ -112,11 +115,21 @@ export function useAgentComposerSubmit({
         submitContextKeyRef.current !== requestContextKey
       ) {
         if (canSendToSelectedThread) {
-          settlePendingAgentComposerEcho(
-            pendingEcho,
-            result as Awaited<ReturnType<typeof submitAgentComposerMessage>>,
-            onMessageSent
-          )
+          const completedThreadSubmitResult = result as Awaited<
+            ReturnType<typeof submitAgentComposerMessage>
+          >
+          settlePendingAgentComposerEcho(pendingEcho, completedThreadSubmitResult, onMessageSent)
+          if (
+            completedThreadSubmitResult.status === 'sent' &&
+            selectedThreadIdentityKeyRef.current === requestThreadIdentityKey
+          ) {
+            // Why: a successful send can update the thread phase before this
+            // promise resumes; only clear if the same thread is still selected.
+            setPrompt((currentPrompt) =>
+              currentPrompt.trim() === trimmedPrompt ? '' : currentPrompt
+            )
+            setRecoverablePrompt(null)
+          }
         }
         return
       }
@@ -194,6 +207,7 @@ export function useAgentComposerSubmit({
       selectedAgent,
       selectedModel,
       selectedThread,
+      selectedThreadIdentityKeyRef,
       setPrompt,
       setRecoverablePrompt,
       setSubmitResult,
@@ -206,4 +220,8 @@ export function useAgentComposerSubmit({
       trimmedPrompt
     ]
   )
+}
+
+function getAgentComposerThreadIdentityKey(thread: AgentWorkspaceThread | null): string {
+  return `${thread?.id ?? ''}\u0000${thread?.worktreeId ?? ''}`
 }

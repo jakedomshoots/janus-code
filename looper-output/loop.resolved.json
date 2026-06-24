@@ -1,12 +1,12 @@
 {
   "$schema": "https://github.com/ksimback/looper/schema/loop.resolved.v1.json",
-  "compiled_at": "2026-06-23T17:41:40+00:00",
+  "compiled_at": "2026-06-23T23:03:23+00:00",
   "council": [
     {
       "cli": "codex",
-      "id": "workflow-reviewer",
+      "id": "current-session-reviewer",
       "invoke": ["codex", "exec"],
-      "local": false,
+      "local": true,
       "model": "current-session",
       "role": "reviewer",
       "scope": ["plan", "delivery"],
@@ -14,9 +14,9 @@
     },
     {
       "cli": "codex",
-      "id": "operability-judge",
+      "id": "current-session-judge",
       "invoke": ["codex", "exec"],
-      "local": false,
+      "local": true,
       "model": "current-session",
       "role": "judge",
       "scope": ["plan", "delivery"],
@@ -24,21 +24,21 @@
     }
   ],
   "council_by_id": {
-    "operability-judge": {
+    "current-session-judge": {
       "cli": "codex",
-      "id": "operability-judge",
+      "id": "current-session-judge",
       "invoke": ["codex", "exec"],
-      "local": false,
+      "local": true,
       "model": "current-session",
       "role": "judge",
       "scope": ["plan", "delivery"],
       "timeout_sec": 900
     },
-    "workflow-reviewer": {
+    "current-session-reviewer": {
       "cli": "codex",
-      "id": "workflow-reviewer",
+      "id": "current-session-reviewer",
       "invoke": ["codex", "exec"],
-      "local": false,
+      "local": true,
       "model": "current-session",
       "role": "reviewer",
       "scope": ["plan", "delivery"],
@@ -46,15 +46,10 @@
     }
   },
   "criteria_by_id": {
-    "ade-chat-operability": {
-      "id": "ade-chat-operability",
-      "rubric": "Judge the plan or delivery against the actual Janus chat workflow, not isolated widgets. A pass requires explicit coverage for: project/thread selection, new session launch, first user turn visibility, running and completed states, follow-up recovery, terminal drawer, browser/workbench routing, context/output/diff/review/info surfaces, keyboard/focus, empty and error states, no stale workspace metadata, no dead placeholder controls, and no layout overlap at narrow, medium, and wide widths. Blocking issues must identify the missing workflow step or evidence.\n",
-      "type": "judge"
-    },
-    "changed-react-lint": {
-      "check": ["pnpm", "run", "lint:react-doctor:changed"],
+    "defect-ledger-present": {
+      "check": ["test", "-f", "looper-output/loop-workspace/defects.md"],
       "expect": "exit_zero",
-      "id": "changed-react-lint",
+      "id": "defect-ledger-present",
       "type": "programmatic"
     },
     "diff-whitespace": {
@@ -63,29 +58,50 @@
       "id": "diff-whitespace",
       "type": "programmatic"
     },
-    "focused-agent-workspace-tests": {
-      "check": [
-        "pnpm",
-        "vitest",
-        "run",
-        "--config",
-        "config/vitest.config.ts",
-        "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx",
-        "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx",
-        "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx",
-        "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx",
-        "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts",
-        "src/renderer/src/lib/launch-agent-in-new-tab.test.ts",
-        "src/renderer/src/components/terminal-pane/pty-connection.test.ts"
-      ],
+    "fake-project-created": {
+      "check": ["test", "-f", "looper-output/loop-workspace/fake-project/package.json"],
       "expect": "exit_zero",
-      "id": "focused-agent-workspace-tests",
+      "id": "fake-project-created",
       "type": "programmatic"
     },
-    "installed-janus-smoke": {
+    "final-human-stop": {
+      "id": "final-human-stop",
+      "prompt": "Stop only after the current session has either reached evidence-backed production readiness or documented honest blockers with a specific path to readiness.\n",
+      "type": "human"
+    },
+    "focused-workflow-tests": {
+      "check": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "src/renderer/src/lib/active-agent-note-send.test.ts",
+        "src/renderer/src/components/agent-workspace/AgentTimeline.test.tsx",
+        "src/renderer/src/components/agent-workspace/orca-agent-timeline-selectors.test.ts",
+        "src/shared/agent-status-types.test.ts",
+        "--config",
+        "config/vitest.config.ts",
+        "--maxWorkers=1"
+      ],
+      "expect": "exit_zero",
+      "id": "focused-workflow-tests",
+      "type": "programmatic"
+    },
+    "gauntlet-evidence": {
+      "id": "gauntlet-evidence",
+      "rubric": "Pass only if loop-workspace contains a fake-project test record covering project add/open, agent start, normal chat, follow-up after completion, slash-command option picking, terminal drawer, browser workbench, file or artifact open buttons, right-panel Output/Diff/Review/Info/Context tabs, keyboard/focus navigation, responsive layout at narrow/medium/wide widths, and at least one error/recovery path. Every failure must have a defect ID, severity, reproduction steps, evidence, status, and next action. Do not pass on generic statements without evidence.\n",
+      "type": "judge"
+    },
+    "installed-smoke": {
       "check": ["pnpm", "run", "smoke:janus-workflow"],
       "expect": "exit_zero",
-      "id": "installed-janus-smoke",
+      "id": "installed-smoke",
+      "type": "programmatic"
+    },
+    "lint": {
+      "check": ["pnpm", "run", "lint"],
+      "expect": "exit_zero",
+      "id": "lint",
       "type": "programmatic"
     },
     "packaged-build": {
@@ -94,26 +110,21 @@
       "id": "packaged-build",
       "type": "programmatic"
     },
-    "typecheck-web": {
-      "check": ["pnpm", "run", "typecheck:web"],
-      "expect": "exit_zero",
-      "id": "typecheck-web",
-      "type": "programmatic"
-    },
-    "user-ready-signoff": {
-      "id": "user-ready-signoff",
-      "prompt": "Confirm the installed Janus Code app is ready to use as the primary chat interface for real project work, or list the remaining blocker that prevents that.\n",
-      "type": "human"
-    },
-    "visual-polish-and-styleguide": {
-      "id": "visual-polish-and-styleguide",
-      "rubric": "Judge whether the delivery feels like a high-end polished ADE. A pass requires restrained operational density, clear hierarchy, intentional microstates, readable contrast, styleguide token usage, consistent spacing, professional timeline/composer/right-panel composition, and no generic AI-dashboard ornament or contradictory chrome. Blocking issues must cite the visible surface and why it harms real use.\n",
+    "production-readiness": {
+      "id": "production-readiness",
+      "rubric": "Pass only if the installed app can plausibly be used for real dev work through Janus without terminal workarounds for core chat flow. Blocking issues include: hidden terminal questions, lost or delayed user turns, stuck typing state, duplicate unmanaged terminals, raw tool chatter in GUI final responses, dead visible controls, broken artifact/file opens, stale thread/right-panel metadata, layout overlap at supported widths, failed build/smoke checks, or uncommitted fixes.\n",
       "type": "judge"
     },
-    "workflow-assurance-tests": {
+    "typecheck": {
+      "check": ["pnpm", "run", "typecheck"],
+      "expect": "exit_zero",
+      "id": "typecheck",
+      "type": "programmatic"
+    },
+    "workflow-assurance": {
       "check": ["pnpm", "run", "verify:janus-workflow-assurance"],
       "expect": "exit_zero",
-      "id": "workflow-assurance-tests",
+      "id": "workflow-assurance",
       "type": "programmatic"
     }
   },
@@ -124,13 +135,14 @@
       "allowed_without_extra_approval": [
         "reading files",
         "editing files in this worktree",
+        "creating and deleting files under looper-output/loop-workspace/fake-project",
         "running tests and builds",
         "rebuilding and reinstalling /Applications/Janus Code.app for verification"
       ],
       "approval_required": [
         "pushing branches",
         "creating pull requests",
-        "deleting files outside this worktree",
+        "deleting files outside this worktree or fake project",
         "sending context to any non-current-session model CLI"
       ],
       "duplicate_action_check": true,
@@ -140,29 +152,31 @@
   "gates": {
     "delivery_gate": {
       "criteria": [
-        "focused-agent-workspace-tests",
-        "workflow-assurance-tests",
-        "typecheck-web",
-        "changed-react-lint",
+        "fake-project-created",
+        "defect-ledger-present",
+        "focused-workflow-tests",
+        "workflow-assurance",
+        "typecheck",
+        "lint",
         "diff-whitespace",
         "packaged-build",
-        "installed-janus-smoke",
-        "ade-chat-operability",
-        "visual-polish-and-styleguide",
-        "user-ready-signoff"
+        "installed-smoke",
+        "gauntlet-evidence",
+        "production-readiness",
+        "final-human-stop"
       ],
       "max_revisions": 3,
-      "members": ["workflow-reviewer", "operability-judge"],
+      "members": ["current-session-reviewer", "current-session-judge"],
       "verdict_policy": "revise_until_clean",
-      "verdict_source": "operability-judge",
+      "verdict_source": "current-session-judge",
       "when": "after_each_delivery"
     },
     "plan_gate": {
-      "criteria": ["ade-chat-operability", "visual-polish-and-styleguide"],
-      "max_revisions": 3,
-      "members": ["workflow-reviewer", "operability-judge"],
+      "criteria": ["gauntlet-evidence", "production-readiness"],
+      "max_revisions": 2,
+      "members": ["current-session-reviewer", "current-session-judge"],
       "verdict_policy": "revise_until_clean",
-      "verdict_source": "operability-judge",
+      "verdict_source": "current-session-judge",
       "when": "after_plan"
     }
   },
@@ -179,6 +193,12 @@
       },
       {
         "file": "./package.json"
+      },
+      {
+        "file": "./config/scripts/computer-use-smoke.mjs"
+      },
+      {
+        "file": "./config/scripts/run-janus-workflow-assurance.mjs"
       },
       {
         "file": "./src/renderer/src/components/agent-workspace/AgentWorkspacePage.tsx"
@@ -205,16 +225,19 @@
         "file": "./src/renderer/src/components/agent-workspace/AgentComposerForm.tsx"
       },
       {
-        "file": "./src/renderer/src/components/agent-workspace/useAgentWorkspacePanes.ts"
-      },
-      {
         "file": "./src/renderer/src/components/agent-workspace/AgentWorkspaceRightPanel.tsx"
       },
       {
         "file": "./src/renderer/src/components/agent-workspace/AgentTerminalDrawer.tsx"
       },
       {
-        "file": "./src/renderer/src/lib/launch-agent-in-new-tab.ts"
+        "file": "./src/renderer/src/lib/active-agent-note-send.ts"
+      },
+      {
+        "file": "./src/renderer/src/lib/active-agent-terminal-choice.ts"
+      },
+      {
+        "file": "./src/renderer/src/lib/terminal-prompt-choices.ts"
       },
       {
         "cmd": ["git", "status", "--short", "--branch", "--untracked-files=all"]
@@ -223,50 +246,62 @@
         "cmd": [
           "rg",
           "-n",
-          "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|starting|completed thread|recover",
+          "TODO|placeholder|disabled|throw new Error|onClick=\\{\\(\\) => \\{\\}\\}|Message accepted|terminal-choice|approval|fallbackText|open.*artifact|New session|Browser|Terminal|Files",
           "src/renderer/src/components/agent-workspace",
-          "src/renderer/src/lib/launch-agent-in-new-tab.ts"
+          "src/renderer/src/lib",
+          "config/scripts"
         ]
       }
     ],
-    "definition_of_done": "Janus Code's installed app can be used as the primary project chat surface without workarounds: the full create/send/progress/respond/follow-up/tooling workflow is verified in /Applications/Janus Code.app, all touched controls are wired, message delivery and thread selection are reliable, right-panel and floating-card state is live and non-overlapping, keyboard/focus behavior is sane, visual language follows the Janus styleguide, CHANGELOG.md records each batch, and all configured programmatic and judge gates pass or an honest external blocker is documented with the next concrete path to green.\n",
-    "statement": "Make the Janus Code chat UI workflow highly operable for real project work: a user can open a project workspace, start or select an agent thread, send a prompt, immediately see the user turn, watch agent progress, receive the response, follow up after completion, use browser and terminal affordances, inspect context/output/diff/review/info surfaces, and keep working without dead controls, lost messages, stale thread state, broken layout, or visual regressions.\n",
+    "definition_of_done": "The installed /Applications/Janus Code.app has been rebuilt from this worktree and can run the fake-project gauntlet without lost messages, stuck slash-command pickers, duplicate terminals, stale right-panel state, broken artifact/file open buttons, dead top-level controls, hidden questions, layout overlap, keyboard traps, or raw tool chatter in final chat bubbles. All feasible blockers discovered by the gauntlet are fixed, tested, logged in CHANGELOG.md, rebuilt into the installed app, and committed. If a blocker cannot be fixed inside this session, it is documented with reproduction steps, evidence, severity, likely root cause, and the concrete path to 100%.\n",
+    "statement": "Prove whether the installed Janus Code app is ready for real development work by creating a disposable fake project and using Janus end to end: project onboarding, agent launch, chat follow-ups, slash-command prompts, terminal and browser workbench, file/artifact opening, right-panel tabs, diff/review/context/info surfaces, keyboard/focus navigation, responsive layout, error recovery, rebuild/install verification, and no dead controls.\n",
     "verification": [
+      {
+        "check": ["test", "-f", "looper-output/loop-workspace/fake-project/package.json"],
+        "expect": "exit_zero",
+        "id": "fake-project-created",
+        "type": "programmatic"
+      },
+      {
+        "check": ["test", "-f", "looper-output/loop-workspace/defects.md"],
+        "expect": "exit_zero",
+        "id": "defect-ledger-present",
+        "type": "programmatic"
+      },
       {
         "check": [
           "pnpm",
+          "exec",
           "vitest",
           "run",
+          "src/renderer/src/lib/active-agent-note-send.test.ts",
+          "src/renderer/src/components/agent-workspace/AgentTimeline.test.tsx",
+          "src/renderer/src/components/agent-workspace/orca-agent-timeline-selectors.test.ts",
+          "src/shared/agent-status-types.test.ts",
           "--config",
           "config/vitest.config.ts",
-          "src/renderer/src/components/agent-workspace/AgentWorkspacePaneWorkflow.test.tsx",
-          "src/renderer/src/components/agent-workspace/AgentComposer.test.tsx",
-          "src/renderer/src/components/agent-workspace/AgentComposer.recovery.test.tsx",
-          "src/renderer/src/components/agent-workspace/AgentTerminalDrawer.test.tsx",
-          "src/renderer/src/components/agent-workspace/agent-workspace-pane-thread-selection.test.ts",
-          "src/renderer/src/lib/launch-agent-in-new-tab.test.ts",
-          "src/renderer/src/components/terminal-pane/pty-connection.test.ts"
+          "--maxWorkers=1"
         ],
         "expect": "exit_zero",
-        "id": "focused-agent-workspace-tests",
+        "id": "focused-workflow-tests",
         "type": "programmatic"
       },
       {
         "check": ["pnpm", "run", "verify:janus-workflow-assurance"],
         "expect": "exit_zero",
-        "id": "workflow-assurance-tests",
+        "id": "workflow-assurance",
         "type": "programmatic"
       },
       {
-        "check": ["pnpm", "run", "typecheck:web"],
+        "check": ["pnpm", "run", "typecheck"],
         "expect": "exit_zero",
-        "id": "typecheck-web",
+        "id": "typecheck",
         "type": "programmatic"
       },
       {
-        "check": ["pnpm", "run", "lint:react-doctor:changed"],
+        "check": ["pnpm", "run", "lint"],
         "expect": "exit_zero",
-        "id": "changed-react-lint",
+        "id": "lint",
         "type": "programmatic"
       },
       {
@@ -284,22 +319,22 @@
       {
         "check": ["pnpm", "run", "smoke:janus-workflow"],
         "expect": "exit_zero",
-        "id": "installed-janus-smoke",
+        "id": "installed-smoke",
         "type": "programmatic"
       },
       {
-        "id": "ade-chat-operability",
-        "rubric": "Judge the plan or delivery against the actual Janus chat workflow, not isolated widgets. A pass requires explicit coverage for: project/thread selection, new session launch, first user turn visibility, running and completed states, follow-up recovery, terminal drawer, browser/workbench routing, context/output/diff/review/info surfaces, keyboard/focus, empty and error states, no stale workspace metadata, no dead placeholder controls, and no layout overlap at narrow, medium, and wide widths. Blocking issues must identify the missing workflow step or evidence.\n",
+        "id": "gauntlet-evidence",
+        "rubric": "Pass only if loop-workspace contains a fake-project test record covering project add/open, agent start, normal chat, follow-up after completion, slash-command option picking, terminal drawer, browser workbench, file or artifact open buttons, right-panel Output/Diff/Review/Info/Context tabs, keyboard/focus navigation, responsive layout at narrow/medium/wide widths, and at least one error/recovery path. Every failure must have a defect ID, severity, reproduction steps, evidence, status, and next action. Do not pass on generic statements without evidence.\n",
         "type": "judge"
       },
       {
-        "id": "visual-polish-and-styleguide",
-        "rubric": "Judge whether the delivery feels like a high-end polished ADE. A pass requires restrained operational density, clear hierarchy, intentional microstates, readable contrast, styleguide token usage, consistent spacing, professional timeline/composer/right-panel composition, and no generic AI-dashboard ornament or contradictory chrome. Blocking issues must cite the visible surface and why it harms real use.\n",
+        "id": "production-readiness",
+        "rubric": "Pass only if the installed app can plausibly be used for real dev work through Janus without terminal workarounds for core chat flow. Blocking issues include: hidden terminal questions, lost or delayed user turns, stuck typing state, duplicate unmanaged terminals, raw tool chatter in GUI final responses, dead visible controls, broken artifact/file opens, stale thread/right-panel metadata, layout overlap at supported widths, failed build/smoke checks, or uncommitted fixes.\n",
         "type": "judge"
       },
       {
-        "id": "user-ready-signoff",
-        "prompt": "Confirm the installed Janus Code app is ready to use as the primary chat interface for real project work, or list the remaining blocker that prevents that.\n",
+        "id": "final-human-stop",
+        "prompt": "Stop only after the current session has either reached evidence-backed production readiness or documented honest blockers with a specific path to readiness.\n",
         "type": "human"
       }
     ]
@@ -316,24 +351,26 @@
       "wall_clock_min": 360
     },
     "human_checkpoints": [
-      "before external model or vendor egress",
-      "before any destructive git operation",
-      "before final ready-to-use claim"
+      "before sending context to any non-current-session model",
+      "before destructive file operations outside this worktree or fake project",
+      "before claiming production readiness"
     ],
     "max_iterations": 10,
     "no_progress": {
       "action": "human_checkpoint",
       "max_stalled_iterations": 2,
       "signals": [
-        "same blocking issue repeats",
-        "delivery artifact has no material change",
+        "same defect or smoke failure repeats after a targeted fix",
+        "no new gauntlet coverage is added in an iteration",
         "verifier output is unchanged",
-        "installed-app smoke fails at the same step after a targeted fix"
+        "installed app cannot be controlled or inspected after rebuild"
       ]
     },
     "stop_conditions": [
-      "all delivery criteria pass clean",
-      "user confirms the installed app is ready to use for real project chat work",
+      "all programmatic checks pass",
+      "fake-project gauntlet has evidence for every required surface",
+      "no P0 or P1 app-workflow blockers remain",
+      "all feasible P2 blockers discovered in this loop are fixed or explicitly deferred with rationale",
       "max_iterations reached",
       "same blocker repeats for 2 iterations without new evidence",
       "wall-clock or token budget cap is reached"
@@ -342,8 +379,8 @@
   "meta": {
     "author": "codex",
     "created": "2026-06-23",
-    "description": "Drive Janus Code's chat-first project workflow from buggy-but-present toward a polished ADE-grade interface through repeated discovery, implementation, installed-app verification, and judge-gated review.\n",
-    "name": "janus-chat-ui-operability-loop"
+    "description": "Run Janus Code against a disposable fake software project as if it were a real production development environment, then fix or document every blocker that prevents confident real-world use.\n",
+    "name": "janus-real-dev-gauntlet-loop"
   },
   "observability": {
     "checkpoint_granularity": "gate",
@@ -353,16 +390,16 @@
   "privacy": {
     "egress": [
       {
-        "consent": "required",
+        "consent": "not_required_current_session",
         "redact": [".env", ".env.*", "secrets/**", "**/*.key"],
         "sends": ["plan", "deliveries", "selected source snippets", "verification output"],
-        "to": "workflow-reviewer"
+        "to": "current-session-reviewer"
       },
       {
-        "consent": "required",
+        "consent": "not_required_current_session",
         "redact": [".env", ".env.*", "secrets/**", "**/*.key"],
         "sends": ["plan", "deliveries", "selected source snippets", "verification output"],
-        "to": "operability-judge"
+        "to": "current-session-judge"
       }
     ]
   },
@@ -374,6 +411,8 @@
       "plan.md",
       "delivery-{n}.md",
       "review-{n}.md",
+      "defects.md",
+      "fake-project",
       "screenshots",
       "installed-smoke-notes.md",
       "state.json",

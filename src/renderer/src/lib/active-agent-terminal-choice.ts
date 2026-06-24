@@ -28,6 +28,35 @@ export async function projectSlashCommandInteractivePrompt({
   noteTarget: { tabId: string; leafId: string }
   prompt: string
 }): Promise<void> {
+  const currentTerminal = await findActiveRuntimeTerminal(
+    runtimeTarget,
+    worktreeId,
+    noteTarget,
+    ACTIVE_AGENT_SEND_RPC_TIMEOUT_MS
+  )
+  const resolvedTerminalHandle = currentTerminal?.handle ?? terminalHandle
+  await projectTerminalChoiceState({
+    runtimeTarget,
+    terminalHandle: resolvedTerminalHandle,
+    worktreeId,
+    noteTarget,
+    prompt
+  })
+}
+
+async function projectTerminalChoiceState({
+  runtimeTarget,
+  terminalHandle,
+  worktreeId,
+  noteTarget,
+  prompt
+}: {
+  runtimeTarget: ReturnType<typeof getActiveRuntimeTarget>
+  terminalHandle: string
+  worktreeId: string
+  noteTarget: { tabId: string; leafId: string }
+  prompt: string
+}): Promise<void> {
   let wait: RuntimeTerminalWait
   try {
     const result = await callRuntimeRpc<{ wait: RuntimeTerminalWait }>(
@@ -42,9 +71,6 @@ export async function projectSlashCommandInteractivePrompt({
     )
     wait = result.wait
   } catch {
-    return
-  }
-  if (wait.satisfied || !wait.blockedReason) {
     return
   }
 
@@ -66,6 +92,13 @@ export async function projectSlashCommandInteractivePrompt({
     return
   }
   const choices = parseNumberedTerminalChoices(promptText)
+  if (wait.satisfied && choices.length === 0) {
+    markSlashCommandComplete({ worktreeId, noteTarget, prompt })
+    return
+  }
+  if (!wait.satisfied && !wait.blockedReason && choices.length === 0) {
+    return
+  }
   const paneKey = makePaneKey(noteTarget.tabId, noteTarget.leafId)
   const existing = useAppStore.getState().agentStatusByPaneKey[paneKey]
   const agentType =
@@ -85,6 +118,25 @@ export async function projectSlashCommandInteractivePrompt({
       fallbackText: promptText,
       ...(choices.length > 0 ? { choices } : {})
     }
+  })
+}
+
+function markSlashCommandComplete({
+  worktreeId,
+  noteTarget,
+  prompt
+}: {
+  worktreeId: string
+  noteTarget: { tabId: string; leafId: string }
+  prompt: string
+}): void {
+  const paneKey = makePaneKey(noteTarget.tabId, noteTarget.leafId)
+  const existing = useAppStore.getState().agentStatusByPaneKey[paneKey]
+  useAppStore.getState().setAgentStatus(paneKey, {
+    state: 'done',
+    prompt,
+    agentType: existing?.agentType ?? findTabLaunchAgent(worktreeId, noteTarget.tabId) ?? 'unknown',
+    approval: null
   })
 }
 
@@ -130,6 +182,13 @@ export async function sendAgentTerminalChoice({
     prompt: existing?.prompt ?? '',
     agentType: existing?.agentType ?? 'unknown',
     approval: null
+  })
+  await projectTerminalChoiceState({
+    runtimeTarget,
+    terminalHandle: terminal.handle,
+    worktreeId,
+    noteTarget,
+    prompt: existing?.prompt ?? ''
   })
   return { status: 'sent' }
 }

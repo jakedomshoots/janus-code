@@ -1,0 +1,63 @@
+{
+  "id": "173e423c-13f2-4ea4-8d66-9e2d9601a4e7",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "051fe387-3772-4b20-8f5e-f341545c57ca::/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-kimi-live",
+      "instanceId": "c5392507-37f7-42af-9c50-8ca2969a96b3",
+      "repoId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "projectId": "repo:051fe387-3772-4b20-8f5e-f341545c57ca",
+      "hostId": "local",
+      "projectHostSetupId": "051fe387-3772-4b20-8f5e-f341545c57ca",
+      "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-kimi-live",
+      "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+      "branch": "refs/heads/janus-gauntlet-kimi-live",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "janus-gauntlet-kimi-live",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1782259370016,
+      "lastActivityAt": 1782259370016,
+      "createdAt": 1782259370016,
+      "createdWithAgent": "kimi",
+      "baseRef": "main",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/Users/jakedom/orca/workspaces/fake-project/janus-gauntlet-kimi-live",
+        "head": "d7cad0b62436c3eff2f261d57f1235cc90a569d5",
+        "branch": "refs/heads/janus-gauntlet-kimi-live",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "startupTerminal": {
+      "spawned": true,
+      "handle": "term_6c497fe7-5554-4085-b846-396b05b5dd2f",
+      "tabId": "195ce729-a254-460c-8322-337018a9e425",
+      "surface": "background"
+    }
+  },
+  "_meta": {
+    "runtimeId": "d38a9357-a7bd-4022-876a-4a4e6733203d"
+  }
+}

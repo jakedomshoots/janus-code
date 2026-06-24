@@ -81,4 +81,26 @@ describe('selectPanesAfterProjectThreadUpdate', () => {
     expect(nextPane?.selectedDraftSessionId).toBeNull()
     expect(nextPane?.draftSessions).toEqual([])
   })
+
+  it('selects the default thread when a CLI-created workspace has no draft marker', () => {
+    const pane: AgentWorkspacePaneState = {
+      id: 'pane-1',
+      selectedThreadId: null,
+      draftSessions: [],
+      selectedDraftSessionId: null,
+      pendingLaunchedThreadSelection: false
+    }
+    const cliThread = thread('thread-cli', 'completed')
+
+    const [nextPane] = selectPanesAfterProjectThreadUpdate({
+      panes: [pane],
+      launchedThread: cliThread,
+      projectThreads: [cliThread],
+      defaultThreadId: cliThread.id,
+      hadProjectThreads: false
+    })
+
+    expect(nextPane?.selectedThreadId).toBe(cliThread.id)
+    expect(nextPane?.selectedDraftSessionId).toBeNull()
+  })
 })
